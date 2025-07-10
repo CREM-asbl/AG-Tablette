@@ -1,8 +1,8 @@
 import { tools } from '@store/tools';
+import { eventUtils, moduleUtils, validator } from '../../core/index.js';
+import { appActions } from '../../store/appState.js';
 import { loadKit, resetKit } from '../../store/kit';
 import { app, setState } from './App';
-import { appActions } from '../../store/appState.js';
-import { eventUtils, moduleUtils, validator } from '../../core/index.js';
 
 export const loadEnvironnement = async (name) => {
   try {
@@ -18,12 +18,12 @@ export const loadEnvironnement = async (name) => {
 
     // Utiliser les signaux Lit pour gérer l'état
     appActions.setLoading(true);
-    
+
     // Émettre événement de début de chargement
     eventUtils.emit('environment:loading', { name });
-    
+
     const config = await import(`./Environments/${name}.js`);
-    
+
     if (!config.default) {
       throw new Error(`Configuration d'environnement non trouvée pour "${name}"`);
     }
@@ -57,7 +57,7 @@ export const loadEnvironnement = async (name) => {
     await loadModules(config.default.modules);
 
     const environment = new Environment(config.default);
-    
+
     setState({
       appLoading: false,
       environment
@@ -70,28 +70,28 @@ export const loadEnvironnement = async (name) => {
     appActions.setEnvironmentModules(config.default.modules);
 
     // Émettre événement de succès
-    eventUtils.emit('environment:loaded', { 
-      name, 
+    eventUtils.emit('environment:loaded', {
+      name,
       environment,
-      modules: config.default.modules 
+      modules: config.default.modules
     });
 
     console.log(`Environnement "${name}" chargé avec succès`);
   } catch (error) {
     console.error(`Erreur lors du chargement de l'environnement "${name}":`, error);
-    
+
     setState({ appLoading: false });
     appActions.setLoading(false);
     appActions.setError(error.message);
-    
+
     // Émettre événement d'erreur
     eventUtils.emit('environment:error', { name, error });
-    
+
     // Notifier l'utilisateur
-    window.dispatchEvent(new CustomEvent('show-notif', { 
-      detail: { message: `Erreur lors du chargement de l'environnement: ${error.message}` } 
+    window.dispatchEvent(new CustomEvent('show-notif', {
+      detail: { message: `Erreur lors du chargement de l'environnement: ${error.message}` }
     }));
-    
+
     throw error;
   }
 };
@@ -129,9 +129,9 @@ const loadModules = async (list) => {
         ], 'moduleName');
 
         if (!moduleValidation.isValid) {
-          failedModules.push({ 
-            name: moduleName, 
-            error: `Nom invalide: ${moduleValidation.getAllMessages().join(', ')}` 
+          failedModules.push({
+            name: moduleName,
+            error: `Nom invalide: ${moduleValidation.getAllMessages().join(', ')}`
           });
           continue;
         }
@@ -139,11 +139,11 @@ const loadModules = async (list) => {
         // Charger le module via les utilitaires
         let module;
         try {
-          module = await moduleUtils.loadModule(`../controllers/${moduleName}/index.js`);
+          module = await import(`../${moduleName}/index.js`);
         } catch (moduleError) {
-          failedModules.push({ 
-            name: moduleName, 
-            error: moduleError.message 
+          failedModules.push({
+            name: moduleName,
+            error: moduleError.message
           });
           continue;
         }
@@ -152,16 +152,16 @@ const loadModules = async (list) => {
         if (toolMetadata) {
           loadedModules.push(toolMetadata);
         } else {
-          failedModules.push({ 
-            name: moduleName, 
-            error: 'Structure de module invalide' 
+          failedModules.push({
+            name: moduleName,
+            error: 'Structure de module invalide'
           });
         }
       } catch (error) {
         console.error(`Erreur lors du chargement du module "${moduleName}":`, error);
-        failedModules.push({ 
-          name: moduleName, 
-          error: error.message 
+        failedModules.push({
+          name: moduleName,
+          error: error.message
         });
       }
     }
@@ -170,22 +170,22 @@ const loadModules = async (list) => {
 
     // Émettre événements de résultat
     if (loadedModules.length > 0) {
-      eventUtils.emit('modules:loaded', { 
+      eventUtils.emit('modules:loaded', {
         modules: loadedModules,
         total: list.length,
-        loaded: loadedModules.length 
+        loaded: loadedModules.length
       });
     }
 
     if (failedModules.length > 0) {
-      eventUtils.emit('modules:failed', { 
+      eventUtils.emit('modules:failed', {
         failed: failedModules,
-        total: list.length 
+        total: list.length
       });
     }
 
     console.log(`${loadedModules.length} modules chargés avec succès sur ${list.length} demandés`);
-    
+
     if (failedModules.length > 0) {
       console.warn('Modules ayant échoué:', failedModules);
     }

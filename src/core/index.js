@@ -4,36 +4,33 @@
  */
 
 // Systèmes réellement utiles (pas de doublon avec l'écosystème existant)
-export { 
-  validator, 
-  Validator,
-  ValidationError,
-  ValidationResult,
-  ValidationTypes,
+export {
   baseValidators,
   geometryValidators,
-  predefinedSchemas,
-  validationUtils
+  predefinedSchemas, ValidationError,
+  ValidationResult,
+  ValidationTypes, validationUtils, validator,
+  Validator
 } from './ValidationSystem.js';
 
-export { 
-  performanceMonitor, 
-  smartCache, 
+export {
+  performanceMonitor,
+  smartCache,
   SmartCache
 } from './PerformanceSystem.js';
 
 // Imports pour utilisation interne
-import { 
-  performanceMonitor, 
+import {
+  performanceMonitor,
   smartCache
 } from './PerformanceSystem.js';
 import { validator } from './ValidationSystem.js';
 
 // État global avec signaux Lit (remplace StateManager)
 export * from '../store/appState.js';
-export { tools } from '../store/tools.js';
 export { kit } from '../store/kit.js';
 export * from '../store/notions.js';
+export { tools } from '../store/tools.js';
 
 // Classes de base améliorées
 export { BaseGeometryTool } from '../controllers/Core/States/BaseGeometryTool.js';
@@ -56,10 +53,10 @@ export const eventUtils = {
       cancelable: options.cancelable ?? true,
       ...options
     });
-    
+
     const target = options.target || window;
     target.dispatchEvent(event);
-    
+
     return event;
   },
 
@@ -72,15 +69,15 @@ export const eventUtils = {
    */
   on: (type, handler, options = {}) => {
     const target = options.target || window;
-    const wrappedHandler = options.once 
+    const wrappedHandler = options.once
       ? (event) => {
-          handler(event);
-          target.removeEventListener(type, wrappedHandler);
-        }
+        handler(event);
+        target.removeEventListener(type, wrappedHandler);
+      }
       : handler;
-    
+
     target.addEventListener(type, wrappedHandler, options);
-    
+
     // Retourner fonction de nettoyage
     return () => target.removeEventListener(type, wrappedHandler);
   },
@@ -155,7 +152,8 @@ export const moduleUtils = {
    */
   loadModule: async (modulePath) => {
     try {
-      const module = await import(/* @vite-ignore */ modulePath);
+      console.log(modulePath)
+      const module = await import(modulePath);
       return module;
     } catch (error) {
       console.error(`Erreur lors du chargement du module ${modulePath}:`, error);
@@ -197,11 +195,11 @@ export const moduleUtils = {
 
       // Créer l'instance
       const instance = new ToolClass(options);
-      
+
       // Ajouter des métadonnées
       instance._toolName = toolName;
       instance._createdAt = Date.now();
-      
+
       return instance;
     } catch (error) {
       console.error(`Erreur lors de la création de l'outil ${toolName}:`, error);
@@ -285,7 +283,7 @@ export class SimplifiedArchitecture {
   setupDebugEventListeners() {
     // Logger tous les événements personnalisés en mode debug
     const originalDispatchEvent = window.dispatchEvent;
-    window.dispatchEvent = function(event) {
+    window.dispatchEvent = function (event) {
       if (event instanceof CustomEvent) {
         console.log(`[Event] ${event.type}`, event.detail);
       }
@@ -315,7 +313,7 @@ export class SimplifiedArchitecture {
     }
     smartCache.cleanup();
     this.initialized = false;
-    
+
     eventUtils.emit('architecture:cleanup');
     console.log('🧹 Architecture nettoyée');
   }

@@ -112,7 +112,8 @@ export class CreateRegularTool extends Tool {
   //     this.canvasMouseDown();
   //   } else if (event.type == 'canvasMouseUp') {
   //     this.canvasMouseUp();
-  }
+  //   }
+  // }
 
   // setNumberOfPoints(points) {
   //   this.numberOfPoints = parseInt(points);
@@ -261,7 +262,7 @@ export class CreateRegularTool extends Tool {
     return path;
   }
 
-  _executeAction() {
+  executeAction() {
     let shapeDrawn = findObjectById(this.shapeDrawnId);
 
     let shape = new RegularShape({
