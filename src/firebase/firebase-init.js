@@ -28,8 +28,7 @@ export async function openFileFromServer(activityName) {
     const data = await getFileDocFromFilename(activityName);
     if (data) {
       await loadEnvironnement(data.environment);
-      let fileDownloaded = await readFileFromServer(data.id);
-      let fileDownloadedObject = await fileDownloaded.json();
+      let fileDownloadedObject = await readFileFromServer(data.id);
 
       // Si l'application est déjà démarrée, on parse directement le fichier
       // sinon on attend l'événement app-started
@@ -43,8 +42,8 @@ export async function openFileFromServer(activityName) {
     }
   } catch (error) {
     console.error('Erreur lors de l\'ouverture du fichier depuis le serveur:', error);
-    window.dispatchEvent(new CustomEvent('show-notif', { 
-      detail: { message: `Erreur lors du chargement: ${error.message}` } 
+    window.dispatchEvent(new CustomEvent('show-notif', {
+      detail: { message: `Erreur lors du chargement: ${error.message}` }
     }));
   }
 }
@@ -62,7 +61,7 @@ async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
       return await fn();
     } catch (error) {
       if (attempt === maxAttempts) throw error;
-      
+
       const delay = baseDelay * Math.pow(2, attempt - 1);
       console.warn(`Tentative ${attempt} échouée, retry dans ${delay}ms:`, error.message);
       await new Promise(resolve => setTimeout(resolve, delay));
@@ -89,21 +88,24 @@ export async function readFileFromServer(filename) {
     const fileDownloaded = await retryWithBackoff(async () => {
       const URL = await getDownloadURL(ref(storage, filename));
       const response = await fetch(URL);
-      
+
       if (!response.ok) {
         throw new Error(`Erreur HTTP: ${response.status} - ${response.statusText}`);
       }
-      
+
       return response;
     }, 3, 1000);
-    
-    // Mettre en cache si succès
+
+    // Parser le JSON immédiatement
+    const jsonData = await fileDownloaded.json();
+
+    // Mettre en cache le contenu JSON plutôt que la réponse
     fileCache.set(cacheKey, {
-      data: fileDownloaded,
+      data: jsonData,
       timestamp: Date.now()
     });
-    
-    return fileDownloaded;
+
+    return jsonData;
   } catch (error) {
     console.error('Erreur lors de la lecture du fichier depuis le serveur:', error);
     throw error;
