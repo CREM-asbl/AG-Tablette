@@ -143,38 +143,120 @@ export class OpenFileManager {
   }
 
   /**
+   * Met à jour les références d'un ID dans tous les objets
+   * @param {Object} objects - Les objets contenant les données
+   * @param {string} oldId - L'ancien ID
+   * @param {string} newId - Le nouvel ID
+   * @param {string} type - Le type d'objet ('shape', 'segment', 'point')
+   */
+  static updateReferences(objects, oldId, newId, type) {
+    const isGeometry = app.environment.name === 'Geometrie';
+
+    // Mise à jour selon le type
+    switch (type) {
+      case 'shape':
+        // Mise à jour des références dans segments et points
+        objects.segmentsData.forEach(seg => {
+          if (seg.shapeId === oldId) {
+            seg.shapeId = newId;
+          }
+        });
+        objects.pointsData.forEach(pt => {
+          if (pt.shapeId === oldId) {
+            pt.shapeId = newId;
+          }
+        });
+        break;
+
+      case 'segment':
+        // Mise à jour des références dans shapes et points
+        objects.shapesData.forEach(s => {
+          s.segmentIds.forEach((segId, idx) => {
+            if (segId === oldId) {
+              s.segmentIds[idx] = newId;
+            }
+          });
+        });
+        objects.pointsData.forEach(pt => {
+          pt.segmentIds.forEach((segId, idx) => {
+            if (segId === oldId) {
+              pt.segmentIds[idx] = newId;
+            }
+          });
+        });
+        break;
+
+      case 'point':
+        // Mise à jour des références dans shapes
+        objects.shapesData.forEach(s => {
+          s.pointIds.forEach((ptId, idx) => {
+            if (ptId === oldId) {
+              s.pointIds[idx] = newId;
+            }
+          });
+        });
+
+        // Mise à jour des références dans segments
+        objects.segmentsData.forEach(seg => {
+          seg.vertexIds.forEach((ptId, idx) => {
+            if (ptId === oldId) {
+              seg.vertexIds[idx] = newId;
+            }
+          });
+          seg.divisionPointIds.forEach((ptId, idx) => {
+            if (ptId === oldId) {
+              seg.divisionPointIds[idx] = newId;
+            }
+          });
+          if (seg.arcCenterId === oldId) {
+            seg.arcCenterId = newId;
+          }
+        });
+
+        // Mise à jour des références dans autres points
+        objects.pointsData.forEach(pt => {
+          pt.endpointIds?.forEach((ptId, idx) => {
+            if (ptId === oldId) {
+              pt.endpointIds[idx] = newId;
+            }
+          });
+          if (pt.reference === oldId) {
+            pt.reference = newId;
+          }
+        });
+        break;
+    }
+
+    // Mise à jour des références géométriques si en mode Géométrie
+    if (isGeometry) {
+      objects.shapesData.forEach(s => {
+        this.updateGeometryReference(s.geometryObject, oldId, newId);
+      });
+    }
+  }
+
+  /**
+   * Transforme les IDs d'une collection d'objets
+   * @param {Array} dataArray - Le tableau d'objets à transformer
+   * @param {Object} objects - Les objets contenant les données
+   * @param {string} layer - Le layer de destination
+   * @param {string} type - Le type d'objet ('shape', 'segment', 'point')
+   */
+  static transformIds(dataArray, objects, layer, type) {
+    dataArray.forEach(item => {
+      const oldId = item.id;
+      item.id = addInfoToId(item.id, layer, type);
+      this.updateReferences(objects, oldId, item.id, type);
+    });
+  }
+
+  /**
    * Transforme les IDs des formes
    * @param {Object} objects - Les objets contenant les données
    * @param {string} layer - Le layer de destination
    */
   static transformShapeIds(objects, layer) {
-    const isGeometry = app.environment.name === 'Geometrie';
-
-    objects.shapesData.forEach(shape => {
-      const oldId = shape.id;
-      shape.id = addInfoToId(shape.id, layer, 'shape');
-
-      // Mise à jour des références dans segments
-      objects.segmentsData.forEach(seg => {
-        if (seg.shapeId === oldId) {
-          seg.shapeId = shape.id;
-        }
-      });
-
-      // Mise à jour des références dans points
-      objects.pointsData.forEach(pt => {
-        if (pt.shapeId === oldId) {
-          pt.shapeId = shape.id;
-        }
-      });
-
-      // Mise à jour des références géométriques
-      if (isGeometry) {
-        objects.shapesData.forEach(s => {
-          this.updateGeometryReference(s.geometryObject, oldId, shape.id);
-        });
-      }
-    });
+    this.transformIds(objects.shapesData, objects, layer, 'shape');
   }
 
   /**
@@ -183,37 +265,7 @@ export class OpenFileManager {
    * @param {string} layer - Le layer de destination
    */
   static transformSegmentIds(objects, layer) {
-    const isGeometry = app.environment.name === 'Geometrie';
-
-    objects.segmentsData.forEach(segment => {
-      const oldId = segment.id;
-      segment.id = addInfoToId(segment.id, layer, 'segment');
-
-      // Mise à jour des références dans shapes
-      objects.shapesData.forEach(s => {
-        s.segmentIds.forEach((segId, idx) => {
-          if (segId === oldId) {
-            s.segmentIds[idx] = segment.id;
-          }
-        });
-      });
-
-      // Mise à jour des références dans points
-      objects.pointsData.forEach(pt => {
-        pt.segmentIds.forEach((segId, idx) => {
-          if (segId === oldId) {
-            pt.segmentIds[idx] = segment.id;
-          }
-        });
-      });
-
-      // Mise à jour des références géométriques
-      if (isGeometry) {
-        objects.shapesData.forEach(s => {
-          this.updateGeometryReference(s.geometryObject, oldId, segment.id);
-        });
-      }
-    });
+    this.transformIds(objects.segmentsData, objects, layer, 'segment');
   }
 
   /**
@@ -222,60 +274,7 @@ export class OpenFileManager {
    * @param {string} layer - Le layer de destination
    */
   static transformPointIds(objects, layer) {
-    const isGeometry = app.environment.name === 'Geometrie';
-
-    objects.pointsData.forEach(point => {
-      const oldId = point.id;
-      point.id = addInfoToId(point.id, layer, 'point');
-
-      // Mise à jour des références dans shapes
-      objects.shapesData.forEach(s => {
-        s.pointIds.forEach((ptId, idx) => {
-          if (ptId === oldId) {
-            s.pointIds[idx] = point.id;
-          }
-        });
-      });
-
-      // Mise à jour des références dans segments
-      objects.segmentsData.forEach(seg => {
-        seg.vertexIds.forEach((ptId, idx) => {
-          if (ptId === oldId) {
-            seg.vertexIds[idx] = point.id;
-          }
-        });
-
-        seg.divisionPointIds.forEach((ptId, idx) => {
-          if (ptId === oldId) {
-            seg.divisionPointIds[idx] = point.id;
-          }
-        });
-
-        if (seg.arcCenterId === oldId) {
-          seg.arcCenterId = point.id;
-        }
-      });
-
-      // Mise à jour des références dans autres points
-      objects.pointsData.forEach(pt => {
-        pt.endpointIds?.forEach((ptId, idx) => {
-          if (ptId === oldId) {
-            pt.endpointIds[idx] = point.id;
-          }
-        });
-
-        if (pt.reference === oldId) {
-          pt.reference = point.id;
-        }
-      });
-
-      // Mise à jour des références géométriques
-      if (isGeometry) {
-        objects.shapesData.forEach(s => {
-          this.updateGeometryReference(s.geometryObject, oldId, point.id);
-        });
-      }
-    });
+    this.transformIds(objects.pointsData, objects, layer, 'point');
   }
 
   /**
@@ -290,26 +289,49 @@ export class OpenFileManager {
   }
 
   /**
-   * Valide le contenu d'un fichier
+   * Valide le contenu d'un fichier avec des vérifications robustes
    * @param {Object} saveObject - L'objet de sauvegarde à valider
    * @returns {boolean} - True si valide, false sinon
    */
   static validateFileContent(saveObject) {
-    if (saveObject.appVersion === '1.0.0') {
-      window.dispatchEvent(new CustomEvent('show-notif', {
-        detail: { message: ERROR_MESSAGES.UNSUPPORTED_VERSION }
-      }));
+    // Vérifications de base
+    if (!saveObject || typeof saveObject !== 'object') {
+      this.showErrorNotification(ERROR_MESSAGES.FILE_PARSE_ERROR);
       return false;
     }
 
-    if (saveObject.envName !== app.environment.name) {
-      window.dispatchEvent(new CustomEvent('show-notif', {
-        detail: { message: ERROR_MESSAGES.WRONG_ENVIRONMENT + saveObject.envName + '.' }
-      }));
+    // Vérification de la version
+    if (!saveObject.appVersion || saveObject.appVersion === '1.0.0') {
+      this.showErrorNotification(ERROR_MESSAGES.UNSUPPORTED_VERSION);
+      return false;
+    }
+
+    // Vérification de l'environnement
+    if (!saveObject.envName || saveObject.envName !== app.environment.name) {
+      const envMessage = saveObject.envName
+        ? ERROR_MESSAGES.WRONG_ENVIRONMENT + saveObject.envName + '.'
+        : 'Environnement non spécifié dans le fichier.';
+      this.showErrorNotification(envMessage);
+      return false;
+    }
+
+    // Vérification de la structure des données
+    if (!saveObject.workspaceData && !saveObject.wsdata) {
+      this.showErrorNotification('Données de workspace manquantes dans le fichier.');
       return false;
     }
 
     return true;
+  }
+
+  /**
+   * Affiche une notification d'erreur
+   * @param {string} message - Le message d'erreur à afficher
+   */
+  static showErrorNotification(message) {
+    window.dispatchEvent(new CustomEvent('show-notif', {
+      detail: { message }
+    }));
   }
 
   /**
@@ -437,63 +459,74 @@ export class OpenFileManager {
   }
 
   /**
+   * Parse le contenu JSON d'un fichier
+   * @param {string} fileContent - Le contenu du fichier à parser
+   * @returns {Object|null} - L'objet parsé ou null en cas d'erreur
+   */
+  static parseJsonContent(fileContent) {
+    if (typeof fileContent !== 'string') {
+      return fileContent; // Déjà un objet
+    }
+
+    if (!fileContent.trim()) {
+      throw new Error('contenu vide');
+    }
+
+    try {
+      return JSON.parse(fileContent);
+    } catch (error) {
+      console.error('Erreur de parsing JSON:', error);
+      throw new Error('JSON invalide');
+    }
+  }
+
+  /**
    * Parse et traite le contenu d'un fichier
    * @param {string|Object} fileContent - Le contenu du fichier
    * @param {string} filename - Le nom du fichier
    */
   static async parseFile(fileContent, filename) {
-    let saveObject;
+    try {
+      // Parsing du contenu
+      const saveObject = this.parseJsonContent(fileContent);
 
-    // Vérification du contenu avant parsing
-    if (typeof fileContent === 'string') {
-      if (!fileContent.trim()) {
-        console.error('Erreur de parsing JSON: contenu vide');
-        window.dispatchEvent(new CustomEvent('show-notif', {
-          detail: { message: ERROR_MESSAGES.FILE_PARSE_ERROR + ' (fichier vide)' }
-        }));
+      // Ajout de l'extension du fichier
+      saveObject.fileExtension = getExtension(filename);
+
+      // Validation du fichier
+      if (!this.validateFileContent(saveObject)) {
         return;
       }
-      try {
-        saveObject = JSON.parse(fileContent);
-      } catch (e) {
-        console.error('Erreur de parsing JSON:', e);
-        window.dispatchEvent(new CustomEvent('show-notif', {
-          detail: { message: ERROR_MESSAGES.FILE_PARSE_ERROR }
-        }));
-        return;
+
+      // Appliquer les migrations nécessaires pour la compatibilité entre versions
+      applyMigrations(saveObject);
+
+      // Chargement du workspace
+      const WorkspaceManagerModule = await import('./WorkspaceManager.js');
+      WorkspaceManagerModule.setWorkspaceFromObject(saveObject.workspaceData || saveObject.wsdata);
+
+      // Traitement spécial pour Tangram
+      if (app.environment.name === 'Tangram' && saveObject.fileExtension === 'ags') {
+        app.mainCanvasLayer.removeAllObjects();
       }
-    } else {
-      saveObject = fileContent;
+
+      // Traitement des différentes sections
+      this.processSettings(saveObject);
+      this.processHistory(saveObject);
+      this.processVisibility(saveObject);
+
+      // Finalisation
+      setState({ filename });
+      window.dispatchEvent(new CustomEvent('file-parsed', { detail: saveObject }));
+      this.triggerRefreshEvents();
+
+    } catch (error) {
+      const errorMessage = error.message.includes('vide')
+        ? ERROR_MESSAGES.FILE_PARSE_ERROR + ' (fichier vide)'
+        : ERROR_MESSAGES.FILE_PARSE_ERROR;
+
+      this.showErrorNotification(errorMessage);
     }
-
-    saveObject.fileExtension = getExtension(filename);
-
-    // Validation du fichier
-    if (!this.validateFileContent(saveObject)) {
-      return;
-    }
-
-    // Appliquer les migrations nécessaires pour la compatibilité entre versions
-    applyMigrations(saveObject);
-
-    // Chargement du workspace
-    const WorkspaceManagerModule = await import('./WorkspaceManager.js');
-    WorkspaceManagerModule.setWorkspaceFromObject(saveObject.workspaceData || saveObject.wsdata);
-
-    // Traitement spécial pour Tangram
-    if (app.environment.name === 'Tangram' && saveObject.fileExtension === 'ags') {
-      app.mainCanvasLayer.removeAllObjects();
-    }
-
-    // Traitement des différentes sections
-    this.processSettings(saveObject);
-    this.processHistory(saveObject);
-    this.processVisibility(saveObject);
-
-    // Finalisation
-    setState({ filename });
-    window.dispatchEvent(new CustomEvent('file-parsed', { detail: saveObject }));
-    this.triggerRefreshEvents();
   }
 }
 
