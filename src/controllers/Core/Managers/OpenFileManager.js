@@ -575,5 +575,12 @@ export const OpenFileManager = {
   processSettings,
   processHistory,
   processVisibility,
-  triggerRefreshEvents
+  triggerRefreshEvents,
+  transformToNewIdSystem,
+  transformShapeIds,
+  transformSegmentIds,
+  transformPointIds,
+  updateGeometryReference,
+  updateReferences,
+  transformIds
 };

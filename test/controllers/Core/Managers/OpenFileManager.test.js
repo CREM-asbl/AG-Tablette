@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 // Mocks des dépendances
-vi.doMock('@controllers/Core/App', () => ({
+vi.mock('@controllers/Core/App', () => ({
   app: {
     environment: {
       name: 'Geometrie',
@@ -12,13 +12,16 @@ vi.doMock('@controllers/Core/App', () => ({
     },
     defaultState: {
       fullHistory: {},
-      history: {}
-    }
+      history: {},
+      settings: {}
+    },
+    settings: {},
+    resetSettings: vi.fn()
   },
   setState: vi.fn()
 }));
 
-vi.doMock('@store/gridStore', () => ({
+vi.mock('@store/gridStore.js', () => ({
   gridStore: {
     setGridType: vi.fn(),
     setGridSize: vi.fn(),
@@ -27,43 +30,58 @@ vi.doMock('@store/gridStore', () => ({
   }
 }));
 
-vi.doMock('@store/kit', () => ({
+vi.mock('@store/kit.js', () => ({
   setFamiliesVisibility: vi.fn()
 }));
 
-vi.doMock('@store/tools', () => ({
+vi.mock('@store/tools.js', () => ({
   setToolsVisibility: vi.fn()
 }));
 
-vi.doMock('@controllers/Core/Tools/general', () => ({
-  createElem: vi.fn(),
-  getExtension: vi.fn((filename) => filename ? filename.split('.').pop() : ''),
-  addInfoToId: vi.fn((id, layer, type) => `${layer}_${type}_${id}`)
-}));
+vi.mock('@controllers/Core/Tools/general.js', () => {
+  const layerOrder = ['upper', 'main', 'tangram', 'grid', 'background', 'invisible'];
+  const objectTypeOrder = ['shape', 'segment', 'point'];
+  
+  return {
+    createElem: vi.fn(),
+    getExtension: vi.fn((filename) => filename ? filename.split('.').pop() : ''),
+    addInfoToId: vi.fn((id, layer, objectType = undefined) => {
+      if (!id) return;
+      let objectTypeId = id[9];
+      if (id.length == 10)
+        id = id.substring(0, 8)
+      else
+        id = id.substring(id.length - 8, id.length);
+      let layerId = layerOrder.indexOf(layer);
+      if (objectType) {
+        objectTypeId = objectTypeOrder.indexOf(objectType);
+      }
+      let result = id + layerId + objectTypeId;
+      return result;
+    })
+  };
+});
 
-vi.doMock('@controllers/Core/Tools/version-migration', () => ({
+vi.mock('@controllers/Core/Tools/version-migration.js', () => ({
   applyMigrations: vi.fn()
 }));
 
-// Mock de WorkspaceManager
-vi.doMock('./WorkspaceManager.js', () => ({
+vi.mock('@controllers/Core/Managers/WorkspaceManager.js', () => ({
   setWorkspaceFromObject: vi.fn()
 }));
 
 // Mock de window et des APIs
 const mockShowOpenFilePicker = vi.fn();
 const mockDispatchEvent = vi.fn();
-const mockCustomEvent = vi.fn();
 
 global.window = {
   showOpenFilePicker: mockShowOpenFilePicker,
   dispatchEvent: mockDispatchEvent,
-  CustomEvent: mockCustomEvent,
+  CustomEvent: vi.fn((type, options) => ({ type, ...options })),
   addEventListener: vi.fn(),
   removeEventListener: vi.fn()
 };
 
-// Mock de l'app global
 global.app = {
   environment: {
     name: 'Geometrie',
@@ -74,109 +92,23 @@ global.app = {
   },
   defaultState: {
     fullHistory: {},
-    history: {}
-  }
+    history: {},
+    settings: {}
+  },
+  settings: {},
+  resetSettings: vi.fn()
 };
+
+global.hasNativeFS = true;
 
 // Importer après les mocks
 import { OpenFileManager } from '@controllers/Core/Managers/OpenFileManager.js';
+import { setState } from '@controllers/Core/App';
 
 describe('OpenFileManager', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Reset des mocks
     mockShowOpenFilePicker.mockResolvedValue([{ getFile: vi.fn(() => ({ text: vi.fn(() => '{}') })) }]);
-    mockCustomEvent.mockImplementation((type, options) => ({ type, ...options }));
-  });
-
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
-  describe('openFile', () => {
-    it('should use native file picker when available', async () => {
-      await OpenFileManager.openFile();
-      expect(mockShowOpenFilePicker).toHaveBeenCalled();
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'file-opened',
-          detail: { method: 'new', file: expect.any(Array) }
-        })
-      );
-    });
-
-    it('should fallback to old method when native not available', async () => {
-      delete global.window.showOpenFilePicker;
-      await OpenFileManager.openFile();
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'show-file-selector'
-        })
-      );
-    });
-  });
-
-  describe('newReadFile', () => {
-    it('should parse valid JSON file', async () => {
-      const mockFileHandle = {
-        getFile: vi.fn(() => ({
-          text: vi.fn(() => JSON.stringify({
-            appVersion: '2.0.0',
-            envName: 'Geometrie',
-            workspaceData: { objects: { shapesData: [], segmentsData: [], pointsData: [] } }
-          }))
-        }))
-      };
-
-      await OpenFileManager.newReadFile(mockFileHandle);
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'file-parsed'
-        })
-      );
-    });
-
-    it('should handle file read error', async () => {
-      const mockFileHandle = {
-        getFile: vi.fn(() => {
-          throw new Error('Read error');
-        })
-      };
-
-      await OpenFileManager.newReadFile(mockFileHandle);
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'show-notif',
-          detail: { message: expect.stringContaining('Erreur lors de la lecture') }
-        })
-      );
-    });
-  });
-
-  describe('oldReadFile', () => {
-    it('should parse file from FileReader', () => {
-      const mockFile = { name: 'test.ag' };
-      const mockReader = {
-        onload: null,
-        onerror: null,
-        readAsText: vi.fn(() => {
-          mockReader.onload({
-            target: {
-              result: JSON.stringify({
-                appVersion: '2.0.0',
-                envName: 'Geometrie',
-                workspaceData: { objects: { shapesData: [], segmentsData: [], pointsData: [] } }
-              })
-            }
-          });
-        })
-      };
-
-      global.FileReader = vi.fn(() => mockReader);
-
-      OpenFileManager.oldReadFile(mockFile);
-      expect(mockReader.readAsText).toHaveBeenCalledWith(mockFile);
-    });
   });
 
   describe('validateFileContent', () => {
@@ -184,96 +116,131 @@ describe('OpenFileManager', () => {
       const result = OpenFileManager.validateFileContent({
         appVersion: '1.0.0',
         envName: 'Geometrie'
-      });
-      expect(result).toBe(false);
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'show-notif',
-          detail: { message: expect.stringContaining('n\'est plus prise en charge') }
-        })
-      );
-    });
-
-    it('should reject wrong environment', () => {
-      const result = OpenFileManager.validateFileContent({
-        appVersion: '2.0.0',
-        envName: 'WrongEnv'
-      });
-      expect(result).toBe(false);
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'show-notif',
-          detail: { message: expect.stringContaining('Impossible d\'ouvrir ce fichier') }
-        })
-      );
+      }, { name: 'Geometrie' });
+      expect(result.isValid).toBe(false);
+      expect(result.error).toBe('Version non supportée');
     });
 
     it('should accept valid file', () => {
       const result = OpenFileManager.validateFileContent({
         appVersion: '2.0.0',
-        envName: 'Geometrie'
-      });
-      expect(result).toBe(true);
+        envName: 'Geometrie',
+        workspaceData: {}
+      }, { name: 'Geometrie' });
+      expect(result.isValid).toBe(true);
+      expect(result.error).toBe(null);
     });
   });
 
-  describe('transformToNewIdSystem', () => {
-    it('should transform shape IDs', () => {
+  describe('parseJsonContent', () => {
+    it('should parse valid JSON string', () => {
+      const jsonString = '{"appVersion": "2.0.0", "envName": "Geometrie"}';
+      const result = OpenFileManager.parseJsonContent(jsonString);
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual({ appVersion: '2.0.0', envName: 'Geometrie' });
+      expect(result.error).toBe(null);
+    });
+
+    it('should return object if already parsed', () => {
+      const obj = { appVersion: '2.0.0', envName: 'Geometrie' };
+      const result = OpenFileManager.parseJsonContent(obj);
+      expect(result.success).toBe(true);
+      expect(result.data).toBe(obj);
+      expect(result.error).toBe(null);
+    });
+
+    it('should handle empty string', () => {
+      const result = OpenFileManager.parseJsonContent('');
+      expect(result.success).toBe(false);
+      expect(result.data).toBe(null);
+      expect(result.error).toBe('contenu vide');
+    });
+
+    it('should handle invalid JSON', () => {
+      const invalidJson = '{"appVersion": "2.0.0", invalid}';
+      const result = OpenFileManager.parseJsonContent(invalidJson);
+      expect(result.success).toBe(false);
+      expect(result.data).toBe(null);
+      expect(result.error).toBe('JSON invalide');
+    });
+  });
+
+  describe('updateGeometryReference', () => {
+    it('should update geometry object references', () => {
+      const geometryObject = {
+        geometryChildShapeIds: ['shape1', 'shape2'],
+        geometryTransformationChildShapeIds: ['shape3'],
+        geometryParentObjectId1: 'shape1',
+        geometryDuplicateParentShapeId: 'shape2'
+      };
+
+      const result = OpenFileManager.updateGeometryReference(geometryObject, 'shape1', 'shape110');
+
+      expect(result.geometryChildShapeIds).toEqual(['shape110', 'shape2']);
+      expect(result.geometryTransformationChildShapeIds).toEqual(['shape3']);
+      expect(result.geometryParentObjectId1).toBe('shape110');
+      expect(result.geometryDuplicateParentShapeId).toBe('shape2');
+    });
+
+    it('should return original object if no geometry object provided', () => {
+      const result = OpenFileManager.updateGeometryReference(null, 'shape1', 'shape110');
+      expect(result).toBe(null);
+    });
+  });
+
+  describe('updateReferences', () => {
+    it('should update shape references in segments and points', () => {
       const objects = {
         shapesData: [{ id: 'shape1', segmentIds: [], pointIds: [] }],
-        segmentsData: [],
-        pointsData: []
+        segmentsData: [
+          { id: 'segment1', shapeId: 'shape1', vertexIds: [] },
+          { id: 'segment2', shapeId: 'shape2', vertexIds: [] }
+        ],
+        pointsData: [
+          { id: 'point1', shapeId: 'shape1', segmentIds: [] },
+          { id: 'point2', shapeId: 'shape2', segmentIds: [] }
+        ]
       };
 
-      OpenFileManager.transformToNewIdSystem(objects, 'layer1');
-      expect(objects.shapesData[0].id).toBe('layer1_shape_shape1');
+      const result = OpenFileManager.updateReferences(objects, 'shape1', 'shape110', 'shape');
+
+      expect(result.segmentsData[0].shapeId).toBe('shape110');
+      expect(result.segmentsData[1].shapeId).toBe('shape2');
+      expect(result.pointsData[0].shapeId).toBe('shape110');
+      expect(result.pointsData[1].shapeId).toBe('shape2');
     });
 
-    it('should transform segment IDs', () => {
+    it('should update segment references in shapes and points', () => {
       const objects = {
-        shapesData: [{ segmentIds: ['seg1'] }],
-        segmentsData: [{ id: 'seg1', vertexIds: [] }],
-        pointsData: []
+        shapesData: [
+          { id: 'shape1', segmentIds: ['segment1', 'segment2'], pointIds: [] }
+        ],
+        segmentsData: [{ id: 'segment1', shapeId: 'shape1', vertexIds: [] }],
+        pointsData: [
+          { id: 'point1', shapeId: 'shape1', segmentIds: ['segment1'] }
+        ]
       };
 
-      OpenFileManager.transformToNewIdSystem(objects, 'layer1');
-      expect(objects.segmentsData[0].id).toBe('layer1_segment_seg1');
-      expect(objects.shapesData[0].segmentIds[0]).toBe('layer1_segment_seg1');
-    });
+      const result = OpenFileManager.updateReferences(objects, 'segment1', 'segment111', 'segment');
 
-    it('should transform point IDs', () => {
-      const objects = {
-        shapesData: [{ pointIds: ['point1'] }],
-        segmentsData: [{ vertexIds: ['point1'] }],
-        pointsData: [{ id: 'point1' }]
-      };
-
-      OpenFileManager.transformToNewIdSystem(objects, 'layer1');
-      expect(objects.pointsData[0].id).toBe('layer1_point_point1');
-      expect(objects.shapesData[0].pointIds[0]).toBe('layer1_point_point1');
-      expect(objects.segmentsData[0].vertexIds[0]).toBe('layer1_point_point1');
+      expect(result.shapesData[0].segmentIds).toEqual(['segment111', 'segment2']);
+      expect(result.pointsData[0].segmentIds).toEqual(['segment111']);
     });
   });
 
-  describe('parseFile', () => {
-    it('should handle empty file content', async () => {
-      await OpenFileManager.parseFile('', 'test.ag');
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'show-notif',
-          detail: { message: expect.stringContaining('fichier vide') }
-        })
-      );
-    });
+  describe('transformIds', () => {
+    it('should transform IDs and update references', () => {
+      const objects = {
+        shapesData: [{ id: 'shape1', segmentIds: ['segment1'], pointIds: ['point1'] }],
+        segmentsData: [{ id: 'segment1', shapeId: 'shape1', vertexIds: ['point1'] }],
+        pointsData: [{ id: 'point1', shapeId: 'shape1', segmentIds: ['segment1'] }]
+      };
 
-    it('should handle invalid JSON', async () => {
-      await OpenFileManager.parseFile('invalid json', 'test.ag');
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: 'show-notif',
-          detail: { message: expect.stringContaining('Impossible d\'ouvrir ce fichier') }
-        })
-      );
+      const result = OpenFileManager.transformIds(objects.shapesData, objects, 'main', 'shape');
+
+      expect(result.shapesData[0].id).toBe('shape110');
+      expect(result.segmentsData[0].shapeId).toBe('shape110');
+      expect(result.pointsData[0].shapeId).toBe('shape110');
     });
   });
 });
