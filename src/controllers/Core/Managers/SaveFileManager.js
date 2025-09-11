@@ -279,9 +279,10 @@ const saveStateToFile = (handle, saveData, environment) => {
  * @param {object} saveData - Les données à sauvegarder.
  * @param {object} options - Les options de sauvegarde.
  * @param {object} environment - L'environnement actuel.
+ * @param {FileSystemFileHandle} [handle] - Le handle du fichier (optionnel, pour éviter le doublon).
  * @returns {Promise<boolean>} - True si la sauvegarde a réussi.
  */
-const saveToJson = async (saveData, options, environment) => {
+const saveToJson = async (saveData, options, environment, handle = null) => {
   try {
     const jsonData = JSON.stringify(saveData, null, 2);
     const mimeType = environment.name === 'Tangram' ? 'application/agmobile' : 'application/json';
@@ -294,18 +295,24 @@ const saveToJson = async (saveData, options, environment) => {
 
     const file = new Blob([jsonData], { type: mimeType });
 
-    if (hasNativeFS) {
-      const handle = await window.showSaveFilePicker({
+    if (hasNativeFS && !handle) {
+      // Si pas de handle fourni, on demande à l'utilisateur
+      handle = await window.showSaveFilePicker({
         suggestedName: fileName,
         types: [{
           description: `État de l'application (*${extension})`,
           accept: { [mimeType]: [extension] },
         }],
       });
-      await writeFileNative(handle, file);
-    } else {
-      const dataUrl = window.URL.createObjectURL(file);
-      downloadFileFallback(fileName, dataUrl);
+    }
+
+    if (handle) {
+      if (hasNativeFS) {
+        await writeFileNative(handle, file);
+      } else {
+        const dataUrl = window.URL.createObjectURL(file);
+        downloadFileFallback(fileName, dataUrl);
+      }
     }
 
     setState({ stepSinceSave: false });
@@ -325,9 +332,10 @@ const saveToJson = async (saveData, options, environment) => {
  * @param {object} app - L'instance principale de l'application.
  * @param {object} saveData - Les données de sauvegarde (non utilisées pour PNG).
  * @param {object} options - Les options de sauvegarde.
+ * @param {FileSystemFileHandle} [handle] - Le handle du fichier (optionnel, pour éviter le doublon).
  * @returns {Promise<boolean>} - True si la sauvegarde a réussi.
  */
-const saveToPng = async (app, saveData, options) => {
+const saveToPng = async (app, saveData, options, handle = null) => {
   try {
     const { invisibleCanvasLayer, gridCanvasLayer, tangramCanvasLayer, mainCanvasLayer } = app;
     const ctx = invisibleCanvasLayer.ctx;
@@ -350,15 +358,21 @@ const saveToPng = async (app, saveData, options) => {
 
     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
 
-    if (hasNativeFS) {
-      const handle = await window.showSaveFilePicker({
+    if (hasNativeFS && !handle) {
+      // Si pas de handle fourni, on demande à l'utilisateur
+      handle = await window.showSaveFilePicker({
         suggestedName: options.suggestedName,
         types: options.types,
       });
-      await writeFileNative(handle, blob);
-    } else {
-      const dataUrl = canvas.toDataURL('image/png');
-      downloadFileFallback(options.suggestedName, dataUrl);
+    }
+
+    if (handle) {
+      if (hasNativeFS) {
+        await writeFileNative(handle, blob);
+      } else {
+        const dataUrl = canvas.toDataURL('image/png');
+        downloadFileFallback(options.suggestedName, dataUrl);
+      }
     }
 
     ctx.clearRect(0, 0, width, height);
@@ -374,14 +388,72 @@ const saveToPng = async (app, saveData, options) => {
 };
 
 /**
- * Encode les données SVG pour une utilisation dans une URL de données.
- * @param {string} svgData - Les données SVG brutes.
- * @returns {string} - L'URL de données encodée en Base64.
+ * Sauvegarde le canvas principal en tant qu'image SVG.
+ * @param {object} app - L'instance principale de l'application.
+ * @param {object} saveData - Les données de sauvegarde (non utilisées pour SVG).
+ * @param {object} options - Les options de sauvegarde.
+ * @param {FileSystemFileHandle} [handle] - Le handle du fichier (optionnel, pour éviter le doublon).
+ * @returns {Promise<boolean>} - True si la sauvegarde a réussi.
  */
-const encodeSvgForDataUrl = (svgData) => {
-  const symbols = /[\r\n%#()<>?\[\\\]^`{|}]/g;
-  const encoded = svgData.replace(symbols, encodeURIComponent);
-  return `data:image/svg+xml;base64,${btoa(encoded)}`;
+const saveToSvg = async (app, saveData, options, handle = null) => {
+  try {
+    const { invisibleCanvasLayer, gridCanvasLayer, tangramCanvasLayer, mainCanvasLayer } = app;
+    const ctx = invisibleCanvasLayer.ctx;
+    const { canvas } = ctx;
+    const { width, height } = canvas;
+
+    // Créer un élément SVG
+    const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svgElement.setAttribute('width', width);
+    svgElement.setAttribute('height', height);
+    svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+    // Ajouter un fond blanc
+    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    rect.setAttribute('width', '100%');
+    rect.setAttribute('height', '100%');
+    rect.setAttribute('fill', 'white');
+    svgElement.appendChild(rect);
+
+    // Convertir le canvas en image SVG (simplifié)
+    const imageData = canvas.toDataURL('image/png');
+    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+    image.setAttribute('x', '0');
+    image.setAttribute('y', '0');
+    image.setAttribute('width', width);
+    image.setAttribute('height', height);
+    image.setAttribute('href', imageData);
+    svgElement.appendChild(image);
+
+    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+
+    if (hasNativeFS && !handle) {
+      // Si pas de handle fourni, on demande à l'utilisateur
+      handle = await window.showSaveFilePicker({
+        suggestedName: options.suggestedName,
+        types: options.types,
+      });
+    }
+
+    if (handle) {
+      if (hasNativeFS) {
+        await writeFileNative(handle, blob);
+      } else {
+        const dataUrl = encodeSvgForDataUrl(svgData);
+        downloadFileFallback(options.suggestedName, dataUrl);
+      }
+    }
+
+    return true;
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      console.log('Sauvegarde SVG annulée par l\'utilisateur.');
+      return false;
+    }
+    console.error('Erreur lors de la sauvegarde SVG:', error);
+    throw error;
+  }
 };
 
 /**
@@ -398,10 +470,10 @@ const processSaveDirect = async (handle, app, detail, fileType) => {
 
     switch (fileType) {
       case 'png':
-        success = await saveToPng(app, null, options);
+        success = await saveToPng(app, null, options, handle);
         break;
       case 'svg':
-        success = await saveToSvg(app, null, options);
+        success = await saveToSvg(app, null, options, handle);
         break;
       default: {
         const saveData = prepareSaveData(app, app.workspace, detail);
@@ -441,15 +513,15 @@ const processSave = async (handle, app, detail) => {
     let success = false;
     switch (extension) {
       case 'png':
-        success = await saveToPng(app, null, options);
+        success = await saveToPng(app, null, options, handle);
         break;
       case 'svg':
-        success = await saveToSvg(app, null, options);
+        success = await saveToSvg(app, null, options, handle);
         break;
       default: {
         const saveData = prepareSaveData(app, app.workspace, detail);
         if (saveData) {
-          success = await saveToJson(saveData, options, app.environment);
+          success = await saveToJson(saveData, options, app.environment, handle);
         } else {
           return;
         }
