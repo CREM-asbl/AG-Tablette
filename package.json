@@ -30,6 +30,6 @@
     "astro": "^5.2.5",
     "astrojs-service-worker": "^2.0.0",
     "fflate": "^0.8.0",
-    "firebase": "^11.0.0"
+    "firebase": "^12.2.1"
   }
 }

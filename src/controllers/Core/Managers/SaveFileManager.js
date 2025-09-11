@@ -1,3 +1,4 @@
+import { gridStore } from '@store/gridStore';
 import { kit } from '@store/kit';
 import { tools } from '@store/tools';
 import { setState } from '../App';
@@ -55,6 +56,16 @@ const prepareSaveData = (app, workspace, { saveHistory, permanentHide, saveSetti
 
   const workspaceData = { ...workspace.data };
   const settings = saveSettings ? { ...app.settings } : undefined;
+
+  if (typeof gridStore !== 'undefined') {
+    console.log('save grid')
+    const gridState = gridStore.getState();
+    settings.gridType = gridState.gridType;
+    settings.gridSize = gridState.gridSize;
+    settings.gridOpacity = gridState.gridOpacity;
+    settings.gridShown = gridState.isVisible;
+  }
+
   const history = saveHistory ? { ...app.history } : undefined;
   const fullHistory = saveHistory ? { ...app.fullHistory } : undefined;
 

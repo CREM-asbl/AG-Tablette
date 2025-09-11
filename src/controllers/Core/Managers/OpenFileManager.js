@@ -1,5 +1,6 @@
+import { gridStore } from '@store/gridStore';
 import { setFamiliesVisibility } from '@store/kit';
-import { setToolsVisibility } from '../../../store/tools';
+import { setToolsVisibility } from '@store/tools';
 import { app, setState } from '../App';
 import { addInfoToId, createElem, getExtension } from '../Tools/general';
 import { applyMigrations } from '../Tools/version-migration';
@@ -70,30 +71,30 @@ export class OpenFileManager {
       await OpenFileManager.parseFile(content, fileHandle.name);
     } catch (error) {
       console.error('Erreur lors de la lecture du fichier:', error);
-      window.dispatchEvent(new CustomEvent('show-notif', { 
-        detail: { message: ERROR_MESSAGES.FILE_READ_ERROR } 
+      window.dispatchEvent(new CustomEvent('show-notif', {
+        detail: { message: ERROR_MESSAGES.FILE_READ_ERROR }
       }));
     }
   }
 
   static oldReadFile(file) {
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = () => {
       try {
         OpenFileManager.parseFile(reader.result, file.name);
       } catch (error) {
         console.error('Erreur lors du parsing du fichier:', error);
-        window.dispatchEvent(new CustomEvent('show-notif', { 
-          detail: { message: ERROR_MESSAGES.FILE_READ_ERROR } 
+        window.dispatchEvent(new CustomEvent('show-notif', {
+          detail: { message: ERROR_MESSAGES.FILE_READ_ERROR }
         }));
       }
     };
     reader.onerror = () => {
       console.error('Erreur FileReader:', reader.error);
-      window.dispatchEvent(new CustomEvent('show-notif', { 
-        detail: { message: ERROR_MESSAGES.FILE_READ_ERROR } 
+      window.dispatchEvent(new CustomEvent('show-notif', {
+        detail: { message: ERROR_MESSAGES.FILE_READ_ERROR }
       }));
     };
     reader.readAsText(file);
@@ -148,7 +149,7 @@ export class OpenFileManager {
    */
   static transformShapeIds(objects, layer) {
     const isGeometry = app.environment.name === 'Geometrie';
-    
+
     objects.shapesData.forEach(shape => {
       const oldId = shape.id;
       shape.id = addInfoToId(shape.id, layer, 'shape');
@@ -243,13 +244,13 @@ export class OpenFileManager {
             seg.vertexIds[idx] = point.id;
           }
         });
-        
+
         seg.divisionPointIds.forEach((ptId, idx) => {
           if (ptId === oldId) {
             seg.divisionPointIds[idx] = point.id;
           }
         });
-        
+
         if (seg.arcCenterId === oldId) {
           seg.arcCenterId = point.id;
         }
@@ -262,7 +263,7 @@ export class OpenFileManager {
             pt.endpointIds[idx] = point.id;
           }
         });
-        
+
         if (pt.reference === oldId) {
           pt.reference = point.id;
         }
@@ -295,15 +296,15 @@ export class OpenFileManager {
    */
   static validateFileContent(saveObject) {
     if (saveObject.appVersion === '1.0.0') {
-      window.dispatchEvent(new CustomEvent('show-notif', { 
-        detail: { message: ERROR_MESSAGES.UNSUPPORTED_VERSION } 
+      window.dispatchEvent(new CustomEvent('show-notif', {
+        detail: { message: ERROR_MESSAGES.UNSUPPORTED_VERSION }
       }));
       return false;
     }
 
     if (saveObject.envName !== app.environment.name) {
-      window.dispatchEvent(new CustomEvent('show-notif', { 
-        detail: { message: ERROR_MESSAGES.WRONG_ENVIRONMENT + saveObject.envName + '.' } 
+      window.dispatchEvent(new CustomEvent('show-notif', {
+        detail: { message: ERROR_MESSAGES.WRONG_ENVIRONMENT + saveObject.envName + '.' }
       }));
       return false;
     }
@@ -317,14 +318,27 @@ export class OpenFileManager {
    */
   static processSettings(saveObject) {
     if (saveObject.settings) {
-      setState({ 
-        settings: { 
-          ...saveObject.settings, 
-          ...DEFAULT_SETTINGS 
-        } 
+      setState({
+        settings: { // TODO: remove this, settings are already reset by app.resetSettings()
+          ...saveObject.settings,
+          ...DEFAULT_SETTINGS
+        }
       });
     } else {
       app.resetSettings();
+    }
+    // Restauration de la grille si présente dans le fichier
+    if (saveObject.settings.gridType) {
+      gridStore.setGridType(saveObject.settings.gridType);
+    }
+    if (saveObject.settings.gridSize) {
+      gridStore.setGridSize(saveObject.settings.gridSize);
+    }
+    if (typeof saveObject.settings.gridOpacity !== 'undefined') {
+      gridStore.setGridOpacity(saveObject.settings.gridOpacity);
+    }
+    if (typeof saveObject.settings.gridShown !== 'undefined') {
+      gridStore.setIsVisible(saveObject.settings.gridShown);
     }
   }
 
@@ -429,22 +443,29 @@ export class OpenFileManager {
    */
   static async parseFile(fileContent, filename) {
     let saveObject;
-    
-    // Parsing du contenu
+
+    // Vérification du contenu avant parsing
     if (typeof fileContent === 'string') {
+      if (!fileContent.trim()) {
+        console.error('Erreur de parsing JSON: contenu vide');
+        window.dispatchEvent(new CustomEvent('show-notif', {
+          detail: { message: ERROR_MESSAGES.FILE_PARSE_ERROR + ' (fichier vide)' }
+        }));
+        return;
+      }
       try {
         saveObject = JSON.parse(fileContent);
       } catch (e) {
         console.error('Erreur de parsing JSON:', e);
-        window.dispatchEvent(new CustomEvent('show-notif', { 
-          detail: { message: ERROR_MESSAGES.FILE_PARSE_ERROR } 
+        window.dispatchEvent(new CustomEvent('show-notif', {
+          detail: { message: ERROR_MESSAGES.FILE_PARSE_ERROR }
         }));
         return;
       }
     } else {
       saveObject = fileContent;
     }
-    
+
     saveObject.fileExtension = getExtension(filename);
 
     // Validation du fichier
