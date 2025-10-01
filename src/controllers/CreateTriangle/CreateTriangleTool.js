@@ -1,6 +1,11 @@
-import triangles from '../Core/ShapesKits/triangles.json';
+import { app, setState } from '../Core/App';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
+import triangles from '../Core/ShapesKits/triangles.json';
 import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
@@ -20,7 +25,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   async loadShapeDefinition() {
     const triangleDef = await import(`./trianglesDef.js`);
     this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
-    
+
     if (!this.triangleDef) {
       throw new Error(`Définition non trouvée pour ${app.tool.selectedTemplate.name}`);
     }
@@ -272,6 +277,12 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
 
   getConstraints(pointNb) {
     this.constraints = this.triangleDef.constraints[pointNb](this.points, this.segments);
+  }
+
+  async executeAction() {
+    this._executeAction();
+    window.dispatchEvent(new CustomEvent('refresh'));
+    window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }));
   }
 
   _executeAction() {
