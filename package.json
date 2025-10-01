@@ -5,10 +5,14 @@
     "build": "astro build",
     "deploy": "firebase deploy",
     "deploy:beta": "firebase deploy --only hosting:beta",
-    "deploy:beta2": "firebase hosting:channel:deploy $(cat public/manifest.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\\\",]//g' | sed 's/[^0-9.]//g') --expires 30d",
+    "deploy:beta2": "firebase hosting:channel:deploy $(cat public/manifest.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\\\"،]//g' | sed 's/[^0-9.]//g') --expires 30d",
     "deploy:beta3": "firebase hosting:channel:deploy beta --expires 30d",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix",
     "test": "vitest run",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "test:playwright": "playwright test",
+    "test:all": "npm run test && npm run test:playwright"
   },
   "devDependencies": {
     "@playwright/test": "^1.52.0",
