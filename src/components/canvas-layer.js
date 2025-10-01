@@ -282,8 +282,19 @@ class CanvasLayer extends LitElement {
 
   loadFromData(data) {
     this.removeAllObjects();
-    if (data !== undefined) {
-      data.shapesData.forEach((shapeData) => {
+    // Tolérer null/undefined et données partielles sans lever d'erreur
+    if (!data) {
+      // Rien à charger, simplement rafraîchir pour effacer le canvas
+      this.redraw();
+      return;
+    }
+
+    const shapesData = Array.isArray(data.shapesData) ? data.shapesData : [];
+    const segmentsData = Array.isArray(data.segmentsData) ? data.segmentsData : [];
+    const pointsData = Array.isArray(data.pointsData) ? data.pointsData : [];
+
+    if (shapesData.length || segmentsData.length || pointsData.length) {
+      shapesData.forEach((shapeData) => {
         if (isFinite(shapeData.indexOfReference)) {
           shapeData = app.history.steps[shapeData.indexOfReference].objects.shapesData.find(s => s.id === shapeData.id);
         }
@@ -313,13 +324,13 @@ class CanvasLayer extends LitElement {
           }
         }
       });
-      data.segmentsData.forEach((segmentData) => {
+      segmentsData.forEach((segmentData) => {
         if (isFinite(segmentData.indexOfReference)) {
           segmentData = app.history.steps[segmentData.indexOfReference].objects.segmentsData.find(seg => seg.id === segmentData.id);
         }
         Segment.loadFromData(segmentData);
       });
-      data.pointsData.forEach((pointData) => {
+      pointsData.forEach((pointData) => {
         if (isFinite(pointData.indexOfReference)) {
           pointData = app.history.steps[pointData.indexOfReference].objects.pointsData.find(pt => pt.id === pointData.id);
         }
@@ -327,7 +338,8 @@ class CanvasLayer extends LitElement {
       });
       this.redraw();
     } else {
-      console.info('nothing to see here');
+      // Données présentes mais vides/partielles
+      this.redraw();
     }
   }
 

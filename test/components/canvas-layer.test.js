@@ -103,6 +103,28 @@ describe('CanvasLayer', () => {
     vi.restoreAllMocks();
   });
 
+  describe('loadFromData robustness', () => {
+    it('should not throw when called with null and should clear/redraw', () => {
+      expect(() => canvasLayerElement.loadFromData(null)).not.toThrow();
+      // After loadFromData(null), internal arrays should be empty and redraw called.
+      expect(canvasLayerElement.shapes).toEqual([]);
+      expect(canvasLayerElement.segments).toEqual([]);
+      expect(canvasLayerElement.points).toEqual([]);
+      // We can assert that clear was attempted via clearRect call count being >= 1
+      expect(canvasLayerElement.ctx.clearRect).toHaveBeenCalled();
+    });
+
+    it('should not throw when called with undefined', () => {
+      expect(() => canvasLayerElement.loadFromData(undefined)).not.toThrow();
+    });
+
+    it('should accept partial data objects (e.g., only shapesData array)', async () => {
+      const partial = { shapesData: [], segmentsData: undefined, pointsData: undefined };
+      expect(() => canvasLayerElement.loadFromData(partial)).not.toThrow();
+      expect(canvasLayerElement.shapes).toEqual([]);
+    });
+  });
+
   describe('getClosestGridPoint', () => {
     it('should return undefined if grid is not visible', () => {
       gridStore.getState.mockReturnValue({ ...gridStore.getState(), isVisible: false });
