@@ -5,9 +5,17 @@ import { CharacteristicElements } from './CharacteristicElements';
 import { Coordinates } from './Coordinates';
 import { ShapeGroup } from './ShapeGroup';
 
+// Constantes pour la gestion des événements et timeouts
+const TANGRAM_CONSTANTS = {
+  READY_TIMEOUT: 5000, // Timeout pour l'attente de tangram-canvas-ready (ms)
+  REFRESH_DELAY: 10 // Délai pour les événements de rafraîchissement (ms)
+};
+
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
  * travailler sur plusieurs projets en même temps.
+ * 
+ * Gère le chargement asynchrone des silhouettes Tangram via les backObjects.
  */
 export class Workspace {
   constructor() {
@@ -52,6 +60,9 @@ export class Workspace {
      */
     this.translateOffset = Coordinates.nullCoordinates;
 
+    // Flag pour éviter la duplication des événements de rafraîchissement
+    this._refreshScheduled = false;
+
     if (app.environment.name == 'Geometrie') {
       this.orthogonalSymetryLastCharacteristicElements = [];
       this.centralSymetryLastCharacteristicElements = [];
@@ -68,10 +79,21 @@ export class Workspace {
     return this.pvSelectCstr;
   }
 
+  /**
+   * Initialise l'espace de travail à partir d'un objet de données
+   * @param {Object|null} wsdata - Les données de l'espace de travail
+   */
   initFromObject(wsdata) {
     this.zoomLevel = wsdata?.zoomLevel || 1;
     if (!wsdata) {
       this.resetWorkspace()
+      return;
+    }
+
+    // Validation des données d'entrée
+    if (typeof wsdata !== 'object') {
+      console.error('Workspace: Données invalides passées à initFromObject');
+      this.resetWorkspace();
       return;
     }
 
@@ -80,35 +102,41 @@ export class Workspace {
     const scale = wsdata.canvasSize ?
       Math.min(app.canvasWidth / wsdata.canvasSize.width, app.canvasHeight / wsdata.canvasSize.height) :
       1
-    app.mainCanvasLayer.loadFromData(wsdata.objects);
+
+    // Chargement des objets principaux avec validation
+    try {
+      if (app.mainCanvasLayer && typeof app.mainCanvasLayer.loadFromData === 'function') {
+        app.mainCanvasLayer.loadFromData(wsdata.objects);
+      } else {
+        console.error('Workspace: mainCanvasLayer non disponible pour le chargement');
+      }
+    } catch (error) {
+      console.error('Workspace: Erreur lors du chargement des objets principaux:', error);
+    }
+
     if (scale != 1) this.setZoomLevel(scale)
 
     // Charger les objets de fond (silhouettes) pour Tangram
-    if (app.environment.name === 'Tangram' && wsdata.backObjects) {
-      const loadBackObjects = () => {
-        if (app.tangramCanvasLayer) {
-          app.tangramCanvasLayer.loadFromData(wsdata.backObjects);
-          // Forcer le redraw pour afficher la silhouette
-          app.tangramCanvasLayer.draw();
-        } else {
-          // Attendre l'événement tangram-canvas-ready
-          const handler = () => {
-            app.tangramCanvasLayer.loadFromData(wsdata.backObjects);
-            app.tangramCanvasLayer.draw();
-            window.removeEventListener('tangram-canvas-ready', handler);
-          };
-          window.addEventListener('tangram-canvas-ready', handler);
-        }
-      };
-      loadBackObjects();
+    if (app.environment?.name === 'Tangram' && wsdata.backObjects) {
+      this._loadTangramBackObjects(wsdata.backObjects);
     }
 
     if (!wsdata.shapeGroups) wsdata.shapeGroups = [];
-    this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
-      let group = new ShapeGroup(0, 1);
-      group.initFromObject(groupData);
-      return group;
-    });
+    
+    try {
+      this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
+        if (!groupData || typeof groupData !== 'object') {
+          console.warn('Workspace: Données de groupe invalides ignorées');
+          return null;
+        }
+        let group = new ShapeGroup(0, 1);
+        group.initFromObject(groupData);
+        return group;
+      }).filter(group => group !== null); // Filtrer les groupes invalides
+    } catch (error) {
+      console.error('Workspace: Erreur lors du chargement des groupes:', error);
+      this.shapeGroups = [];
+    }
 
     if (app.environment.name == 'Geometrie' && wsdata.translationLastCharacteristicElements) {
       this.translationLastCharacteristicElements = wsdata.translationLastCharacteristicElements.map(element => new CharacteristicElements(element));
@@ -120,28 +148,99 @@ export class Workspace {
     }))
     this.setZoomLevel(wsdata.zoomLevel * scale || scale, false)
 
-    // Déclencher les événements de rafraîchissement pour s'assurer que tout s'affiche correctement
-    if (app.environment.name === 'Tangram' && wsdata.backObjects && app.tangramCanvasLayer) {
-      window.dispatchEvent(new CustomEvent('refresh'));
-      window.dispatchEvent(new CustomEvent('refreshUpper'));
+    // Déclencher les événements de rafraîchissement pour Tangram
+    if (app.environment.name === 'Tangram' && wsdata.backObjects) {
+      this._scheduleRefreshEvents();
+    }
+  }
+
+  /**
+   * Charge les objets de fond (silhouettes) dans le tangramCanvasLayer de façon asynchrone
+   * @param {Object} backObjects - Les données des objets de fond à charger
+   * @private
+   */
+  _loadTangramBackObjects(backObjects) {
+    if (!backObjects) {
+      console.warn('Workspace: Aucun backObjects à charger');
+      return;
     }
 
-    // this.translateOffset = new Coordinates(wsdata.translateOffset || { x: 0, y: 0 });
-    // if (wsdata.canvasSize &&
-    //   (wsdata.canvasSize.width != app.canvasWidth ||
-    //     wsdata.canvasSize.height != app.canvasHeight)) {
-    //     originalZoom = this.zoomLevel,
-    //     newZoom = originalZoom * scale,
-    //     originalTranslateOffset = this.translateOffset,
-    //     actualCenter = new Coordinates({ x: wsdata.canvasSize.width, y: wsdata.canvasSize.height })
-    //       .multiply(1 / 2)
-    //       .substract(originalTranslateOffset)
-    //       .multiply(newZoom / originalZoom),
-    //     newCenter = new Coordinates({ x: app.canvasWidth, y: app.canvasHeight }).multiply(1 / 2),
-    //     newTranslateoffset = center ? newCenter.substract(actualCenter) : originalTranslateOffset;
-    //   this.setZoomLevel(newZoom, false);
-    //   this.setTranslateOffset(newTranslateoffset);
-    // }
+    const loadBackObjectsImmediately = () => {
+      try {
+        if (app.tangramCanvasLayer && typeof app.tangramCanvasLayer.loadFromData === 'function') {
+          app.tangramCanvasLayer.loadFromData(backObjects);
+          app.tangramCanvasLayer.draw();
+          console.log('Workspace: backObjects chargés immédiatement');
+        } else {
+          throw new Error('tangramCanvasLayer non disponible ou invalide');
+        }
+      } catch (error) {
+        console.error('Workspace: Erreur lors du chargement immédiat des backObjects:', error);
+      }
+    };
+
+    const loadBackObjectsAfterEvent = () => {
+      let timeoutId;
+      
+      const handler = () => {
+        clearTimeout(timeoutId);
+        try {
+          if (app.tangramCanvasLayer && typeof app.tangramCanvasLayer.loadFromData === 'function') {
+            app.tangramCanvasLayer.loadFromData(backObjects);
+            app.tangramCanvasLayer.draw();
+            console.log('Workspace: backObjects chargés après événement tangram-canvas-ready');
+          } else {
+            throw new Error('tangramCanvasLayer toujours non disponible après l\'événement');
+          }
+        } catch (error) {
+          console.error('Workspace: Erreur lors du chargement des backObjects après événement:', error);
+        } finally {
+          window.removeEventListener('tangram-canvas-ready', handler);
+        }
+      };
+
+      // Timeout de sécurité pour éviter l'attente infinie
+      timeoutId = setTimeout(() => {
+        window.removeEventListener('tangram-canvas-ready', handler);
+        console.error('Workspace: Timeout lors de l\'attente de tangram-canvas-ready');
+      }, TANGRAM_CONSTANTS.READY_TIMEOUT);
+
+      window.addEventListener('tangram-canvas-ready', handler);
+    };
+
+    // Essayer le chargement immédiat, sinon attendre l'événement
+    if (app.tangramCanvasLayer) {
+      loadBackObjectsImmediately();
+    } else {
+      loadBackObjectsAfterEvent();
+    }
+  }
+
+  /**
+   * Planifie les événements de rafraîchissement de façon optimisée
+   * @private
+   */
+  _scheduleRefreshEvents() {
+    // Utiliser requestAnimationFrame pour optimiser les performances
+    // et éviter les redraws multiples pendant le même cycle
+    if (this._refreshScheduled) {
+      return; // Éviter la duplication d'événements
+    }
+
+    this._refreshScheduled = true;
+    
+    requestAnimationFrame(() => {
+      try {
+        // Envoyer les événements en une seule fois
+        window.dispatchEvent(new CustomEvent('refresh'));
+        window.dispatchEvent(new CustomEvent('refreshUpper'));
+        console.log('Workspace: Événements de rafraîchissement envoyés');
+      } catch (error) {
+        console.error('Workspace: Erreur lors des événements de rafraîchissement:', error);
+      } finally {
+        this._refreshScheduled = false;
+      }
+    });
   }
 
   get data() {
