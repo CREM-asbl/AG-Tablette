@@ -83,6 +83,26 @@ export class Workspace {
     app.mainCanvasLayer.loadFromData(wsdata.objects);
     if (scale != 1) this.setZoomLevel(scale)
 
+    // Charger les objets de fond (silhouettes) pour Tangram
+    if (app.environment.name === 'Tangram' && wsdata.backObjects) {
+      const loadBackObjects = () => {
+        if (app.tangramCanvasLayer) {
+          app.tangramCanvasLayer.loadFromData(wsdata.backObjects);
+          // Forcer le redraw pour afficher la silhouette
+          app.tangramCanvasLayer.draw();
+        } else {
+          // Attendre l'événement tangram-canvas-ready
+          const handler = () => {
+            app.tangramCanvasLayer.loadFromData(wsdata.backObjects);
+            app.tangramCanvasLayer.draw();
+            window.removeEventListener('tangram-canvas-ready', handler);
+          };
+          window.addEventListener('tangram-canvas-ready', handler);
+        }
+      };
+      loadBackObjects();
+    }
+
     if (!wsdata.shapeGroups) wsdata.shapeGroups = [];
     this.shapeGroups = wsdata.shapeGroups.map((groupData) => {
       let group = new ShapeGroup(0, 1);
@@ -99,6 +119,12 @@ export class Workspace {
       y: wsdata.translateOffset ? wsdata.translateOffset.y * scale : 0
     }))
     this.setZoomLevel(wsdata.zoomLevel * scale || scale, false)
+
+    // Déclencher les événements de rafraîchissement pour s'assurer que tout s'affiche correctement
+    if (app.environment.name === 'Tangram' && wsdata.backObjects && app.tangramCanvasLayer) {
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
+    }
 
     // this.translateOffset = new Coordinates(wsdata.translateOffset || { x: 0, y: 0 });
     // if (wsdata.canvasSize &&

@@ -41,7 +41,7 @@ vi.mock('@store/tools.js', () => ({
 vi.mock('@controllers/Core/Tools/general.js', () => {
   const layerOrder = ['upper', 'main', 'tangram', 'grid', 'background', 'invisible'];
   const objectTypeOrder = ['shape', 'segment', 'point'];
-  
+
   return {
     createElem: vi.fn(),
     getExtension: vi.fn((filename) => filename ? filename.split('.').pop() : ''),
@@ -103,7 +103,6 @@ global.hasNativeFS = true;
 
 // Importer après les mocks
 import { OpenFileManager } from '@controllers/Core/Managers/OpenFileManager.js';
-import { setState } from '@controllers/Core/App';
 
 describe('OpenFileManager', () => {
   beforeEach(() => {

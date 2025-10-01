@@ -57,7 +57,20 @@ export class SolutionCheckerTool extends LitElement {
     const level = data.tangramLevelSelected || await SolutionCheckerTool.selectLevel();
     if (data.fileExtension == 'ags') await TangramManager.initShapes();
 
-    const backObjects = data.wsdata.backObjects
+    // Chercher les backObjects dans différents emplacements possibles
+    const backObjects = data.wsdata?.backObjects ||
+      data.workspaceData?.backObjects ||
+      app.workspace?.data?.backObjects;
+
+    if (!backObjects) {
+      console.warn('⚠️ SolutionCheckerTool: Aucun backObjects trouvé dans les données');
+      console.log('Données disponibles:', {
+        'data.wsdata': !!data.wsdata,
+        'data.workspaceData': !!data.workspaceData,
+        'app.workspace.data': !!app.workspace?.data
+      });
+    }
+
     let isSilhouetteShown = false;
 
     if (backObjects) {

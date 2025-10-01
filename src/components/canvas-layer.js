@@ -37,7 +37,7 @@ class CanvasLayer extends LitElement {
     this.mustDrawPoints = true;
     this.mustScaleShapes = true;
     this.unsubscribeGridStore = null;
-    
+
     // Optimisation des performances
     this._lastRedrawTime = 0;
     this._redrawThrottle = 16; // ~60fps
@@ -78,12 +78,12 @@ class CanvasLayer extends LitElement {
    */
   throttledRedraw() {
     const now = performance.now();
-    
+
     // Si un redraw est déjà en attente, l'annuler
     if (this._redrawRequestId) {
       cancelAnimationFrame(this._redrawRequestId);
     }
-    
+
     // Si assez de temps s'est écoulé depuis le dernier redraw
     if (now - this._lastRedrawTime >= this._redrawThrottle) {
       this.redraw();
@@ -117,11 +117,11 @@ class CanvasLayer extends LitElement {
     // Éviter les redraws inutiles
     if (this._pendingRedraw) return;
     this._pendingRedraw = true;
-    
+
     try {
       this.clear();
       this.texts.forEach((text) => text.updateMessage());
-      
+
       if (this.canvasName === 'upper') {
         window.dispatchEvent(new CustomEvent('refreshStateUpper'));
       } else if (this.canvasName === 'grid') {
@@ -131,7 +131,7 @@ class CanvasLayer extends LitElement {
           this.drawGridPoints();
         }
       }
-      
+
       this.draw();
     } finally {
       this._pendingRedraw = false;
@@ -337,6 +337,11 @@ class CanvasLayer extends LitElement {
     this.ctx = this.canvas.getContext('2d');
     app[this.canvasName + 'CanvasLayer'] = this;
 
+    // Émettre un événement quand le tangramCanvasLayer est prêt
+    if (this.canvasName === 'tangram') {
+      window.dispatchEvent(new CustomEvent('tangram-canvas-ready'));
+    }
+
     window.addEventListener('refresh' + capitalizeFirstLetter(this.canvasName), () => {
       this.redraw();
     });
@@ -382,10 +387,10 @@ class CanvasLayer extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    
+
     // Nettoyage des ressources et listeners
     this.cleanupResources();
-    
+
     if (this.unsubscribeGridStore) {
       this.unsubscribeGridStore();
       this.unsubscribeGridStore = null;
@@ -404,19 +409,19 @@ class CanvasLayer extends LitElement {
       cancelAnimationFrame(this._redrawRequestId);
       this._redrawRequestId = null;
     }
-    
+
     // Nettoyer les tableaux d'objets
     this.shapes = [];
     this.segments = [];
     this.points = [];
     this.texts = [];
     this.editingShapeIds = [];
-    
+
     // Nettoyer le contexte canvas si nécessaire
     if (this.ctx) {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
-    
+
     // Réinitialiser les flags de performance
     this._lastRedrawTime = 0;
     this._pendingRedraw = false;
@@ -711,12 +716,12 @@ class CanvasLayer extends LitElement {
 
     const gridSize = gridState.gridSize; // in cm
     const baseGridStep = gridSize * GRID_CONSTANTS.PIXELS_PER_CM; // Pas de grille en espace monde
-    
+
     // Utiliser la même transformation que toCanvasCoordinates pour la cohérence
     const translateOffset = app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
     const offsetX = (translateOffset && typeof translateOffset.x === 'number') ? translateOffset.x : 0;
     const offsetY = (translateOffset && typeof translateOffset.y === 'number') ? translateOffset.y : 0;
-    
+
     const pointRadius = 2 * zoomLevel;
 
     ctx.fillStyle = gridState.gridColor || '#888888';
@@ -725,10 +730,10 @@ class CanvasLayer extends LitElement {
       // Appliquer la même transformation que toCanvasCoordinates()
       const canvasX = worldX * zoomLevel + offsetX;
       const canvasY = worldY * zoomLevel + offsetY;
-      
+
       // Vérifier que le point est visible sur le canvas
-      if (canvasX >= -pointRadius && canvasX <= canvasWidth + pointRadius && 
-          canvasY >= -pointRadius && canvasY <= canvasHeight + pointRadius) {
+      if (canvasX >= -pointRadius && canvasX <= canvasWidth + pointRadius &&
+        canvasY >= -pointRadius && canvasY <= canvasHeight + pointRadius) {
         ctx.beginPath();
         ctx.arc(canvasX, canvasY, pointRadius, 0, 2 * Math.PI);
         ctx.fill();
@@ -744,7 +749,7 @@ class CanvasLayer extends LitElement {
     if (gridState.gridType === 'square') {
       const startX = Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
       const startY = Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
-      
+
       for (let x = startX; x <= worldVisibleRight + baseGridStep; x += baseGridStep) {
         for (let y = startY; y <= worldVisibleBottom + baseGridStep; y += baseGridStep) {
           drawPointAt(x, y);
@@ -753,25 +758,25 @@ class CanvasLayer extends LitElement {
     } else if (gridState.gridType === 'vertical-lines') {
       const startX = Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
       const startY = Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
-      
+
       for (let y = startY; y <= worldVisibleBottom + baseGridStep; y += baseGridStep) {
         drawPointAt(startX, y);
       }
     } else if (gridState.gridType === 'horizontal-lines') {
       const startX = Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
       const startY = Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
-      
+
       for (let x = startX; x <= worldVisibleRight + baseGridStep; x += baseGridStep) {
         drawPointAt(x, startY);
       }
     } else if (gridState.gridType === 'horizontal-triangle') {
       const triangleHeight = baseGridStep * (Math.sqrt(3) / 2);
       const startY = Math.floor(worldVisibleTop / triangleHeight) * triangleHeight;
-      
+
       for (let y = startY, row = Math.floor(startY / triangleHeight); y <= worldVisibleBottom + triangleHeight; y += triangleHeight, row++) {
         const offsetX = (row % 2 === 0) ? 0 : baseGridStep / 2;
         const startX = Math.floor((worldVisibleLeft - offsetX) / baseGridStep) * baseGridStep + offsetX;
-        
+
         for (let x = startX; x <= worldVisibleRight + baseGridStep; x += baseGridStep) {
           drawPointAt(x, y);
         }
@@ -779,11 +784,11 @@ class CanvasLayer extends LitElement {
     } else if (gridState.gridType === 'vertical-triangle') {
       const horizontalStep = baseGridStep * (Math.sqrt(3) / 2);
       const startX = Math.floor(worldVisibleLeft / horizontalStep) * horizontalStep;
-      
+
       for (let x = startX, col = Math.floor(startX / horizontalStep); x <= worldVisibleRight + horizontalStep; x += horizontalStep, col++) {
         const offsetY = (col % 2 === 0) ? 0 : baseGridStep / 2;
         const startY = Math.floor((worldVisibleTop - offsetY) / baseGridStep) * baseGridStep + offsetY;
-        
+
         for (let y = startY; y <= worldVisibleBottom + baseGridStep; y += baseGridStep) {
           drawPointAt(x, y);
         }
@@ -820,13 +825,13 @@ class CanvasLayer extends LitElement {
     const translateOffset = app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
     const offsetX = (translateOffset && typeof translateOffset.x === 'number') ? translateOffset.x : 0;
     const offsetY = (translateOffset && typeof translateOffset.y === 'number') ? translateOffset.y : 0;
-    
+
     const worldX = (checkingCoordinates.x - offsetX) / zoomLevel;
     const worldY = (checkingCoordinates.y - offsetY) / zoomLevel;
 
     // Calcul direct du point de grille le plus proche en espace monde
     let gridWorldX, gridWorldY;
-    
+
     if (gridState.gridType === 'square') {
       gridWorldX = Math.round(worldX / baseGridStep) * baseGridStep;
       gridWorldY = Math.round(worldY / baseGridStep) * baseGridStep;
@@ -838,28 +843,28 @@ class CanvasLayer extends LitElement {
       gridWorldY = Math.round(worldY / baseGridStep) * baseGridStep;
     } else if (gridState.gridType === 'horizontal-triangle') { // Grille triangulaire verticale
       const triangleHeight = baseGridStep * (Math.sqrt(3) / 2);
-      
+
       // Trouver la rangée la plus proche
       const row = Math.round(worldY / triangleHeight);
       gridWorldY = row * triangleHeight;
-      
+
       // Calculer le décalage X pour cette rangée
       const offsetX = (row % 2 === 0) ? 0 : baseGridStep / 2;
-      
+
       // Trouver la colonne la plus proche en tenant compte du décalage
       const adjustedX = worldX - offsetX;
       const col = Math.round(adjustedX / baseGridStep);
       gridWorldX = col * baseGridStep + offsetX;
     } else if (gridState.gridType === 'vertical-triangle') { // Grille triangulaire horizontale
       const horizontalStep = baseGridStep * (Math.sqrt(3) / 2);
-      
+
       // Trouver la colonne la plus proche
       const col = Math.round(worldX / horizontalStep);
       gridWorldX = col * horizontalStep;
-      
+
       // Calculer le décalage Y pour cette colonne
       const offsetY = (col % 2 === 0) ? 0 : baseGridStep / 2;
-      
+
       // Trouver la rangée la plus proche en tenant compte du décalage
       const adjustedY = worldY - offsetY;
       const row = Math.round(adjustedY / baseGridStep);
@@ -871,7 +876,7 @@ class CanvasLayer extends LitElement {
     // Convertir le résultat de l'espace monde vers l'espace canvas (comme toCanvasCoordinates)
     const canvasX = gridWorldX * zoomLevel + offsetX;
     const canvasY = gridWorldY * zoomLevel + offsetY;
-    
+
     return new Coordinates({ x: canvasX, y: canvasY });
   }
 
