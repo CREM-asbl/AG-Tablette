@@ -15,6 +15,8 @@ import { findObjectById, removeObjectById } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 
 /**
+ * Outil de rotation géométrique
+ * Permet la rotation d'objets autour d'un centre avec définition d'angle par 3 points ou arc existant
  */
 export class RotationTool extends Tool {
   constructor() {
@@ -52,9 +54,11 @@ export class RotationTool extends Tool {
       });
       shapesToDelete.forEach(s => removeObjectById(s.id));
       this.showLastCharacteristicElements('arcs');
+
+      // Configurer les contraintes de sélection pour permettre la sélection d'arcs
+      this.configureArcSelectionConstraints();
     }
 
-    // this.setSelectionConstraints();
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
@@ -78,10 +82,11 @@ export class RotationTool extends Tool {
   }
 
   selectObject() {
-    if (this.drawingShapes)
+    if (this.drawingShapes) {
       this.drawingShapes.forEach(s => {
-        removeObjectById(s.id)
-      })
+        removeObjectById(s.id);
+      });
+    }
 
     this.removeListeners();
 
@@ -115,15 +120,11 @@ export class RotationTool extends Tool {
 
   canvasMouseDown() {
     let coord = app.workspace.lastKnownMouseCoordinates;
-    if (this.pointsDrawn.length == 1) {
-      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-      app.workspace.selectionConstraints.eventType = 'click';
-      app.workspace.selectionConstraints.segments.canSelect = true;
-      app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
-      app.workspace.selectionConstraints.points.canSelect = true;
-      // app.workspace.selectionConstraints.segments.numberOfObjects = 'allInDistance';
-      let object = SelectManager.selectObject(coord);
-      if (object instanceof Segment && object.isArc() && object.shape instanceof ArrowLineShape) {
+
+    if (this.pointsDrawn.length === 1) {
+      this.configureArcSelectionConstraints();
+      let object = this.trySelectArcObject(coord);
+      if (object instanceof Segment && object.isArc()) {
         let firstElementId = this.characteristicElements.elementIds[0];
         let referenceShape;
         if (object.layer == 'upper') {
@@ -136,7 +137,7 @@ export class RotationTool extends Tool {
               strokeWidth: 2,
             });
           } else {
-            let points = this.characteristicElements.elements.slice(1).map(pt => new Point({...pt, id: null, shapeId: undefined, layer: 'upper'}));
+            let points = this.characteristicElements.elements.slice(1).map(pt => new Point({ ...pt, id: null, shapeId: undefined, layer: 'upper' }));
             let radius = points[0].coordinates.dist(points[2].coordinates);
             let angle = points[2].coordinates.angleWith(points[1].coordinates);
             const projectionCoord = points[2].coordinates.add({
@@ -316,12 +317,8 @@ export class RotationTool extends Tool {
       removeObjectById(
         this.arcShape0.id
       );
-      // this.characteristicElements.elementIds.splice(1, 3, ...this.arcShape1.segments[0].vertexIds, this.arcShape1.segments[0].arcCenterId);
     } else {
-      removeObjectById(
-        this.arcShape1.id
-      );
-      // this.characteristicElements.elementIds.splice(1, 3, ...this.arcShape0.segments[0].vertexIds, this.arcShape0.segments[0].arcCenterId);
+      removeObjectById(this.arcShape1.id);
     }
 
     if (!(this.angle < 0 ^ this.clockwise)) {
@@ -329,7 +326,7 @@ export class RotationTool extends Tool {
       else if (this.angle < 0) this.angle += 2 * Math.PI;
     }
 
-    this.characteristicElements.elementIds.splice(2, 2, this.characteristicElements.elementIds[3],  this.characteristicElements.elementIds[2]);
+    this.characteristicElements.elementIds.splice(2, 2, this.characteristicElements.elementIds[3], this.characteristicElements.elementIds[2]);
 
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
   }
@@ -364,7 +361,7 @@ export class RotationTool extends Tool {
   }
 
   animate() {
-    if (app.tool.currentStep == 'animateRefPoint') {
+    if (app.tool.currentStep === 'animateRefPoint') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
         this.animate(),
@@ -382,7 +379,7 @@ export class RotationTool extends Tool {
         let length = rotationCenter.coordinates.dist(point.coordinates);
         point.endCoordinates = new Coordinates({
           x: rotationCenter.x + Math.cos(startAngle + this.angle) * length,
-          y: rotationCenter.x + Math.sin(startAngle + this.angle) * length,
+          y: rotationCenter.y + Math.sin(startAngle + this.angle) * length,
         });
       }));
     }
@@ -401,16 +398,17 @@ export class RotationTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'rot') {
+    if (app.tool.currentStep === 'rot') {
+      let rotationCenter = this.characteristicElements.firstElement;
       app.upperCanvasLayer.points.forEach((point) => {
         if (point.startCoordinates) {
-          let startAngle = this.pointsDrawn[0].coordinates.angleWith(
+          let startAngle = rotationCenter.coordinates.angleWith(
             point.startCoordinates
           );
-          let length = this.pointsDrawn[0].coordinates.dist(point.startCoordinates);
+          let length = rotationCenter.coordinates.dist(point.startCoordinates);
           point.coordinates = new Coordinates({
-            x: this.pointsDrawn[0].x + Math.cos(startAngle + this.angle * this.progress) * length,
-            y: this.pointsDrawn[0].y + Math.sin(startAngle + this.angle * this.progress) * length,
+            x: rotationCenter.coordinates.x + Math.cos(startAngle + this.angle * this.progress) * length,
+            y: rotationCenter.coordinates.y + Math.sin(startAngle + this.angle * this.progress) * length,
           });
         }
       });
@@ -426,7 +424,7 @@ export class RotationTool extends Tool {
   }
 
   _executeAction() {
-    if (this.characteristicElements.type == 'points') {
+    if (this.characteristicElements.type === 'points') {
       this.characteristicElements.elementIds.forEach((elemId, idx) => {
 
         let element = findObjectById(elemId);
@@ -523,7 +521,7 @@ export class RotationTool extends Tool {
   }
 
   showLastCharacteristicElements(typeOfObjectToShow) {
-    if (typeOfObjectToShow == 'rotationCenter') {
+    if (typeOfObjectToShow === 'rotationCenter') {
       let allRotationCenters = app.workspace.rotationLastCharacteristicElements
         .map(lastElements => lastElements.firstElement)
         .filter((element, index, elements) => elements.indexOf(element) === index);
@@ -544,7 +542,7 @@ export class RotationTool extends Tool {
     } else {
       app.workspace.rotationLastCharacteristicElements.forEach(characteristicElement => {
         let points;
-        if (characteristicElement.type == 'arc') {
+        if (characteristicElement.type === 'arc') {
           let arc = findObjectById(characteristicElement.elementIds[1]);
           points = [...arc.vertexes, arc.arcCenter];
         } else {
@@ -614,5 +612,57 @@ export class RotationTool extends Tool {
         seg.shapeId = shape.id;
       })
     }
+  }
+
+  /**
+   * Configure les contraintes de sélection pour permettre la sélection d'arcs
+   * @private
+   */
+  configureArcSelectionConstraints() {
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+    app.workspace.selectionConstraints.eventType = 'click';
+    app.workspace.selectionConstraints.segments.canSelect = true;
+    app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
+    app.workspace.selectionConstraints.points.canSelect = true;
+    app.workspace.selectionConstraints.shapes.canSelect = true;
+    app.workspace.selectionConstraints.shapes.canSelectFromUpper = true;
+  }
+
+  /**
+   * Tente de sélectionner un objet arc aux coordonnées données
+   * @param {Coordinates} coord - Coordonnées de sélection
+   * @returns {Segment|null} Le segment arc trouvé ou null
+   * @private
+   */
+  trySelectArcObject(coord) {
+    let object = SelectManager.selectObject(coord);
+
+    // Si aucun segment n'est trouvé directement, chercher dans les formes
+    if (!object) {
+      const shapesWithArcs = app.mainCanvasLayer.shapes.filter(shape => 
+        shape.segments?.some(seg => seg.isArc?.())
+      );
+
+      for (const shape of shapesWithArcs) {
+        if (shape.isCoordinatesOnBorder?.(coord)) {
+          object = shape.segments.find(seg => seg.isArc?.());
+          break;
+        }
+      }
+    }
+
+    return object;
+  }
+
+  /**
+   * Valide les paramètres avant exécution
+   * @returns {boolean} True si valide
+   * @private
+   */
+  validateExecutionParameters() {
+    return this.characteristicElements && 
+           this.involvedShapes && 
+           this.involvedShapes.length > 0 &&
+           typeof this.angle === 'number';
   }
 }
