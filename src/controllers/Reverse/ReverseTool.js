@@ -290,42 +290,45 @@ export class ReverseTool extends Tool {
   }
 
   createAxis(orientation) {
+    // Ajuster la longueur de l'axe selon le zoom pour maintenir une taille visuelle constante
+    const axisLengthInLogicalCoords = this.axisLength / app.workspace.zoomLevel;
+
     let path = '';
     if (Math.abs(orientation - Math.PI / 2) < 0.01) {
       path = [
         'M',
         this.center.x,
-        this.center.y - this.axisLength / 2,
+        this.center.y - axisLengthInLogicalCoords / 2,
         'L',
         this.center.x,
-        this.center.y + this.axisLength / 2,
+        this.center.y + axisLengthInLogicalCoords / 2,
       ].join(' ');
     } else if (Math.abs(orientation - Math.PI / 4) < 0.01) {
       path = [
         'M',
-        this.center.x - (0.683 * this.axisLength) / 2,
-        this.center.y - (0.683 * this.axisLength) / 2,
+        this.center.x - (0.683 * axisLengthInLogicalCoords) / 2,
+        this.center.y - (0.683 * axisLengthInLogicalCoords) / 2,
         'L',
-        this.center.x + (0.683 * this.axisLength) / 2,
-        this.center.y + (0.683 * this.axisLength) / 2,
+        this.center.x + (0.683 * axisLengthInLogicalCoords) / 2,
+        this.center.y + (0.683 * axisLengthInLogicalCoords) / 2,
       ].join(' ');
     } else if (Math.abs(orientation) < 0.01) {
       path = [
         'M',
-        this.center.x - this.axisLength / 2,
+        this.center.x - axisLengthInLogicalCoords / 2,
         this.center.y,
         'L',
-        this.center.x + this.axisLength / 2,
+        this.center.x + axisLengthInLogicalCoords / 2,
         this.center.y,
       ].join(' ');
     } else if (Math.abs(orientation - (3 * Math.PI) / 4) < 0.01) {
       path = [
         'M',
-        this.center.x + (0.683 * this.axisLength) / 2,
-        this.center.y - (0.683 * this.axisLength) / 2,
+        this.center.x + (0.683 * axisLengthInLogicalCoords) / 2,
+        this.center.y - (0.683 * axisLengthInLogicalCoords) / 2,
         'L',
-        this.center.x - (0.683 * this.axisLength) / 2,
-        this.center.y + (0.683 * this.axisLength) / 2,
+        this.center.x - (0.683 * axisLengthInLogicalCoords) / 2,
+        this.center.y + (0.683 * axisLengthInLogicalCoords) / 2,
       ].join(' ');
     } else {
       console.error('orientation not supported : ', orientation);

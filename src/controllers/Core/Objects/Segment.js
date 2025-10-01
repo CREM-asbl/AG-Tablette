@@ -355,8 +355,17 @@ export class Segment {
         largeArcFlag = Math.abs(largeArcFlag - 1);
       }
 
-      let rx = centerCoordinates.dist(this.tangentPoint1),
-        ry = centerCoordinates.dist(this.tangentPoint2),
+      // Ensure tangent points are in the same coordinate system as centerCoordinates
+      // When scaling == 'scale', firstCoordinates/secondCoordinates/centerCoordinates are converted to canvas coordinates.
+      // seg.tangentPoint1/2 are Points (logical coordinates). Convert them to canvas to avoid mixing units under zoom.
+      let tp1 = this.tangentPoint1?.coordinates || this.tangentPoint1;
+      let tp2 = this.tangentPoint2?.coordinates || this.tangentPoint2;
+      if (scaling == 'scale') {
+        tp1 = tp1?.toCanvasCoordinates ? tp1.toCanvasCoordinates() : tp1;
+        tp2 = tp2?.toCanvasCoordinates ? tp2.toCanvasCoordinates() : tp2;
+      }
+      let rx = centerCoordinates.dist(tp1),
+        ry = centerCoordinates.dist(tp2),
         degreeAxisAngle = (this.axisAngle * 180) / Math.PI;
       // canvas path2D => radian
       // svg path => degree
