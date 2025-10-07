@@ -7,6 +7,7 @@ import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
+import { getActivity, getAllModules, getAllThemes, saveActivity } from '../utils/indexeddb-activities.js';
 import config from './firebase-config.json';
 
 const firebaseApp = initializeApp(config);
@@ -28,7 +29,7 @@ export async function openFileFromServer(activityName) {
     const data = await getFileDocFromFilename(activityName);
     if (data) {
       await loadEnvironnement(data.environment);
-      let fileDownloadedObject = await readFileFromServer(data.id);
+      const fileDownloadedObject = await readFileFromServer(data.id);
 
       // Si l'application est déjà démarrée, on parse directement le fichier
       // sinon on attend l'événement app-started
@@ -76,11 +77,23 @@ export async function readFileFromServer(filename) {
       throw new Error('Nom de fichier invalide');
     }
 
-    // Vérifier le cache
+    // Vérifier d'abord IndexedDB (accès hors ligne)
+    try {
+      const localActivity = await getActivity(filename);
+      if (localActivity) {
+        console.log(`Fichier ${filename} récupéré depuis IndexedDB (hors ligne)`);
+        // Notification supprimée pour transparence utilisateur
+        return localActivity;
+      }
+    } catch (indexedDBError) {
+      console.warn('Erreur IndexedDB, tentative de récupération en ligne:', indexedDBError);
+    }
+
+    // Vérifier le cache mémoire
     const cacheKey = `file_${filename}`;
     const cachedData = fileCache.get(cacheKey);
     if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
-      console.log(`Fichier ${filename} récupéré depuis le cache`);
+      console.log(`Fichier ${filename} récupéré depuis le cache mémoire`);
       return cachedData.data;
     }
 
@@ -99,6 +112,14 @@ export async function readFileFromServer(filename) {
     // Parser le JSON immédiatement
     const jsonData = await fileDownloaded.json();
 
+    // Sauvegarder dans IndexedDB pour accès hors ligne
+    try {
+      await saveActivity(filename, jsonData);
+      console.log(`Fichier ${filename} sauvegardé dans IndexedDB`);
+    } catch (saveError) {
+      console.warn('Erreur lors de la sauvegarde IndexedDB:', saveError);
+    }
+
     // Mettre en cache le contenu JSON plutôt que la réponse
     fileCache.set(cacheKey, {
       data: jsonData,
@@ -108,6 +129,18 @@ export async function readFileFromServer(filename) {
     return jsonData;
   } catch (error) {
     console.error('Erreur lors de la lecture du fichier depuis le serveur:', error);
+
+    // En cas d'erreur réseau, tenter une dernière fois IndexedDB
+    try {
+      const fallbackActivity = await getActivity(filename);
+      if (fallbackActivity) {
+        console.log(`Fallback: fichier ${filename} récupéré depuis IndexedDB après erreur réseau`);
+        return fallbackActivity;
+      }
+    } catch (fallbackError) {
+      console.error('Aucune version locale disponible:', fallbackError);
+    }
+
     throw error;
   }
 }
@@ -154,39 +187,63 @@ export async function getFileDocFromFilename(id) {
 }
 
 export async function findAllThemes() {
-  let themes = await getDocs(collection(db, "themes"));
-  let themesWithId = [];
+  // Essayer d'abord IndexedDB
+  try {
+    const localThemes = await getAllThemes();
+    if (localThemes && localThemes.length > 0) {
+      console.log('Thèmes récupérés depuis IndexedDB');
+      return localThemes.map(t => ({ id: t.id, ...t.data }));
+    }
+  } catch (err) {
+    console.warn('Erreur IndexedDB pour les thèmes:', err);
+  }
+  // Fallback serveur
+  const themes = await getDocs(collection(db, "themes"));
+  const themesWithId = [];
   themes.forEach(doc => themesWithId.push({ id: doc.id, ...doc.data() }));
   return themesWithId;
 }
 
 export async function findAllFiles() {
-  let files = await getDocs(collection(db, "files"));
-  let filesWithId = [];
+  const files = await getDocs(collection(db, "files"));
+  const filesWithId = [];
   files.forEach(doc => filesWithId.push({ id: doc.id, ...doc.data() }));
   return filesWithId;
 }
 
 export function getThemeDocFromThemeName(themeName) {
-  let themeDoc = doc(db, 'themes', themeName);
+  const themeDoc = doc(db, 'themes', themeName);
   return themeDoc;
 }
 
 export function getModuleDocFromModuleName(moduleName) {
-  let moduleDoc = doc(db, 'modules', moduleName);
+  const moduleDoc = doc(db, 'modules', moduleName);
   return moduleDoc;
 }
 
 export async function getModulesDocFromTheme(themeDoc) {
-  let moduleDocs = await getDocs(query(collection(db, "modules"), where("theme", "==", themeDoc)));
-  let moduleDocsWithId = [];
+  // Essayer d'abord IndexedDB
+  try {
+    const localModules = await getAllModules();
+    // Filtrer les modules du thème demandé
+    const filtered = localModules.filter(m => m.data.theme === themeDoc);
+    if (filtered.length > 0) {
+      console.log('Modules récupérés depuis IndexedDB pour le thème', themeDoc);
+      return filtered.map(m => ({ id: m.id, ...m.data }));
+    }
+  } catch (err) {
+    console.warn('Erreur IndexedDB pour les modules:', err);
+  }
+  // Fallback serveur
+  const moduleDocs = await getDocs(query(collection(db, "modules"), where("theme", "==", themeDoc)));
+  const moduleDocsWithId = [];
   moduleDocs.forEach(doc => moduleDocsWithId.push({ id: doc.id, ...doc.data() }));
   return moduleDocsWithId;
 }
 
 export async function getFilesDocFromModule(moduleDoc) {
-  let fileDocs = await getDocs(query(collection(db, "files"), where("module", "==", moduleDoc)));
-  let fileDocsWithId = [];
+  const fileDocs = await getDocs(query(collection(db, "files"), where("module", "==", moduleDoc)));
+  const fileDocsWithId = [];
   fileDocs.forEach(doc => fileDocsWithId.push({ id: doc.id, ...doc.data() }));
   return fileDocsWithId;
 }

@@ -38,10 +38,6 @@ class OpenPopup extends LitElement {
   }
 
   openServerFile() {
-    if (!navigator.onLine) {
-      alert("Vous n'êtes pas connecté.\nVeuillez vérifier votre connexion.")
-      return
-    }
     createElem('open-server-popup');
     this.close();
   }

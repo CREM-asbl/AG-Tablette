@@ -4,6 +4,7 @@ import { bugSend } from '@controllers/Bugs';
 import '@layouts/ag-menu';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+// import supprimé : composant offline-status-indicator
 import { app } from '../controllers/Core/App';
 import '../controllers/Core/Managers/FullHistoryManager';
 import '../controllers/Core/Managers/GroupManager';
@@ -14,8 +15,22 @@ import '../controllers/Core/Managers/SelectManager';
 import '../controllers/Core/Managers/ShapeManager';
 import '../controllers/Core/Managers/WorkspaceManager';
 import { createElem } from '../controllers/Core/Tools/general';
+import '../utils/offline-init.js';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
+
+// Enregistrement du Service Worker pour le cache hors ligne
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker enregistré avec succès:', registration.scope);
+      })
+      .catch(error => {
+        console.log('Échec de l\'enregistrement du Service Worker:', error);
+      });
+  });
+}
 
 @customElement('ag-main')
 class AGMain extends LitElement {
@@ -90,6 +105,7 @@ class AGMain extends LitElement {
       </div>
 
       <notif-center></notif-center>
+  <!-- composant offline-status-indicator supprimé -->
 
       <input
         id="fileSelector"
