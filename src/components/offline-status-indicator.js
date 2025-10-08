@@ -1,1 +1,0 @@
-// Composant offline-status-indicator supprimé

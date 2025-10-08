@@ -1,10 +1,10 @@
 import '@components/canvas-container';
 import '@components/popups/notification';
-import '../components/offline-status-indicator.ts';
-import '@layouts/ag-menu';
 import { bugSend } from '@controllers/Bugs';
+import '@layouts/ag-menu';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import '../components/sync-status-indicator.ts';
 import { app } from '../controllers/Core/App';
 import { HistoryManager } from '../controllers/Core/Managers/HistoryManager';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
@@ -91,7 +91,7 @@ class AGMain extends LitElement {
         </ag-menu>
         <canvas-container id="canvas-container" .environment="${app.environment}"></canvas-container>
       </div>
-      <offline-status-indicator></offline-status-indicator>
+  <sync-status-indicator></sync-status-indicator>
       <notif-center></notif-center>
       <input
         id="fileSelector"

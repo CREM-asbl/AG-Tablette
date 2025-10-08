@@ -21,10 +21,11 @@ Ce système permet aux utilisateurs d'accéder aux activités (.agg, .agl) même
 - Se déclenche lors de la reconnexion réseau
 - Évite les téléchargements redondants
 
-### 4. Composant de Statut (`src/components/offline-status-indicator.js`)
-- Affiche le statut de connexion (en ligne/hors ligne/synchronisation)
-- Indicateur visuel en temps réel pour l'utilisateur
-- Positionnement fixe en haut à droite
+### 4. Indicateur de Synchronisation (`src/components/sync-status-indicator.ts`)
+- Affiche uniquement la progression de la synchronisation des activités
+- Apparait quand une synchronisation démarre, reste 2s après 100% puis disparaît
+- Barre de progression et pourcentage, animation de rotation
+- Positionnement fixe en bas à droite pour ne pas gêner la zone de dessin
 
 ### 5. Firebase Integration (`src/firebase/firebase-init.js`)
 - Modifié pour vérifier d'abord IndexedDB avant le serveur
@@ -72,9 +73,10 @@ Le système s'initialise automatiquement au chargement de l'application. Aucune 
 
 ## Événements
 
-L'application émet des événements personnalisés :
-- `activities-synced` : Synchronisation terminée
-- `show-notif` : Notifications utilisateur (en ligne/hors ligne)
+L'application émet des événements personnalisés utilisés par le système :
+- `sync-progress` : { percent } progression courante (0-100)
+- `activities-synced` : Synchronisation terminée (alias final 100%)
+- `show-notif` : Notifications utilisateur diverses
 
 ## Futur
 
