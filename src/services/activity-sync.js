@@ -27,6 +27,7 @@ export async function syncActivitiesInBackground() {
     const localMap = new Map(localActivities.map(activity => [activity.id, activity]));
     let addedCount = 0;
 
+    let processedCount = 0;
     for (const serverFile of serverFiles) {
       try {
         const localActivity = localMap.get(serverFile.id);
@@ -40,6 +41,15 @@ export async function syncActivitiesInBackground() {
         } else {
           console.log(`Activité ${serverFile.id} déjà présente localement (version à jour)`);
         }
+        processedCount++;
+        // Dispatch progress event
+        window.dispatchEvent(new CustomEvent('sync-progress', {
+          detail: {
+            processed: processedCount,
+            total: serverFiles.length,
+            percent: Math.round((processedCount / serverFiles.length) * 100)
+          }
+        }));
       } catch (fileError) {
         console.warn(`Erreur lors de la synchronisation de ${serverFile.id}:`, fileError);
       }

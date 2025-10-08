@@ -13,10 +13,24 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
   @property({ type: Boolean }) isDownloading = false;
   @property({ type: String }) errorMessage = '';
   @property({ type: String }) successMessage = '';
+  @property({ type: Number }) syncPercent = 100;
+  @property({ type: String }) syncStatus = 'complete';
 
   constructor() {
     super();
     window.addEventListener('close-popup', () => this.close());
+    window.addEventListener('sync-progress', (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      const percent = detail?.percent ?? 100;
+      this.syncPercent = percent;
+      this.syncStatus = percent < 100 ? 'syncing' : 'complete';
+      this.requestUpdate();
+    });
+    window.addEventListener('activities-synced', () => {
+      this.syncPercent = 100;
+      this.syncStatus = 'complete';
+      this.requestUpdate();
+    });
   }
 
   close() {
@@ -266,7 +280,10 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
           </div>` : ''}
           ${this.successMessage ? html`<div class="success-message" role="status">${this.successMessage}</div>` : ''}
           <div style="margin-top:1rem; font-size:0.9em; color:#888;">
-            <span>Version des activités en cache : <span id="cache-version-info"></span></span>
+            <span>Synchronisation :
+              ${this.syncStatus === 'syncing' ? html`<span style="color:#ff9800;">${this.syncPercent}%</span>` : html`<span style="color:#4caf50;">Complète</span>`}
+            </span>
+            <span style="margin-left:1em;">Version des activités en cache : <span id="cache-version-info"></span></span>
           </div>
         </div>
       </template-popup>
