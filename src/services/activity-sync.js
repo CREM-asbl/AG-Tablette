@@ -30,13 +30,15 @@ export async function syncActivitiesInBackground() {
     for (const serverFile of serverFiles) {
       try {
         const localActivity = localMap.get(serverFile.id);
-        if (!localActivity) {
-          console.log(`Téléchargement de la nouvelle activité: ${serverFile.id}`);
+        const serverVersion = serverFile.version || 1;
+        const localVersion = localActivity?.version || 0;
+        if (!localActivity || serverVersion > localVersion) {
+          console.log(`Téléchargement ou mise à jour de l'activité: ${serverFile.id}`);
           const activityData = await readFileFromServer(serverFile.id);
-          await saveActivity(serverFile.id, activityData);
+          await saveActivity(serverFile.id, activityData, serverVersion);
           addedCount++;
         } else {
-          console.log(`Activité ${serverFile.id} déjà présente localement`);
+          console.log(`Activité ${serverFile.id} déjà présente localement (version à jour)`);
         }
       } catch (fileError) {
         console.warn(`Erreur lors de la synchronisation de ${serverFile.id}:`, fileError);

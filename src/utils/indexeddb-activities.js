@@ -26,10 +26,27 @@ export function openDB() {
   });
 }
 
-export async function saveActivity(id, data) {
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
+
+export async function saveActivity(id, data, version = 1) {
   const db = await openDB();
   const tx = db.transaction(STORE_NAMES.activities, 'readwrite');
-  tx.objectStore(STORE_NAMES.activities).put({ id, data });
+  const compressedData = compressToUTF16(JSON.stringify(data));
+  // Gestion de la taille du cache : max 100 activités
+  const store = tx.objectStore(STORE_NAMES.activities);
+  const countRequest = store.count();
+  countRequest.onsuccess = () => {
+    if (countRequest.result >= 100) {
+      // Supprimer la plus ancienne activité
+      store.openCursor().onsuccess = function (event) {
+        const cursor = event.target.result;
+        if (cursor) {
+          store.delete(cursor.key);
+        }
+      };
+    }
+    store.put({ id, data: compressedData, version });
+  };
   return tx.complete;
 }
 
@@ -51,7 +68,17 @@ export async function getActivity(id) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
     const request = db.transaction(STORE_NAMES.activities).objectStore(STORE_NAMES.activities).get(id);
-    request.onsuccess = () => resolve(request.result?.data || null);
+    request.onsuccess = () => {
+      const result = request.result;
+      if (result && result.data) {
+        try {
+          result.data = JSON.parse(decompressFromUTF16(result.data));
+        } catch (e) {
+          // Si la donnée n'est pas compressée (legacy), on la garde telle quelle
+        }
+      }
+      resolve(result || null);
+    };
     request.onerror = () => reject(request.error);
   });
 }

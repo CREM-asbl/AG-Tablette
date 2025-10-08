@@ -83,7 +83,7 @@ export async function readFileFromServer(filename) {
       if (localActivity) {
         console.log(`Fichier ${filename} récupéré depuis IndexedDB (hors ligne)`);
         // Notification supprimée pour transparence utilisateur
-        return localActivity;
+        return localActivity.data;
       }
     } catch (indexedDBError) {
       console.warn('Erreur IndexedDB, tentative de récupération en ligne:', indexedDBError);
@@ -114,8 +114,9 @@ export async function readFileFromServer(filename) {
 
     // Sauvegarder dans IndexedDB pour accès hors ligne
     try {
-      await saveActivity(filename, jsonData);
-      console.log(`Fichier ${filename} sauvegardé dans IndexedDB`);
+      const version = jsonData.version || 1;
+      await saveActivity(filename, jsonData, version);
+      console.log(`Fichier ${filename} sauvegardé dans IndexedDB (version ${version})`);
     } catch (saveError) {
       console.warn('Erreur lors de la sauvegarde IndexedDB:', saveError);
     }
@@ -135,7 +136,7 @@ export async function readFileFromServer(filename) {
       const fallbackActivity = await getActivity(filename);
       if (fallbackActivity) {
         console.log(`Fallback: fichier ${filename} récupéré depuis IndexedDB après erreur réseau`);
-        return fallbackActivity;
+        return fallbackActivity.data;
       }
     } catch (fallbackError) {
       console.error('Aucune version locale disponible:', fallbackError);

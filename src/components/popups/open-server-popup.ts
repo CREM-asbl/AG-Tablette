@@ -261,10 +261,26 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
           </div>
 
           ${this.isDownloading ? html`<progress class="download-progress" role="progressbar"></progress>` : ''}
-          ${this.errorMessage ? html`<div class="error-message" role="alert">${this.errorMessage}</div>` : ''}
+          ${this.errorMessage ? html`<div class="error-message" role="alert">${this.errorMessage}
+            <color-button @click="${() => this.clearCache()}" style="margin-top:8px;">Vider le cache local</color-button>
+          </div>` : ''}
           ${this.successMessage ? html`<div class="success-message" role="status">${this.successMessage}</div>` : ''}
+          <div style="margin-top:1rem; font-size:0.9em; color:#888;">
+            <span>Version des activités en cache : <span id="cache-version-info"></span></span>
+          </div>
         </div>
       </template-popup>
     `;
+  }
+
+  async clearCache() {
+    // Suppression du cache IndexedDB
+    const db = await window.indexedDB.open('agTabletteDB');
+    const tx = db.result.transaction(['activities'], 'readwrite');
+    tx.objectStore('activities').clear();
+    this.successMessage = 'Cache local vidé.';
+    this.errorMessage = '';
+    // Mettre à jour l'affichage
+    this.requestUpdate();
   }
 }

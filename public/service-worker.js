@@ -41,4 +41,13 @@ self.addEventListener('fetch', event => {
   }
 });
 
-// Synchronisation en arrière-plan à améliorer plus tard avec Background Sync API
+// Préparation pour Background Sync API
+self.addEventListener('sync', event => {
+  if (event.tag === 'sync-activities') {
+    event.waitUntil(
+      // Appeler une fonction de synchronisation ici (ex: fetch et mise à jour du cache)
+      fetch('/api/sync-activities').catch(() => { })
+    );
+  }
+});
+// Pour déclencher : navigator.serviceWorker.ready.then(reg => reg.sync.register('sync-activities'));
