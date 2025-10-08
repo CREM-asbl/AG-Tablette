@@ -81,8 +81,8 @@ class ThemeElem extends SignalWatcher(LitElement) {
   connectedCallback() {
     super.connectedCallback();
     // Si un objet theme est fourni, extraire le titre
-    if (this.theme && this.theme.id) {
-      this.title = this.theme.id;
+    if (this.theme && (this.theme as any).id) {
+      this.title = (this.theme as any).id;
     }
   }
 
@@ -93,10 +93,11 @@ class ThemeElem extends SignalWatcher(LitElement) {
         <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
         <div class="modules-container">
           ${!this.loaded ? html`<progress></progress>` : html``}
+          ${this.modules.length === 0 && this.loaded ? html`<div style="padding:12px;color:#888;font-size:0.95em;">Aucun module disponible</div>` : html``}
           ${this.modules.filter(info => info?.hidden != true).map(info => html`
             <module-elem
               title="${info.id}"
-              .fileNames="${info.files.map(file => file.id)}">
+              .fileNames="${info.files ? info.files.map(file => file.id) : []}">
             </module-elem>`
     )}
         </div>
@@ -146,36 +147,62 @@ class ThemeElem extends SignalWatcher(LitElement) {
   async loadModules() {
     if (this.loaded) return;
 
-    // Vérifier d'abord si des modules pour ce thème sont déjà en cache
-    // S'assurer que cachedSequences.value existe avant d'utiliser find()
-    const cachedModulesForTheme = cachedSequences.value &&
-      cachedSequences.value.find(cache => cache.theme === this.title);
+    try {
+      // Vérifier d'abord si des modules pour ce thème sont déjà en cache mémoire
+      let cachedModulesForTheme = cachedSequences.get() &&
+        cachedSequences.get().find(cache => cache.theme === this.title);
 
-    if (cachedModulesForTheme) {
-      console.log('Utilisation des séquences en cache pour le thème:', this.title);
-      this.modules = cachedModulesForTheme.modules;
+      // Fallback : si pas de modules en mémoire, tenter de récupérer depuis IndexedDB
+      if (!cachedModulesForTheme) {
+        const { getAllModules } = await import('../../utils/indexeddb-activities.js');
+        const allModules = await getAllModules();
+        const filtered = allModules.filter(m => m.data.theme === this.title);
+        if (filtered.length > 0) {
+          cachedModulesForTheme = { theme: this.title, modules: filtered.map(m => ({ id: m.id, ...m.data })) };
+          // Mettre à jour le cache mémoire
+          const currentCache = Array.isArray(cachedSequences.get()) ? [...cachedSequences.get()] : [];
+          currentCache.push(cachedModulesForTheme);
+          cachedSequences.set(currentCache);
+          console.log('Modules récupérés depuis IndexedDB pour le thème:', this.title);
+        }
+      }
+
+      if (cachedModulesForTheme) {
+        this.modules = cachedModulesForTheme.modules;
+        this.loaded = true;
+        return;
+      }
+
+      // Sinon charger depuis getModulesDocFromTheme (qui gère IndexedDB + serveur)
+      let themeDocRef = getThemeDocFromThemeName(this.title);
+      let modulesDoc = await getModulesDocFromTheme(this.title); // Passer directement le nom du thème
+      this.modules = modulesDoc || [];
+
+      // Sauvegarder les modules dans IndexedDB si récupérés du serveur
+      if (modulesDoc && modulesDoc.length > 0 && navigator.onLine) {
+        const { saveModulesToIndexedDB } = await import('../../store/notions');
+        await saveModulesToIndexedDB(modulesDoc, this.title);
+      }
+
+      // Mise à jour du cache des séquences en mémoire
+      if (modulesDoc && modulesDoc.length > 0) {
+        const currentCache = Array.isArray(cachedSequences.get()) ? [...cachedSequences.get()] : [];
+        const existingIndex = currentCache.findIndex(cache => cache.theme === this.title);
+        if (existingIndex >= 0) {
+          currentCache[existingIndex] = { theme: this.title, modules: modulesDoc };
+        } else {
+          currentCache.push({ theme: this.title, modules: modulesDoc });
+        }
+        cachedSequences.set(currentCache);
+        console.log('Séquences mises en cache pour le thème:', this.title);
+      }
+
       this.loaded = true;
-      return;
+    } catch (error) {
+      console.error('Erreur lors du chargement des modules pour le thème', this.title, ':', error);
+      this.modules = [];
+      this.loaded = true;
     }
-
-    // Sinon charger depuis le serveur
-    let themeDocRef = getThemeDocFromThemeName(this.title);
-    let modulesDoc = await getModulesDocFromTheme(themeDocRef);
-    this.modules = modulesDoc;
-
-    // Mise à jour du cache des séquences
-    if (modulesDoc && modulesDoc.length > 0) {
-      // S'assurer que cachedSequences.value est initialisé comme un tableau
-      const currentCache = Array.isArray(cachedSequences.value) ? [...cachedSequences.value] : [];
-      currentCache.push({
-        theme: this.title,
-        modules: modulesDoc
-      });
-      cachedSequences.value = currentCache;
-      console.log('Séquences mises en cache pour le thème:', this.title);
-    }
-
-    this.loaded = true;
   }
 }
 customElements.define('theme-elem', ThemeElem);

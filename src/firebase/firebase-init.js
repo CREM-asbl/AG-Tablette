@@ -197,11 +197,38 @@ export async function findAllThemes() {
   } catch (err) {
     console.warn('Erreur IndexedDB pour les thèmes:', err);
   }
-  // Fallback serveur
-  const themes = await getDocs(collection(db, "themes"));
-  const themesWithId = [];
-  themes.forEach(doc => themesWithId.push({ id: doc.id, ...doc.data() }));
-  return themesWithId;
+
+  // Vérifier si on est en ligne avant d'essayer le serveur
+  if (!navigator.onLine) {
+    console.log('Mode hors ligne - aucun thème disponible dans IndexedDB');
+    return [];
+  }
+
+  try {
+    // Fallback serveur avec retry
+    const themes = await retryWithBackoff(async () => {
+      return await getDocs(collection(db, "themes"));
+    }, 2, 1000);
+
+    const themesWithId = [];
+    themes.forEach(doc => themesWithId.push({ id: doc.id, ...doc.data() }));
+
+    // Sauvegarder dans IndexedDB pour les prochaines fois
+    try {
+      const { saveTheme } = await import('../utils/indexeddb-activities.js');
+      for (const theme of themesWithId) {
+        await saveTheme(theme.id, theme);
+      }
+      console.log('Thèmes sauvegardés dans IndexedDB pour usage hors ligne');
+    } catch (saveError) {
+      console.warn('Erreur lors de la sauvegarde des thèmes dans IndexedDB:', saveError);
+    }
+
+    return themesWithId;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des thèmes depuis le serveur:', error);
+    return [];
+  }
 }
 
 export async function findAllFiles() {
@@ -221,24 +248,188 @@ export function getModuleDocFromModuleName(moduleName) {
   return moduleDoc;
 }
 
+// Fonction de diagnostic pour vérifier la collection modules
+export async function debugFirebaseModules() {
+  try {
+    console.log('[DEBUG] 🔍 Diagnostic de la collection modules Firebase...');
+
+    // Tester les permissions de lecture
+    try {
+      await getDocs(query(collection(db, "modules"), where("__name__", "!=", "impossible_doc_name")));
+      console.log('[DEBUG] ✅ Permissions de lecture OK pour la collection modules');
+    } catch (permError) {
+      console.error('[DEBUG] ❌ Problème de permissions pour la collection modules:', permError);
+      return [];
+    }
+
+    // Récupérer TOUS les modules sans filtre
+    const allModulesSnapshot = await getDocs(collection(db, "modules"));
+    console.log(`[DEBUG] 📊 Total modules dans Firebase: ${allModulesSnapshot.size}`);
+
+    if (allModulesSnapshot.size > 0) {
+      const modulesList = [];
+      allModulesSnapshot.forEach(doc => {
+        const moduleData = { id: doc.id, ...doc.data() };
+        modulesList.push(moduleData);
+      });
+
+      // Grouper par thème pour voir la répartition
+      const modulesByTheme = {};
+      modulesList.forEach(module => {
+        // Gérer les DocumentReference pour les thèmes
+        let themeKey;
+        if (module.theme && typeof module.theme === 'object' && module.theme.id) {
+          themeKey = module.theme.id; // DocumentReference
+        } else if (typeof module.theme === 'string') {
+          themeKey = module.theme; // String directe
+        } else {
+          themeKey = 'SANS_THEME';
+        }
+
+        if (!modulesByTheme[themeKey]) modulesByTheme[themeKey] = [];
+        modulesByTheme[themeKey].push(module);
+      });
+
+      console.log('[DEBUG] 📈 Répartition des modules par thème:', Object.keys(modulesByTheme).map(key => `${key}: ${modulesByTheme[key].length} modules`));
+      return modulesList;
+    } else {
+      console.log('[DEBUG] ❌ Aucun module trouvé dans la collection Firebase');
+
+      // Vérifier si la collection existe
+      try {
+        const collectionRef = collection(db, "modules");
+        console.log('[DEBUG] 📝 Référence collection modules:', collectionRef.path);
+      } catch (collError) {
+        console.error('[DEBUG] ❌ Erreur référence collection:', collError);
+      }
+
+      return [];
+    }
+  } catch (error) {
+    console.error('[DEBUG] ❌ Erreur lors du diagnostic Firebase:', error);
+    return [];
+  }
+}
+
+/**
+ * Nettoie les données pour les rendre sérialisables dans IndexedDB
+ * Supprime les fonctions, symboles et autres objets non sérialisables
+ */
+function cleanDataForSerialization(obj) {
+  try {
+    // Utiliser JSON.parse(JSON.stringify()) pour supprimer les propriétés non sérialisables
+    return JSON.parse(JSON.stringify(obj));
+  } catch (error) {
+    console.warn('Erreur lors du nettoyage des données:', error);
+    // En cas d'erreur, retourner un objet basique avec seulement les propriétés importantes
+    return {
+      id: obj.id,
+      theme: obj.theme,
+      hidden: obj.hidden,
+      files: Array.isArray(obj.files) ? obj.files : []
+    };
+  }
+}
+
 export async function getModulesDocFromTheme(themeDoc) {
+  const themeId = typeof themeDoc === 'string' ? themeDoc : themeDoc.id;
+
+  console.log(`[DEBUG] Recherche de modules pour le thème: ${themeId}`);
+
   // Essayer d'abord IndexedDB
   try {
     const localModules = await getAllModules();
-    // Filtrer les modules du thème demandé
-    const filtered = localModules.filter(m => m.data.theme === themeDoc);
-    if (filtered.length > 0) {
-      console.log('Modules récupérés depuis IndexedDB pour le thème', themeDoc);
-      return filtered.map(m => ({ id: m.id, ...m.data }));
+    console.log(`[DEBUG] Modules totaux dans IndexedDB: ${localModules.length}`);
+
+    if (localModules.length > 0) {
+      // Debug de la structure des modules
+      console.log(`[DEBUG] Structure du premier module:`, localModules[0]);
+
+      // Corriger l'accès aux données selon la structure réelle
+      const filtered = localModules.filter(m => {
+        let moduleTheme;
+
+        // Gérer les différents formats de données
+        if (m.data?.theme) {
+          if (typeof m.data.theme === 'object' && m.data.theme.id) {
+            moduleTheme = m.data.theme.id; // DocumentReference
+          } else {
+            moduleTheme = m.data.theme; // String
+          }
+        } else if (m.theme) {
+          if (typeof m.theme === 'object' && m.theme.id) {
+            moduleTheme = m.theme.id; // DocumentReference
+          } else {
+            moduleTheme = m.theme; // String
+          }
+        }
+
+        console.log(`[DEBUG] Module ${m.id}: theme=${moduleTheme}, cherché=${themeId}`);
+        return moduleTheme === themeId;
+      });
+
+      if (filtered.length > 0) {
+        console.log(`Modules récupérés depuis IndexedDB pour le thème ${themeId}:`, filtered.length);
+        return filtered.map(m => ({ id: m.id, ...m.data }));
+      } else {
+        console.log(`[DEBUG] Aucun module trouvé dans IndexedDB pour le thème ${themeId}`);
+      }
     }
   } catch (err) {
     console.warn('Erreur IndexedDB pour les modules:', err);
   }
-  // Fallback serveur
-  const moduleDocs = await getDocs(query(collection(db, "modules"), where("theme", "==", themeDoc)));
-  const moduleDocsWithId = [];
-  moduleDocs.forEach(doc => moduleDocsWithId.push({ id: doc.id, ...doc.data() }));
-  return moduleDocsWithId;
+
+  // Vérifier si on est en ligne avant d'essayer le serveur
+  if (!navigator.onLine) {
+    console.log(`Mode hors ligne - aucun module disponible dans IndexedDB pour le thème ${themeId}`);
+    return [];
+  }
+
+  try {
+    console.log(`[DEBUG] Tentative de récupération depuis Firebase pour le thème: ${themeId}`);
+
+    // Créer une référence au document thème pour la comparaison
+    const themeRef = doc(db, "themes", themeId);
+
+    // Fallback serveur avec retry - utiliser la référence du document
+    const moduleDocs = await retryWithBackoff(async () => {
+      return await getDocs(query(collection(db, "modules"), where("theme", "==", themeRef)));
+    }, 2, 1000);
+
+    const moduleDocsWithId = [];
+    moduleDocs.forEach(doc => {
+      const moduleData = { id: doc.id, ...doc.data() };
+      // Convertir la DocumentReference en string pour la cohérence
+      if (moduleData.theme && typeof moduleData.theme === 'object' && moduleData.theme.id) {
+        moduleData.theme = moduleData.theme.id;
+      }
+      moduleDocsWithId.push(moduleData);
+    });
+
+    console.log(`[DEBUG] ${moduleDocsWithId.length} modules récupérés depuis Firebase pour le thème ${themeId}`);
+
+    // Sauvegarder dans IndexedDB pour les prochaines fois - seulement si on a des modules
+    if (moduleDocsWithId.length > 0) {
+      try {
+        const { saveModule } = await import('../utils/indexeddb-activities.js');
+        for (const module of moduleDocsWithId) {
+          // Nettoyer les données avant sauvegarde pour éviter les erreurs de sérialisation
+          const cleanedModule = cleanDataForSerialization({ ...module, theme: themeId });
+          await saveModule(module.id, cleanedModule);
+        }
+        console.log(`Modules sauvegardés dans IndexedDB pour le thème: ${themeId}`);
+      } catch (saveError) {
+        console.warn('Erreur lors de la sauvegarde des modules dans IndexedDB:', saveError);
+      }
+    } else {
+      console.log(`[DEBUG] Aucun module à sauvegarder pour le thème ${themeId}`);
+    }
+
+    return moduleDocsWithId;
+  } catch (error) {
+    console.error(`Erreur lors de la récupération des modules depuis le serveur pour le thème ${themeId}:`, error);
+    return [];
+  }
 }
 
 export async function getFilesDocFromModule(moduleDoc) {

@@ -15,9 +15,15 @@ import '../controllers/Core/Managers/SelectManager';
 import '../controllers/Core/Managers/ShapeManager';
 import '../controllers/Core/Managers/WorkspaceManager';
 import { createElem } from '../controllers/Core/Tools/general';
+import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
+
+// Initialisation des caches depuis IndexedDB
+initializeCachesFromIndexedDB().catch(error => {
+  console.warn('Erreur lors de l\'initialisation des caches:', error);
+});
 
 // Enregistrement du Service Worker pour le cache hors ligne
 if ('serviceWorker' in navigator) {

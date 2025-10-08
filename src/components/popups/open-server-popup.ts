@@ -158,28 +158,36 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       this.errorMessage = '';
       this.allThemes = [];
 
-      // Vérifier d'abord si des thèmes sont déjà en cache
-      if (cachedThemes.value && cachedThemes.value.length > 0) {
-        console.log('Utilisation des thèmes en cache:', cachedThemes.value);
-        this.allThemes = cachedThemes.value;
+      // Vérifier d'abord si des thèmes sont déjà en cache mémoire
+      if (cachedThemes.get() && cachedThemes.get().length > 0) {
+        console.log('Utilisation des thèmes en cache mémoire:', cachedThemes.get());
+        this.allThemes = cachedThemes.get();
         this.scrollToOpenModule();
         return;
       }
 
-      // Sinon charger depuis le serveur
+      // Sinon charger depuis findAllThemes (qui gère IndexedDB + serveur)
       const themes = await findAllThemes();
-      console.log('Thèmes récupérés du serveur:', themes);
+      console.log('Thèmes récupérés:', themes);
       this.allThemes = themes;
 
-      // Mise à jour du cache des thèmes
+      // Mise à jour du cache des thèmes en mémoire
       if (themes && themes.length > 0) {
-        cachedThemes.value = themes;
+        cachedThemes.set(themes);
+      } else if (!navigator.onLine) {
+        this.errorMessage = 'Mode hors ligne - aucun thème disponible dans le cache local';
+      } else {
+        this.errorMessage = 'Aucun thème disponible';
       }
 
       this.scrollToOpenModule();
     } catch (error) {
       console.error('Erreur lors du chargement des thèmes:', error);
-      this.errorMessage = `Erreur lors du chargement des thèmes: ${error.message}`;
+      if (!navigator.onLine) {
+        this.errorMessage = 'Mode hors ligne - impossible de charger les thèmes. Vérifiez votre cache local.';
+      } else {
+        this.errorMessage = `Erreur lors du chargement des thèmes: ${error.message}`;
+      }
     }
   }
 
