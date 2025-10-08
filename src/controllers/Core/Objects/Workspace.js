@@ -62,7 +62,9 @@ export class Workspace {
 
     // Flag pour éviter la duplication des événements de rafraîchissement
     this._refreshScheduled = false;
+  }
 
+  initGeometrie() {
     if (app.environment.name == 'Geometrie') {
       this.orthogonalSymetryLastCharacteristicElements = [];
       this.centralSymetryLastCharacteristicElements = [];

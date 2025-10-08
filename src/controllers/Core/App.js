@@ -4,6 +4,7 @@ import { resetKitVisibility } from '../../store/kit';
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
 import { uniqId } from './Tools/general';
+import { Workspace } from './Objects/Workspace';
 
 window.dev_mode = location.hostname === 'localhost';
 
@@ -139,6 +140,8 @@ export class App {
     this.appLoading = false;
     /** @type {number} Index pour la prochaine couleur de groupe à assigner */
     this.nextGroupColorIdx = 0;
+
+    this.workspace = new Workspace();
 
     /** @type {object} État par défaut de l'application, utilisé pour la réinitialisation */
     this.defaultState = {

@@ -18,7 +18,7 @@ export const setWorkspaceFromObject = (data, center = true) => {
 
 window.addEventListener('app-started', () => {
   if (!app.fileFromServer) {
-    setWorkspace(new Workspace());
+    window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
   }
 }, { once: true });
 
@@ -33,5 +33,4 @@ window.addEventListener('new-window', () => {
     fullHistory: app.defaultState.fullHistory,
     stepSinceSave: app.defaultState.stepSinceSave,
   });
-  setWorkspace(new Workspace());
 });
