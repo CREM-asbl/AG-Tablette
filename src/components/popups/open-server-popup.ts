@@ -3,50 +3,22 @@ import '@components/popups/template-popup';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { downloadFileZip, findAllFiles, findAllThemes } from '../../firebase/firebase-init';
-import { getLastSyncInfo, smartSync } from '../../services/activity-sync.js';
+import { getLastSyncInfo } from '../../services/activity-sync.js';
 import { cachedThemes, selectedSequence } from '../../store/notions';
-import { setSyncCompleted, syncInProgress, syncProgress } from '../../store/syncState.js';
+import { syncInProgress } from '../../store/syncState.js';
 import { OptimizedSignalController, debounce, throttle } from '../../utils/signal-observer.js';
+import './sync-settings-popup';
 import './theme-elem';
 
-/**
- * Service pour les opérations IndexedDB
- * Sépare la logique métier de la présentation
- */
-class CacheService {
-  /**
-   * Vide le cache IndexedDB
-   * @returns {Promise<void>}
-   */
-  static async clearCache(): Promise<void> {
-    try {
-      const db = await window.indexedDB.open('agTabletteDB');
-      const tx = db.result.transaction(['activities'], 'readwrite');
-      await tx.objectStore('activities').clear();
-      console.log('[CACHE] Cache local vidé avec succès');
-    } catch (error) {
-      console.error('[CACHE] Erreur lors du vidage du cache:', error);
-      throw new Error(`Impossible de vider le cache: ${error.message}`);
-    }
-  }
-
-  /**
-   * Vérifie la disponibilité du cache
-   * @returns {Promise<boolean>}
-   */
-  static async isCacheAvailable(): Promise<boolean> {
-    try {
-      await window.indexedDB.open('agTabletteDB');
-      return true;
-    } catch {
-      return false;
-    }
+// Déclaration pour le mode debug
+declare global {
+  interface Window {
+    dev_mode?: boolean;
   }
 }
 
 @customElement('open-server-popup')
 class OpenServerPopup extends LitElement {
-  // Utilisation du nouveau controller optimisé
   private signalController = new OptimizedSignalController(this);
 
   @property({ type: Array }) allThemes = []
@@ -54,17 +26,15 @@ class OpenServerPopup extends LitElement {
   @property({ type: String }) errorMessage = '';
   @property({ type: String }) successMessage = '';
   @property({ type: Object }) lastSyncInfo = null;
+  @property({ type: Boolean }) isLoadingThemes = false;
+  @property({ type: Boolean }) showSyncSettings = false;
 
-  // Fonctions débouncées pour éviter les interactions multiples
   private debouncedDownload = debounce(this.downloadAllFiles.bind(this), 500);
-  private debouncedClearCache = debounce(this.clearCache.bind(this), 300);
   private throttledLoadThemes = throttle(this.loadThemes.bind(this), 1000);
-  private debouncedForceSync = debounce(this.forceSync.bind(this), 1000);
 
   constructor() {
     super();
     window.addEventListener('close-popup', () => this.close());
-    // Charger les informations de synchronisation au démarrage
     this.loadSyncInfo();
   }
 
@@ -76,201 +46,188 @@ class OpenServerPopup extends LitElement {
     }
   }
 
-  async forceSync() {
-    try {
-      this.isDownloading = true;
-      this.errorMessage = '';
-      this.successMessage = '';
-
-      const result = await smartSync({ force: true });
-
-      if (result === 'completed') {
-        this.successMessage = 'Synchronisation forcée terminée avec succès';
-        await this.loadSyncInfo(); // Recharger les infos
-      } else if (result === 'recent') {
-        this.successMessage = 'Synchronisation déjà récente, aucune action nécessaire';
-      } else {
-        this.errorMessage = 'Erreur lors de la synchronisation forcée';
-      }
-    } catch (error) {
-      this.errorMessage = `Erreur lors de la synchronisation: ${error.message}`;
-    } finally {
-      this.isDownloading = false;
-    }
-  }
-
   close() {
     this.dispatchEvent(new CustomEvent('closed', {
       bubbles: true,
       composed: true
     }));
-    // Retirer l'élément du DOM si nécessaire
     if (this.parentNode) {
       this.parentNode.removeChild(this);
     }
   }
 
+  openSyncSettings() {
+    this.showSyncSettings = true;
+  }
+
+  closeSyncSettings() {
+    this.showSyncSettings = false;
+  }
+
   static styles = css`
     .popup-content {
-      display: grid;
-      gap: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       width: 100%;
       padding: 8px;
+      max-height: 70vh;
+      overflow: hidden;
     }
 
-    .loading-indicator {
-      width: 100%;
-      height: 8px;
-      margin: 0.5rem 0;
+    .theme-list {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 50vh;
+      overflow-y: auto;
+      padding: 4px;
+    }
+
+    .loading-skeleton {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px;
+    }
+
+    .skeleton-line {
+      height: 20px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.1) 0%,
+        rgba(255,255,255,0.2) 50%,
+        rgba(255,255,255,0.1) 100%);
       border-radius: 4px;
-      animation: pulse 1.5s infinite ease-in-out;
+      animation: shimmer 1.5s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200px 0; }
+      100% { background-position: 200px 0; }
+    }
+
+    .main-action color-button {
+      width: 100%;
+      min-height: 48px;
+      font-weight: 500;
+    }
+
+    .sync-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.85em;
+      color: var(--theme-text-color, #222);
+      padding: 8px 12px;
+      background: var(--theme-color-soft, rgba(255,255,255,0.05));
+      border-radius: 6px;
+    }
+
+    .sync-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .settings-button {
+  background: var(--theme-color-soft, rgba(255,255,255,0.1));
+  border: 1px solid var(--theme-color, rgba(255,255,255,0.2));
+  color: var(--theme-text-color, #222);
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1em;
+      flex-shrink: 0;
+    }
+
+    .settings-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-dot.success { background: #4CAF50; }
+    .status-dot.warning {
+      background: #FF9800;
+      animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .loading-indicator {
+      height: 4px;
+      background: linear-gradient(90deg,
+        var(--theme-color, #4CAF50) 0%,
+        rgba(76, 175, 80, 0.3) 50%,
+        var(--theme-color, #4CAF50) 100%);
+      border-radius: 2px;
+      animation: progress 2s infinite;
+    }
+
+    @keyframes progress {
       0% { opacity: 0.6; }
       50% { opacity: 1; }
       100% { opacity: 0.6; }
     }
 
-    .theme-list {
+    .message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9em;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 50vh;
-      overflow-y: auto;
-      padding: 8px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .theme-list::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .theme-list::-webkit-scrollbar-track {
-      background: rgba(0, 0, 0, 0.05);
-      border-radius: 4px;
-    }
-
-    .theme-list::-webkit-scrollbar-thumb {
-      background-color: var(--theme-color);
-      border-radius: 4px;
-    }
-
-    .download-progress {
-      height: 6px;
-      margin: 0.5rem 0;
-      border-radius: 4px;
+      align-items: center;
+      gap: 8px;
     }
 
     .error-message {
       color: #e74c3c;
-      font-size: 0.9em;
-      margin-top: 0.5rem;
-      padding: 8px;
-      background-color: rgba(231, 76, 60, 0.1);
-      border-radius: 4px;
-      border-left: 3px solid #e74c3c;
+      background: rgba(231, 76, 60, 0.1);
+      border: 1px solid rgba(231, 76, 60, 0.2);
     }
 
     .success-message {
       color: #2ecc71;
-      font-size: 0.9em;
-      margin-top: 0.5rem;
-      padding: 8px;
-      background-color: rgba(46, 204, 113, 0.1);
-      border-radius: 4px;
-      border-left: 3px solid #2ecc71;
-    }
-
-    .download-all {
-      margin-top: 0.5rem;
-      display: flex;
-      justify-content: center;
-    }
-
-    .download-all color-button {
-      width: 100%;
-      max-width: 300px;
-      transition: transform 0.2s ease;
-    }
-
-    .download-all color-button:hover:not([disabled]) {
-      transform: translateY(-2px);
-    }
-
-    .download-all color-button[disabled] {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .section-title {
-      font-size: 1.1em;
-      font-weight: 500;
-      margin: 0;
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .cache-controls {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .cache-controls color-button {
-      flex: 1;
-      min-width: 120px;
+      background: rgba(46, 204, 113, 0.1);
+      border: 1px solid rgba(46, 204, 113, 0.2);
     }
   `
 
-  async connectedCallback() {
-    super.connectedCallback();
-    await this.throttledLoadThemes();
-    this.addEventListener('state-changed', this.scrollToOpenModule);
-  }
-
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.removeEventListener('state-changed', this.scrollToOpenModule);
-  }
-
-  // Méthode pour faire défiler vers le module ouvert
-  scrollToOpenModule() {
-    setTimeout(() => {
-      const currentSequence = selectedSequence.get();
-      if (currentSequence) {
-        const moduleElement = this.shadowRoot?.querySelector(`module-elem[title="${currentSequence}"]`);
-        if (moduleElement) {
-          moduleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }, 100); // Petit délai pour laisser le temps au DOM de se mettre à jour
-  }
-
   async loadThemes() {
     try {
+      this.isLoadingThemes = true;
       this.errorMessage = '';
-      this.allThemes = [];
+      this.successMessage = '';
 
-      // Vérifier d'abord si des thèmes sont déjà en cache mémoire
       if (cachedThemes.get() && cachedThemes.get().length > 0) {
-        console.log('Utilisation des thèmes en cache mémoire:', cachedThemes.get());
+        if (window.dev_mode) console.log('Utilisation des thèmes en cache mémoire:', cachedThemes.get());
         this.allThemes = cachedThemes.get();
         this.scrollToOpenModule();
         return;
       }
 
-      // Sinon charger depuis findAllThemes (qui gère IndexedDB + serveur)
       const themes = await findAllThemes();
-      console.log('Thèmes récupérés:', themes);
+      if (window.dev_mode) console.log('Thèmes récupérés:', themes);
       this.allThemes = themes;
 
-      // Mise à jour du cache des thèmes en mémoire
       if (themes && themes.length > 0) {
         cachedThemes.set(themes);
+        this.successMessage = `${themes.length} thèmes chargés`;
       } else if (!navigator.onLine) {
         this.errorMessage = 'Mode hors ligne - aucun thème disponible dans le cache local';
       } else {
@@ -281,19 +238,27 @@ class OpenServerPopup extends LitElement {
     } catch (error) {
       console.error('Erreur lors du chargement des thèmes:', error);
       if (!navigator.onLine) {
-        this.errorMessage = 'Mode hors ligne - impossible de charger les thèmes. Vérifiez votre cache local.';
+        this.errorMessage = 'Mode hors ligne - impossible de charger les thèmes.';
       } else {
         this.errorMessage = `Erreur lors du chargement des thèmes: ${error.message}`;
       }
+    } finally {
+      this.isLoadingThemes = false;
     }
   }
 
-  /**
-   * Gère l'état du bouton de téléchargement
-   * @param {string} selector - Le sélecteur CSS du bouton
-   * @param {boolean} loading - Indique si le bouton doit afficher l'état de chargement
-   * @param {boolean} disabled - Indique si le bouton doit être désactivé
-   */
+  scrollToOpenModule() {
+    setTimeout(() => {
+      const currentSequence = selectedSequence.get();
+      if (currentSequence) {
+        const moduleElement = this.shadowRoot?.querySelector(`module-elem[title="${currentSequence}"]`);
+        if (moduleElement) {
+          moduleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }, 100);
+  }
+
   setButtonState(selector: string, loading: boolean, disabled: boolean) {
     const button = this.shadowRoot?.querySelector(selector) as any;
     if (button) {
@@ -307,7 +272,6 @@ class OpenServerPopup extends LitElement {
   }
 
   async downloadAllFiles() {
-    // Protection contre les doubles clics
     if (this.isDownloading) {
       console.warn('[DOWNLOAD] Téléchargement déjà en cours');
       return;
@@ -318,149 +282,100 @@ class OpenServerPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
-      // Mettre le bouton en état de chargement
-      this.setButtonState('.download-all color-button', true, true);
-
-      // Déclencher l'indicateur de synchronisation
       const { setSyncProgress, setSyncCompleted } = await import('../../store/syncState.js');
       setSyncProgress(0);
 
       const files = await findAllFiles();
       if (files && files.length > 0) {
         await downloadFileZip('tous_les_fichiers.zip', files.map(file => file.id));
-        this.successMessage = 'Téléchargement terminé avec succès';
+        this.successMessage = '✅ Téléchargement terminé';
         setSyncCompleted();
       } else {
         this.errorMessage = 'Aucun fichier disponible pour le téléchargement';
         setSyncCompleted();
       }
     } catch (error) {
-      setSyncCompleted();
       console.error('Erreur lors du téléchargement des fichiers:', error);
       this.errorMessage = `Erreur lors du téléchargement: ${error.message}`;
     } finally {
       this.isDownloading = false;
-      this.setButtonState('.download-all color-button', false, false);
     }
   }
 
-  async clearCache() {
-    try {
-      this.errorMessage = '';
-      this.successMessage = '';
+  async connectedCallback() {
+    super.connectedCallback();
+    await this.throttledLoadThemes();
+    this.addEventListener('state-changed', this.scrollToOpenModule);
+  }
 
-      // Vérifier si le cache est disponible
-      const cacheAvailable = await CacheService.isCacheAvailable();
-      if (!cacheAvailable) {
-        this.errorMessage = 'Cache non disponible ou déjà vide';
-        return;
-      }
-
-      await CacheService.clearCache();
-
-      // Vider aussi le cache mémoire
-      cachedThemes.set([]);
-
-      this.successMessage = 'Cache local vidé avec succès';
-
-      // Recharger les thèmes après vidage du cache
-      setTimeout(() => {
-        this.throttledLoadThemes();
-      }, 1000);
-
-    } catch (error) {
-      console.error('Erreur lors du vidage du cache:', error);
-      this.errorMessage = `Erreur lors du vidage du cache: ${error.message}`;
-    }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeEventListener('state-changed', this.scrollToOpenModule);
   }
 
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">Ouvrir un fichier</h2>
+        <h2 slot="title">📁 Ouvrir un fichier</h2>
+
         <div slot="body" class="popup-content">
-          ${this.allThemes.length === 0 ?
+
+          ${this.isLoadingThemes || (this.allThemes.length === 0 && !this.errorMessage) ?
         html`
-              <div class="loading-container" role="status" aria-live="polite">
-                <p>Chargement des thèmes...</p>
-                <progress class="loading-indicator"></progress>
-              </div>
-            ` :
+            <div class="loading-skeleton" role="status" aria-live="polite">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
+            </div>
+          ` :
         html`
-              <h3 class="section-title">Thèmes disponibles</h3>
-              <div class="theme-list" role="list">
-                ${this.allThemes.map(theme => html`<theme-elem role="listitem" .theme=${theme}></theme-elem>`)}
-              </div>
-            `
+            <div class="theme-list" role="list" aria-label="Thèmes disponibles">
+              ${this.allThemes.map(theme => html`<theme-elem role="listitem" .theme=${theme}></theme-elem>`)}
+            </div>
+          `
       }
 
-          <div class="download-all">
+          <div class="main-action">
             <color-button
               @click="${this.debouncedDownload}"
-              aria-busy="${this.isDownloading}"
-              ?disabled="${this.isDownloading}">
-              ${this.isDownloading ? 'Téléchargement en cours...' : 'Télécharger tous les fichiers'}
+              ?disabled="${this.isDownloading}"
+              aria-label="Télécharger tous les fichiers">
+              ${this.isDownloading ? '⬇️ Téléchargement...' : '💾 Télécharger tous les fichiers'}
             </color-button>
           </div>
 
-          ${this.isDownloading ? html`<progress class="download-progress" role="progressbar"></progress>` : ''}
+          ${this.isDownloading ? html`<div class="loading-indicator"></div>` : ''}
 
           ${this.errorMessage ? html`
-            <div class="error-message" role="alert">
-              ${this.errorMessage}
-              <div class="cache-controls">
-                <color-button @click="${this.debouncedClearCache}" style="margin-top:8px;">
-                  Vider le cache local
-                </color-button>
-                <color-button @click="${this.throttledLoadThemes}" style="margin-top:8px;">
-                  Recharger
-                </color-button>
-              </div>
+            <div class="message error-message">
+              <span>⚠️</span>
+              <span>${this.errorMessage}</span>
             </div>
           ` : ''}
 
-          ${this.successMessage ? html`<div class="success-message" role="status">${this.successMessage}</div>` : ''}
-
-          <div style="margin-top:1rem; font-size:0.9em; color:#888;">
-            <div style="margin-bottom:0.5rem;">
-              <span>Synchronisation :
-                ${syncInProgress.value
-        ? html`<span style="color:#ff9800;">${Math.min(syncProgress.value ?? 0, 100)}%</span>`
-        : html`<span style="color:#4caf50;">Complète</span>`}
-              </span>
+          ${this.successMessage ? html`
+            <div class="message success-message">
+              <span>${this.successMessage}</span>
             </div>
+          ` : ''}
 
-            ${this.lastSyncInfo ? html`
-              <div style="margin-bottom:0.5rem;">
-                <span>Dernière synchronisation : ${this.lastSyncInfo.lastSyncDate.toLocaleString()}</span>
-                ${this.lastSyncInfo.nextSyncDue ? html`
-                  <span style="color:#ff9800; margin-left:1em;">⚠️ Synchronisation recommandée</span>
-                ` : html`
-                  <span style="color:#4caf50; margin-left:1em;">✓ À jour</span>
-                `}
-              </div>
-              <div style="margin-bottom:0.5rem;">
-                <span>${this.lastSyncInfo.syncedFilesCount}/${this.lastSyncInfo.totalFilesCount} activités</span>
-                <span style="margin-left:1em;">${this.lastSyncInfo.totalThemesCount} thèmes</span>
-              </div>
-            ` : html`
-              <div style="margin-bottom:0.5rem; color:#ff9800;">
-                Aucune synchronisation détectée
-              </div>
-            `}
-
-            <div>
-              <color-button
-                @click="${this.debouncedForceSync}"
-                .disabled="${this.isDownloading || syncInProgress.value}"
-                style="font-size:0.8em; padding:4px 8px;"
-              >
-                ${this.lastSyncInfo?.nextSyncDue ? 'Synchroniser maintenant' : 'Forcer la synchronisation'}
-              </color-button>
+          <div class="sync-status">
+            <div class="sync-info">
+              <div class="status-dot ${syncInProgress.value ? 'warning' : 'success'}"></div>
+              <span>Sync: ${syncInProgress.value ? 'En cours' : 'OK'}</span>
             </div>
+            <button
+              class="settings-button"
+              @click="${this.openSyncSettings}"
+              title="Paramètres de synchronisation"
+              aria-label="Ouvrir les paramètres de synchronisation">
+              ⚙️
+            </button>
           </div>
         </div>
       </template-popup>
+
+      ${this.showSyncSettings ? html`<sync-settings-popup @closed="${this.closeSyncSettings}"></sync-settings-popup>` : ''}
     `;
   }
 }
