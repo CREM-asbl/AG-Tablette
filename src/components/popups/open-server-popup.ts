@@ -306,11 +306,52 @@ class OpenServerPopup extends LitElement {
     super.connectedCallback();
     await this.throttledLoadThemes();
     this.addEventListener('state-changed', this.scrollToOpenModule);
+    // Focus automatique sur le bouton principal
+    setTimeout(() => {
+      const mainButton = this.shadowRoot?.querySelector('color-button');
+      if (mainButton && 'focus' in mainButton) (mainButton as HTMLElement).focus();
+    }, 100);
+    // Listener Escape
+    window.addEventListener('keydown', this.handleEscape);
+    // Focus trap
+    this.shadowRoot?.addEventListener('keydown', this.handleFocusTrap);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     this.removeEventListener('state-changed', this.scrollToOpenModule);
+    window.removeEventListener('keydown', this.handleEscape);
+    this.shadowRoot?.removeEventListener('keydown', this.handleFocusTrap);
+  }
+  // Fermeture via Escape
+  handleEscape = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') this.close();
+  }
+
+  // Focus trap : empêche le focus de sortir du popup
+  handleFocusTrap = (e: KeyboardEvent) => {
+    if (e.key !== 'Tab') return;
+    const focusable = this.getFocusableElements();
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = this.shadowRoot?.activeElement;
+    if (!active) return;
+    if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      (first as HTMLElement).focus();
+    } else if (e.shiftKey && active === first) {
+      e.preventDefault();
+      (last as HTMLElement).focus();
+    }
+  }
+
+  getFocusableElements() {
+    const root = this.shadowRoot;
+    if (!root) return [];
+    return Array.from(root.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )).filter((el: any) => !el.disabled && el.offsetParent !== null);
   }
 
   render() {
@@ -318,7 +359,7 @@ class OpenServerPopup extends LitElement {
       <template-popup>
         <h2 slot="title">📁 Ouvrir un fichier</h2>
 
-        <div slot="body" class="popup-content">
+        <div slot="body" class="popup-content" tabindex="-1">
 
           ${this.isLoadingThemes || (this.allThemes.length === 0 && !this.errorMessage) ?
         html`

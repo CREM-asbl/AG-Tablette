@@ -5,7 +5,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom', // Définit l'environnement de test sur jsdom
     globals: true, // Active les globales de Vitest (describe, it, expect, etc.)
-    setupFiles: [], // Vous pouvez ajouter des fichiers de configuration ici si nécessaire
+    setupFiles: ['./test/setup.ts'], // Fichier de setup pour les mocks
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -20,11 +20,13 @@ export default defineConfig({
     alias: {
       '@components': path.resolve(__dirname, './src/components'),
       '@controllers': path.resolve(__dirname, './src/controllers'),
+      '@layouts': path.resolve(__dirname, './src/layouts'),
       '@services': path.resolve(__dirname, './src/services'),
       '@styles': path.resolve(__dirname, './src/styles'),
       '@utils': path.resolve(__dirname, './src/utils'),
-      '@store': path.resolve(__dirname, './src/store'), // Ajout de l'alias @store
-      // Ajoutez d'autres alias si nécessaire
+      '@store': path.resolve(__dirname, './src/store'),
+      '@db': path.resolve(__dirname, './src/firebase'),
+      '@config': path.resolve(__dirname, './src/config'),
     },
   },
 })

@@ -15,10 +15,13 @@
     "test:all": "npm run test && npm run test:playwright"
   },
   "devDependencies": {
+    "@open-wc/testing": "^4.0.0",
     "@playwright/test": "^1.52.0",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "@types/node": "^24.0.7",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
