@@ -311,7 +311,32 @@ export function range(start, end) {
 }
 
 export function goToHomePage() {
-  window.location = window.location.href.split("?")[0];
+  // Optimisation : éviter le rechargement complet de la page
+  // Réinitialiser l'état de l'application au lieu de recharger
+  try {
+    // Réinitialiser l'environnement et l'état
+    if (typeof window !== 'undefined' && window.app) {
+      // Réinitialiser l'environnement à undefined pour retourner à la sélection
+      window.app.environment = undefined;
+
+      // Déclencher l'événement de changement d'état pour mettre à jour l'UI
+      window.dispatchEvent(new CustomEvent('state-changed'));
+
+      // Nettoyer l'URL sans recharger la page
+      const url = new URL(window.location);
+      url.search = ''; // Supprimer tous les paramètres de requête
+      window.history.pushState({}, '', url.toString());
+
+      console.log('[NAVIGATION] Retour à la page d\'accueil sans rechargement');
+    } else {
+      // Fallback : rechargement traditionnel si l'app n'est pas disponible
+      window.location = window.location.href.split("?")[0];
+    }
+  } catch (error) {
+    console.warn('[NAVIGATION] Erreur lors de la navigation optimisée, utilisation du fallback:', error);
+    // Fallback en cas d'erreur
+    window.location = window.location.href.split("?")[0];
+  }
 }
 
 export function capitalizeFirstLetter(string) {

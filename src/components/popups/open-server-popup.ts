@@ -3,6 +3,7 @@ import '@components/popups/template-popup';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { downloadFileZip, findAllFiles, findAllThemes } from '../../firebase/firebase-init';
+import { getLastSyncInfo, smartSync } from '../../services/activity-sync.js';
 import { cachedThemes, selectedSequence } from '../../store/notions';
 import { setSyncCompleted, syncInProgress, syncProgress } from '../../store/syncState.js';
 import { OptimizedSignalController, debounce, throttle } from '../../utils/signal-observer.js';
@@ -52,15 +53,50 @@ class OpenServerPopup extends LitElement {
   @property({ type: Boolean }) isDownloading = false;
   @property({ type: String }) errorMessage = '';
   @property({ type: String }) successMessage = '';
+  @property({ type: Object }) lastSyncInfo = null;
 
   // Fonctions débouncées pour éviter les interactions multiples
   private debouncedDownload = debounce(this.downloadAllFiles.bind(this), 500);
   private debouncedClearCache = debounce(this.clearCache.bind(this), 300);
   private throttledLoadThemes = throttle(this.loadThemes.bind(this), 1000);
+  private debouncedForceSync = debounce(this.forceSync.bind(this), 1000);
 
   constructor() {
     super();
     window.addEventListener('close-popup', () => this.close());
+    // Charger les informations de synchronisation au démarrage
+    this.loadSyncInfo();
+  }
+
+  async loadSyncInfo() {
+    try {
+      this.lastSyncInfo = await getLastSyncInfo();
+    } catch (error) {
+      console.warn('Erreur lors du chargement des informations de sync:', error);
+    }
+  }
+
+  async forceSync() {
+    try {
+      this.isDownloading = true;
+      this.errorMessage = '';
+      this.successMessage = '';
+
+      const result = await smartSync({ force: true });
+
+      if (result === 'completed') {
+        this.successMessage = 'Synchronisation forcée terminée avec succès';
+        await this.loadSyncInfo(); // Recharger les infos
+      } else if (result === 'recent') {
+        this.successMessage = 'Synchronisation déjà récente, aucune action nécessaire';
+      } else {
+        this.errorMessage = 'Erreur lors de la synchronisation forcée';
+      }
+    } catch (error) {
+      this.errorMessage = `Erreur lors de la synchronisation: ${error.message}`;
+    } finally {
+      this.isDownloading = false;
+    }
   }
 
   close() {
@@ -386,12 +422,42 @@ class OpenServerPopup extends LitElement {
           ${this.successMessage ? html`<div class="success-message" role="status">${this.successMessage}</div>` : ''}
 
           <div style="margin-top:1rem; font-size:0.9em; color:#888;">
-            <span>Synchronisation :
-              ${syncInProgress.value
+            <div style="margin-bottom:0.5rem;">
+              <span>Synchronisation :
+                ${syncInProgress.value
         ? html`<span style="color:#ff9800;">${Math.min(syncProgress.value ?? 0, 100)}%</span>`
         : html`<span style="color:#4caf50;">Complète</span>`}
-            </span>
-            <span style="margin-left:1em;">Version des activités en cache : <span id="cache-version-info"></span></span>
+              </span>
+            </div>
+
+            ${this.lastSyncInfo ? html`
+              <div style="margin-bottom:0.5rem;">
+                <span>Dernière synchronisation : ${this.lastSyncInfo.lastSyncDate.toLocaleString()}</span>
+                ${this.lastSyncInfo.nextSyncDue ? html`
+                  <span style="color:#ff9800; margin-left:1em;">⚠️ Synchronisation recommandée</span>
+                ` : html`
+                  <span style="color:#4caf50; margin-left:1em;">✓ À jour</span>
+                `}
+              </div>
+              <div style="margin-bottom:0.5rem;">
+                <span>${this.lastSyncInfo.syncedFilesCount}/${this.lastSyncInfo.totalFilesCount} activités</span>
+                <span style="margin-left:1em;">${this.lastSyncInfo.totalThemesCount} thèmes</span>
+              </div>
+            ` : html`
+              <div style="margin-bottom:0.5rem; color:#ff9800;">
+                Aucune synchronisation détectée
+              </div>
+            `}
+
+            <div>
+              <color-button
+                @click="${this.debouncedForceSync}"
+                .disabled="${this.isDownloading || syncInProgress.value}"
+                style="font-size:0.8em; padding:4px 8px;"
+              >
+                ${this.lastSyncInfo?.nextSyncDue ? 'Synchroniser maintenant' : 'Forcer la synchronisation'}
+              </color-button>
+            </div>
           </div>
         </div>
       </template-popup>

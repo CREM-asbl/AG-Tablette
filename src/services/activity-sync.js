@@ -3,7 +3,7 @@
 
 import { findAllFiles, findAllThemes, getModulesDocFromTheme, readFileFromServer } from '../firebase/firebase-init.js';
 import { setSyncCompleted, setSyncProgress, syncInProgress } from '../store/syncState.js';
-import { getAllActivities, saveActivity, saveModule, saveTheme } from '../utils/indexeddb-activities.js';
+import { getAllActivities, getSyncMetadata, isRecentSyncAvailable, saveActivity, saveModule, saveSyncMetadata, saveTheme } from '../utils/indexeddb-activities.js';
 
 // Configuration du service
 const CONFIG = {
@@ -12,6 +12,7 @@ const CONFIG = {
   TIMEOUT: 30000,
   AUTO_SYNC_DELAY: 5000,
   RECONNECT_DELAY: 1000,
+  SYNC_COOLDOWN: 24 * 60 * 60 * 1000, // 24 heures entre les synchronisations
   DEBUG: typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.search.includes('debug=true'))
 };
 
@@ -60,7 +61,7 @@ const utils = {
   }
 };
 
-export async function syncActivitiesInBackground() {
+export async function syncActivitiesInBackground(forceSync = false) {
   // Utiliser le store centralisé au lieu d'une variable globale
   if (syncInProgress.value) {
     utils.log('Synchronisation déjà en cours...');
@@ -70,6 +71,15 @@ export async function syncActivitiesInBackground() {
   if (!navigator.onLine) {
     utils.log('Pas de connexion internet, synchronisation annulée');
     return;
+  }
+
+  // Vérifier si une synchronisation récente a eu lieu (sauf si forcée)
+  if (!forceSync) {
+    const recentSyncAvailable = await isRecentSyncAvailable(24); // 24 heures
+    if (recentSyncAvailable) {
+      utils.log('Synchronisation récente détectée, synchronisation ignorée. Utilisez forceSync=true pour forcer.');
+      return;
+    }
   }
 
   let attempt = 0;
@@ -156,6 +166,23 @@ export async function syncActivitiesInBackground() {
       }
 
       utils.log(`Synchronisation terminée: ${addedCount} nouvelles activités, ${serverThemes.length} thèmes, modules synchronisés.`);
+
+      // Sauvegarder les métadonnées de synchronisation pour éviter les syncs inutiles
+      try {
+        await saveSyncMetadata({
+          lastSyncDate: Date.now(),
+          serverFiles: serverFiles.map(f => ({ id: f.id, version: f.version || 1 })),
+          serverThemes: serverThemes.map(t => ({ id: t.id, version: t.version || 1 })),
+          expiryDate: Date.now() + CONFIG.SYNC_COOLDOWN,
+          syncedFilesCount: addedCount,
+          totalFilesCount: serverFiles.length,
+          totalThemesCount: serverThemes.length
+        });
+        utils.log('Métadonnées de synchronisation sauvegardées avec succès');
+      } catch (metadataError) {
+        utils.warn('Erreur lors de la sauvegarde des métadonnées:', metadataError);
+      }
+
       utils.log('Synchronisation terminée, appel de setSyncCompleted()');
       setSyncCompleted();
 
@@ -178,20 +205,90 @@ export async function syncActivitiesInBackground() {
   }
 }
 
+/**
+ * Synchronisation intelligente avec vérification de cache
+ * Cette fonction vérifie d'abord si une synchronisation récente a eu lieu
+ * @param {Object} options - Options de synchronisation
+ * @param {boolean} options.force - Forcer la synchronisation même si récente
+ * @param {number} options.maxAgeHours - Âge maximum en heures pour considérer une sync comme récente
+ * @returns {Promise<string>} Résultat de la synchronisation
+ */
+export async function smartSync(options = {}) {
+  const { force = false, maxAgeHours = 24 } = options;
+
+  if (!navigator.onLine) {
+    utils.log('Pas de connexion internet disponible');
+    return 'offline';
+  }
+
+  if (syncInProgress.value) {
+    utils.log('Synchronisation déjà en cours');
+    return 'in_progress';
+  }
+
+  try {
+    // Vérifier d'abord si une synchronisation récente a eu lieu
+    if (!force) {
+      const recentSyncAvailable = await isRecentSyncAvailable(maxAgeHours);
+      const metadata = await getSyncMetadata();
+
+      if (recentSyncAvailable && metadata) {
+        utils.log(`Synchronisation récente trouvée (${new Date(metadata.lastSyncDate).toLocaleString()}), synchronisation ignorée`);
+        utils.log(`Prochaine synchronisation automatique après: ${new Date(metadata.expiryDate).toLocaleString()}`);
+        return 'recent';
+      }
+    }
+
+    // Lancer la synchronisation complète
+    await syncActivitiesInBackground(force);
+    return 'completed';
+
+  } catch (error) {
+    utils.error('Erreur lors de la synchronisation intelligente:', error);
+    return 'error';
+  }
+}
+
+/**
+ * Obtient les informations de la dernière synchronisation
+ * @returns {Promise<Object|null>} Informations de sync ou null
+ */
+export async function getLastSyncInfo() {
+  try {
+    const metadata = await getSyncMetadata();
+    if (!metadata) {
+      return null;
+    }
+
+    return {
+      lastSyncDate: new Date(metadata.lastSyncDate),
+      syncedFilesCount: metadata.syncedFilesCount || 0,
+      totalFilesCount: metadata.totalFilesCount || 0,
+      totalThemesCount: metadata.totalThemesCount || 0,
+      expiryDate: new Date(metadata.expiryDate),
+      isExpired: metadata.expiryDate <= Date.now(),
+      nextSyncDue: metadata.expiryDate <= Date.now()
+    };
+  } catch (error) {
+    utils.warn('Erreur lors de la récupération des informations de sync:', error);
+    return null;
+  }
+}
+
 
 export function initActivitySync() {
   utils.log('Initialisation du service de synchronisation...');
 
   // Synchronisation automatique lors de la reconnexion
   window.addEventListener('online', () => {
-    utils.log('Connexion rétablie, lancement de la synchronisation...');
-    setTimeout(syncActivitiesInBackground, CONFIG.RECONNECT_DELAY);
+    utils.log('Connexion rétablie, lancement de la synchronisation intelligente...');
+    setTimeout(() => smartSync(), CONFIG.RECONNECT_DELAY);
   });
 
   // Synchronisation au démarrage de l'application (si connecté)
   if (navigator.onLine) {
-    utils.log('Application en ligne, synchronisation programmée dans', CONFIG.AUTO_SYNC_DELAY + 'ms...');
-    setTimeout(syncActivitiesInBackground, CONFIG.AUTO_SYNC_DELAY);
+    utils.log('Application en ligne, synchronisation intelligente programmée dans', CONFIG.AUTO_SYNC_DELAY + 'ms...');
+    setTimeout(() => smartSync(), CONFIG.AUTO_SYNC_DELAY);
   } else {
     utils.log('Application hors ligne, synchronisation désactivée');
   }
