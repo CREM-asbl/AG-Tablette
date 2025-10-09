@@ -1,6 +1,8 @@
 // Utilitaire IndexedDB pour la gestion des fichiers d'activités
 // Utilise l'API native IndexedDB
 
+import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
+import { CACHE_CONFIG, getEvictionStrategy, validateCacheConfig } from './cache-config.js';
 
 const DB_NAME = 'agTabletteDB';
 const DB_VERSION = 3; // Incrémenté pour ajouter le store sync_metadata
@@ -10,6 +12,9 @@ const STORE_NAMES = {
   modules: 'modules',
   sync_metadata: 'sync_metadata'
 };
+
+// Validation de la configuration au chargement
+validateCacheConfig();
 
 export function openDB() {
   return new Promise((resolve, reject) => {
@@ -27,28 +32,111 @@ export function openDB() {
   });
 }
 
-import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
-
+/**
+ * Sauvegarde une activité avec gestion intelligente du cache
+ * @param {string} id - Identifiant de l'activité
+ * @param {Object} data - Données de l'activité
+ * @param {number} version - Version de l'activité
+ * @returns {Promise} Promesse de sauvegarde
+ */
 export async function saveActivity(id, data, version = 1) {
   const db = await openDB();
   const tx = db.transaction(STORE_NAMES.activities, 'readwrite');
-  const compressedData = compressToUTF16(JSON.stringify(data));
-  // Gestion de la taille du cache : max 100 activités
   const store = tx.objectStore(STORE_NAMES.activities);
-  const countRequest = store.count();
-  countRequest.onsuccess = () => {
-    if (countRequest.result >= 100) {
-      // Supprimer la plus ancienne activité
-      store.openCursor().onsuccess = function (event) {
-        const cursor = event.target.result;
-        if (cursor) {
-          store.delete(cursor.key);
-        }
-      };
-    }
-    store.put({ id, data: compressedData, version });
+
+  // Préparer les données avec métadonnées
+  const now = Date.now();
+  const compressedData = CACHE_CONFIG.COMPRESSION_ENABLED
+    ? compressToUTF16(JSON.stringify(data))
+    : JSON.stringify(data);
+
+  const activityRecord = {
+    id,
+    data: compressedData,
+    version,
+    timestamp: now,
+    lastAccess: now,
+    accessCount: 1,
+    compressed: CACHE_CONFIG.COMPRESSION_ENABLED
   };
-  return tx.complete;
+
+  // Vérifier si on dépasse la limite
+  const count = await new Promise((resolve, reject) => {
+    const countRequest = store.count();
+    countRequest.onsuccess = () => resolve(countRequest.result);
+    countRequest.onerror = () => reject(countRequest.error);
+  });
+
+  // Gestion intelligente du cache
+  if (count >= CACHE_CONFIG.MAX_ACTIVITIES) {
+    await performIntelligentEviction(store, count - CACHE_CONFIG.MAX_ACTIVITIES + CACHE_CONFIG.EVICTION_BATCH_SIZE);
+  }
+
+  // Sauvegarder l'activité
+  return new Promise((resolve, reject) => {
+    const request = store.put(activityRecord);
+    request.onsuccess = () => {
+      if (CACHE_CONFIG.ENABLE_METRICS) {
+        console.log(`[CACHE] Activité ${id} sauvegardée. Cache: ${count + 1}/${CACHE_CONFIG.MAX_ACTIVITIES}`);
+      }
+      resolve();
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+/**
+ * Effectue une éviction intelligente des activités selon la stratégie configurée
+ * @param {IDBObjectStore} store - Store IndexedDB
+ * @param {number} itemsToRemove - Nombre d'éléments à supprimer
+ */
+async function performIntelligentEviction(store, itemsToRemove) {
+  try {
+    const strategy = getEvictionStrategy();
+    const idsToRemove = await strategy.selectItemsToEvict(store, itemsToRemove);
+
+    if (CACHE_CONFIG.ENABLE_METRICS) {
+      console.log(`[CACHE] Éviction ${strategy.name}: suppression de ${idsToRemove.length} activités`);
+    }
+
+    // Supprimer les activités sélectionnées
+    for (const id of idsToRemove) {
+      await new Promise((resolve, reject) => {
+        const deleteRequest = store.delete(id);
+        deleteRequest.onsuccess = () => resolve();
+        deleteRequest.onerror = () => reject(deleteRequest.error);
+      });
+    }
+
+  } catch (error) {
+    console.error('[CACHE] Erreur lors de l\'éviction intelligente:', error);
+    // Fallback vers l'ancienne méthode
+    await performSimpleEviction(store, itemsToRemove);
+  }
+}
+
+/**
+ * Éviction simple (fallback) - supprime les premiers éléments trouvés
+ * @param {IDBObjectStore} store - Store IndexedDB
+ * @param {number} itemsToRemove - Nombre d'éléments à supprimer
+ */
+async function performSimpleEviction(store, itemsToRemove) {
+  let removedCount = 0;
+  const cursor = store.openCursor();
+
+  return new Promise((resolve, reject) => {
+    cursor.onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (cursor && removedCount < itemsToRemove) {
+        cursor.delete();
+        removedCount++;
+        cursor.continue();
+      } else {
+        resolve();
+      }
+    };
+    cursor.onerror = () => reject(cursor.error);
+  });
 }
 
 export async function saveTheme(id, data) {
@@ -65,16 +153,36 @@ export async function saveModule(id, data) {
   return tx.complete;
 }
 
+/**
+ * Récupère une activité et met à jour ses métadonnées d'accès
+ * @param {string} id - Identifiant de l'activité
+ * @returns {Promise<Object|null>} Données de l'activité ou null
+ */
 export async function getActivity(id) {
   const db = await openDB();
+  const tx = db.transaction(STORE_NAMES.activities, 'readwrite');
+  const store = tx.objectStore(STORE_NAMES.activities);
+
   return new Promise((resolve, reject) => {
-    const request = db.transaction(STORE_NAMES.activities).objectStore(STORE_NAMES.activities).get(id);
+    const request = store.get(id);
     request.onsuccess = () => {
       const result = request.result;
       if (result && result.data) {
         try {
-          result.data = JSON.parse(decompressFromUTF16(result.data));
+          // Décompression si nécessaire
+          const rawData = result.compressed
+            ? decompressFromUTF16(result.data)
+            : result.data;
+
+          result.data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+
+          // Mettre à jour les métadonnées d'accès (async, ne pas attendre)
+          if (CACHE_CONFIG.ENABLE_METRICS) {
+            updateAccessMetadata(store, id, result);
+          }
+
         } catch (e) {
+          console.warn(`[CACHE] Erreur décompression activité ${id}:`, e);
           // Si la donnée n'est pas compressée (legacy), on la garde telle quelle
         }
       }
@@ -82,6 +190,26 @@ export async function getActivity(id) {
     };
     request.onerror = () => reject(request.error);
   });
+}
+
+/**
+ * Met à jour les métadonnées d'accès d'une activité
+ * @param {IDBObjectStore} store - Store IndexedDB
+ * @param {string} id - ID de l'activité
+ * @param {Object} currentRecord - Enregistrement actuel
+ */
+function updateAccessMetadata(store, id, currentRecord) {
+  try {
+    const updatedRecord = {
+      ...currentRecord,
+      lastAccess: Date.now(),
+      accessCount: (currentRecord.accessCount || 0) + 1
+    };
+
+    store.put(updatedRecord);
+  } catch (error) {
+    console.warn(`[CACHE] Erreur mise à jour métadonnées ${id}:`, error);
+  }
 }
 
 export async function getTheme(id) {
@@ -239,4 +367,124 @@ export async function clearExpiredSyncMetadata() {
     };
     request.onerror = () => reject(request.error);
   });
+}
+
+/**
+ * Obtient des statistiques détaillées sur l'utilisation du cache
+ * @returns {Promise<Object>} Statistiques complètes
+ */
+export async function getCacheStatistics() {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAMES.activities, 'readonly');
+    const store = tx.objectStore(STORE_NAMES.activities);
+
+    // Récupérer toutes les activités
+    const allActivities = await new Promise((resolve, reject) => {
+      const request = store.getAll();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+
+    // Calculer les statistiques
+    const now = Date.now();
+    const stats = {
+      totalActivities: allActivities.length,
+      maxCapacity: CACHE_CONFIG.MAX_ACTIVITIES,
+      usagePercentage: Math.round((allActivities.length / CACHE_CONFIG.MAX_ACTIVITIES) * 100),
+
+      // Analyse temporelle
+      activitiesAddedToday: 0,
+      activitiesAddedThisWeek: 0,
+      activitiesNotAccessedThisWeek: 0,
+
+      // Analyse d'utilisation
+      mostUsedActivities: [],
+      leastUsedActivities: [],
+      oldestActivities: [],
+      newestActivities: [],
+
+      // Métriques techniques
+      compressionRatio: 0,
+      estimatedSizeMB: 0,
+      averageAccessCount: 0,
+
+      // Configuration actuelle
+      config: {
+        maxActivities: CACHE_CONFIG.MAX_ACTIVITIES,
+        evictionStrategy: CACHE_CONFIG.EVICTION_STRATEGY,
+        compressionEnabled: CACHE_CONFIG.COMPRESSION_ENABLED
+      }
+    };
+
+    // Traiter chaque activité
+    let totalAccessCount = 0;
+    let totalSizeEstimate = 0;
+
+    allActivities.forEach(activity => {
+      const timestamp = activity.timestamp || 0;
+      const lastAccess = activity.lastAccess || 0;
+      const accessCount = activity.accessCount || 0;
+
+      totalAccessCount += accessCount;
+
+      // Estimer la taille
+      const sizeEstimate = activity.data ? activity.data.length : 0;
+      totalSizeEstimate += sizeEstimate;
+
+      // Analyse temporelle
+      const dayAgo = now - (24 * 60 * 60 * 1000);
+      const weekAgo = now - (7 * 24 * 60 * 60 * 1000);
+
+      if (timestamp > dayAgo) stats.activitiesAddedToday++;
+      if (timestamp > weekAgo) stats.activitiesAddedThisWeek++;
+      if (lastAccess < weekAgo) stats.activitiesNotAccessedThisWeek++;
+    });
+
+    // Calculer les moyennes
+    stats.averageAccessCount = allActivities.length > 0
+      ? Math.round(totalAccessCount / allActivities.length)
+      : 0;
+
+    stats.estimatedSizeMB = Math.round((totalSizeEstimate / (1024 * 1024)) * 100) / 100;
+
+    // Top/Bottom lists
+    const sortedByAccess = [...allActivities].sort((a, b) => (b.accessCount || 0) - (a.accessCount || 0));
+    const sortedByTimestamp = [...allActivities].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    stats.mostUsedActivities = sortedByAccess.slice(0, 5).map(a => ({
+      id: a.id,
+      accessCount: a.accessCount || 0,
+      lastAccess: new Date(a.lastAccess || 0)
+    }));
+
+    stats.leastUsedActivities = sortedByAccess.slice(-5).map(a => ({
+      id: a.id,
+      accessCount: a.accessCount || 0,
+      lastAccess: new Date(a.lastAccess || 0)
+    }));
+
+    stats.newestActivities = sortedByTimestamp.slice(0, 5).map(a => ({
+      id: a.id,
+      timestamp: new Date(a.timestamp || 0),
+      version: a.version || 1
+    }));
+
+    stats.oldestActivities = sortedByTimestamp.slice(-5).map(a => ({
+      id: a.id,
+      timestamp: new Date(a.timestamp || 0),
+      version: a.version || 1
+    }));
+
+    return stats;
+
+  } catch (error) {
+    console.error('[CACHE] Erreur lors du calcul des statistiques:', error);
+    return {
+      error: error.message,
+      totalActivities: 0,
+      maxCapacity: CACHE_CONFIG.MAX_ACTIVITIES,
+      usagePercentage: 0
+    };
+  }
 }

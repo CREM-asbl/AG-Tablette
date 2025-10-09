@@ -6,6 +6,7 @@ import { getLastSyncInfo, smartSync } from '../../services/activity-sync.js';
 import { CacheClearError, CacheError, CacheService, CacheUnavailableError } from '../../services/cache.service';
 import { cachedThemes } from '../../store/notions';
 import { syncInProgress, syncProgress } from '../../store/syncState.js';
+import { getAllActivities } from '../../utils/indexeddb-activities.js';
 import { debounce } from '../../utils/signal-observer.js';
 
 /**
@@ -37,6 +38,7 @@ class SyncSettingsPopup extends LitElement {
   @property({ type: Object }) lastSyncInfo = null;
   @property({ type: Boolean }) showClearCacheConfirmation = false;
   @property({ type: Boolean }) isSyncing = false;
+  @property({ type: Number }) localActivitiesCount = 0;
 
   private debouncedForceSync = debounce(this.forceSync.bind(this), 1000);
   private debouncedClearCache = debounce(this.clearCache.bind(this), 300);
@@ -48,7 +50,17 @@ class SyncSettingsPopup extends LitElement {
 
   async loadSyncInfo() {
     try {
-      this.lastSyncInfo = await getLastSyncInfo();
+      const [syncInfo, localActivities] = await Promise.all([
+        getLastSyncInfo(),
+        getAllActivities()
+      ]);
+
+      this.lastSyncInfo = syncInfo;
+      this.localActivitiesCount = localActivities.length;
+
+      if ((window as any).dev_mode) {
+        console.log('[SYNC] Info chargées:', { syncInfo, localCount: this.localActivitiesCount });
+      }
     } catch (error) {
       console.warn('Erreur lors du chargement des informations de sync:', error);
     }
@@ -93,7 +105,8 @@ class SyncSettingsPopup extends LitElement {
     }
 
     .sync-details {
-          color: var(--theme-text-color, #222);
+      color: var(--theme-text-color, #222);
+      display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-bottom: 16px;
@@ -120,6 +133,7 @@ class SyncSettingsPopup extends LitElement {
     }
 
     .status-indicator {
+      display: flex;
       align-items: center;
       gap: 8px;
       padding: 12px;
@@ -127,6 +141,25 @@ class SyncSettingsPopup extends LitElement {
       border-radius: 8px;
       margin-bottom: 16px;
       color: var(--theme-text-color, #222);
+      font-weight: 500;
+    }
+
+    .status-indicator.warning {
+      background: rgba(255, 152, 0, 0.1);
+      border: 1px solid rgba(255, 152, 0, 0.3);
+      color: #f57c00;
+    }
+
+    .status-indicator.success {
+      background: rgba(76, 175, 80, 0.1);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      color: #388e3c;
+    }
+
+    .status-indicator.progress {
+      background: rgba(33, 150, 243, 0.1);
+      border: 1px solid rgba(33, 150, 243, 0.3);
+      color: #1976d2;
     }
     .status-dot {
       width: 12px;
@@ -384,11 +417,18 @@ class SyncSettingsPopup extends LitElement {
           <div class="section">
             <h3 class="section-title">📊 Statut de synchronisation</h3>
 
-            <div class="status-indicator">
+            <div class="status-indicator ${syncInProgress.value
+        ? 'progress'
+        : this.lastSyncInfo && this.localActivitiesCount < this.lastSyncInfo.totalFilesCount
+          ? 'warning'
+          : 'success'
+      }">
                <span>
                 ${syncInProgress.value
         ? `🔄 Synchronisation en cours (${Math.min(syncProgress.value ?? 0, 100)}%)`
-        : '✅ Synchronisation complète'
+        : this.lastSyncInfo && this.localActivitiesCount < this.lastSyncInfo.totalFilesCount
+          ? `⚠️ Synchronisation partielle (${this.localActivitiesCount}/${this.lastSyncInfo.totalFilesCount})`
+          : '✅ Synchronisation complète'
       }
               </span>
             </div>
@@ -404,8 +444,12 @@ class SyncSettingsPopup extends LitElement {
                   <div class="detail-value">${this.lastSyncInfo.nextSyncDue ? '⚠️ Sync recommandée' : '✅ À jour'}</div>
                 </div>
                 <div class="detail-item">
-                  <div class="detail-label">Activités synchronisées</div>
-                  <div class="detail-value">${this.lastSyncInfo.syncedFilesCount}/${this.lastSyncInfo.totalFilesCount}</div>
+                  <div class="detail-label">Activités en local</div>
+                  <div class="detail-value">${this.localActivitiesCount} / ${this.lastSyncInfo.totalFilesCount} disponibles</div>
+                </div>
+                <div class="detail-item">
+                  <div class="detail-label">Dernière session</div>
+                  <div class="detail-value">${this.lastSyncInfo.syncedFilesCount} ${this.lastSyncInfo.syncedFilesCount === 1 ? 'mise à jour' : 'mises à jour'}</div>
                 </div>
                 <div class="detail-item">
                   <div class="detail-label">Thèmes disponibles</div>
