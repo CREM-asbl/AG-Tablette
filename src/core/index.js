@@ -32,6 +32,9 @@ export { kit } from '../store/kit.js';
 export * from '../store/notions.js';
 export { tools } from '../store/tools.js';
 
+// Importer le store de synchronisation pour garantir son initialisation précoce
+import '../store/syncState.js';
+
 // Classes de base améliorées
 export { BaseGeometryTool } from '../controllers/Core/States/BaseGeometryTool.js';
 export { BaseShapeCreationTool } from '../controllers/Core/States/BaseShapeCreationTool.js';

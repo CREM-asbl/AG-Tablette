@@ -1,14 +1,20 @@
 import { LitElement, css, html } from 'lit';
-import { customElement, state, property } from 'lit/decorators.js';
-import { isSyncInProgress } from '../services/activity-sync.js';
+import { customElement, property, state } from 'lit/decorators.js';
+import { hideSyncIndicator, syncInProgress, syncProgress, syncVisible } from '../store/syncState.js';
+import { OptimizedSignalController, debounce } from '../utils/signal-observer.js';
 
 /**
  * Affiche uniquement l'état de synchronisation.
  * - Visible pendant une synchronisation (progress < 100)
  * - Reste visible 2s après la fin puis disparaît avec une animation fade/slide.
+ *
+ * Version optimisée qui remplace le polling 100ms par une observation efficace des signaux.
  */
 @customElement('sync-status-indicator')
 export class SyncStatusIndicator extends LitElement {
+  // Utilisation du nouveau controller optimisé au lieu du polling
+  private signalController = new OptimizedSignalController(this);
+
   static styles = css`
     :host { position: fixed; bottom: 10px; right: 10px; z-index: 1000; font-family: system-ui, sans-serif; }
     .wrapper { pointer-events: none; }
@@ -47,56 +53,98 @@ export class SyncStatusIndicator extends LitElement {
     .label { font-weight: 500; }
   `;
 
-  @state() private percent = 100; // 100 = rien en cours
-  @state() private visible = false; // contrôle rendu
   @state() private animatingIn = false;
+  @state() private lastProgress = 0;
+  @state() private lastVisible = false;
+  @state() private lastInProgress = false;
   @property({ type: Number, attribute: 'hide-delay' }) hideDelay = 2000;
   private hideTimer: number | null = null;
-  private pollTimer: number | null = null;
+
+  // Version débouncée de requestUpdate pour éviter les mises à jour trop fréquentes
+  private debouncedUpdate = debounce(() => {
+    this.requestUpdate();
+  }, 50);
 
   connectedCallback() {
     super.connectedCallback();
-    window.addEventListener('sync-progress', this.onProgress as EventListener);
-    window.addEventListener('activities-synced', this.onSynced);
-    // Poll de secours si aucun événement progress n'est émis régulièrement
-    this.pollTimer = window.setInterval(() => {
-      const active = isSyncInProgress();
-      if (active && this.percent === 100) {
-        // Force un état visible au début si on n'avait pas reçu l'event initial
-        this.show();
-        this.percent = 0; // valeur neutre; l'event mettra à jour ensuite
-      }
-    }, 1500);
+
+    // Écouter les événements personnalisés du store pour réagir aux changements
+    window.addEventListener('sync-progress-changed', this.handleSyncProgressChange);
+    window.addEventListener('sync-completed', this.handleSyncCompleted);
+    window.addEventListener('sync-indicator-hidden', this.handleIndicatorHidden);
   }
 
   disconnectedCallback() {
-    window.removeEventListener('sync-progress', this.onProgress as EventListener);
-    window.removeEventListener('activities-synced', this.onSynced);
-    if (this.pollTimer) window.clearInterval(this.pollTimer);
     this.clearHideTimer();
+
+    // Nettoyer les événements
+    window.removeEventListener('sync-progress-changed', this.handleSyncProgressChange);
+    window.removeEventListener('sync-completed', this.handleSyncCompleted);
+    window.removeEventListener('sync-indicator-hidden', this.handleIndicatorHidden);
+
     super.disconnectedCallback();
   }
 
-  private onProgress = (e: CustomEvent) => {
-    const { percent } = e.detail;
-    this.percent = percent;
-    if (percent < 100) {
+  private handleSyncProgressChange = (event: CustomEvent) => {
+    const { percent, inProgress } = event.detail;
+
+    // Détecter le début de synchronisation
+    if (inProgress && !this.lastInProgress) {
       this.show();
       this.clearHideTimer();
+    }
+
+    this.lastInProgress = inProgress;
+    this.lastProgress = percent;
+    this.debouncedUpdate();
+  };
+
+  private handleSyncCompleted = (event: CustomEvent) => {
+    const { hideIndicator } = event.detail;
+
+    if (hideIndicator) {
+      hideSyncIndicator(true);
     } else {
-      // Fin: laisser l'utilisateur voir 100% puis cacher après délai
       this.queueHide();
     }
+
+    this.debouncedUpdate();
   };
 
-  private onSynced = () => {
-    this.percent = 100;
-    this.queueHide();
+  private handleIndicatorHidden = () => {
+    this.clearHideTimer();
+    this.lastVisible = false;
+    this.debouncedUpdate();
   };
+
+  updated(changedProperties) {
+    super.updated(changedProperties);
+
+    // Lire les signaux pour déclencher l'observation
+    const currentInProgress = syncInProgress.value ?? false;
+    const currentProgress = syncProgress.value ?? 100;
+    const currentVisible = syncVisible.value ?? false;
+
+    // Détecter le début de synchronisation
+    if (currentInProgress && !this.lastInProgress) {
+      this.show();
+      this.clearHideTimer();
+    }
+
+    // Détecter la fin de synchronisation
+    if (!currentInProgress && this.lastInProgress && currentProgress === 100) {
+      this.queueHide();
+    }
+
+    // Mettre à jour les dernières valeurs
+    this.lastInProgress = currentInProgress;
+    this.lastProgress = currentProgress;
+    this.lastVisible = currentVisible;
+  }
 
   private show() {
-    if (!this.visible) {
-      this.visible = true;
+    if (!syncVisible.value) {
+      syncVisible.value = true;
       this.animatingIn = true;
       setTimeout(() => {
         this.animatingIn = false;
@@ -108,10 +156,10 @@ export class SyncStatusIndicator extends LitElement {
   private queueHide() {
     this.clearHideTimer();
     this.hideTimer = window.setTimeout(() => {
-      this.visible = false; // Déclenche l'animation via classe hide
+      hideSyncIndicator(); // Utilise la fonction du store
       this.hideTimer = null;
       this.requestUpdate();
-    }, this.hideDelay); // délai lecture configurable
+    }, this.hideDelay); // délai configurable
   }
 
   private clearHideTimer() {
@@ -122,16 +170,32 @@ export class SyncStatusIndicator extends LitElement {
   }
 
   render() {
-    // On garde le noeud dans le DOM pour permettre l'animation de sortie.
-    const hiding = !this.visible;
+    // Lire les signaux - le controller optimisé déclenchera requestUpdate() quand ils changent
+    const visible = syncVisible.value ?? false;
+    const percent = syncProgress.value ?? 100;
+    const inProgress = syncInProgress.value ?? false;
+
+    const hiding = !visible;
     const entering = this.animatingIn;
+
+    // Log pour debug uniquement en développement
+    if ((inProgress || visible) && (window.location.hostname === 'localhost' || window.location.search.includes('debug=true'))) {
+      console.log('[SYNC-RENDER] percent:', percent, 'visible:', visible, 'inProgress:', inProgress);
+    }
+
+    // Afficher l'indicateur si visible, en cours ou en animation
+    const shouldShow = visible || inProgress || entering;
+
+    if (!shouldShow) {
+      return html``;
+    }
+
     return html`
       <div class="wrapper">
-        <div class="indicator${hiding ? ' hide' : ''}${entering ? ' show' : ''}">
+        <div class="indicator${hiding ? ' hide' : ''}${entering ? ' show' : ''}" style="background-color: ${percent < 100 ? '#ff9800' : '#4caf50'};">
           <svg class="sync-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#fff" stroke-width="2" fill="none" /><path d="M12 6v6l4 2" stroke="#fff" stroke-width="2" fill="none"/></svg>
-          <span class="label">Synchronisation</span>
-          <div class="progress-bar-bg"><div class="progress-bar" style="width:${Math.min(this.percent,100)}%"></div></div>
-          <span style="font-size:12px;">${Math.min(this.percent,100)}%</span>
+          <span class="label">Synchronisation ${percent}%</span>
+          <div class="progress-bar-bg"><div class="progress-bar" style="width:${Math.min(percent, 100)}%"></div></div>
         </div>
       </div>
     `;

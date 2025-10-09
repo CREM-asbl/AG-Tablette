@@ -1,36 +1,66 @@
 import '@components/color-button';
 import '@components/popups/template-popup';
-import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { downloadFileZip, findAllFiles, findAllThemes } from '../../firebase/firebase-init';
 import { cachedThemes, selectedSequence } from '../../store/notions';
+import { setSyncCompleted, syncInProgress, syncProgress } from '../../store/syncState.js';
+import { OptimizedSignalController, debounce, throttle } from '../../utils/signal-observer.js';
 import './theme-elem';
 
+/**
+ * Service pour les opérations IndexedDB
+ * Sépare la logique métier de la présentation
+ */
+class CacheService {
+  /**
+   * Vide le cache IndexedDB
+   * @returns {Promise<void>}
+   */
+  static async clearCache(): Promise<void> {
+    try {
+      const db = await window.indexedDB.open('agTabletteDB');
+      const tx = db.result.transaction(['activities'], 'readwrite');
+      await tx.objectStore('activities').clear();
+      console.log('[CACHE] Cache local vidé avec succès');
+    } catch (error) {
+      console.error('[CACHE] Erreur lors du vidage du cache:', error);
+      throw new Error(`Impossible de vider le cache: ${error.message}`);
+    }
+  }
+
+  /**
+   * Vérifie la disponibilité du cache
+   * @returns {Promise<boolean>}
+   */
+  static async isCacheAvailable(): Promise<boolean> {
+    try {
+      await window.indexedDB.open('agTabletteDB');
+      return true;
+    } catch {
+      return false;
+    }
+  }
+}
+
 @customElement('open-server-popup')
-class OpenServerPopup extends SignalWatcher(LitElement) {
+class OpenServerPopup extends LitElement {
+  // Utilisation du nouveau controller optimisé
+  private signalController = new OptimizedSignalController(this);
+
   @property({ type: Array }) allThemes = []
   @property({ type: Boolean }) isDownloading = false;
   @property({ type: String }) errorMessage = '';
   @property({ type: String }) successMessage = '';
-  @property({ type: Number }) syncPercent = 100;
-  @property({ type: String }) syncStatus = 'complete';
+
+  // Fonctions débouncées pour éviter les interactions multiples
+  private debouncedDownload = debounce(this.downloadAllFiles.bind(this), 500);
+  private debouncedClearCache = debounce(this.clearCache.bind(this), 300);
+  private throttledLoadThemes = throttle(this.loadThemes.bind(this), 1000);
 
   constructor() {
     super();
     window.addEventListener('close-popup', () => this.close());
-    window.addEventListener('sync-progress', (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      const percent = detail?.percent ?? 100;
-      this.syncPercent = percent;
-      this.syncStatus = percent < 100 ? 'syncing' : 'complete';
-      this.requestUpdate();
-    });
-    window.addEventListener('activities-synced', () => {
-      this.syncPercent = 100;
-      this.syncStatus = 'complete';
-      this.requestUpdate();
-    });
   }
 
   close() {
@@ -130,8 +160,13 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       transition: transform 0.2s ease;
     }
 
-    .download-all color-button:hover {
+    .download-all color-button:hover:not([disabled]) {
       transform: translateY(-2px);
+    }
+
+    .download-all color-button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .section-title {
@@ -141,11 +176,23 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       padding: 8px 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
+
+    .cache-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .cache-controls color-button {
+      flex: 1;
+      min-width: 120px;
+    }
   `
 
   async connectedCallback() {
     super.connectedCallback();
-    await this.loadThemes();
+    await this.throttledLoadThemes();
     this.addEventListener('state-changed', this.scrollToOpenModule);
   }
 
@@ -211,8 +258,8 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
    * @param {boolean} loading - Indique si le bouton doit afficher l'état de chargement
    * @param {boolean} disabled - Indique si le bouton doit être désactivé
    */
-  setButtonState(selector, loading, disabled) {
-    const button = this.shadowRoot?.querySelector(selector);
+  setButtonState(selector: string, loading: boolean, disabled: boolean) {
+    const button = this.shadowRoot?.querySelector(selector) as any;
     if (button) {
       if (loading) {
         button.setAttribute('loading', 'true');
@@ -224,6 +271,12 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
   }
 
   async downloadAllFiles() {
+    // Protection contre les doubles clics
+    if (this.isDownloading) {
+      console.warn('[DOWNLOAD] Téléchargement déjà en cours');
+      return;
+    }
+
     try {
       this.isDownloading = true;
       this.errorMessage = '';
@@ -232,19 +285,56 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       // Mettre le bouton en état de chargement
       this.setButtonState('.download-all color-button', true, true);
 
+      // Déclencher l'indicateur de synchronisation
+      const { setSyncProgress, setSyncCompleted } = await import('../../store/syncState.js');
+      setSyncProgress(0);
+
       const files = await findAllFiles();
       if (files && files.length > 0) {
         await downloadFileZip('tous_les_fichiers.zip', files.map(file => file.id));
         this.successMessage = 'Téléchargement terminé avec succès';
+        setSyncCompleted();
       } else {
         this.errorMessage = 'Aucun fichier disponible pour le téléchargement';
+        setSyncCompleted();
       }
     } catch (error) {
+      setSyncCompleted();
       console.error('Erreur lors du téléchargement des fichiers:', error);
       this.errorMessage = `Erreur lors du téléchargement: ${error.message}`;
     } finally {
       this.isDownloading = false;
       this.setButtonState('.download-all color-button', false, false);
+    }
+  }
+
+  async clearCache() {
+    try {
+      this.errorMessage = '';
+      this.successMessage = '';
+
+      // Vérifier si le cache est disponible
+      const cacheAvailable = await CacheService.isCacheAvailable();
+      if (!cacheAvailable) {
+        this.errorMessage = 'Cache non disponible ou déjà vide';
+        return;
+      }
+
+      await CacheService.clearCache();
+
+      // Vider aussi le cache mémoire
+      cachedThemes.set([]);
+
+      this.successMessage = 'Cache local vidé avec succès';
+
+      // Recharger les thèmes après vidage du cache
+      setTimeout(() => {
+        this.throttledLoadThemes();
+      }, 1000);
+
+    } catch (error) {
+      console.error('Erreur lors du vidage du cache:', error);
+      this.errorMessage = `Erreur lors du vidage du cache: ${error.message}`;
     }
   }
 
@@ -269,35 +359,42 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
       }
 
           <div class="download-all">
-            <color-button @click="${this.downloadAllFiles}" aria-busy="${this.isDownloading}">
+            <color-button
+              @click="${this.debouncedDownload}"
+              aria-busy="${this.isDownloading}"
+              ?disabled="${this.isDownloading}">
               ${this.isDownloading ? 'Téléchargement en cours...' : 'Télécharger tous les fichiers'}
             </color-button>
           </div>
 
           ${this.isDownloading ? html`<progress class="download-progress" role="progressbar"></progress>` : ''}
-          ${this.errorMessage ? html`<div class="error-message" role="alert">${this.errorMessage}
-            <color-button @click="${() => this.clearCache()}" style="margin-top:8px;">Vider le cache local</color-button>
-          </div>` : ''}
+
+          ${this.errorMessage ? html`
+            <div class="error-message" role="alert">
+              ${this.errorMessage}
+              <div class="cache-controls">
+                <color-button @click="${this.debouncedClearCache}" style="margin-top:8px;">
+                  Vider le cache local
+                </color-button>
+                <color-button @click="${this.throttledLoadThemes}" style="margin-top:8px;">
+                  Recharger
+                </color-button>
+              </div>
+            </div>
+          ` : ''}
+
           ${this.successMessage ? html`<div class="success-message" role="status">${this.successMessage}</div>` : ''}
+
           <div style="margin-top:1rem; font-size:0.9em; color:#888;">
             <span>Synchronisation :
-              ${this.syncStatus === 'syncing' ? html`<span style="color:#ff9800;">${this.syncPercent}%</span>` : html`<span style="color:#4caf50;">Complète</span>`}
+              ${syncInProgress.value
+        ? html`<span style="color:#ff9800;">${Math.min(syncProgress.value ?? 0, 100)}%</span>`
+        : html`<span style="color:#4caf50;">Complète</span>`}
             </span>
             <span style="margin-left:1em;">Version des activités en cache : <span id="cache-version-info"></span></span>
           </div>
         </div>
       </template-popup>
     `;
-  }
-
-  async clearCache() {
-    // Suppression du cache IndexedDB
-    const db = await window.indexedDB.open('agTabletteDB');
-    const tx = db.result.transaction(['activities'], 'readwrite');
-    tx.objectStore('activities').clear();
-    this.successMessage = 'Cache local vidé.';
-    this.errorMessage = '';
-    // Mettre à jour l'affichage
-    this.requestUpdate();
   }
 }
