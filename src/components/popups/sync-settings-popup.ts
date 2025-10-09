@@ -3,42 +3,30 @@ import '@components/popups/template-popup';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { getLastSyncInfo, smartSync } from '../../services/activity-sync.js';
+import { CacheClearError, CacheError, CacheService, CacheUnavailableError } from '../../services/cache.service';
 import { cachedThemes } from '../../store/notions';
 import { syncInProgress, syncProgress } from '../../store/syncState.js';
 import { debounce } from '../../utils/signal-observer.js';
 
 /**
- * Service pour les opérations IndexedDB
- * Sépare la logique métier de la présentation
+ * Types d'erreurs pour la synchronisation
  */
-class CacheService {
-  /**
-   * Vide le cache IndexedDB
-   * @returns {Promise<void>}
-   */
-  static async clearCache(): Promise<void> {
-    try {
-      const db = await window.indexedDB.open('agTabletteDB');
-      const tx = db.result.transaction(['activities'], 'readwrite');
-      await tx.objectStore('activities').clear();
-      console.log('[CACHE] Cache local vidé avec succès');
-    } catch (error) {
-      console.error('[CACHE] Erreur lors du vidage du cache:', error);
-      throw new Error(`Impossible de vider le cache: ${error.message}`);
-    }
+class SyncError extends Error {
+  constructor(message: string, public type: string = 'SYNC_ERROR') {
+    super(message);
+    this.name = 'SyncError';
   }
+}
 
-  /**
-   * Vérifie la disponibilité du cache
-   * @returns {Promise<boolean>}
-   */
-  static async isCacheAvailable(): Promise<boolean> {
-    try {
-      await window.indexedDB.open('agTabletteDB');
-      return true;
-    } catch {
-      return false;
-    }
+class NetworkError extends SyncError {
+  constructor(message: string = 'Problème de connexion réseau') {
+    super(message, 'NETWORK_ERROR');
+  }
+}
+
+class AuthError extends SyncError {
+  constructor(message: string = 'Erreur d\'authentification') {
+    super(message, 'AUTH_ERROR');
   }
 }
 
@@ -53,9 +41,9 @@ class SyncSettingsPopup extends LitElement {
   private debouncedForceSync = debounce(this.forceSync.bind(this), 1000);
   private debouncedClearCache = debounce(this.clearCache.bind(this), 300);
 
-  constructor() {
-    super();
-    this.loadSyncInfo();
+  async connectedCallback() {
+    super.connectedCallback();
+    await this.loadSyncInfo();
   }
 
   async loadSyncInfo() {
@@ -194,6 +182,23 @@ class SyncSettingsPopup extends LitElement {
       background: var(--theme-color-dark, #388e3c);
       box-shadow: 0 4px 16px rgba(44,62,80,0.16);
     }
+
+    /* Amélioration de l'accessibilité - Focus visible */
+    color-button:focus {
+      outline: 2px solid var(--theme-color, #4CAF50);
+      outline-offset: 2px;
+    }
+
+    .confirmation-dialog {
+      /* Amélioration pour la navigation clavier */
+      isolation: isolate;
+    }
+
+    /* Amélioration du contraste pour les messages */
+    .section-title {
+      /* Assurer un contraste suffisant */
+      font-weight: 600;
+    }
     .cache-explanation {
       color: var(--theme-text-color, #222);
       margin-bottom: 16px;
@@ -285,18 +290,32 @@ class SyncSettingsPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
+      if (window.dev_mode) console.log('[SYNC] Début synchronisation forcée');
+
       const result = await smartSync({ force: true });
 
       if (result === 'completed') {
         this.successMessage = '🔄 Synchronisation forcée terminée avec succès';
         await this.loadSyncInfo();
+        if (window.dev_mode) console.log('[SYNC] Synchronisation terminée avec succès');
       } else if (result === 'recent') {
         this.successMessage = '✅ Synchronisation déjà récente, aucune action nécessaire';
+        if (window.dev_mode) console.log('[SYNC] Synchronisation récente détectée');
       } else {
         this.errorMessage = 'Erreur lors de la synchronisation forcée';
       }
     } catch (error) {
-      this.errorMessage = `Erreur lors de la synchronisation: ${error.message}`;
+      if (window.dev_mode) console.error('[SYNC] Erreur synchronisation:', error);
+
+      if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        this.errorMessage = '🌐 Problème de connexion réseau. Vérifiez votre connexion internet.';
+      } else if (error.message?.includes('auth') || error.message?.includes('401')) {
+        this.errorMessage = '🔒 Erreur d\'authentification. Reconnectez-vous.';
+      } else if (error.message?.includes('timeout')) {
+        this.errorMessage = '⏱️ Délai d\'attente dépassé. Réessayez dans quelques instants.';
+      } else {
+        this.errorMessage = `⚠️ Erreur technique: ${error.message}`;
+      }
     } finally {
       this.isSyncing = false;
     }
@@ -320,19 +339,38 @@ class SyncSettingsPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
-      const cacheAvailable = await CacheService.isCacheAvailable();
-      if (!cacheAvailable) {
-        this.errorMessage = 'Cache non disponible ou déjà vide';
+      if (window.dev_mode) console.log('[CACHE] Début vidage cache');
+
+      const statistiques = await CacheService.obtenirStatistiques();
+      if (!statistiques.disponible) {
+        this.errorMessage = `💾 Cache non disponible: ${statistiques.raison}`;
         return;
       }
 
-      await CacheService.clearCache();
+      if (statistiques.nombreElements === 0) {
+        this.successMessage = '✨ Le cache est déjà vide';
+        return;
+      }
+
+      await CacheService.viderCache();
       cachedThemes.set([]);
 
-      this.successMessage = '🗑️ Cache local vidé avec succès';
+      this.successMessage = `🗑️ Cache vidé avec succès (${statistiques.nombreElements} éléments supprimés)`;
+
+      if (window.dev_mode) console.log('[CACHE] Cache vidé, éléments supprimés:', statistiques.nombreElements);
+
     } catch (error) {
       console.error('Erreur lors du vidage du cache:', error);
-      this.errorMessage = `Erreur lors du vidage du cache: ${error.message}`;
+
+      if (error instanceof CacheUnavailableError) {
+        this.errorMessage = '💾 Cache non accessible. Vérifiez le support IndexedDB de votre navigateur.';
+      } else if (error instanceof CacheClearError) {
+        this.errorMessage = '🚫 Impossible de vider le cache. Réessayez ou redémarrez l\'application.';
+      } else if (error instanceof CacheError) {
+        this.errorMessage = `💾 Erreur cache: ${error.message}`;
+      } else {
+        this.errorMessage = `⚠️ Erreur technique: ${error.message}`;
+      }
     }
   }
 
@@ -385,8 +423,12 @@ class SyncSettingsPopup extends LitElement {
               <color-button
                 @click="${this.debouncedForceSync}"
                 ?disabled="${this.isSyncing || syncInProgress.value}"
+                aria-label="${this.lastSyncInfo?.nextSyncDue ? 'Synchroniser les données maintenant' : 'Forcer une nouvelle synchronisation'}"
+                role="button"
+                tabindex="0"
               >
-                ${this.lastSyncInfo?.nextSyncDue ? '🔄 Synchroniser maintenant' : '🔧 Forcer la synchronisation'}
+                <span aria-hidden="true">${this.lastSyncInfo?.nextSyncDue ? '🔄' : '🔧'}</span>
+                ${this.lastSyncInfo?.nextSyncDue ? 'Synchroniser maintenant' : 'Forcer la synchronisation'}
               </color-button>
             </div>
 
@@ -403,11 +445,21 @@ class SyncSettingsPopup extends LitElement {
             </p>
 
             <div class="actions-grid">
-              <color-button @click="${this.showClearCacheDialog}">
-                🗑️ Vider le cache
+              <color-button
+                @click="${this.showClearCacheDialog}"
+                aria-label="Vider le cache local de l'application"
+                role="button"
+                tabindex="0"
+              >
+                <span aria-hidden="true">🗑️</span> Vider le cache
               </color-button>
-              <color-button @click="${() => window.location.reload()}">
-                🔄 Recharger l'app
+              <color-button
+                @click="${() => window.location.reload()}"
+                aria-label="Recharger complètement l'application"
+                role="button"
+                tabindex="0"
+              >
+                <span aria-hidden="true">🔄</span> Recharger l'app
               </color-button>
             </div>
           </div>
@@ -436,11 +488,23 @@ class SyncSettingsPopup extends LitElement {
             <p>Cette action supprimera toutes les données mises en cache localement. Vous devrez les retélécharger lors de votre prochaine utilisation.</p>
             <p><strong>Êtes-vous sûr de vouloir continuer ?</strong></p>
             <div class="confirmation-actions">
-              <color-button @click="${this.cancelClearCache}" style="background: #6c757d;">
-                ❌ Annuler
+              <color-button
+                @click="${this.cancelClearCache}"
+                style="background: #6c757d;"
+                aria-label="Annuler le vidage du cache"
+                role="button"
+                tabindex="0"
+              >
+                <span aria-hidden="true">❌</span> Annuler
               </color-button>
-              <color-button @click="${this.confirmClearCache}" style="background: #dc3545;">
-                🗑️ Vider le cache
+              <color-button
+                @click="${this.confirmClearCache}"
+                style="background: #dc3545;"
+                aria-label="Confirmer le vidage du cache local"
+                role="button"
+                tabindex="0"
+              >
+                <span aria-hidden="true">🗑️</span> Vider le cache
               </color-button>
             </div>
           </div>
