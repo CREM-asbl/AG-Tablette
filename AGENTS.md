@@ -188,6 +188,9 @@ class Tool {
 3. Suivre le pattern Observer pour la communication
 4. Ajouter les tests correspondants
 
+### Recommandation TDD pour tous les agents IA
+> **Bonne pratique** : Avant toute correction de bug ou ajout de fonctionnalité, écrire d'abord un test automatisé qui échoue (TDD). Corriger ensuite le code pour que le test passe, puis refactorer si nécessaire. Cette démarche garantit la non-régression et la robustesse du projet. Tous les agents IA doivent systématiquement appliquer cette méthodologie lors des futures interventions.
+
 ### Pour les modifications de performance
 1. Utiliser `PerformanceSystem.js`
 2. Mesurer avant/après

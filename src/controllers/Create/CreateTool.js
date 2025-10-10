@@ -49,21 +49,40 @@ export class CreateTool extends Tool {
    * @param  {String} family Nom de la famille sélectionnée
    */
   start() {
+    // S'assurer que l'outil précédent soit complètement arrêté
     app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
 
-    this.openShapeList();
+    // Laisser le temps à l'ancien outil de se terminer proprement
+    setTimeout(() => {
+      this.openShapeList();
+    }, 100);
   }
 
   listen() {
+    // Vérifier que l'outil actif est bien 'create'
+    if (app.tool.name !== 'create') {
+      console.warn('CreateTool.listen() appelé mais l\'outil actif n\'est pas create:', app.tool.name);
+      return;
+    }
+
+    // Nettoyer agressivement les contours de groupes
     app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+
+    // S'assurer qu'on nettoie à nouveau après un petit délai au cas où quelque chose redessinerait
+    setTimeout(() => {
+      if (app.tool.name === 'create') {
+        app.upperCanvasLayer.removeAllObjects();
+      }
+    }, 100);
   }
 
   move() {
+    // S'assurer que les contours de groupes sont supprimés pendant le déplacement
     this.removeListeners();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
@@ -79,6 +98,15 @@ export class CreateTool extends Tool {
   }
 
   openShapeList() {
+    // Nettoyer les contours de groupes résiduels
+    app.upperCanvasLayer.removeAllObjects();
+
+    // Force reset de l'état de l'outil pour s'assurer qu'aucun ancien outil n'est actif
+    if (app.tool.name !== 'create') {
+      setState({ tool: { name: 'create', currentStep: 'start' } });
+      return;
+    }
+
     const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
     if (shapeTemplates.length == 1) {
       const selectedTemplate = shapeTemplates[0];
@@ -97,6 +125,9 @@ export class CreateTool extends Tool {
 
   canvasMouseDown() {
     if (app.tool.currentStep != 'listen') return;
+
+    // Nettoyer avant de commencer la création
+    app.upperCanvasLayer.removeAllObjects();
 
     const selectedTemplate = app.tool.selectedTemplate;
 
@@ -128,16 +159,29 @@ export class CreateTool extends Tool {
     if (app.tool.currentStep != 'move') return;
 
     this.executeAction();
+    // Nettoyer l'upperCanvasLayer après la création pour éviter les contours de groupe résiduels
+    app.upperCanvasLayer.removeAllObjects();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   refreshStateUpper() {
+    // Nettoyer en permanence les contours de groupes résiduels quand on utilise l'outil Create
+    if (app.tool.currentStep != 'move') {
+      app.upperCanvasLayer.removeAllObjects();
+    }
+
     if (app.tool.currentStep == 'move') {
       this.shapeToCreate.translate(
         app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos),
       );
       this.currentShapePos = app.workspace.lastKnownMouseCoordinates;
     }
+  }
+
+  // Override objectSelected pour empêcher les actions de l'ancien outil Group
+  objectSelected(shape) {
+    // Ne rien faire - empêche les actions du GroupTool qui pourrait encore être actif
+    return;
   }
 
   _executeAction() {
