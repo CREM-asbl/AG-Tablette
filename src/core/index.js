@@ -156,7 +156,7 @@ export const moduleUtils = {
   loadModule: async (modulePath) => {
     try {
       console.log(modulePath)
-      const module = await import(modulePath);
+      const module = await import(/* @vite-ignore */ modulePath);
       return module;
     } catch (error) {
       console.error(`Erreur lors du chargement du module ${modulePath}:`, error);
