@@ -84,6 +84,19 @@ class CanvasContainer extends LitElement {
       window.clearTimeout(this.timeoutId);
       this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);
     });
+
+    window.addEventListener('new-window', () => {
+      app.mainCanvasLayer.removeAllObjects();
+      app.upperCanvasLayer.removeAllObjects();
+      app.tangramCanvasLayer?.removeAllObjects();
+      app.invisibleCanvasLayer?.removeAllObjects();
+      setState({
+        filename: null,
+        history: app.defaultState.history,
+        fullHistory: app.defaultState.fullHistory,
+        stepSinceSave: app.defaultState.stepSinceSave,
+      });
+    });
   }
 
   setCanvasSize() {

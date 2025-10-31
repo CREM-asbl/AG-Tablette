@@ -99,6 +99,7 @@ class CanvasLayer extends LitElement {
   }
 
   removeAllObjects() {
+    console.log('removeAllObjects', this.shapes);
     this.shapes = [];
     this.segments = [];
     this.points = [];
@@ -107,6 +108,7 @@ class CanvasLayer extends LitElement {
   }
 
   clear() {
+    console.log('clear', this.shapes);
     if (this.ctx) {
       // Optimisation: utiliser la largeur réelle du canvas
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

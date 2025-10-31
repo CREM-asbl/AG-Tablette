@@ -1,4 +1,4 @@
-import { app, setState } from '../App';
+import { app } from '../App';
 import { Workspace } from '../Objects/Workspace';
 
 export const setWorkspace = workspace => {
@@ -21,16 +21,3 @@ window.addEventListener('app-started', () => {
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
   }
 }, { once: true });
-
-window.addEventListener('new-window', () => {
-  app.mainCanvasLayer.removeAllObjects();
-  app.upperCanvasLayer.removeAllObjects();
-  app.tangramCanvasLayer?.removeAllObjects();
-  app.invisibleCanvasLayer?.removeAllObjects();
-  setState({
-    filename: null,
-    history: app.defaultState.history,
-    fullHistory: app.defaultState.fullHistory,
-    stepSinceSave: app.defaultState.stepSinceSave,
-  });
-});
