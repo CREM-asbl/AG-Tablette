@@ -1,6 +1,9 @@
 // ESLint flat config (v9)
 // Configuration minimale pour linter JS/TS de ce dépôt sans plugins additionnels.
 
+import typescriptParser from '@typescript-eslint/parser';
+import typescriptPlugin from '@typescript-eslint/eslint-plugin';
+
 export default [
   {
     ignores: [
@@ -15,7 +18,7 @@ export default [
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',
-      parser: require.resolve('@typescript-eslint/parser'),
+      parser: typescriptParser,
       parserOptions: {
         ecmaVersion: 2023,
         sourceType: 'module',
@@ -33,7 +36,7 @@ export default [
       },
     },
     plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
+      '@typescript-eslint': typescriptPlugin,
     },
     rules: {
       // Règles raisonnables et non bloquantes

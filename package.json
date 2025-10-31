@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "scripts": {
     "dev": "astro dev",
     "start-emulators": "firebase emulators:start",
@@ -12,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:playwright": "playwright test",
+    "test:coverage": "vitest run --coverage",
     "test:all": "npm run test && npm run test:playwright"
   },
   "devDependencies": {
