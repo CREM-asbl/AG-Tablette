@@ -67,6 +67,8 @@ export class DeleteTool extends Tool {
    * @param  {Object} object            La figure ou le point sélectionné
    */
   objectSelected(object) {
+    if (!object) return;
+
     if (object instanceof Shape) {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);

@@ -113,6 +113,8 @@ export class CentralSymetryTool extends Tool {
   }
 
   objectSelected(object) {
+    if (!object) return;
+
     this.involvedShapes = ShapeManager.getAllBindedShapes(object);
     this.drawingShapes = this.involvedShapes.map(
       (s) =>

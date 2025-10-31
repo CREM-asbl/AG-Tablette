@@ -212,6 +212,8 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   objectSelected(object) {
+    if (!object) return;
+
     this.involvedShapes = ShapeManager.getAllBindedShapes(object);
     this.drawingShapes = this.involvedShapes.map(
       (s) =>

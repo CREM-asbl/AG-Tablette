@@ -86,6 +86,8 @@ export class MergeTool extends Tool {
    * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (onClick)
    */
   objectSelected(shape) {
+    if (!shape) return;
+
     let mustExecuteAction = false;
     if (app.tool.currentStep == 'listen') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape);

@@ -68,6 +68,8 @@ export class BifaceTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
+    if (!shape) return;
+
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();

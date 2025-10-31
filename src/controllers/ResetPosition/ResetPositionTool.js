@@ -28,6 +28,8 @@ export class ResetPositionTool extends Tool {
   }
 
   objectSelected(object) {
+    if (!object) return;
+
     this.involvedShapes = ShapeManager.getAllBindedShapes(object);
 
     this.executeAction();

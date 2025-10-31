@@ -61,6 +61,8 @@ export class Rotate45Tool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
+    if (!shape) return;
+
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 

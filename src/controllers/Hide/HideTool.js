@@ -49,6 +49,8 @@ export class HideTool extends Tool {
   }
 
   objectSelected(object) {
+    if (!object) return;
+
     if (object instanceof Shape) {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);

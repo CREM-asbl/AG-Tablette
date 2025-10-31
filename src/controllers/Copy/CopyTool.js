@@ -96,6 +96,7 @@ export class CopyTool extends Tool {
 
   objectSelected(object) {
     if (app.tool.currentStep != 'listen') return;
+    if (!object) return;
 
     if (object instanceof Segment) {
       this.mode = 'segment';

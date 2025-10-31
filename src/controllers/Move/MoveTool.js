@@ -82,6 +82,7 @@ export class MoveTool extends Tool {
    */
   objectSelected(shape) {
     if (app.tool.currentStep != 'listen') return;
+    if (!shape) return;
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
     if (app.environment.name == 'Geometrie') {

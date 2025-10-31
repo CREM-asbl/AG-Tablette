@@ -92,6 +92,8 @@ export class ColorTool extends Tool {
   }
 
   objectSelected(shape) {
+    if (!shape) return;
+
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
