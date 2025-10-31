@@ -526,7 +526,7 @@ export const parseFile = async (fileContent, filename) => {
 
     // Chargement du workspace
     const WorkspaceManagerModule = await import('@controllers/Core/Managers/WorkspaceManager.js');
-    WorkspaceManagerModule.setWorkspaceFromObject(saveObject.workspaceData || saveObject.wsdata);
+    await WorkspaceManagerModule.setWorkspaceFromObject(saveObject.workspaceData || saveObject.wsdata);
 
     // Traitement spécial pour Tangram
     if (app.environment.name === 'Tangram' && saveObject.fileExtension === 'ags') {

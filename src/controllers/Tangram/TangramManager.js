@@ -28,7 +28,7 @@ export class TangramManager extends LitElement {
       s.strokeColor = isForCreation ? '#fff' : '#000';
       s.fillOpacity = isForCreation ? 1 : 0.5;
     });
-    setWorkspaceFromObject(ws, false);
+    await setWorkspaceFromObject(ws, false);
     if (zoom < app.workspace.zoomLevel) app.workspace.zoomLevel = zoom;
     window.dispatchEvent(new CustomEvent('refresh'));
   }

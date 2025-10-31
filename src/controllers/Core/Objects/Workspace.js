@@ -82,20 +82,20 @@ export class Workspace {
   }
 
   /**
-   * Initialise l'espace de travail à partir d'un objet de données
-   * @param {Object|null} wsdata - Les données de l'espace de travail
-   */
-  initFromObject(wsdata) {
+  * Initialise l'espace de travail à partir d'un objet de données
+  * @param {Object|null} wsdata - Les données de l'espace de travail
+  */
+  async initFromObject(wsdata) {
     this.zoomLevel = wsdata?.zoomLevel || 1;
     if (!wsdata) {
-      this.resetWorkspace()
+      await this.resetWorkspace()
       return;
     }
 
     // Validation des données d'entrée
     if (typeof wsdata !== 'object') {
       console.error('Workspace: Données invalides passées à initFromObject');
-      this.resetWorkspace();
+      await this.resetWorkspace();
       return;
     }
 
@@ -107,13 +107,13 @@ export class Workspace {
 
     // Chargement des objets principaux avec validation
     try {
-      if (app.mainCanvasLayer && typeof app.mainCanvasLayer.loadFromData === 'function') {
-        app.mainCanvasLayer.loadFromData(wsdata.objects);
-      } else {
-        console.error('Workspace: mainCanvasLayer non disponible pour le chargement');
-      }
+    if (app.mainCanvasLayer && typeof app.mainCanvasLayer.loadFromData === 'function') {
+    await app.mainCanvasLayer.loadFromData(wsdata.objects);
+    } else {
+    console.error('Workspace: mainCanvasLayer non disponible pour le chargement');
+    }
     } catch (error) {
-      console.error('Workspace: Erreur lors du chargement des objets principaux:', error);
+    console.error('Workspace: Erreur lors du chargement des objets principaux:', error);
     }
 
     if (scale != 1) this.setZoomLevel(scale)
@@ -157,38 +157,38 @@ export class Workspace {
   }
 
   /**
-   * Charge les objets de fond (silhouettes) dans le tangramCanvasLayer de façon asynchrone
-   * @param {Object} backObjects - Les données des objets de fond à charger
-   * @private
-   */
-  _loadTangramBackObjects(backObjects) {
+  * Charge les objets de fond (silhouettes) dans le tangramCanvasLayer de façon asynchrone
+  * @param {Object} backObjects - Les données des objets de fond à charger
+  * @private
+  */
+  async _loadTangramBackObjects(backObjects) {
     if (!backObjects) {
       console.warn('Workspace: Aucun backObjects à charger');
       return;
     }
 
-    const loadBackObjectsImmediately = () => {
-      try {
-        if (app.tangramCanvasLayer && typeof app.tangramCanvasLayer.loadFromData === 'function') {
-          app.tangramCanvasLayer.loadFromData(backObjects);
-          app.tangramCanvasLayer.draw();
-          console.log('Workspace: backObjects chargés immédiatement');
-        } else {
-          throw new Error('tangramCanvasLayer non disponible ou invalide');
-        }
-      } catch (error) {
-        console.error('Workspace: Erreur lors du chargement immédiat des backObjects:', error);
-      }
+    const loadBackObjectsImmediately = async () => {
+    try {
+    if (app.tangramCanvasLayer && typeof app.tangramCanvasLayer.loadFromData === 'function') {
+    await app.tangramCanvasLayer.loadFromData(backObjects);
+    app.tangramCanvasLayer.draw();
+    console.log('Workspace: backObjects chargés immédiatement');
+    } else {
+    throw new Error('tangramCanvasLayer non disponible ou invalide');
+    }
+    } catch (error) {
+    console.error('Workspace: Erreur lors du chargement immédiat des backObjects:', error);
+    }
     };
 
     const loadBackObjectsAfterEvent = () => {
       let timeoutId;
       
-      const handler = () => {
+      const handler = async () => {
         clearTimeout(timeoutId);
         try {
           if (app.tangramCanvasLayer && typeof app.tangramCanvasLayer.loadFromData === 'function') {
-            app.tangramCanvasLayer.loadFromData(backObjects);
+            await app.tangramCanvasLayer.loadFromData(backObjects);
             app.tangramCanvasLayer.draw();
             console.log('Workspace: backObjects chargés après événement tangram-canvas-ready');
           } else {
@@ -337,9 +337,9 @@ export class Workspace {
     return svg_data;
   }
 
-  resetWorkspace() {
+  async resetWorkspace() {
     this.translateOffset = Coordinates.nullCoordinates;
-    app.mainCanvasLayer.loadFromData(null);
+    await app.mainCanvasLayer.loadFromData(null);
     app.tangramCanvasLayer?.clear();
     app.gridCanvasLayer?.clear();
   }

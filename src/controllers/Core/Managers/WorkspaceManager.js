@@ -10,10 +10,10 @@ export const setWorkspace = workspace => {
   window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
 }
 
-export const setWorkspaceFromObject = (data, center = true) => {
+export const setWorkspaceFromObject = async (data, center = true) => {
   const ws = new Workspace();
   setWorkspace(ws);
-  ws.initFromObject(data, center);
+  await ws.initFromObject(data, center);
 }
 
 window.addEventListener('app-started', () => {

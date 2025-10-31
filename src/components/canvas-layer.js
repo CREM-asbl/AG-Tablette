@@ -4,13 +4,7 @@ import { SelectManager } from '../controllers/Core/Managers/SelectManager';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import { Point } from '../controllers/Core/Objects/Point';
 import { Segment } from '../controllers/Core/Objects/Segment';
-import { ArrowLineShape } from '../controllers/Core/Objects/Shapes/ArrowLineShape';
-import { CubeShape } from '../controllers/Core/Objects/Shapes/CubeShape';
-import { LineShape } from '../controllers/Core/Objects/Shapes/LineShape';
-import { RegularShape } from '../controllers/Core/Objects/Shapes/RegularShape';
-import { Shape } from '../controllers/Core/Objects/Shapes/Shape';
-import { SinglePointShape } from '../controllers/Core/Objects/Shapes/SinglePointShape';
-import { StripLineShape } from '../controllers/Core/Objects/Shapes/StripLineShape';
+// Shapes imported lazily in loadFromData
 import { capitalizeFirstLetter, createElem, findObjectById } from '../controllers/Core/Tools/general';
 import { gridStore } from '../store/gridStore.js';
 
@@ -99,7 +93,6 @@ class CanvasLayer extends LitElement {
   }
 
   removeAllObjects() {
-    console.log('removeAllObjects', this.shapes);
     this.shapes = [];
     this.segments = [];
     this.points = [];
@@ -108,7 +101,6 @@ class CanvasLayer extends LitElement {
   }
 
   clear() {
-    console.log('clear', this.shapes);
     if (this.ctx) {
       // Optimisation: utiliser la largeur réelle du canvas
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -282,7 +274,7 @@ class CanvasLayer extends LitElement {
     return data;
   }
 
-  loadFromData(data) {
+  async loadFromData(data) {
     this.removeAllObjects();
     // Tolérer null/undefined et données partielles sans lever d'erreur
     if (!data) {
@@ -296,36 +288,46 @@ class CanvasLayer extends LitElement {
     const pointsData = Array.isArray(data.pointsData) ? data.pointsData : [];
 
     if (shapesData.length || segmentsData.length || pointsData.length) {
-      shapesData.forEach((shapeData) => {
+      for (const shapeData of shapesData) {
+        let currentShapeData = shapeData;
         if (isFinite(shapeData.indexOfReference)) {
-          shapeData = app.history.steps[shapeData.indexOfReference].objects.shapesData.find(s => s.id === shapeData.id);
+          currentShapeData = app.history.steps[shapeData.indexOfReference].objects.shapesData.find(s => s.id === shapeData.id);
         }
-        if (shapeData.type === 'Shape')
-          Shape.loadFromData(shapeData);
-        else if (shapeData.type === 'RegularShape')
-          RegularShape.loadFromData(shapeData);
-        else if (shapeData.type === 'CubeShape')
-          CubeShape.loadFromData(shapeData);
-        else if (shapeData.type === 'LineShape')
-          LineShape.loadFromData(shapeData);
-        else if (shapeData.type === 'SinglePointShape')
-          SinglePointShape.loadFromData(shapeData);
-        else if (shapeData.type === 'ArrowLineShape')
-          ArrowLineShape.loadFromData(shapeData);
-        else if (shapeData.type === 'StripLineShape')
-          StripLineShape.loadFromData(shapeData);
-        else {
-          shapeData.fillColor = shapeData.color;
-          shapeData.fillOpacity = parseFloat(shapeData.opacity);
-          shapeData.strokeColor = shapeData.borderColor;
-          shapeData.strokeWidth = shapeData.borderSize;
-          if (shapeData.segmentIds.length === 1 && !shapeData.name.startsWith('Disque')) {
-            LineShape.loadFromData(shapeData);
+        if (currentShapeData.type === 'Shape') {
+          const { Shape } = await import('../controllers/Core/Objects/Shapes/Shape');
+          Shape.loadFromData(currentShapeData);
+        } else if (currentShapeData.type === 'RegularShape') {
+          const { RegularShape } = await import('../controllers/Core/Objects/Shapes/RegularShape');
+          RegularShape.loadFromData(currentShapeData);
+        } else if (currentShapeData.type === 'CubeShape') {
+          const { CubeShape } = await import('../controllers/Core/Objects/Shapes/CubeShape');
+          CubeShape.loadFromData(currentShapeData);
+        } else if (currentShapeData.type === 'LineShape') {
+          const { LineShape } = await import('../controllers/Core/Objects/Shapes/LineShape');
+          LineShape.loadFromData(currentShapeData);
+        } else if (currentShapeData.type === 'SinglePointShape') {
+          const { SinglePointShape } = await import('../controllers/Core/Objects/Shapes/SinglePointShape');
+          SinglePointShape.loadFromData(currentShapeData);
+        } else if (currentShapeData.type === 'ArrowLineShape') {
+          const { ArrowLineShape } = await import('../controllers/Core/Objects/Shapes/ArrowLineShape');
+          ArrowLineShape.loadFromData(currentShapeData);
+        } else if (currentShapeData.type === 'StripLineShape') {
+          const { StripLineShape } = await import('../controllers/Core/Objects/Shapes/StripLineShape');
+          StripLineShape.loadFromData(currentShapeData);
+        } else {
+          currentShapeData.fillColor = currentShapeData.color;
+          currentShapeData.fillOpacity = parseFloat(currentShapeData.opacity);
+          currentShapeData.strokeColor = currentShapeData.borderColor;
+          currentShapeData.strokeWidth = currentShapeData.borderSize;
+          if (currentShapeData.segmentIds.length === 1 && !currentShapeData.name.startsWith('Disque')) {
+            const { LineShape } = await import('../controllers/Core/Objects/Shapes/LineShape');
+            LineShape.loadFromData(currentShapeData);
           } else {
-            RegularShape.loadFromData(shapeData);
+            const { RegularShape } = await import('../controllers/Core/Objects/Shapes/RegularShape');
+            RegularShape.loadFromData(currentShapeData);
           }
         }
-      });
+      }
       segmentsData.forEach((segmentData) => {
         if (isFinite(segmentData.indexOfReference)) {
           segmentData = app.history.steps[segmentData.indexOfReference].objects.segmentsData.find(seg => seg.id === segmentData.id);
@@ -970,11 +972,11 @@ class CanvasLayer extends LitElement {
     this.ctx.fillStyle = point.color;
     this.ctx.globalAlpha = 1;
 
-    const canvasCoodinates = point.coordinates.toCanvasCoordinates();
+    const canvasCoordinates = point.coordinates.toCanvasCoordinates();
     this.ctx.beginPath();
     this.ctx.arc(
-      canvasCoodinates.x,
-      canvasCoodinates.y,
+      canvasCoordinates.x,
+      canvasCoordinates.y,
       point.size * 2, // Coordonnées déjà converties par toCanvasCoordinates()
       0,
       2 * Math.PI,

@@ -10,6 +10,39 @@ class CanvasContainer extends LitElement {
   @property({ type: Boolean }) cursorShow = false
   @property({ type: Object }) environment
 
+  private timeoutId: number | undefined;
+
+  private resizeHandler = () => { this.setCanvasSize(); };
+  private mouseCoordinatesHandler = (event: CustomEvent) => {
+    app.workspace.lastKnownMouseCoordinates = new Coordinates(event.detail.mousePos);
+  };
+  private mouseClickHandler = (event: CustomEvent) => {
+    app.workspace.lastKnownMouseClickCoordinates = new Coordinates(event.detail.mousePos);
+    app.workspace.lastKnownMouseClickTime = event.timeStamp;
+  };
+  private showCursorHandler = () => {
+    let mousePos = app.workspace.lastKnownMouseCoordinates;
+    this.cursorPos = mousePos.toCanvasCoordinates();
+    this.cursorPos = this.cursorPos.substract(
+      new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })
+    );
+    this.cursorShow = true;
+    window.clearTimeout(this.timeoutId);
+    this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);
+  };
+  private newWindowHandler = () => {
+    app.mainCanvasLayer.removeAllObjects();
+    app.upperCanvasLayer.removeAllObjects();
+    app.tangramCanvasLayer?.removeAllObjects();
+    app.invisibleCanvasLayer?.removeAllObjects();
+    setState({
+      filename: null,
+      history: app.defaultState.history,
+      fullHistory: app.defaultState.fullHistory,
+      stepSinceSave: app.defaultState.stepSinceSave,
+    });
+  };
+
 
   static styles = css`
     :host {
@@ -61,42 +94,14 @@ class CanvasContainer extends LitElement {
 
   firstUpdated() {
     this.setCanvasSize();
-    window.onresize = () => { this.setCanvasSize(); };
+    window.addEventListener('resize', this.resizeHandler);
 
     setState({ started: true });
 
-    window.addEventListener('mouse-coordinates-changed', (event) => {
-      app.workspace.lastKnownMouseCoordinates = new Coordinates(event.detail.mousePos);
-    });
-
-    window.addEventListener('mouse-click-changed', (event) => {
-      app.workspace.lastKnownMouseClickCoordinates = new Coordinates(event.detail.mousePos);
-      app.workspace.lastKnownMouseClickTime = event.timeStamp;
-    });
-
-    window.addEventListener('show-cursor', () => {
-      let mousePos = app.workspace.lastKnownMouseCoordinates;
-      this.cursorPos = mousePos.toCanvasCoordinates();
-      this.cursorPos = this.cursorPos.substract(
-        new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })
-      );
-      this.cursorShow = true;
-      window.clearTimeout(this.timeoutId);
-      this.timeoutId = window.setTimeout(() => (this.cursorShow = false), 100);
-    });
-
-    window.addEventListener('new-window', () => {
-      app.mainCanvasLayer.removeAllObjects();
-      app.upperCanvasLayer.removeAllObjects();
-      app.tangramCanvasLayer?.removeAllObjects();
-      app.invisibleCanvasLayer?.removeAllObjects();
-      setState({
-        filename: null,
-        history: app.defaultState.history,
-        fullHistory: app.defaultState.fullHistory,
-        stepSinceSave: app.defaultState.stepSinceSave,
-      });
-    });
+    window.addEventListener('mouse-coordinates-changed', this.mouseCoordinatesHandler);
+    window.addEventListener('mouse-click-changed', this.mouseClickHandler);
+    window.addEventListener('show-cursor', this.showCursorHandler);
+    window.addEventListener('new-window', this.newWindowHandler);
   }
 
   setCanvasSize() {
@@ -105,6 +110,18 @@ class CanvasContainer extends LitElement {
     setState({ settings: { ...app.settings, selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60, magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60 } });
     const layers = this.shadowRoot.querySelectorAll('canvas-layer')
     layers.forEach(layer => layer.requestUpdate())
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('resize', this.resizeHandler);
+    window.removeEventListener('mouse-coordinates-changed', this.mouseCoordinatesHandler);
+    window.removeEventListener('mouse-click-changed', this.mouseClickHandler);
+    window.removeEventListener('show-cursor', this.showCursorHandler);
+    window.removeEventListener('new-window', this.newWindowHandler);
+    if (this.timeoutId !== undefined) {
+      window.clearTimeout(this.timeoutId);
+    }
   }
 
   // Ajout d'un fond d'écran fixé à droite
