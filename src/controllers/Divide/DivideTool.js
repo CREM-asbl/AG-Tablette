@@ -32,7 +32,7 @@ export class DivideTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -73,7 +73,7 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
-    let firstPoint = findObjectById(
+    const firstPoint = findObjectById(
       app.tool.firstPointIds[0]
     );
     new Point({
@@ -168,10 +168,10 @@ export class DivideTool extends Tool {
         });
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
-      let pt1 = findObjectById(
+      const pt1 = findObjectById(
         this.firstPointIds[0]
       );
-      let object1 = object[0];
+      const object1 = object[0];
 
       if (pt1.coordinates.dist(object1.coordinates) < 0.01) {
         // pt1 == object => désélectionner le point.
@@ -181,11 +181,11 @@ export class DivideTool extends Tool {
 
         setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
       } else {
-        let pointsToDivide = [];
-        let firstPoints = this.firstPointIds.map(ptId => findObjectById(
+        const pointsToDivide = [];
+        const firstPoints = this.firstPointIds.map(ptId => findObjectById(
           ptId
         ));
-        let newObjects = [...object];
+        const newObjects = [...object];
         for (let i = 0; i < firstPoints.length; i++) {
           for (let j = 0; j < newObjects.length; j++) {
             let firstSegmentIds;
@@ -228,8 +228,8 @@ export class DivideTool extends Tool {
         pointsToDivide.forEach((pts, idx) => {
           let firstCoordinates = pointsToDivide[0][0].coordinates;
           let secondCoordinates = pointsToDivide[0][1].coordinates;
-          let commonSegment = findObjectById(pts[2]);
-          let shape = commonSegment.shape;
+          const commonSegment = findObjectById(pts[2]);
+          const shape = commonSegment.shape;
           let path1 = [
             'M',
             firstCoordinates.x,
@@ -259,7 +259,7 @@ export class DivideTool extends Tool {
               firstAngle = centerCoordinates.angleWith(firstCoordinates),
               secondAngle = centerCoordinates.angleWith(secondCoordinates);
             if (secondAngle < firstAngle) secondAngle += 2 * Math.PI;
-            let largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
+            const largeArcFlag = secondAngle - firstAngle > Math.PI ? 1 : 0,
               sweepFlag = 1;
             path1 = [
               'M',
@@ -367,10 +367,10 @@ export class DivideTool extends Tool {
       if (this.segment.arcCenter) this.segmentModeAddArcPoints();
       else this.segmentModeAddSegPoints();
     } else {
-      let vector = findObjectById(
+      const vector = findObjectById(
         this.vectorId
       );
-      let secondPointCoordinates = vector.vertexes[0].coordinates.add(
+      const secondPointCoordinates = vector.vertexes[0].coordinates.add(
         vector.vertexes[1].coordinates
           .substract(vector.vertexes[0].coordinates)
           .multiply(1 / this.numberOfParts)
@@ -385,7 +385,7 @@ export class DivideTool extends Tool {
       ];
       path = path.join(' ');
 
-      let newShape = new ArrowLineShape({
+      const newShape = new ArrowLineShape({
         layer: 'main',
         path: path,
         name: vector.name,
@@ -446,7 +446,7 @@ export class DivideTool extends Tool {
       const newX = radius * Math.cos(firstAngle + partAngle * i) + center.x,
         newY = radius * Math.sin(firstAngle + partAngle * i) + center.y;
       coord = new Coordinates({ x: newX, y: newY });
-      let ratio = this.firstPoint.ratio + i * ratioCap;
+      const ratio = this.firstPoint.ratio + i * ratioCap;
       this.segment.addPoint(coord, ratio, this.firstPoint.id, this.secondPoint.id);
     }
   }
@@ -474,14 +474,14 @@ export class DivideTool extends Tool {
     if (secondAngle < firstAngle) {
       secondAngle += Math.PI * 2;
     }
-    let ratioCap =
+    const ratioCap =
       // (this.secondPoint.ratio - this.firstPoint.ratio)
       1 / this.numberOfParts;
     // if (shape.isCircle()) {
     //   if (ratioCap < 0) ratioCap += 1 / this.numberOfParts;
     // }
 
-    let partAngle = (secondAngle - firstAngle) / this.numberOfParts,
+    const partAngle = (secondAngle - firstAngle) / this.numberOfParts,
       radius = this.segment.radius;
 
     for (
@@ -493,7 +493,7 @@ export class DivideTool extends Tool {
         radius * Math.cos(firstAngle + partAngle * i) + centerCoordinates.x,
         newY =
           radius * Math.sin(firstAngle + partAngle * i) + centerCoordinates.y;
-      let coord = new Coordinates({ x: newX, y: newY });
+      const coord = new Coordinates({ x: newX, y: newY });
       let ratio = //this.firstPoint.ratio +
         i * ratioCap;
       if (ratio > 1) ratio--;
@@ -520,7 +520,7 @@ export class DivideTool extends Tool {
       i++
     ) {
       coord = coord.add(part);
-      let ratio = //this.firstPoint.ratio +
+      const ratio = //this.firstPoint.ratio +
         i * ratioCap;
       this.segment.addPoint(coord, ratio, this.firstPoint.id, this.secondPoint.id);
     }

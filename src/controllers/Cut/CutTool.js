@@ -27,7 +27,7 @@ export class CutTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -80,8 +80,8 @@ export class CutTool extends Tool {
     this.removeListeners();
     app.upperCanvasLayer.removeAllObjects();
 
-    let firstPoint = this.firstPoint;
-    let centerPoint = this.centerPoint;
+    const firstPoint = this.firstPoint;
+    const centerPoint = this.centerPoint;
     new Point({
       coordinates: firstPoint.coordinates,
       layer: 'upper',
@@ -103,9 +103,9 @@ export class CutTool extends Tool {
     this.removeListeners();
     app.upperCanvasLayer.removeAllObjects();
 
-    let firstPoint = this.firstPoint;
-    let centerPoint = this.centerPoint;
-    let secondPoint = this.secondPoint;
+    const firstPoint = this.firstPoint;
+    const centerPoint = this.centerPoint;
+    const secondPoint = this.secondPoint;
     new Point({
       coordinates: firstPoint.coordinates,
       layer: 'upper',
@@ -138,21 +138,21 @@ export class CutTool extends Tool {
   }
 
   get firstPoint() {
-    let firstPoint = findObjectById(
+    const firstPoint = findObjectById(
       app.tool.firstPointId
     );
     return firstPoint;
   }
 
   get centerPoint() {
-    let centerPoint = findObjectById(
+    const centerPoint = findObjectById(
       app.tool.centerPointId
     );
     return centerPoint;
   }
 
   get secondPoint() {
-    let secondPoint = findObjectById(
+    const secondPoint = findObjectById(
       app.tool.secondPointId
     );
     return secondPoint;
@@ -169,7 +169,7 @@ export class CutTool extends Tool {
       // On a sélectionné le premier point
       let segmentCut = false;
       for (let i = 0; i < object.length; i++) {
-        let shape = object[i].shape;
+        const shape = object[i].shape;
         if (shape.isSegment() && object[0].type == 'divisionPoint' && app.environment.name != 'Geometrie') {
           segmentCut = true;
           setState({
@@ -205,11 +205,11 @@ export class CutTool extends Tool {
         }
       }
     } else if (app.tool.currentStep == 'selectSecondPoint') {
-      let firstPoints = app.tool.firstPointIds.map(ptId => findObjectById(
+      const firstPoints = app.tool.firstPointIds.map(ptId => findObjectById(
         ptId
       ));
-      let newObjects = [...object];
-      let cutPoints = [];
+      const newObjects = [...object];
+      const cutPoints = [];
       for (let i = 0; i < firstPoints.length; i++) {
         for (let j = 0; j < newObjects.length; j++) {
           let firstShapeIds = [firstPoints[i].shapeId];
@@ -255,8 +255,8 @@ export class CutTool extends Tool {
         return;
       }
 
-      let pt1 = cutPoints[0][0];
-      let pt2 = cutPoints[0][1];
+      const pt1 = cutPoints[0][0];
+      const pt2 = cutPoints[0][1];
 
       if (pt1.id == pt2.id) {
         // Désélectionner le premier point
@@ -265,7 +265,7 @@ export class CutTool extends Tool {
         });
       } else {
         for (let i = 0; i < cutPoints.length; i++) {
-          let shape = findObjectById(cutPoints[0][2]);
+          const shape = findObjectById(cutPoints[0][2]);
           if (!this.isLineValid(shape, cutPoints[i][0], cutPoints[i][1])) {
             cutPoints.splice(i, 1);
             i = -1;
@@ -300,7 +300,7 @@ export class CutTool extends Tool {
       object.forEach(pt => {
         let pt2Shape = pt.shape;
         if (pt2Shape.name == 'PointOnLine' || pt2Shape.name.startsWith('PointOnIntersection')) {
-          let tmpShape = findObjectById(pt.shape.geometryObject['geometryParentObjectId1']).shape;
+          const tmpShape = findObjectById(pt.shape.geometryObject['geometryParentObjectId1']).shape;
           if (shape.id == tmpShape.id) {
             pt2Shape = tmpShape;
             pt.cutSeg = 0;
@@ -384,7 +384,7 @@ export class CutTool extends Tool {
       amountOfParts = length / precision,
       pointsInBorder = 0;
     for (let i = 1; i < amountOfParts - 1; i++) {
-      let coord = pt1.coordinates.add(part.multiply(i));
+      const coord = pt1.coordinates.add(part.multiply(i));
       if (!shape.isCoordinatesInPath(coord)) {
         return false;
       }
@@ -509,7 +509,7 @@ export class CutTool extends Tool {
         }
       }
 
-      let nbOfSegments = shape.segmentIds.length;
+      const nbOfSegments = shape.segmentIds.length;
       this.currentPoint = shape.vertexes[0];
 
       firstPath = [
@@ -580,14 +580,14 @@ export class CutTool extends Tool {
     firstPath = firstPath.join(' ');
     secondPath = secondPath.join(' ');
 
-    let shape1 = new shape.constructor({
+    const shape1 = new shape.constructor({
       layer: 'main',
       path: firstPath,
       fillColor: shape.fillColor,
       fillOpacity: shape.fillOpacity,
       strokeColor: shape.strokeColor,
     });
-    let shape2 = new shape.constructor({
+    const shape2 = new shape.constructor({
       layer: 'main',
       path: secondPath,
       fillColor: shape.fillColor,
@@ -612,7 +612,7 @@ export class CutTool extends Tool {
         .map(child => child.vertexes[0]);
       allPointsOfParent = [...allPointsOfParent, ...shape.points];
 
-      let shape1Hidden = new shape.constructor({
+      const shape1Hidden = new shape.constructor({
         layer: 'main',
         familyName: 'Irregular',
         name: 'cut',
@@ -628,7 +628,7 @@ export class CutTool extends Tool {
       });
       shape1.geometryObject.geometryDuplicateParentShapeId = shape1Hidden.id;
       shape1Hidden.points.forEach(vertex => {
-        let parentVertex = allPointsOfParent.find(vx => vx.coordinates.equal(vertex.coordinates));
+        const parentVertex = allPointsOfParent.find(vx => vx.coordinates.equal(vertex.coordinates));
         if (!parentVertex) {
           console.info('no parent vertex for ', vertex);
         } else {
@@ -639,7 +639,7 @@ export class CutTool extends Tool {
         }
       });
 
-      let shape2Hidden = new shape.constructor({
+      const shape2Hidden = new shape.constructor({
         layer: 'main',
         familyName: 'Irregular',
         name: 'cut',
@@ -655,7 +655,7 @@ export class CutTool extends Tool {
       });
       shape2.geometryObject.geometryDuplicateParentShapeId = shape2Hidden.id;
       shape2Hidden.points.forEach(vertex => {
-        let parentVertex = allPointsOfParent.find(vx => vx.coordinates.equal(vertex.coordinates));
+        const parentVertex = allPointsOfParent.find(vx => vx.coordinates.equal(vertex.coordinates));
         if (!parentVertex) {
           console.info('no parent vertex for ', vertex);
         } else {
@@ -667,7 +667,7 @@ export class CutTool extends Tool {
     }
 
     // Modifier les coordonnées
-    let center1 = shape1.fake_center,
+    const center1 = shape1.fake_center,
       center2 = shape2.fake_center,
       difference = center2.substract(center1),
       distance = center2.dist(center1),
@@ -701,7 +701,7 @@ export class CutTool extends Tool {
       if (this.currentPoint.shape.name == 'PointOnLine' || this.currentPoint.shape.name.startsWith('PointOnIntersection')) {
         segment = findObjectById(this.currentPoint.shape.geometryObject['geometryParentObjectId' + (this.currentPoint.cutSeg + 1)]);
       } else {
-        let segmentIdx = Number.isInteger(this.currentPoint.idx)
+        const segmentIdx = Number.isInteger(this.currentPoint.idx)
           ? this.currentPoint.idx
           : this.currentPoint.segments[0].idx;
         segment = this.currentPoint.shape.segments[segmentIdx];
@@ -711,10 +711,10 @@ export class CutTool extends Tool {
       path.push('L', nextPoint.coordinates.x, nextPoint.coordinates.y);
       this.currentPoint = nextPoint;
     } else {
-      let firstCoord = this.currentPoint.coordinates;
-      let secondCoord = nextPoint.coordinates;
+      const firstCoord = this.currentPoint.coordinates;
+      const secondCoord = nextPoint.coordinates;
 
-      let centerCoordinates = segment.arcCenter.coordinates;
+      const centerCoordinates = segment.arcCenter.coordinates;
       let radius = centerCoordinates.dist(secondCoord),
         firstAngle = centerCoordinates.angleWith(firstCoord),
         secondAngle = centerCoordinates.angleWith(secondCoord);

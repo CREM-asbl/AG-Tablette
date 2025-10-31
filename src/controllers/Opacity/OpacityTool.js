@@ -22,7 +22,7 @@ export class OpacityTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>

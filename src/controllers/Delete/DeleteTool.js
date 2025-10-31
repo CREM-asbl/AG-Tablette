@@ -21,7 +21,7 @@ export class DeleteTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -94,7 +94,7 @@ export class DeleteTool extends Tool {
         GroupManager.deleteGroup(this.userGroup);
       }
     } else if (this.mode == 'divisionPoint') {
-      let segment = this.point.segments[0];
+      const segment = this.point.segments[0];
       deleteSubDivisionPoints(segment, this.point);
       if (app.environment.name == 'Geometrie')
         deleteChildrenOfDivisionPoint(this.point);
@@ -102,7 +102,7 @@ export class DeleteTool extends Tool {
     }
     if (app.environment.name == 'Geometrie') {
       for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
-        let s = app.mainCanvasLayer.shapes[i];
+        const s = app.mainCanvasLayer.shapes[i];
         s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
           if (pt.reference && !findObjectById(pt.reference))
             pt.reference = null;

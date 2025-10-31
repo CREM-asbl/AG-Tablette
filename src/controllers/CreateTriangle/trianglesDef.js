@@ -11,18 +11,18 @@ export const EquilateralTriangle = {
     () => new GeometryConstraint('isFree'),
   ],
   finishShape: (points, segments) => {
-    let externalAngle = (Math.PI * 2) / 3;
+    const externalAngle = (Math.PI * 2) / 3;
 
-    let length = points[0].coordinates.dist(points[1].coordinates);
+    const length = points[0].coordinates.dist(points[1].coordinates);
 
-    let startAngle = points[0].coordinates.angleWith(
+    const startAngle = points[0].coordinates.angleWith(
       points[1].coordinates,
     );
 
-    let dx = length * Math.cos(startAngle - externalAngle);
-    let dy = length * Math.sin(startAngle - externalAngle);
+    const dx = length * Math.cos(startAngle - externalAngle);
+    const dy = length * Math.sin(startAngle - externalAngle);
 
-    let newCoordinates = points[1].coordinates.add(
+    const newCoordinates = points[1].coordinates.add(
       new Coordinates({ x: dx, y: dy }),
     );
 
@@ -54,14 +54,14 @@ export const RightAngleIsoscelesTriangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      let angle = points[0].coordinates.angleWith(
+      const angle = points[0].coordinates.angleWith(
         points[1].coordinates,
       );
-      let length = points[0].coordinates.dist(
+      const length = points[0].coordinates.dist(
         points[1].coordinates,
       );
-      let perpendicularAngle = angle + Math.PI / 2;
-      let constraintsPoints = [
+      const perpendicularAngle = angle + Math.PI / 2;
+      const constraintsPoints = [
         points[1].coordinates.add(
           new Coordinates({
             x: Math.cos(perpendicularAngle) * length,
@@ -87,11 +87,11 @@ export const RightAngleTriangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      let angle = points[0].coordinates.angleWith(
+      const angle = points[0].coordinates.angleWith(
         points[1].coordinates,
       );
-      let perpendicularAngle = angle + Math.PI / 2;
-      let lines = [
+      const perpendicularAngle = angle + Math.PI / 2;
+      const lines = [
         [
           points[1].coordinates,
           new Coordinates({
@@ -112,14 +112,14 @@ export const IsoscelesTriangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      let angle = points[0].coordinates.angleWith(
+      const angle = points[0].coordinates.angleWith(
         points[1].coordinates,
       );
-      let middle = points[0].coordinates.middleWith(
+      const middle = points[0].coordinates.middleWith(
         points[1].coordinates,
       );
-      let perpendicularAngle = angle + Math.PI / 2;
-      let lines = [
+      const perpendicularAngle = angle + Math.PI / 2;
+      const lines = [
         [
           middle,
           new Coordinates({

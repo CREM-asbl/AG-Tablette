@@ -59,7 +59,7 @@ class SyncSettingsPopup extends LitElement {
       this.localActivitiesCount = localActivities.length;
 
       if ((window as any).dev_mode) {
-        console.log('[SYNC] Info chargées:', { syncInfo, localCount: this.localActivitiesCount });
+    
       }
     } catch (error) {
       console.warn('Erreur lors du chargement des informations de sync:', error);
@@ -323,22 +323,22 @@ class SyncSettingsPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
-      if (window.dev_mode) console.log('[SYNC] Début synchronisation forcée');
+  
 
       const result = await smartSync({ force: true });
 
       if (result === 'completed') {
         this.successMessage = '🔄 Synchronisation forcée terminée avec succès';
         await this.loadSyncInfo();
-        if (window.dev_mode) console.log('[SYNC] Synchronisation terminée avec succès');
+  
       } else if (result === 'recent') {
         this.successMessage = '✅ Synchronisation déjà récente, aucune action nécessaire';
-        if (window.dev_mode) console.log('[SYNC] Synchronisation récente détectée');
+
       } else {
         this.errorMessage = 'Erreur lors de la synchronisation forcée';
       }
     } catch (error) {
-      if (window.dev_mode) console.error('[SYNC] Erreur synchronisation:', error);
+      console.error('[SYNC] Erreur synchronisation:', error);
 
       if (error.message?.includes('network') || error.message?.includes('fetch')) {
         this.errorMessage = '🌐 Problème de connexion réseau. Vérifiez votre connexion internet.';
@@ -372,7 +372,7 @@ class SyncSettingsPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
-      if (window.dev_mode) console.log('[CACHE] Début vidage cache');
+  
 
       const statistiques = await CacheService.obtenirStatistiques();
       if (!statistiques.disponible) {
@@ -390,7 +390,7 @@ class SyncSettingsPopup extends LitElement {
 
       this.successMessage = `🗑️ Cache vidé avec succès (${statistiques.nombreElements} éléments supprimés)`;
 
-      if (window.dev_mode) console.log('[CACHE] Cache vidé, éléments supprimés:', statistiques.nombreElements);
+
 
     } catch (error) {
       console.error('Erreur lors du vidage du cache:', error);

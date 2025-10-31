@@ -180,7 +180,7 @@ export class SyncStatusIndicator extends LitElement {
 
     // Log pour debug uniquement en développement
     if ((inProgress || visible) && (window.location.hostname === 'localhost' || window.location.search.includes('debug=true'))) {
-      console.log('[SYNC-RENDER] percent:', percent, 'visible:', visible, 'inProgress:', inProgress);
+      
     }
 
     // Afficher l'indicateur si visible, en cours ou en animation

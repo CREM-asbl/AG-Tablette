@@ -163,7 +163,7 @@ class ThemeElem extends SignalWatcher(LitElement) {
           const currentCache = Array.isArray(cachedSequences.get()) ? [...cachedSequences.get()] : [];
           currentCache.push(cachedModulesForTheme);
           cachedSequences.set(currentCache);
-          console.log('Modules récupérés depuis IndexedDB pour le thème:', this.title);
+          
         }
       }
 
@@ -174,8 +174,8 @@ class ThemeElem extends SignalWatcher(LitElement) {
       }
 
       // Sinon charger depuis getModulesDocFromTheme (qui gère IndexedDB + serveur)
-      let themeDocRef = getThemeDocFromThemeName(this.title);
-      let modulesDoc = await getModulesDocFromTheme(this.title); // Passer directement le nom du thème
+      const themeDocRef = getThemeDocFromThemeName(this.title);
+      const modulesDoc = await getModulesDocFromTheme(this.title); // Passer directement le nom du thème
       this.modules = modulesDoc || [];
 
       // Sauvegarder les modules dans IndexedDB si récupérés du serveur
@@ -194,7 +194,7 @@ class ThemeElem extends SignalWatcher(LitElement) {
           currentCache.push({ theme: this.title, modules: modulesDoc });
         }
         cachedSequences.set(currentCache);
-        console.log('Séquences mises en cache pour le thème:', this.title);
+        
       }
 
       this.loaded = true;

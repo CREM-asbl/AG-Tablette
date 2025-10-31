@@ -131,7 +131,7 @@ export class Workspace {
           console.warn('Workspace: Données de groupe invalides ignorées');
           return null;
         }
-        let group = new ShapeGroup(0, 1);
+        const group = new ShapeGroup(0, 1);
         group.initFromObject(groupData);
         return group;
       }).filter(group => group !== null); // Filtrer les groupes invalides

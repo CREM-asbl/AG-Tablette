@@ -8,7 +8,7 @@
 export function isPointInPolygon(polygon, point) {
   /* Iterate through each line */
   let crossings = 0;
-  let nb_pts = polygon.length;
+  const nb_pts = polygon.length;
 
   for (let i = 0; i < nb_pts; i++) {
     let x1, x2;
@@ -28,11 +28,11 @@ export function isPointInPolygon(polygon, point) {
       point.x <= x2 &&
       (point.y < polygon[i].y || point.y <= polygon[(i + 1) % nb_pts].y)
     ) {
-      let eps = 0.000001;
+      const eps = 0.000001;
 
       /* Find the equation of the line */
-      let dx = polygon[(i + 1) % nb_pts].x - polygon[i].x;
-      let dy = polygon[(i + 1) % nb_pts].y - polygon[i].y;
+      const dx = polygon[(i + 1) % nb_pts].x - polygon[i].x;
+      const dy = polygon[(i + 1) % nb_pts].y - polygon[i].y;
       let k;
 
       if (Math.abs(dx) < eps) {
@@ -41,10 +41,10 @@ export function isPointInPolygon(polygon, point) {
         k = dy / dx;
       }
 
-      let m = polygon[i].y - k * polygon[i].x;
+      const m = polygon[i].y - k * polygon[i].x;
 
       /* Find if the ray crosses the line */
-      let y2 = k * point.x + m;
+      const y2 = k * point.x + m;
       if (point.y <= y2) {
         crossings++;
       }
@@ -64,7 +64,7 @@ export function isPointInPolygon(polygon, point) {
  * @return {Boolean}
  */
 export function collinear(pt1, pt2, pt3) {
-  let [x1, y1] = [pt2.x - pt1.x, pt2.y - pt1.y],
+  const [x1, y1] = [pt2.x - pt1.x, pt2.y - pt1.y],
     [x2, y2] = [pt3.x - pt1.x, pt3.y - pt1.y];
   return Math.abs(x1 * y2 - x2 * y1) < 1e-12;
 }

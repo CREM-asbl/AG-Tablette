@@ -20,7 +20,7 @@ export class TranslateTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -72,7 +72,7 @@ export class TranslateTool extends Tool {
   canvasMouseMove() {
     if (app.tool.currentStep != 'translate') return;
 
-    let newOffset = app.workspace.translateOffset.add(
+    const newOffset = app.workspace.translateOffset.add(
       app.workspace.lastKnownMouseCoordinates
         .substract(this.startClickCoordinates)
         .multiply(app.workspace.zoomLevel),
@@ -90,7 +90,7 @@ export class TranslateTool extends Tool {
   }
 
   _executeAction() {
-    let newOffset = app.workspace.translateOffset.add(
+    const newOffset = app.workspace.translateOffset.add(
       app.workspace.lastKnownMouseCoordinates
         .substract(this.startClickCoordinates)
         .multiply(app.workspace.zoomLevel),

@@ -30,7 +30,7 @@ export class CreateTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -142,7 +142,7 @@ export class CreateTool extends Tool {
         layer: 'upper',
       });
     }
-    let shapeSize = app.settings.shapesSize;
+    const shapeSize = app.settings.shapesSize;
 
     this.shapeToCreate.size = shapeSize;
     this.shapeToCreate.scale(shapeSize);
@@ -217,7 +217,7 @@ export class CreateTool extends Tool {
     shape.scale(shapeSize);
     shape.translate(shapeCoordinates);
 
-    let transformation = getShapeAdjustment([shape], shape);
+    const transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
   }

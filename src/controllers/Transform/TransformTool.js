@@ -46,7 +46,7 @@ export class TransformTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>
@@ -98,7 +98,7 @@ export class TransformTool extends Tool {
   objectSelected(points) {
     for (let i = 0; i < points.length; i++) {
       if (points[i].reference) {
-        let reference = findObjectById(points[i].reference);
+        const reference = findObjectById(points[i].reference);
         if (reference instanceof Point) {
           points[i] = findObjectById(points[i].reference);
           i--;
@@ -128,7 +128,7 @@ export class TransformTool extends Tool {
 
     this.pointSelectedId = point.id;
 
-    let startShapeId = point.shape.id;
+    const startShapeId = point.shape.id;
     this.tree = {
       [startShapeId]: {
         parents: [],
@@ -137,11 +137,11 @@ export class TransformTool extends Tool {
       },
     }
     this.createTree(0, this.tree);
-    let involvedShapeIds = Object.keys(this.tree);
-    let involvedShapes = involvedShapeIds.map(shapeId => findObjectById(shapeId));
+    const involvedShapeIds = Object.keys(this.tree);
+    const involvedShapes = involvedShapeIds.map(shapeId => findObjectById(shapeId));
 
     involvedShapeIds.forEach(oldKey => {
-      let newKey = addInfoToId(oldKey, 'upper');
+      const newKey = addInfoToId(oldKey, 'upper');
       delete Object.assign(this.tree, { [newKey]: this.tree[oldKey] })[oldKey];
       for (let i = 0; i < this.tree[newKey].parents.length; i++) {
         this.tree[newKey].parents[i] = addInfoToId(this.tree[newKey].parents[i], 'upper');
@@ -165,7 +165,7 @@ export class TransformTool extends Tool {
       if (!findObjectById(s.geometryObject.geometryTransformationParentShapeId)) {
         s.geometryObject.geometryTransformationParentShapeId = addInfoToId(s.geometryObject.geometryTransformationParentShapeId, 'main')
       }
-      let characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
+      const characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
       if (characteristicElements && characteristicElements.elementIds) {
         characteristicElements.elementIds = characteristicElements.elementIds.map(elId => {
           if (!findObjectById(elId)) {
@@ -210,11 +210,11 @@ export class TransformTool extends Tool {
 
     app.upperCanvasLayer.shapes.forEach(s => {
       s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-        let duplicateChild = findObjectById(duplicateChildId);
+        const duplicateChild = findObjectById(duplicateChildId);
         computeConstructionSpec(duplicateChild);
       });
       s.geometryObject?.geometryMultipliedChildShapeIds.forEach(multipliedChildId => {
-        let multipliedChild = findObjectById(multipliedChildId);
+        const multipliedChild = findObjectById(multipliedChildId);
         computeConstructionSpec(multipliedChild);
       });
     });
@@ -223,12 +223,12 @@ export class TransformTool extends Tool {
   }
 
   createTree(index, tree) {
-    let currentEntries = Object.entries(tree);
+    const currentEntries = Object.entries(tree);
     if (currentEntries.length == index)
       return;
-    let currentShapeId = currentEntries[index][0];
-    let currentShape = findObjectById(currentShapeId);
-    let dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds, ...currentShape.geometryObject.geometryMultipliedChildShapeIds];
+    const currentShapeId = currentEntries[index][0];
+    const currentShape = findObjectById(currentShapeId);
+    const dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds, ...currentShape.geometryObject.geometryMultipliedChildShapeIds];
     dependenciesIds.sort((dp1, dp2) => {
       if (findObjectById(dp1).geometryObject.geometryIsConstaintDraw) {
         return -1;
@@ -268,9 +268,9 @@ export class TransformTool extends Tool {
           if (tree[parentId].isDone > 0) {
             return true;
           }
-          let parent = findObjectById(parentId);
+          const parent = findObjectById(parentId);
           if (parent.name == 'PointOnLine' || parent.name == 'PointOnIntersection2') {
-            let constraint = findObjectById(parent.geometryObject.geometryParentObjectId1);
+            const constraint = findObjectById(parent.geometryObject.geometryParentObjectId1);
             if (constraint.shape.geometryObject.geometryIsConstaintDraw)
               return true;
             else
@@ -279,7 +279,7 @@ export class TransformTool extends Tool {
             return false
           }
         })) {
-          let currentShape = findObjectById(currentShapeId);
+          const currentShape = findObjectById(currentShapeId);
           computeShapeTransform(currentShape);
           currentShape.geometryObject.geometryChildShapeIds.map(childId => findObjectById(childId)).filter(child => child.geometryObject.geometryIsConstaintDraw).forEach(
             constraint => {
@@ -315,7 +315,7 @@ export class TransformTool extends Tool {
 
   _executeAction() {
     app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
-      let s = findObjectById(sId);
+      const s = findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
         pt.ratio = this.drawingShapes[idxS].points[idxPt].ratio;
@@ -328,8 +328,8 @@ export class TransformTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'transform') {
-      let point = findObjectById(addInfoToId(this.pointSelectedId, 'upper'));
-      let shape = point.shape;
+      const point = findObjectById(addInfoToId(this.pointSelectedId, 'upper'));
+      const shape = point.shape;
       if (shape.name == 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
       } else if (point.idx < 2 || point.type == 'arcCenter') {
@@ -364,7 +364,7 @@ export class TransformTool extends Tool {
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
       this.adjustPoint(point);
       if (shape.name == 'PointOnLine') {
-        let reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
+        const reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         computeConstructionSpec(shape);
       } else if (point.transformConstraints.isConstrained) {
@@ -401,7 +401,7 @@ export class TransformTool extends Tool {
       });
 
       app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
-        let points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
+        const points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
         points.forEach((pt) => {
           const transformConstraints = pt.transformConstraints;
           const colorPicker = {
@@ -426,10 +426,10 @@ export class TransformTool extends Tool {
   }
 
   adjustPoint(point) {
-    let constraints = SelectManager.getEmptySelectionConstraints().points;
+    const constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     if (point.shape.name == 'PointOnLine') {
-      let segment = findObjectById(point.shape.geometryObject.geometryParentObjectId1);
+      const segment = findObjectById(point.shape.geometryObject.geometryParentObjectId1);
       constraints.whitelist = [
         { shapeId: segment.shape.id, type: 'divisionPoint', index: segment.idx },
         { shapeId: segment.shape.id, type: 'vertex', index: segment.idx },
@@ -442,7 +442,7 @@ export class TransformTool extends Tool {
         return { shapeId: addInfoToId(s.id, 'main') };
       });
     }
-    let adjustedCoordinates = SelectManager.selectPoint(
+    const adjustedCoordinates = SelectManager.selectPoint(
       point.coordinates,
       constraints,
       false,
@@ -450,7 +450,7 @@ export class TransformTool extends Tool {
     if (adjustedCoordinates) {
       point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
     } else if (point.shape.name != 'PointOnLine') {
-      let gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates());
+      const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates());
       if (gridPointInCanvasSpace) {
         const gridPointInWorldSpace = gridPointInCanvasSpace.fromCanvasCoordinates();
         point.coordinates = new Coordinates(gridPointInWorldSpace);
@@ -461,8 +461,8 @@ export class TransformTool extends Tool {
   drawConstraints(point) {
     if (point.transformConstraints.isConstrained) {
       point.transformConstraints.lines.forEach(ln => {
-        let segment = ln.segment;
-        let shape = new LineShape({
+        const segment = ln.segment;
+        const shape = new LineShape({
           layer: 'upper',
           path: segment.getSVGPath('no scale', true),
           strokeColor: app.settings.constraintsDrawColor,

@@ -77,7 +77,7 @@ export async function saveActivity(id, data, version = 1) {
     const request = store.put(activityRecord);
     request.onsuccess = () => {
       if (CACHE_CONFIG.ENABLE_METRICS) {
-        console.log(`[CACHE] Activité ${id} sauvegardée. Cache: ${count + 1}/${CACHE_CONFIG.MAX_ACTIVITIES}`);
+        
       }
       resolve();
     };
@@ -96,7 +96,7 @@ async function performIntelligentEviction(store, itemsToRemove) {
     const idsToRemove = await strategy.selectItemsToEvict(store, itemsToRemove);
 
     if (CACHE_CONFIG.ENABLE_METRICS) {
-      console.log(`[CACHE] Éviction ${strategy.name}: suppression de ${idsToRemove.length} activités`);
+      
     }
 
     // Supprimer les activités sélectionnées

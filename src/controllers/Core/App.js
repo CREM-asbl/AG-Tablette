@@ -6,7 +6,7 @@ import { initSelectManager } from './Managers/SelectManager';
 import { uniqId } from './Tools/general';
 import { Workspace } from './Objects/Workspace';
 
-window.dev_mode = location.hostname === 'localhost';
+
 
 export const changes = signal({})
 

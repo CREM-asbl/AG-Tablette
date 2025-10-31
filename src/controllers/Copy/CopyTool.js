@@ -42,7 +42,7 @@ export class CopyTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -71,7 +71,7 @@ export class CopyTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    let constraints = SelectManager.getEmptySelectionConstraints();
+    const constraints = SelectManager.getEmptySelectionConstraints();
     constraints.eventType = 'mousedown';
     constraints.shapes.canSelect = true;
     constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
@@ -106,7 +106,7 @@ export class CopyTool extends Tool {
 
       this.involvedSegment = object;
 
-      let newShape = new LineShape({
+      const newShape = new LineShape({
         layer: 'upper',
         path: object.getSVGPath('no scale', true),
         id: undefined,
@@ -126,7 +126,7 @@ export class CopyTool extends Tool {
       this.selectedShape = object;
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
-        let currentShape = this.involvedShapes[i];
+        const currentShape = this.involvedShapes[i];
         if (currentShape.name == 'Vector') {
           window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être copiés, mais peuvent être multipliés.' } }));
           return;
@@ -142,7 +142,7 @@ export class CopyTool extends Tool {
           ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
       );
       this.drawingShapes = this.involvedShapes.map((s) => {
-        let newShape = new s.constructor({
+        const newShape = new s.constructor({
           ...s,
           layer: 'upper',
           path: s.getSVGPath('no scale', false),
@@ -180,8 +180,8 @@ export class CopyTool extends Tool {
       this.shapeMoved++;
       if (this.shapeMoved <= 10)
         return;
-      let mainShape = findObjectById(addInfoToId(this.selectedShape.id, 'upper'));
-      let translation = app.workspace.lastKnownMouseCoordinates.substract(
+      const mainShape = findObjectById(addInfoToId(this.selectedShape.id, 'upper'));
+      const translation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates,
       );
 
@@ -193,7 +193,7 @@ export class CopyTool extends Tool {
         s.translate(translation);
       });
 
-      let adjustment = getShapeAdjustment(
+      const adjustment = getShapeAdjustment(
         this.shapesToMove,
         mainShape,
       );
@@ -225,10 +225,10 @@ export class CopyTool extends Tool {
   }
 
   _executeAction() {
-    let shapesList = [];
+    const shapesList = [];
 
     if (this.mode == 'segment') {
-      let newShape = new LineShape({
+      const newShape = new LineShape({
         layer: 'main',
         familyName: 'copy',
         path: this.involvedSegment.getSVGPath('no scale', true),
@@ -244,7 +244,7 @@ export class CopyTool extends Tool {
       newShape.translate(this.translation);
     } else {
       this.involvedShapes.forEach((s) => {
-        let newShape = new s.constructor({
+        const newShape = new s.constructor({
           ...s,
           layer: 'main',
           familyName: 'copy',
@@ -273,7 +273,7 @@ export class CopyTool extends Tool {
     }
 
     if (this.shapeMoved > 10) {
-      let transformation = getShapeAdjustment(shapesList, shapesList[0]);
+      const transformation = getShapeAdjustment(shapesList, shapesList[0]);
 
       shapesList.forEach((newShape) => {
         newShape.rotate(
@@ -285,7 +285,7 @@ export class CopyTool extends Tool {
     }
 
     if (shapesList.length > 1) {
-      let userGroup = new ShapeGroup(0, 1);
+      const userGroup = new ShapeGroup(0, 1);
       userGroup.shapesIds = shapesList.map((s) => s.id);
       GroupManager.addGroup(userGroup);
     }

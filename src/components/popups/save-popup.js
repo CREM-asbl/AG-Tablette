@@ -137,7 +137,7 @@ class SavePopup extends LitElement {
       default:
         const ele = this.shadowRoot?.querySelector('#save_popup_format').value
         const extension = ele.slice(ele.indexOf('.'), -1);
-        let name = this.filename + extension,
+        const name = this.filename + extension,
           saveSettings = this.saveSettings,
           saveHistory = this.saveHistory,
           permanentHide = this.permanentHide;

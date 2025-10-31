@@ -47,7 +47,7 @@ export const loadKit = async (name) => {
     kit.set(kitInitial);
     resetKitVisibility();
     
-    console.log(`Kit "${name}" chargé avec succès`);
+    
   } catch (error) {
     console.error('Erreur lors du chargement du kit:', error);
     // Notifier l'utilisateur de l'erreur

@@ -22,19 +22,19 @@ export async function initializeCachesFromIndexedDB() {
     const savedThemes = await getAllThemes();
     if (savedThemes && savedThemes.length > 0) {
       cachedThemes.set(savedThemes.map(t => ({ id: t.id, ...t.data })));
-      console.log('Thèmes chargés depuis IndexedDB:', savedThemes.length);
+      
     }
 
     // Charger les modules depuis IndexedDB
     const savedModules = await getAllModules();
-    console.log('[DEBUG] Modules bruts récupérés depuis IndexedDB:', savedModules);
+    
     if (savedModules && savedModules.length > 0) {
-      console.log('[DEBUG] Structure du premier module:', savedModules[0]);
+
       // Grouper les modules par thème
       const modulesByTheme = {};
       savedModules.forEach(module => {
         const themeId = module.data?.theme || module.theme;
-        console.log('[DEBUG] Module ID:', module.id, 'Theme ID:', themeId);
+
         if (!modulesByTheme[themeId]) {
           modulesByTheme[themeId] = [];
         }
@@ -46,7 +46,7 @@ export async function initializeCachesFromIndexedDB() {
         modules
       }));
       cachedSequences.set(sequences);
-      console.log('Modules chargés depuis IndexedDB pour', Object.keys(modulesByTheme).length, 'thèmes');
+
     }
   }
   catch (error) {
@@ -73,7 +73,7 @@ export async function saveThemesToIndexedDB(themes) {
       }
       await saveTheme(theme.id, serializableTheme);
     }
-    console.log('Thèmes sauvegardés dans IndexedDB:', themes.length);
+    
   } catch (error) {
     console.warn('Erreur lors de la sauvegarde des thèmes:', error);
   }
@@ -89,7 +89,7 @@ export async function saveModulesToIndexedDB(modules, themeId) {
       const cleanedModule = JSON.parse(JSON.stringify({ ...module, theme: themeId }));
       await saveModule(module.id, cleanedModule);
     }
-    console.log('Modules sauvegardés dans IndexedDB pour le thème:', themeId);
+    
   } catch (error) {
     console.warn('Erreur lors de la sauvegarde des modules:', error);
   }
@@ -101,18 +101,18 @@ export async function saveModulesToIndexedDB(modules, themeId) {
  */
 export async function syncAllThemesAndModules() {
   if (!navigator.onLine) {
-    console.log('Synchronisation globale ignorée (hors ligne)');
+    
     return;
   }
   try {
     const { findAllThemes, getModulesDocFromTheme, debugFirebaseModules } = await import('../firebase/firebase-init');
-    console.log('[DEBUG] Début de la synchronisation globale des thèmes et modules...');
+
 
     // Diagnostic Firebase avant synchronisation
     await debugFirebaseModules();
 
     const themes = await findAllThemes();
-    console.log(`[DEBUG] ${themes?.length || 0} thèmes récupérés:`, themes?.map(t => t.id));
+
 
     if (themes && themes.length > 0) {
       await saveThemesToIndexedDB(themes);
@@ -120,20 +120,20 @@ export async function syncAllThemesAndModules() {
       const allSequences = [];
       for (const theme of themes) {
         try {
-          console.log(`[DEBUG] Synchronisation des modules pour le thème: ${theme.id}`);
+          
           const modules = await getModulesDocFromTheme(theme.id);
-          console.log(`[DEBUG] Modules récupérés pour le thème '${theme.id}':`, modules?.length || 0, modules);
+          
 
           if (modules && modules.length > 0) {
             await saveModulesToIndexedDB(modules, theme.id);
             allSequences.push({ theme: theme.id, modules });
-            console.log(`✅ ${modules.length} modules synchronisés pour le thème '${theme.id}'`);
+            
           } else {
             // Conserver les modules déjà présents en cache si aucun module trouvé
             const cached = cachedSequences.get().find(seq => seq.theme === theme.id);
             if (cached && cached.modules?.length > 0) {
               allSequences.push(cached);
-              console.log(`📦 Aucun module trouvé pour le thème '${theme.id}', cache conservé (${cached.modules.length} modules).`);
+              
             } else {
               console.warn(`⚠️ Aucun module disponible pour le thème '${theme.id}' (ni en ligne, ni en cache).`);
             }
@@ -145,13 +145,13 @@ export async function syncAllThemesAndModules() {
           const cached = cachedSequences.get().find(seq => seq.theme === theme.id);
           if (cached && cached.modules?.length > 0) {
             allSequences.push(cached);
-            console.log(`🔄 Erreur récupération, cache conservé pour '${theme.id}' (${cached.modules.length} modules)`);
+            
           }
         }
       }
       if (allSequences.length > 0) {
         cachedSequences.set(allSequences);
-        console.log('Synchronisation globale terminée :', allSequences.length, 'thèmes avec modules préchargés');
+        
       } else {
         console.warn('Aucun module n\'a pu être synchronisé, cache mémoire conservé.');
       }

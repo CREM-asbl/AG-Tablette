@@ -78,14 +78,14 @@ export class Point {
   }
 
   get shape() {
-    let shape = this.canvasLayer.shapes.find(
+    const shape = this.canvasLayer.shapes.find(
       (s) => s.id === this.shapeId,
     );
     return shape;
   }
 
   get segments() {
-    let segments = this.segmentIds.map((segId) =>
+    const segments = this.segmentIds.map((segId) =>
       this.canvasLayer.segments.find((seg) => seg.id === segId),
     );
     return segments;
@@ -126,7 +126,7 @@ export class Point {
    * @return {{x: number, y: number}} new coordinates
    */
   rotate(angle, center = { x: 0, y: 0 }) {
-    let s = Math.sin(angle),
+    const s = Math.sin(angle),
       c = Math.cos(angle),
       x = this.x - center.x,
       y = this.y - center.y,
@@ -146,9 +146,9 @@ export class Point {
       lines: [],
       points: [],
     };
-    let reference = findObjectById(this.reference);
+    const reference = findObjectById(this.reference);
     if (reference && reference instanceof Point) {
-      let reference = findObjectById(this.reference);
+      const reference = findObjectById(this.reference);
       reference.computeTransformConstraint();
       constraints = reference.transformConstraints;
     } else if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
@@ -190,8 +190,8 @@ export class Point {
         } else {
           constraints.isConstrained = true;
 
-          let firstSeg = this.shape.segments[0];
-          let middleOfSegment = firstSeg.middle;
+          const firstSeg = this.shape.segments[0];
+          const middleOfSegment = firstSeg.middle;
           constraints.lines = [{
             segment: new Segment({
               layer: 'invisible',
@@ -206,15 +206,15 @@ export class Point {
           constraints.isFree = true;
         } else {
           constraints.isConstrained = true;
-          let firstSeg = this.shape.segments[0];
-          let segmentLength = firstSeg.length;
-          let angle = firstSeg.getAngleWithHorizontal();
-          let perpendicularAngle = angle + Math.PI / 2;
-          let firstPoint = new Coordinates({
+          const firstSeg = this.shape.segments[0];
+          const segmentLength = firstSeg.length;
+          const angle = firstSeg.getAngleWithHorizontal();
+          const perpendicularAngle = angle + Math.PI / 2;
+          const firstPoint = new Coordinates({
             x: firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
             y: firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength,
           });
-          let secondPoint = new Coordinates({
+          const secondPoint = new Coordinates({
             x: firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
             y: firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength,
           });
@@ -241,7 +241,7 @@ export class Point {
           constraints.isFree = true;
         } else if (this.idx == 2) {
           constraints.isConstrained = true;
-          let constraintLine = {
+          const constraintLine = {
             segment: new Segment({
               layer: 'invisible',
               createFromNothing: true,
@@ -342,9 +342,9 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
-          let referenceAngle = reference.getAngleWithHorizontal();
-          let constraintLine = {
+          const reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
+          const referenceAngle = reference.getAngleWithHorizontal();
+          const constraintLine = {
             segment: new Segment({
               layer: 'invisible',
               createFromNothing: true,
@@ -362,9 +362,9 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          let reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
-          let referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
-          let constraintLine = {
+          const reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
+          const referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
+          const constraintLine = {
             segment: new Segment({
               layer: 'invisible',
               createFromNothing: true,
@@ -425,7 +425,7 @@ export class Point {
    * convertit en balise circle de svg
    */
   toSVG() {
-    let canvasCoordinates = this.coordinates.toCanvasCoordinates();
+    const canvasCoordinates = this.coordinates.toCanvasCoordinates();
     return (
       '<circle cx="' +
       canvasCoordinates.x +
@@ -444,12 +444,12 @@ export class Point {
    * @param {Boolean} reduced   return value reduced to 0 =< value < Math.PI
    */
   getVertexAngle(reduced = false) {
-    let shape = this.shape,
+    const shape = this.shape,
       segment = this.segments[0],
       nextSegment = this.segments[1];
 
-    let angle1 = segment.getAngleWithHorizontal();
-    let angle2 = nextSegment.getAngleWithHorizontal();
+    const angle1 = segment.getAngleWithHorizontal();
+    const angle2 = nextSegment.getAngleWithHorizontal();
 
     let resultAngle = mod(angle1 - angle2, 2 * Math.PI);
     if (reduced && resultAngle > Math.PI)
@@ -463,7 +463,7 @@ export class Point {
   }
 
   saveData() {
-    let data = {
+    const data = {
       id: this.id,
       coordinates: this.coordinates,
       shapeId: this.shapeId,
@@ -497,7 +497,7 @@ export class Point {
 
   static loadFromData(data) {
     if (!data.position) data.position = 'main'
-    let point = new Point({ layer: data.position });
+    const point = new Point({ layer: data.position });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);
     point.segmentIds = [...data.segmentIds];

@@ -4,7 +4,7 @@ import { GeometryObject } from "../Objects/Shapes/GeometryObject";
 import { addInfoToId } from "./general";
 
 export function duplicateShape(s, layer = 'upper') {
-  let newShape = new s.constructor({
+  const newShape = new s.constructor({
     ...s,
     layer,
     path: s.getSVGPath('no scale', false, false),
@@ -18,8 +18,8 @@ export function duplicateShape(s, layer = 'upper') {
       return pt.color;
     }),
   });
-  let segIds = newShape.segments.map((seg, idx) => seg.id = addInfoToId(s.segments[idx].id, layer));
-  let ptIds = newShape.points.map((pt, idx) => pt.id = addInfoToId(s.points[idx].id, layer));
+  const segIds = newShape.segments.map((seg, idx) => seg.id = addInfoToId(s.segments[idx].id, layer));
+  const ptIds = newShape.points.map((pt, idx) => pt.id = addInfoToId(s.points[idx].id, layer));
   newShape.segmentIds = [...segIds];
   newShape.pointIds = [...ptIds];
   newShape.segments.forEach((seg, idx) => {
@@ -43,7 +43,7 @@ export function duplicateShape(s, layer = 'upper') {
   });
   if (app.environment.name == 'Geometrie') {
     let newCharacteristicElements = null;
-    let characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
+    const characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
     if (characteristicElements && characteristicElements.elementIds) {
       newCharacteristicElements = new CharacteristicElements({...characteristicElements, elementIds: characteristicElements.elementIds.map(elId => addInfoToId(elId, layer))});
     }

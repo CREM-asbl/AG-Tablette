@@ -31,7 +31,7 @@ export class CreateIrregularTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>
@@ -70,7 +70,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   canvasMouseDown() {
-    let newCoordinates = new Coordinates(
+    const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
 
@@ -83,7 +83,7 @@ export class CreateIrregularTool extends Tool {
       }),
     );
     if (this.points.length > 1) {
-      let seg = new Segment({
+      const seg = new Segment({
         layer: 'upper',
         vertexIds: [
           this.points[this.points.length - 2].id,
@@ -154,7 +154,7 @@ export class CreateIrregularTool extends Tool {
       } else {
         constraints = SelectManager.getEmptySelectionConstraints().segments;
         constraints.canSelect = true;
-        let adjustedSegment = SelectManager.selectSegment(
+        const adjustedSegment = SelectManager.selectSegment(
           point.coordinates,
           constraints,
         );
@@ -176,7 +176,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   _executeAction() {
-    let familyName = 'Irregular';
+    const familyName = 'Irregular';
 
     let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
     this.points.forEach((point, i) => {
@@ -186,7 +186,7 @@ export class CreateIrregularTool extends Tool {
     // path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
-    let shape = new RegularShape({
+    const shape = new RegularShape({
       layer: 'main',
       path: path,
       name: app.tool.selectedTemplate,

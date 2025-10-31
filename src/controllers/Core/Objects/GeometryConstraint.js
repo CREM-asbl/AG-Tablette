@@ -20,7 +20,7 @@ export class GeometryConstraint {
       let path = '';
       if (ln.length == 2) {
         // segment de droite
-        let angle = ln[0].angleWith(ln[1]);
+        const angle = ln[0].angleWith(ln[1]);
         ln[0] = ln[0].substract({
           x: 10000 * Math.cos(angle),
           y: 10000 * Math.sin(angle),
@@ -32,7 +32,7 @@ export class GeometryConstraint {
         path = ['M', ln[0].x, ln[0].y, 'L', ln[1].x, ln[1].y].join(' ');
       } else if (ln.length == 3) {
         // cercle
-        let oppositeCoordinates = ln[2].multiply(2).substract(ln[0]),
+        const oppositeCoordinates = ln[2].multiply(2).substract(ln[0]),
           radius = ln[0].dist(ln[2]);
         path = ['M', ln[0].x, ln[0].y]
           .concat([
@@ -48,7 +48,7 @@ export class GeometryConstraint {
           .concat(['A', radius, radius, 0, 1, 0, ln[1].x, ln[1].y])
           .join(' ');
       }
-      let s = new LineShape({
+      const s = new LineShape({
         layer: 'upper',
         path: path,
         name: 'constraints',
@@ -87,15 +87,15 @@ export class GeometryConstraint {
   }
 
   projectionOnConstraints(coordinates, errorWhenTooFar = false) {
-    let projectionsOnContraints = this.segments
+    const projectionsOnContraints = this.segments
       .map((segment) => {
-        let projection = segment.projectionOnSegment(coordinates);
-        let dist = projection.dist(coordinates);
+        const projection = segment.projectionOnSegment(coordinates);
+        const dist = projection.dist(coordinates);
         return { projection: projection, dist: dist };
       })
       .concat(
         this.points.map((pt) => {
-          let dist = pt.coordinates.dist(coordinates);
+          const dist = pt.coordinates.dist(coordinates);
           return { projection: pt.coordinates, dist: dist };
         }),
       );

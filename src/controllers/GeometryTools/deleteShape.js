@@ -14,18 +14,18 @@ export function deleteSubDivisionPoints(segment, point) {
 
 export function deleteChildren(shape) {
   if (shape.name == 'PointOnLine' || shape.name.startsWith('PointOnIntersection')) {
-    let segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    const segment = findObjectById(shape.geometryObject.geometryParentObjectId1);
     if (segment) {
       // if segment not deleted yet
-      let point = shape.points[0];
+      const point = shape.points[0];
       deleteSubDivisionPoints(segment, point);
     }
   }
   if (shape.name.startsWith('PointOnIntersection')) {
-    let segment = findObjectById(shape.geometryObject.geometryParentObjectId2);
+    const segment = findObjectById(shape.geometryObject.geometryParentObjectId2);
     if (segment) {
       // if segment not deleted yet
-      let point = shape.points[0];
+      const point = shape.points[0];
       deleteSubDivisionPoints(segment, point);
     }
   }
@@ -39,19 +39,19 @@ export function deleteChildren(shape) {
     s.geometryObject.geometryDuplicateChildShapeIds = s.geometryObject.geometryDuplicateChildShapeIds.filter(id => id != shape.id);
   });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
-    let child = findObjectById(childId);
+    const child = findObjectById(childId);
     if (child) {
       deleteChildren(child);
     }
   });
   shape.geometryObject.geometryChildShapeIds.forEach(childId => {
-    let child = findObjectById(childId);
+    const child = findObjectById(childId);
     if (child) {
       deleteChildren(child);
     }
   });
   shape.geometryObject.geometryDuplicateChildShapeIds.forEach(childId => {
-    let child = findObjectById(childId);
+    const child = findObjectById(childId);
     if (child) {
       deleteChildren(child);
     }
@@ -60,9 +60,9 @@ export function deleteChildren(shape) {
 }
 
 export function deleteChildrenOfDivisionPoint(point) {
-  let shape = point.shape;
+  const shape = point.shape;
   shape.geometryObject.geometryChildShapeIds.forEach(childId => {
-    let child = findObjectById(childId);
+    const child = findObjectById(childId);
     if (!child)
       return;
     if (child.vertexes.some(vx => vx.reference == point.id)) {
@@ -72,12 +72,12 @@ export function deleteChildrenOfDivisionPoint(point) {
     }
   });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(childId => {
-    let child = findObjectById(childId);
+    const child = findObjectById(childId);
     if (!child)
       return;
     child.divisionPoints.forEach(divPt => {
       if (divPt.reference == point.id) {
-        let segment = divPt.segments[0];
+        const segment = divPt.segments[0];
         if (segment) {
           // if segment not deleted yet
           deleteSubDivisionPoints(segment, divPt);

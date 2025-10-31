@@ -72,8 +72,8 @@ export class Shape {
       if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
       else this.isCenterShown = _isCenterShown;
       this.pointIds = [...this.pointIds, ...divisionPointInfos.map((dInfo) => {
-        let segment = this.segments[dInfo.segmentIdx];
-        let newPoint = new Point({
+        const segment = this.segments[dInfo.segmentIdx];
+        const newPoint = new Point({
           layer: this.layer,
           segmentIds: [segment.id],
           shapeId: this.id,
@@ -124,33 +124,33 @@ export class Shape {
   }
 
   get segments() {
-    let segments = this.segmentIds.map((segId) =>
+    const segments = this.segmentIds.map((segId) =>
       this.canvasLayer.segments.find((seg) => seg.id === segId),
     );
     return segments;
   }
 
   get points() {
-    let points = this.pointIds.map((ptId) =>
+    const points = this.pointIds.map((ptId) =>
       this.canvasLayer.points.find((pt) => pt.id === ptId),
     );
     return points;
   }
 
   get vertexes() {
-    let vertexes = this.points.filter((pt) => pt.type === 'vertex');
+    const vertexes = this.points.filter((pt) => pt.type === 'vertex');
     return vertexes;
   }
 
   get divisionPoints() {
-    let divisionPoints = this.points.filter(
+    const divisionPoints = this.points.filter(
       (pt) => pt.type === 'divisionPoint',
     );
     return divisionPoints;
   }
 
   get center() {
-    let center = this.points.filter((pt) => pt.type === 'shapeCenter')[0];
+    const center = this.points.filter((pt) => pt.type === 'shapeCenter')[0];
     return center;
   }
 
@@ -163,7 +163,7 @@ export class Shape {
       this.vertexes.forEach((vertex) => {
         totalCoordinates = totalCoordinates.add(vertex.coordinates);
       });
-      let averageCoordinates = totalCoordinates.multiply(
+      const averageCoordinates = totalCoordinates.multiply(
         1 / this.vertexes.length,
       );
       return averageCoordinates;
@@ -171,13 +171,13 @@ export class Shape {
   }
 
   get isCenterShown() {
-    let isCenterShown = this._isCenterShown;
+    const isCenterShown = this._isCenterShown;
     return isCenterShown;
   }
 
   set isCenterShown(value) {
     if (value && !this.isCenterShown) {
-      let centerCoordinates = this.centerCoordinates;
+      const centerCoordinates = this.centerCoordinates;
       new Point({
         coordinates: centerCoordinates,
         shapeId: this.id,
@@ -186,11 +186,11 @@ export class Shape {
         // visible: this.isPointed,
       });
     } else if (!value && this.isCenterShown) {
-      let point = this.points.find((pt) => pt.type == 'shapeCenter');
+      const point = this.points.find((pt) => pt.type == 'shapeCenter');
       if (app.environment.name == 'Geometrie' && point.layer == 'main') {
-        let shapesToDelete = [];
+        const shapesToDelete = [];
         this.geometryObject.geometryChildShapeIds.forEach(sId => {
-          let s = findObjectById(sId);
+          const s = findObjectById(sId);
           if (s && s.points.some(pt => pt.reference == point.id)) {
             shapesToDelete.push(s);
           }
@@ -201,7 +201,7 @@ export class Shape {
           removeObjectById(s.id);
         });
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
-          let s = app.mainCanvasLayer.shapes[i];
+          const s = app.mainCanvasLayer.shapes[i];
           s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
             if (pt.reference && !findObjectById(pt.reference))
               pt.reference = null;
@@ -212,9 +212,9 @@ export class Shape {
           }
         }
       }
-      let pointId = point.id;
+      const pointId = point.id;
       removeObjectById(pointId);
-      let index = this.pointIds.findIndex((pt) => pt.id == pointId);
+      const index = this.pointIds.findIndex((pt) => pt.id == pointId);
       this.pointIds.splice(index, 1);
     }
     this._isCenterShown = value;
@@ -228,7 +228,7 @@ export class Shape {
       const center = this.segments[0].arcCenter;
       return new Coordinates(center);
     } else {
-      let total = {
+      const total = {
         x: 0,
         y: 0,
         amount: 0,
@@ -249,7 +249,7 @@ export class Shape {
   }
 
   get bounds() {
-    let segmentBounds = this.segments.map((seg) => seg.bounds);
+    const segmentBounds = this.segments.map((seg) => seg.bounds);
     return Bounds.getOuterBounds(...segmentBounds);
   }
 
@@ -310,7 +310,7 @@ export class Shape {
         y: distanceMiddleArcCenter * Math.sin(theta - Math.PI / 2),
       });
     }
-    let arcCenter = new Point({
+    const arcCenter = new Point({
       layer: this.layer,
       coordinates: arcCenterCoordinates,
       shapeId: this.id,
@@ -405,9 +405,9 @@ export class Shape {
   }
 
   isThisInsideAnotherShape(shape) {
-    let s1_segments = this.segments,
+    const s1_segments = this.segments,
       s2_segments = shape.segments;
-    for (let s1_segment of s1_segments) {
+    for (const s1_segment of s1_segments) {
       if (
         s2_segments.some(
           (s2_segment) =>
@@ -482,8 +482,8 @@ export class Shape {
    * @param {Point}  center    center of the transformation
    */
   homothety(scaling, center = Coordinates.nullCoordinates) {
-    let saveCenter = new Coordinates(center);
-    let newCenter = center.multiply(scaling);
+    const saveCenter = new Coordinates(center);
+    const newCenter = center.multiply(scaling);
     this.scale(scaling);
     this.translate(saveCenter.substract(newCenter));
   }
@@ -511,7 +511,7 @@ export class Shape {
     // if (this.isPoint()) {
     //   path = `M ${this.points[0].coordinates.x} ${this.points[0].coordinates.y}`
     // } else {
-    let path = this.segments
+    const path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
     // }
@@ -522,9 +522,9 @@ export class Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
-    let path = this.getSVGPath();
+    const path = this.getSVGPath();
 
-    let attributes = {
+    const attributes = {
       d: path,
       fill: this.fillColor,
       'fill-opacity': this.fillOpacity,
@@ -534,7 +534,7 @@ export class Shape {
     };
 
     let path_tag = '<path';
-    for (let [key, value] of Object.entries(attributes)) {
+    for (const [key, value] of Object.entries(attributes)) {
       path_tag += ' ' + key + '="' + value + '"';
     }
     path_tag += '/>\n';
@@ -557,7 +557,7 @@ export class Shape {
     });
     if (this.isCenterShown) point_tags += this.center.toSVG('#000', 1);
 
-    let comment =
+    const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
@@ -570,8 +570,8 @@ export class Shape {
       if (
         this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
       ) {
-        let middlePointId = this.segments[i].vertexIds[1];
-        let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
+        const middlePointId = this.segments[i].vertexIds[1];
+        const ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
         this.pointIds.splice(ptIdx, 1);
         removeObjectById(middlePointId);
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
@@ -601,7 +601,7 @@ export class Shape {
 
   // check if property is different from default value is for save size reduction
   saveData() {
-    let data = {
+    const data = {
       id: this.id,
       position: this.layer,
       type: 'Shape',
@@ -652,7 +652,7 @@ export class Shape {
 
   static loadFromData(data) {
     if (!data.position) data.position = 'main'
-    let shape = new Shape({ layer: data.position });
+    const shape = new Shape({ layer: data.position });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];
     shape.pointIds = [...data.pointIds];

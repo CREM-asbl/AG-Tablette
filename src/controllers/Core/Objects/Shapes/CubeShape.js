@@ -54,11 +54,11 @@ export class CubeShape extends RegularShape {
 
     let nextVertexCoordinates = null;
 
-    let createLineTo = (x, y) => {
-      let coordinates = new Coordinates({ x, y });
+    const createLineTo = (x, y) => {
+      const coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      let lastPointDrawn = this.points[this.points.length - 1];
+      const lastPointDrawn = this.points[this.points.length - 1];
       if (lastVertex == undefined || lastVertex.type != 'vertex' || (lastPointDrawn.coordinates.equal(coordinates) && lastPointDrawn.type == 'vertex')) {
         lastVertex = new Point({
           coordinates: coordinates,
@@ -154,7 +154,7 @@ export class CubeShape extends RegularShape {
             });
           }
 
-          let arcCenter = this.getArcCenterFromSVG(
+          const arcCenter = this.getArcCenterFromSVG(
             firstVertex,
             lastVertex,
             rx,
@@ -162,7 +162,7 @@ export class CubeShape extends RegularShape {
             sweepFlag,
           );
 
-          let segment = new Segment({
+          const segment = new Segment({
             shapeId: this.id,
             layer: this.layer,
             idx: segmentIdx++,
@@ -187,8 +187,8 @@ export class CubeShape extends RegularShape {
     }
     // if segment length == 0
     if (app.environment.name == 'Geometrie' && !this.isCircle() && this.points.filter(pt => pt.type != 'arcCenter').length != this.segmentIds.length) {
-      let coord = this.points[0].coordinates;
-      let numberOfSegment = this.segmentIds.length;
+      const coord = this.points[0].coordinates;
+      const numberOfSegment = this.segmentIds.length;
       this.pointIds.forEach(ptId => removeObjectById(
         ptId
       ));
@@ -219,7 +219,7 @@ export class CubeShape extends RegularShape {
   }
 
   saveData() {
-    let data = super.saveData();
+    const data = super.saveData();
     data.type = 'CubeShape';
     // data.fillColor = this.fillColor;
     // data.fillOpacity = this.fillOpacity;
@@ -234,7 +234,7 @@ export class CubeShape extends RegularShape {
     if (!data.position) {
       data.position = 'main';
     }
-    let shape = new CubeShape({
+    const shape = new CubeShape({
       layer: data.position,
     });
     Object.assign(shape, data);

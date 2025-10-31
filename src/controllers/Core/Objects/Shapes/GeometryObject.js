@@ -51,7 +51,7 @@ export class GeometryObject {
   }
 
   saveData() {
-    let data = {};
+    const data = {};
     if (this.geometryChildShapeIds.length !== 0)
       data.geometryChildShapeIds = [...this.geometryChildShapeIds];
     if (Object.keys(this.geometryConstructionSpec).length !== 0)

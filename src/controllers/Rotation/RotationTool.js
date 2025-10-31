@@ -47,7 +47,7 @@ export class RotationTool extends Tool {
     this.removeListeners();
 
     if (this.pointsDrawn.length == 1) {
-      let shapesToDelete = [];
+      const shapesToDelete = [];
       app.upperCanvasLayer.shapes.forEach(s => {
         if (s.geometryObject?.geometryIsCharacteristicElements)
           shapesToDelete.push(s);
@@ -90,7 +90,7 @@ export class RotationTool extends Tool {
 
     this.removeListeners();
 
-    let shapesToDelete = [];
+    const shapesToDelete = [];
     app.upperCanvasLayer.shapes.forEach(s => {
       if (s.geometryObject?.geometryIsCharacteristicElements)
         shapesToDelete.push(s);
@@ -119,13 +119,13 @@ export class RotationTool extends Tool {
   }
 
   canvasMouseDown() {
-    let coord = app.workspace.lastKnownMouseCoordinates;
+    const coord = app.workspace.lastKnownMouseCoordinates;
 
     if (this.pointsDrawn.length === 1) {
       this.configureArcSelectionConstraints();
-      let object = this.trySelectArcObject(coord);
+      const object = this.trySelectArcObject(coord);
       if (object instanceof Segment && object.isArc()) {
-        let firstElementId = this.characteristicElements.elementIds[0];
+        const firstElementId = this.characteristicElements.elementIds[0];
         let referenceShape;
         if (object.layer == 'upper') {
           this.characteristicElements = new CharacteristicElements(object.shape.geometryObject.geometryTransformationCharacteristicElements);
@@ -137,17 +137,17 @@ export class RotationTool extends Tool {
               strokeWidth: 2,
             });
           } else {
-            let points = this.characteristicElements.elements.slice(1).map(pt => new Point({ ...pt, id: null, shapeId: undefined, layer: 'upper' }));
-            let radius = points[0].coordinates.dist(points[2].coordinates);
-            let angle = points[2].coordinates.angleWith(points[1].coordinates);
+            const points = this.characteristicElements.elements.slice(1).map(pt => new Point({ ...pt, id: null, shapeId: undefined, layer: 'upper' }));
+            const radius = points[0].coordinates.dist(points[2].coordinates);
+            const angle = points[2].coordinates.angleWith(points[1].coordinates);
             const projectionCoord = points[2].coordinates.add({
               x: radius * Math.cos(angle),
               y: radius * Math.sin(angle),
             });
             points[1].coordinates = projectionCoord;
 
-            let counterclockwise = this.characteristicElements.counterclockwise;
-            let seg = new Segment({
+            const counterclockwise = this.characteristicElements.counterclockwise;
+            const seg = new Segment({
               layer: 'upper',
               idx: 0,
               vertexIds: [points[0].id, points[1].id],
@@ -194,9 +194,9 @@ export class RotationTool extends Tool {
   canvasMouseUp() {
     this.stopAnimation();
 
-    let coord = app.workspace.lastKnownMouseCoordinates;
-    let object = SelectManager.selectObject(coord);
-    let reference = object ? object : this.pointsDrawn[this.pointsDrawn.length - 1];
+    const coord = app.workspace.lastKnownMouseCoordinates;
+    const object = SelectManager.selectObject(coord);
+    const reference = object ? object : this.pointsDrawn[this.pointsDrawn.length - 1];
     if (this.characteristicElements) {
       this.characteristicElements.elementIds.push(reference.id)
     } else {
@@ -208,13 +208,13 @@ export class RotationTool extends Tool {
       this.angle = this.pointsDrawn[2].coordinates.angleWith(this.pointsDrawn[1].coordinates) - this.pointsDrawn[2].coordinates.angleWith(this.pointsDrawn[3].coordinates);
       this.angle *= -1;
 
-      let radius = this.pointsDrawn[1].coordinates.dist(this.pointsDrawn[2].coordinates);
-      let angle = this.pointsDrawn[2].coordinates.angleWith(this.pointsDrawn[3].coordinates);
+      const radius = this.pointsDrawn[1].coordinates.dist(this.pointsDrawn[2].coordinates);
+      const angle = this.pointsDrawn[2].coordinates.angleWith(this.pointsDrawn[3].coordinates);
       const projectionCoord = this.pointsDrawn[2].coordinates.add({
         x: radius * Math.cos(angle),
         y: radius * Math.sin(angle),
       });
-      let arcPoints0 = [
+      const arcPoints0 = [
         new Point({
           coordinates: this.pointsDrawn[1].coordinates,
           layer: 'upper',
@@ -234,7 +234,7 @@ export class RotationTool extends Tool {
           size: 0.1,
         }),
       ];
-      let arcPoints1 = [
+      const arcPoints1 = [
         new Point({
           coordinates: this.pointsDrawn[1].coordinates,
           layer: 'upper',
@@ -254,14 +254,14 @@ export class RotationTool extends Tool {
           size: 0.1,
         }),
       ];
-      let arcSeg0 = new Segment({
+      const arcSeg0 = new Segment({
         layer: 'upper',
         idx: 0,
         vertexIds: [arcPoints0[0].id, arcPoints0[1].id],
         arcCenterId: arcPoints0[2].id,
         counterclockwise: this.angle < 0,
       });
-      let arcSeg1 = new Segment({
+      const arcSeg1 = new Segment({
         layer: 'upper',
         idx: 0,
         vertexIds: [arcPoints1[0].id, arcPoints1[1].id],
@@ -296,16 +296,16 @@ export class RotationTool extends Tool {
   }
 
   canvasClick() {
-    let angle = this.pointsDrawn[2].coordinates.angleWith(
+    const angle = this.pointsDrawn[2].coordinates.angleWith(
       app.workspace.lastKnownMouseCoordinates,
     );
-    let startAngle = this.pointsDrawn[2].coordinates.angleWith(
+    const startAngle = this.pointsDrawn[2].coordinates.angleWith(
       this.pointsDrawn[1].coordinates,
     );
-    let endAngle = this.pointsDrawn[2].coordinates.angleWith(
+    const endAngle = this.pointsDrawn[2].coordinates.angleWith(
       this.pointsDrawn[3].coordinates,
     );
-    let isAngleInside = isAngleBetweenTwoAngles(
+    const isAngleInside = isAngleBetweenTwoAngles(
       startAngle,
       endAngle,
       false,
@@ -372,13 +372,13 @@ export class RotationTool extends Tool {
     }
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
-      let rotationCenter = this.characteristicElements.firstElement;
+      const rotationCenter = this.characteristicElements.firstElement;
       this.drawingShapes.forEach(s => s.points.forEach((point) => {
         point.startCoordinates = new Coordinates(point.coordinates);
-        let startAngle = rotationCenter.coordinates.angleWith(
+        const startAngle = rotationCenter.coordinates.angleWith(
           point.coordinates
         );
-        let length = rotationCenter.coordinates.dist(point.coordinates);
+        const length = rotationCenter.coordinates.dist(point.coordinates);
         point.endCoordinates = new Coordinates({
           x: rotationCenter.x + Math.cos(startAngle + this.angle) * length,
           y: rotationCenter.y + Math.sin(startAngle + this.angle) * length,
@@ -401,13 +401,13 @@ export class RotationTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep === 'rot') {
-      let rotationCenter = this.characteristicElements.firstElement;
+      const rotationCenter = this.characteristicElements.firstElement;
       app.upperCanvasLayer.points.forEach((point) => {
         if (point.startCoordinates) {
-          let startAngle = rotationCenter.coordinates.angleWith(
+          const startAngle = rotationCenter.coordinates.angleWith(
             point.startCoordinates
           );
-          let length = rotationCenter.coordinates.dist(point.startCoordinates);
+          const length = rotationCenter.coordinates.dist(point.startCoordinates);
           point.coordinates = new Coordinates({
             x: rotationCenter.coordinates.x + Math.cos(startAngle + this.angle * this.progress) * length,
             y: rotationCenter.coordinates.y + Math.sin(startAngle + this.angle * this.progress) * length,
@@ -415,8 +415,8 @@ export class RotationTool extends Tool {
         }
       });
     } else if (app.tool.currentStep == 'animateRefPoint') {
-      let coord = app.workspace.lastKnownMouseCoordinates;
-      let object = SelectManager.selectObject(coord);
+      const coord = app.workspace.lastKnownMouseCoordinates;
+      const object = SelectManager.selectObject(coord);
       if (object) {
         this.pointsDrawn[this.pointsDrawn.length - 1].coordinates = object.coordinates;
       } else {
@@ -429,7 +429,7 @@ export class RotationTool extends Tool {
     if (this.characteristicElements.type === 'points') {
       this.characteristicElements.elementIds.forEach((elemId, idx) => {
 
-        let element = findObjectById(elemId);
+        const element = findObjectById(elemId);
         if (element.layer == 'upper') {
           this.characteristicElements.elementIds[idx] = new SinglePointShape({
             layer: 'main',
@@ -441,7 +441,7 @@ export class RotationTool extends Tool {
         }
       });
     } else {
-      let rotationCenter = this.characteristicElements.firstElement;
+      const rotationCenter = this.characteristicElements.firstElement;
       if (rotationCenter.layer == 'upper') {
         this.characteristicElements.elementIds[0] = new SinglePointShape({
           layer: 'main',
@@ -459,8 +459,8 @@ export class RotationTool extends Tool {
 
     // let vector = this.referenceShape.segments[0];
 
-    let newShapes = this.involvedShapes.map(s => {
-      let newShape = new s.constructor({
+    const newShapes = this.involvedShapes.map(s => {
+      const newShape = new s.constructor({
         ...s,
         layer: 'main',
         familyName: 'transformation',
@@ -488,7 +488,7 @@ export class RotationTool extends Tool {
 
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       newShape.geometryObject.geometryTransformationCharacteristicElements.elementIds.forEach(refId => {
-        let ref = findObjectById(refId);
+        const ref = findObjectById(refId);
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
@@ -510,25 +510,25 @@ export class RotationTool extends Tool {
     });
 
     if (newShapes.length > 1) {
-      let userGroup = new ShapeGroup(0, 1);
+      const userGroup = new ShapeGroup(0, 1);
       userGroup.shapesIds = newShapes.map((s) => s.id);
       GroupManager.addGroup(userGroup);
     }
   }
 
   setSelectionConstraints() {
-    let constraints = app.fastSelectionConstraints.mousedown_all_shape;
+    const constraints = app.fastSelectionConstraints.mousedown_all_shape;
     constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryPointOnTheFlyChildId);
     app.workspace.selectionConstraints = constraints;
   }
 
   showLastCharacteristicElements(typeOfObjectToShow) {
     if (typeOfObjectToShow === 'rotationCenter') {
-      let allRotationCenters = app.workspace.rotationLastCharacteristicElements
+      const allRotationCenters = app.workspace.rotationLastCharacteristicElements
         .map(lastElements => lastElements.firstElement)
         .filter((element, index, elements) => elements.indexOf(element) === index);
       allRotationCenters.forEach(point => {
-        let shape = new SinglePointShape({
+        const shape = new SinglePointShape({
           layer: 'upper',
           path: `M ${point.coordinates.x} ${point.coordinates.y}`,
           name: 'Point',
@@ -545,7 +545,7 @@ export class RotationTool extends Tool {
       app.workspace.rotationLastCharacteristicElements.forEach(characteristicElement => {
         let points;
         if (characteristicElement.type === 'arc') {
-          let arc = findObjectById(characteristicElement.elementIds[1]);
+          const arc = findObjectById(characteristicElement.elementIds[1]);
           points = [...arc.vertexes, arc.arcCenter];
         } else {
           points = characteristicElement.elements.slice(1);
@@ -553,8 +553,8 @@ export class RotationTool extends Tool {
           // shape.points[0].size = 2;
           // shape.points[1].color = app.settings.referenceDrawColor;
           // shape.points[1].size = 2;
-          let radius = points[0].coordinates.dist(points[2].coordinates);
-          let angle = points[2].coordinates.angleWith(points[1].coordinates);
+          const radius = points[0].coordinates.dist(points[2].coordinates);
+          const angle = points[2].coordinates.angleWith(points[1].coordinates);
           const projectionCoord = points[2].coordinates.add({
             x: radius * Math.cos(angle),
             y: radius * Math.sin(angle),
@@ -565,39 +565,39 @@ export class RotationTool extends Tool {
             isVisible: false,
           });
         }
-        let firstVertex = new Point({
+        const firstVertex = new Point({
           coordinates: points[0].coordinates,
           layer: 'upper',
           color: app.settings.referenceDrawColor,
           size: 0.1,
         });
-        let secondVertex = new Point({
+        const secondVertex = new Point({
           coordinates: points[1].coordinates,
           layer: 'upper',
           color: app.settings.referenceDrawColor,
           size: 0.1,
         });
-        let arcCenter = new Point({
+        const arcCenter = new Point({
           coordinates: points[2].coordinates,
           layer: 'upper',
           color: app.settings.referenceDrawColor,
           size: 0.1,
         });
-        let seg = new Segment({
+        const seg = new Segment({
           layer: 'upper',
           idx: 0,
           vertexIds: [firstVertex.id, secondVertex.id],
           arcCenterId: arcCenter.id,
           counterclockwise: !characteristicElement.clockwise,
         });
-        let shapeCenter = new Point({
+        const shapeCenter = new Point({
           coordinates: points[2].coordinates,
           layer: 'upper',
           type: 'shapeCenter',
           color: app.settings.referenceDrawColor,
           size: 0.1,
         })
-        let shape = new ArrowLineShape({
+        const shape = new ArrowLineShape({
           layer: 'upper',
           segmentIds: [seg.id],
           pointIds: [firstVertex, secondVertex, arcCenter, shapeCenter].map(pt => pt.id),

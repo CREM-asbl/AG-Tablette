@@ -52,11 +52,11 @@ vi.mock('@controllers/Core/Tools/general.js', () => {
         id = id.substring(0, 8)
       else
         id = id.substring(id.length - 8, id.length);
-      let layerId = layerOrder.indexOf(layer);
+      const layerId = layerOrder.indexOf(layer);
       if (objectType) {
         objectTypeId = objectTypeOrder.indexOf(objectType);
       }
-      let result = id + layerId + objectTypeId;
+      const result = id + layerId + objectTypeId;
       return result;
     })
   };

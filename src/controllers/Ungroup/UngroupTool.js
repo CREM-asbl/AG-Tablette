@@ -16,7 +16,7 @@ export class UngroupTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -39,7 +39,7 @@ export class UngroupTool extends Tool {
     this.removeListeners();
 
     app.mainCanvasLayer.shapes.map((s) => {
-      let currentGroup = GroupManager.getShapeGroup(s);
+      const currentGroup = GroupManager.getShapeGroup(s);
       if (currentGroup != null) {
         new s.constructor({
           ...s,

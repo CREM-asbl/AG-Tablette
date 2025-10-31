@@ -243,8 +243,8 @@ class CanvasLayer extends LitElement {
   }
 
   getCommonSegmentOfTwoPoints(pt1Id, pt2Id) {
-    let pt1 = findObjectById(pt1Id);
-    let pt2 = findObjectById(pt2Id);
+    const pt1 = findObjectById(pt1Id);
+    const pt2 = findObjectById(pt2Id);
     if (pt1.shape.name === 'PointOnLine' || pt2.shape.name === 'PointOnLine') {
       let segId;
       if (pt1.shape.name === 'PointOnLine')
@@ -253,12 +253,12 @@ class CanvasLayer extends LitElement {
         segId = pt2.shape.geometryObject.geometryParentObjectId1;
       return findObjectById(segId);
     }
-    let segmentIds1 = pt1.segmentIds;
-    let segmentIds2 = pt2.segmentIds;
-    let commonSegmentIds = segmentIds1.filter(
+    const segmentIds1 = pt1.segmentIds;
+    const segmentIds2 = pt2.segmentIds;
+    const commonSegmentIds = segmentIds1.filter(
       (id1) => segmentIds2.findIndex((id2) => id2 === id1) !== -1,
     );
-    let commonSegments = commonSegmentIds.map((id) =>
+    const commonSegments = commonSegmentIds.map((id) =>
       this.segments.find((seg) => seg.id == id),
     );
     commonSegments.sort((seg1, seg2) => seg2.idx - seg1.idx);
@@ -266,7 +266,7 @@ class CanvasLayer extends LitElement {
   }
 
   saveData() {
-    let data = {
+    const data = {
       shapesData: this.shapes.map((shape) => shape.saveData()),
       segmentsData: this.segments.map((segment) => segment.saveData()),
       pointsData: this.points.map((point) => point.saveData()),
@@ -446,7 +446,7 @@ class CanvasLayer extends LitElement {
   createListeners() {
     this.canvas.addEventListener('click', (event) => {
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
@@ -460,7 +460,7 @@ class CanvasLayer extends LitElement {
 
     this.canvas.addEventListener('mousedown', (event) => {
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
 
       let mustExitFunction = false;
 
@@ -490,7 +490,7 @@ class CanvasLayer extends LitElement {
 
     this.canvas.addEventListener('mouseup', (event) => {
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
@@ -500,7 +500,7 @@ class CanvasLayer extends LitElement {
 
     this.canvas.addEventListener('mousemove', (event) => {
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
@@ -512,7 +512,7 @@ class CanvasLayer extends LitElement {
     this.canvas.addEventListener('mouseout', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       window.dispatchEvent(
         new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
       );
@@ -522,7 +522,7 @@ class CanvasLayer extends LitElement {
     const handleWheel = (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
-      let mousePos = new Coordinates({
+      const mousePos = new Coordinates({
         x: event.clientX - app.settings.mainMenuWidth,
         y: event.clientY,
       });
@@ -535,7 +535,7 @@ class CanvasLayer extends LitElement {
       } else if (event.deltaY < 0) {
         correctedDeltaY = event.deltaY / 10 - 1;
       }
-      let detail = {
+      const detail = {
         deltaY: correctedDeltaY,
       };
       window.dispatchEvent(new CustomEvent('canvasMouseWheel', { detail: detail }));
@@ -545,7 +545,7 @@ class CanvasLayer extends LitElement {
     this.canvas.addEventListener('touchstart', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       if (event.touches.length === 1)
         window.dispatchEvent(
           new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
@@ -555,8 +555,8 @@ class CanvasLayer extends LitElement {
         'mousedown' === app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      let detail = { touches: [] };
-      for (let touch of event.touches) {
+      const detail = { touches: [] };
+      for (const touch of event.touches) {
         detail.touches.push(
           new Coordinates({
             x: touch.clientX - app.settings.mainMenuWidth,
@@ -573,13 +573,13 @@ class CanvasLayer extends LitElement {
     this.canvas.addEventListener('touchmove', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       if (event.touches.length === 1)
         window.dispatchEvent(
           new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
         );
       const detail = { touches: [] };
-      for (let touch of event.touches) {
+      for (const touch of event.touches) {
         detail.touches.push(
           new Coordinates({
             x: touch.clientX - app.settings.mainMenuWidth,
@@ -603,7 +603,7 @@ class CanvasLayer extends LitElement {
     this.canvas.addEventListener('touchend', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       if (event.touches.length === 1)
         window.dispatchEvent(
           new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
@@ -613,8 +613,8 @@ class CanvasLayer extends LitElement {
         'click' === app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      let detail = { touches: [] }
-      for (let touch of event.changedTouches) {
+      const detail = { touches: [] }
+      for (const touch of event.changedTouches) {
         detail.touches.push(
           new Coordinates({
             x: touch.clientX - app.settings.mainMenuWidth,
@@ -631,14 +631,14 @@ class CanvasLayer extends LitElement {
     this.canvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
-      let mousePos = this.getMousePos(event);
+      const mousePos = this.getMousePos(event);
       window.dispatchEvent(new CustomEvent('mouse-coordinates-changed',
         { detail: { mousePos: mousePos } }));
       if (app.listenerCounter.objectSelected && 'click' === app.workspace.selectionConstraints.eventType)
         SelectManager.selectObject(mousePos);
 
-      let detail = { touches: [] };
-      for (let touch of event.changedTouches) {
+      const detail = { touches: [] };
+      for (const touch of event.changedTouches) {
         detail.touches.push(new Coordinates({
           x: touch.clientX - app.settings.mainMenuWidth,
           y: touch.clientY
@@ -680,14 +680,14 @@ class CanvasLayer extends LitElement {
     } else {
       console.error('Navigator not compatible - unable to get mouse position');
       let str = event.type;
-      for (let property1 in event) {
+      for (const property1 in event) {
         str += ' | ' + property1 + ' : ' + event[property1];
       }
       console.error('Event details:', str);
 
       if (event.touches) {
         str = 'touches: ' + event.touches.length + '';
-        for (let property1 in event['touches'][0]) {
+        for (const property1 in event['touches'][0]) {
           str += ' | ' + property1 + ' : ' + ['touches'][0][property1];
         }
         console.error('Touch details:', str);
@@ -816,6 +816,11 @@ class CanvasLayer extends LitElement {
    * Récupère le point de la grille le plus proche d'une coordonnée donnée
    * @param { Coordinates } checkingCoordinates Les coordonnées en espace canvas
    * @return { Coordinates | undefined } Les coordonnées du point de la grille le plus proche en espace canvas ou undefined
+   * @example
+   * const closestPoint = canvas.getClosestGridPoint(new Coordinates({ x: 100, y: 200 }));
+   * if (closestPoint) {
+   *   // Utiliser le point pour snapper
+   * }
    */
   getClosestGridPoint(checkingCoordinates) {
     if (!checkingCoordinates || typeof checkingCoordinates.x !== 'number' || typeof checkingCoordinates.y !== 'number' || !isFinite(checkingCoordinates.x) || !isFinite(checkingCoordinates.y)) {
@@ -908,10 +913,10 @@ class CanvasLayer extends LitElement {
     const canvasWidth = typeof this.canvas.width === 'number' && isFinite(this.canvas.width) ? this.canvas.width : 0;
     const canvasHeight = typeof this.canvas.height === 'number' && isFinite(this.canvas.height) ? this.canvas.height : 0;
 
-    let newX = Math.floor(this.xOffset / this.scale);
-    let newY = Math.floor(this.yOffset / this.scale);
-    let newWidth = Math.ceil(canvasWidth / this.scale);
-    let newHeight = Math.ceil(canvasHeight / this.scale);
+    const newX = Math.floor(this.xOffset / this.scale);
+    const newY = Math.floor(this.yOffset / this.scale);
+    const newWidth = Math.ceil(canvasWidth / this.scale);
+    const newHeight = Math.ceil(canvasHeight / this.scale);
 
     // Only update if there is a change or if forced
     if (forced || this.canvasVisibleLeft !== newX || this.canvasVisibleTop !== newY || this.canvasVisibleWidth !== newWidth || this.canvasVisibleHeight !== newHeight) {
@@ -930,15 +935,15 @@ class CanvasLayer extends LitElement {
     let pathScaleMethod = this.mustScaleShapes ? 'scale' : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
     if (shape.drawHidden) {
-      let canvasPattern = document.createElement("canvas");
+      const canvasPattern = document.createElement("canvas");
       canvasPattern.width = 10;
       canvasPattern.height = 10;
-      let contextPattern = canvasPattern.getContext("2d");
-      let path = new Path2D(`M 5 0 L 10 5 L 10 10 L 0 0 L 5 0 M 0 5 L 5 10 L 0 10 L 0 5`);
+      const contextPattern = canvasPattern.getContext("2d");
+      const path = new Path2D(`M 5 0 L 10 5 L 10 10 L 0 0 L 5 0 M 0 5 L 5 10 L 0 10 L 0 5`);
       contextPattern.fillStyle = this.ctx.fillStyle;
       contextPattern.fill(path);
 
-      let pattern = this.ctx.createPattern(canvasPattern, "repeat");
+      const pattern = this.ctx.createPattern(canvasPattern, "repeat");
       canvasPattern.remove();
 
       this.ctx.fillStyle = pattern;
@@ -953,7 +958,7 @@ class CanvasLayer extends LitElement {
     }
     if (shape.segments.some(seg => seg.color !== undefined)) {
       shape.segments.forEach(seg => {
-        let path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
+        const path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
         this.ctx.strokeStyle = seg.color ? seg.color : shape.strokeColor;
         if (seg.width !== 1) this.ctx.lineWidth = seg.width;
         this.ctx.stroke(path);

@@ -47,7 +47,7 @@ export class RegularShape extends Shape {
   /* #################################################################### */
 
   get segments() {
-    let segments = this.segmentIds.map((segId) =>
+    const segments = this.segmentIds.map((segId) =>
       this.canvasLayer.segments.find((seg) => seg.id === segId),
     );
     return segments;
@@ -55,26 +55,26 @@ export class RegularShape extends Shape {
 
   get points() {
     // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
-    let points = this.pointIds.map((ptId) =>
+    const points = this.pointIds.map((ptId) =>
       this.canvasLayer.points.find((pt) => pt.id === ptId),
     );
     return points;
   }
 
   get vertexes() {
-    let vertexes = this.points.filter((pt) => pt.type === 'vertex');
+    const vertexes = this.points.filter((pt) => pt.type === 'vertex');
     return vertexes;
   }
 
   get divisionPoints() {
-    let divisionPoints = this.points.filter(
+    const divisionPoints = this.points.filter(
       (pt) => pt.type === 'divisionPoint',
     );
     return divisionPoints;
   }
 
   get center() {
-    let center = this.points.filter((pt) => pt.type === 'shapeCenter')[0];
+    const center = this.points.filter((pt) => pt.type === 'shapeCenter')[0];
     return center;
   }
 
@@ -87,7 +87,7 @@ export class RegularShape extends Shape {
       this.vertexes.forEach((vertex) => {
         totalCoordinates = totalCoordinates.add(vertex.coordinates);
       });
-      let averageCoordinates = totalCoordinates.multiply(
+      const averageCoordinates = totalCoordinates.multiply(
         1 / this.vertexes.length,
       );
       return averageCoordinates;
@@ -95,13 +95,13 @@ export class RegularShape extends Shape {
   }
 
   get isCenterShown() {
-    let isCenterShown = this._isCenterShown;
+    const isCenterShown = this._isCenterShown;
     return isCenterShown;
   }
 
   set isCenterShown(value) {
     if (value && !this.isCenterShown) {
-      let centerCoordinates = this.centerCoordinates;
+      const centerCoordinates = this.centerCoordinates;
       new Point({
         coordinates: centerCoordinates,
         shapeId: this.id,
@@ -110,11 +110,11 @@ export class RegularShape extends Shape {
         // visible: this.isPointed,
       });
     } else if (!value && this.isCenterShown) {
-      let point = this.points.find((pt) => pt.type == 'shapeCenter');
+      const point = this.points.find((pt) => pt.type == 'shapeCenter');
       if (app.environment.name == 'Geometrie' && point.layer == 'main') {
-        let shapesToDelete = [];
+        const shapesToDelete = [];
         this.geometryObject.geometryChildShapeIds.forEach(sId => {
-          let s = findObjectById(sId);
+          const s = findObjectById(sId);
           if (s && s.points.some(pt => pt.reference == point.id)) {
             shapesToDelete.push(s);
           }
@@ -125,7 +125,7 @@ export class RegularShape extends Shape {
           removeObjectById(s.id);
         });
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
-          let s = app.mainCanvasLayer.shapes[i];
+          const s = app.mainCanvasLayer.shapes[i];
           s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
             if (pt.reference && !findObjectById(pt.reference))
               pt.reference = null;
@@ -136,9 +136,9 @@ export class RegularShape extends Shape {
           }
         }
       }
-      let pointId = point.id;
+      const pointId = point.id;
       removeObjectById(pointId);
-      let index = this.pointIds.findIndex((pt) => pt.id == pointId);
+      const index = this.pointIds.findIndex((pt) => pt.id == pointId);
       this.pointIds.splice(index, 1);
     }
     this._isCenterShown = value;
@@ -158,8 +158,8 @@ export class RegularShape extends Shape {
 
     let nextVertexCoordinates = null;
 
-    let createLineTo = (x, y) => {
-      let coordinates = new Coordinates({ x, y });
+    const createLineTo = (x, y) => {
+      const coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
       if (lastVertex == undefined || lastVertex.type != 'vertex' || allPathElements.length != 0) {
@@ -257,7 +257,7 @@ export class RegularShape extends Shape {
             });
           }
 
-          let arcCenter = this.getArcCenterFromSVG(
+          const arcCenter = this.getArcCenterFromSVG(
             firstVertex,
             lastVertex,
             rx,
@@ -265,7 +265,7 @@ export class RegularShape extends Shape {
             sweepFlag,
           );
 
-          let segment = new Segment({
+          const segment = new Segment({
             shapeId: this.id,
             layer: this.layer,
             idx: segmentIdx++,
@@ -290,8 +290,8 @@ export class RegularShape extends Shape {
     }
     // if segment length == 0
     if (app.environment.name == 'Geometrie' && !this.isCircle() && this.points.filter(pt => pt.type != 'arcCenter').length != this.segmentIds.length) {
-      let coord = this.points[0].coordinates;
-      let numberOfSegment = this.segmentIds.length;
+      const coord = this.points[0].coordinates;
+      const numberOfSegment = this.segmentIds.length;
       this.pointIds.forEach(ptId => removeObjectById(
         ptId
       ));
@@ -329,7 +329,7 @@ export class RegularShape extends Shape {
       const center = this.segments[0].arcCenter;
       return new Coordinates(center);
     } else {
-      let total = {
+      const total = {
         x: 0,
         y: 0,
         amount: 0,
@@ -350,7 +350,7 @@ export class RegularShape extends Shape {
   }
 
   get bounds() {
-    let segmentBounds = this.segments.map((seg) => seg.bounds);
+    const segmentBounds = this.segments.map((seg) => seg.bounds);
     return Bounds.getOuterBounds(...segmentBounds);
   }
 
@@ -411,7 +411,7 @@ export class RegularShape extends Shape {
         y: distanceMiddleArcCenter * Math.sin(theta - Math.PI / 2),
       });
     }
-    let arcCenter = new Point({
+    const arcCenter = new Point({
       layer: this.layer,
       coordinates: arcCenterCoordinates,
       shapeId: this.id,
@@ -452,7 +452,7 @@ export class RegularShape extends Shape {
 
   isCoordinatesInPath(coordinates) {
     const ctx = app.invisibleCanvasLayer.ctx;
-    let canvasCoordinates = coordinates.toCanvasCoordinates();
+    const canvasCoordinates = coordinates.toCanvasCoordinates();
     const selected = ctx.isPointInPath(
       new Path2D(this.getSVGPath()),
       canvasCoordinates.x,
@@ -485,7 +485,7 @@ export class RegularShape extends Shape {
    *    considéré vrai si deux segments sont confondu mais n'ont qu'un point commun ! => peut-etre probleme dans environnement libre
    */
   overlapsWith(shape) {
-    let s1 = this,
+    const s1 = this,
       s2 = shape,
       s1_segments = s1.segments,
       s2_segments = s2.segments;
@@ -503,9 +503,9 @@ export class RegularShape extends Shape {
   }
 
   isThisInsideAnotherShape(shape) {
-    let s1_segments = this.segments,
+    const s1_segments = this.segments,
       s2_segments = shape.segments;
-    for (let s1_segment of s1_segments) {
+    for (const s1_segment of s1_segments) {
       if (
         s2_segments.some(
           (s2_segment) =>
@@ -575,8 +575,8 @@ export class RegularShape extends Shape {
    * @param {Point}  center    center of the transformation
    */
   homothety(scaling, center = Coordinates.nullCoordinates) {
-    let saveCenter = new Coordinates(center);
-    let newCenter = center.multiply(scaling);
+    const saveCenter = new Coordinates(center);
+    const newCenter = center.multiply(scaling);
     this.scale(scaling);
     this.translate(saveCenter.substract(newCenter));
   }
@@ -595,7 +595,7 @@ export class RegularShape extends Shape {
    * convertit la shape en commande de path svg
    */
   getSVGPath(scaling = 'scale') {
-    let path = this.segments
+    const path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, false))
       .join('\n');
     return path;
@@ -615,9 +615,9 @@ export class RegularShape extends Shape {
       return '';
     }
 
-    let shapePath = this.getSVGPath();
+    const shapePath = this.getSVGPath();
 
-    let fillAttributes = {
+    const fillAttributes = {
       d: shapePath,
       fill: this.fillColor,
       'fill-opacity': this.fillOpacity,
@@ -626,22 +626,22 @@ export class RegularShape extends Shape {
     };
 
     let fillPath = '<path';
-    for (let [key, value] of Object.entries(fillAttributes)) {
+    for (const [key, value] of Object.entries(fillAttributes)) {
       fillPath += ' ' + key + '="' + value + '"';
     }
     fillPath += '/>\n';
 
     let totalStrokePath = '';
     this.segments.forEach(seg => {
-      let segmentPath = seg.getSVGPath('scale', true);
-      let segmentColor = seg.color ? seg.color : this.strokeColor;
+      const segmentPath = seg.getSVGPath('scale', true);
+      const segmentColor = seg.color ? seg.color : this.strokeColor;
       let strokeWidth = 1;
       if (seg.width != 1)
         strokeWidth = seg.width;
       else
         strokeWidth = this.strokeWidth
 
-      let strokeAttributes = {
+      const strokeAttributes = {
         d: segmentPath,
         stroke: segmentColor,
         'fill-opacity': 0,
@@ -650,14 +650,14 @@ export class RegularShape extends Shape {
       };
 
       let strokePath = '<path';
-      for (let [key, value] of Object.entries(strokeAttributes)) {
+      for (const [key, value] of Object.entries(strokeAttributes)) {
         strokePath += ' ' + key + '="' + value + '"';
       }
       strokePath += '/>\n';
       totalStrokePath += strokePath;
     });
 
-    let pointToDraw = [];
+    const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
         pointToDraw.push(this.segments[0].vertexes[0]);
@@ -675,13 +675,13 @@ export class RegularShape extends Shape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    let point_tags = pointToDraw.filter(pt => {
+    const point_tags = pointToDraw.filter(pt => {
       pt.visible &&
         pt.geometryIsVisible &&
         !pt.geometryIsHidden
     }).map(pt => pt.svg).join('\n');
 
-    let comment =
+    const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + fillPath + totalStrokePath + point_tags + '\n';
@@ -695,8 +695,8 @@ export class RegularShape extends Shape {
         this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
       ) {
         if (this.name == 'Circle' && this.segments[0].radius < 0.001) {
-          let coord = this.segments[0].arcCenter.coordinates;
-          let counterclockwise = this.segments[0].counterclockwise;
+          const coord = this.segments[0].arcCenter.coordinates;
+          const counterclockwise = this.segments[0].counterclockwise;
           this.pointIds.forEach(ptId => removeObjectById(
             ptId
           ));
@@ -729,8 +729,8 @@ export class RegularShape extends Shape {
             counterclockwise,
           });
         } else {
-          let middlePointId = this.segments[i].vertexIds[1];
-          let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
+          const middlePointId = this.segments[i].vertexIds[1];
+          const ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
           this.pointIds.splice(ptIdx, 1);
           removeObjectById(middlePointId);
           this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
@@ -760,7 +760,7 @@ export class RegularShape extends Shape {
   }
 
   saveData() {
-    let data = super.saveData();
+    const data = super.saveData();
     data.type = 'RegularShape';
     if (this.fillColor !== '#aaa')
       data.fillColor = this.fillColor;
@@ -771,7 +771,7 @@ export class RegularShape extends Shape {
 
   static loadFromData(data) {
     if (!data.position) data.position = 'main'
-    let shape = new RegularShape({ layer: data.position });
+    const shape = new RegularShape({ layer: data.position });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];
     shape.pointIds = [...data.pointIds];

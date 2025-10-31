@@ -44,7 +44,8 @@ src/
 - **Langue** : Français pour les noms de classes/méthodes métier
 - **Format** : Lit Elements pour les composants, classes ES6 pour la logique
 - **Imports** : Chemins absolus configurés dans `jsconfig.json`
-- **Debug** : `console.log` conditionné avec `window.dev_mode`
+- **Debug** : `console.log` autorisés en développement, supprimer avant production
+- **Performance** : Logs conditionnés avec `import.meta.env.DEV` (monitoring système)
 
 ### Naming Conventions
 ```javascript
@@ -58,8 +59,9 @@ const tM = new TM();
 ```
 
 ### Gestion des erreurs
-- **Production** : `console.error()` et `console.warn()` autorisés
-- **Debug** : `console.log()` uniquement si `window.dev_mode`
+- **Production** : Aucun `console.log` (supprimer avant commit)
+- **Développement** : `console.log` autorisés pour debug
+- **Erreurs** : `console.error()` et `console.warn()` toujours autorisés
 - **Validation** : Utiliser `ValidationSystem.js`
 
 ## 🔧 Systèmes centraux
@@ -126,7 +128,7 @@ import { CreateCircleTool } from '../CreateCircle/index.js';
 window.appState.tools.current = 'create';
 
 // Console.log en production
-console.log('Debug info'); // Utiliser window.dev_mode
+console.log('Debug info');
 
 // Logique métier dans les composants
 // Séparer UI et logique métier
@@ -137,8 +139,8 @@ console.log('Debug info'); // Utiliser window.dev_mode
 // Communication par événements
 this.dispatchEvent(new CustomEvent('tool-changed', {detail: 'create'}));
 
-// Debug conditionnel
-if (window.dev_mode) console.log('Debug info');
+// Debug temporaire (supprimer avant commit)
+console.log('Debug info');
 
 // Injection de dépendances
 class Tool {
@@ -165,7 +167,9 @@ class Tool {
 ## 🔄 Historique des décisions importantes
 
 ### Dernières modifications majeures
-- **Nettoyage console.log** : Conditionnement avec `window.dev_mode`
+- **Migration dev mode** : Remplacement `window.dev_mode` par `import.meta.env.DEV`
+- **Nettoyage console.log** : Suppression massive + nouvelle politique simplifiée
+- **Politique logging** : Simplification - logs debug autorisés, suppression manuelle avant prod
 - **Fix Tangram** : Résolution du chargement asynchrone des silhouettes
 - **Architecture** : Migration vers Astro + maintien des Web Components
 
@@ -200,7 +204,7 @@ class Tool {
 
 ## 📝 Métadonnées
 
-**Dernière mise à jour** : Octobre 2025
+**Dernière mise à jour** : Novembre 2025
 **Version** : 1.0.0
 **Mainteneur** : équipe CREM-asbl
 **Contact** : [Informations de contact si nécessaire]

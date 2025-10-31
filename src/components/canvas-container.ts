@@ -21,7 +21,7 @@ class CanvasContainer extends LitElement {
     app.workspace.lastKnownMouseClickTime = event.timeStamp;
   };
   private showCursorHandler = () => {
-    let mousePos = app.workspace.lastKnownMouseCoordinates;
+    const mousePos = app.workspace.lastKnownMouseCoordinates;
     this.cursorPos = mousePos.toCanvasCoordinates();
     this.cursorPos = this.cursorPos.substract(
       new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })

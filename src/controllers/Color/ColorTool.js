@@ -20,7 +20,7 @@ export class ColorTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -47,11 +47,11 @@ export class ColorTool extends Tool {
   }
 
   canvasLongPress() {
-    let mouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+    const mouseCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.clickType = 'long';
     this.getConstraints();
 
-    let object = SelectManager.selectObject(mouseCoordinates);
+    const object = SelectManager.selectObject(mouseCoordinates);
     if (object) {
       this.object = object;
       this.executeAction();
@@ -64,7 +64,7 @@ export class ColorTool extends Tool {
       this.mustPreventNextClick = false;
       return;
     }
-    let mouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+    const mouseCoordinates = app.workspace.lastKnownMouseCoordinates;
     this.clickType = 'normal';
     this.getConstraints();
 
@@ -78,7 +78,7 @@ export class ColorTool extends Tool {
   }
 
   getConstraints() {
-    let constraints = SelectManager.getEmptySelectionConstraints();
+    const constraints = SelectManager.getEmptySelectionConstraints();
     constraints.shapes.canSelect = true;
     if (this.clickType == 'normal') {
       constraints.segments.canSelect = true;
@@ -105,7 +105,7 @@ export class ColorTool extends Tool {
   _executeAction() {
     if (this.clickType == 'normal') {
       if (this.object instanceof Shape) {
-        let involvedShapes = ShapeManager.getAllBindedShapes(this.object);
+        const involvedShapes = ShapeManager.getAllBindedShapes(this.object);
         let mustChangeOpacity = false;
         if (
           involvedShapes.some((s) => {
@@ -129,7 +129,7 @@ export class ColorTool extends Tool {
         this.object.forEach(obj => obj.color = app.settings.shapesDrawColor);
       }
     } else if (this.clickType == 'long') {
-      let involvedShapes = ShapeManager.getAllBindedShapes(this.object);
+      const involvedShapes = ShapeManager.getAllBindedShapes(this.object);
       involvedShapes.forEach(s => {
         s.strokeColor = app.settings.shapesDrawColor;
       });

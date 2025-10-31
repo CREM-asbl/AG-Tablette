@@ -44,7 +44,7 @@ export class TranslationTool extends Tool {
     this.removeListeners();
 
     if (this.pointsDrawn.length == 1) {
-      let shapesToDelete = [];
+      const shapesToDelete = [];
       app.upperCanvasLayer.shapes.forEach(s => {
         if (s.geometryObject?.geometryIsCharacteristicElements)
           shapesToDelete.push(s);
@@ -84,7 +84,7 @@ export class TranslationTool extends Tool {
         removeObjectById(s.id);
       })
 
-    let shapesToDelete = [];
+    const shapesToDelete = [];
     app.upperCanvasLayer.shapes.forEach(s => {
       if (s.geometryObject?.geometryIsCharacteristicElements)
         shapesToDelete.push(s);
@@ -113,14 +113,14 @@ export class TranslationTool extends Tool {
   }
 
   canvasMouseDown() {
-    let coord = app.workspace.lastKnownMouseCoordinates;
+    const coord = app.workspace.lastKnownMouseCoordinates;
     if (this.pointsDrawn.length == 0) {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.segments.canSelect = true;
       app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
       app.workspace.selectionConstraints.points.canSelect = true;
-      let object = SelectManager.selectObject(coord);
+      const object = SelectManager.selectObject(coord);
       if (object instanceof Segment && !object.isArc() && object.shape instanceof ArrowLineShape) {
         if (object.layer == 'upper') {
           this.characteristicElements = object.shape.geometryObject.geometryTransformationCharacteristicElements;
@@ -133,8 +133,8 @@ export class TranslationTool extends Tool {
               strokeWidth: 2,
             });
           } else {
-            let firstPoint = this.characteristicElements.firstElement;
-            let secondPoint = this.characteristicElements.secondElement;
+            const firstPoint = this.characteristicElements.firstElement;
+            const secondPoint = this.characteristicElements.secondElement;
             referenceShape = new ArrowLineShape({
               path: `M ${firstPoint.coordinates.x} ${firstPoint.coordinates.y} L ${secondPoint.coordinates.x} ${secondPoint.coordinates.y}`,
               layer: 'upper',
@@ -145,7 +145,7 @@ export class TranslationTool extends Tool {
           setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject', referenceShapeId: referenceShape.id } });
         } else {
           this.characteristicElements = new CharacteristicElements({ type: 'vector', elementIds: [object.id] });
-          let referenceShape = new ArrowLineShape({
+          const referenceShape = new ArrowLineShape({
             path: object.getSVGPath('no scale', true),
             layer: 'upper',
             strokeColor: app.settings.referenceDrawColor,
@@ -169,11 +169,11 @@ export class TranslationTool extends Tool {
         color: app.settings.referenceDrawColor,
         size: 2,
       }));
-      let segment = new Segment({
+      const segment = new Segment({
         layer: 'upper',
         vertexIds: this.pointsDrawn.map((pt) => pt.id),
       });
-      let referenceShape = new ArrowLineShape({
+      const referenceShape = new ArrowLineShape({
         layer: 'upper',
         segmentIds: [segment.id],
         pointIds: this.pointsDrawn.map((pt) => pt.id),
@@ -188,14 +188,14 @@ export class TranslationTool extends Tool {
     this.stopAnimation();
 
     if (app.tool.currentStep == 'animateFirstRefPoint') {
-      let coord = app.workspace.lastKnownMouseCoordinates;
-      let object = SelectManager.selectObject(coord);
-      let reference = object ? object : this.pointsDrawn[0];
+      const coord = app.workspace.lastKnownMouseCoordinates;
+      const object = SelectManager.selectObject(coord);
+      const reference = object ? object : this.pointsDrawn[0];
       this.characteristicElements = new CharacteristicElements({ type: 'two-points', elementIds: [reference.id] });
       setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } });
     } else {
-      let coord = app.workspace.lastKnownMouseCoordinates;
-      let object = SelectManager.selectObject(coord);
+      const coord = app.workspace.lastKnownMouseCoordinates;
+      const object = SelectManager.selectObject(coord);
       if (object) {
         this.secondReference = object;
       } else {
@@ -249,7 +249,7 @@ export class TranslationTool extends Tool {
     }
     this.lastProgress = this.progress || 0;
     if (this.lastProgress == 0) {
-      let vector = this.referenceShape.points[1].coordinates.substract(this.referenceShape.points[0].coordinates);
+      const vector = this.referenceShape.points[1].coordinates.substract(this.referenceShape.points[0].coordinates);
       this.drawingShapes.forEach(s => s.points.forEach((point) => {
         point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
@@ -284,16 +284,16 @@ export class TranslationTool extends Tool {
         }
       });
     } else if (app.tool.currentStep == 'animateFirstRefPoint') {
-      let coord = app.workspace.lastKnownMouseCoordinates;
-      let object = SelectManager.selectObject(coord);
+      const coord = app.workspace.lastKnownMouseCoordinates;
+      const object = SelectManager.selectObject(coord);
       if (object) {
         this.pointsDrawn[0].coordinates = object.coordinates;
       } else {
         this.pointsDrawn[0].coordinates = coord;
       }
     } else if (app.tool.currentStep == 'animateSecondRefPoint') {
-      let coord = app.workspace.lastKnownMouseCoordinates;
-      let object = SelectManager.selectObject(coord);
+      const coord = app.workspace.lastKnownMouseCoordinates;
+      const object = SelectManager.selectObject(coord);
       if (object) {
         this.pointsDrawn[1].coordinates = object.coordinates;
       } else {
@@ -305,7 +305,7 @@ export class TranslationTool extends Tool {
   _executeAction() {
     if (this.characteristicElements.type == 'two-points') {
       this.characteristicElements.elementIds.forEach((elemId, idx) => {
-        let element = findObjectById(elemId);
+        const element = findObjectById(elemId);
         if (element.layer == 'upper') {
           this.characteristicElements.elementIds[idx] = new SinglePointShape({
             layer: 'main',
@@ -322,10 +322,10 @@ export class TranslationTool extends Tool {
       app.workspace.translationLastCharacteristicElements.push(this.characteristicElements);
     }
 
-    let vector = this.referenceShape.segments[0];
+    const vector = this.referenceShape.segments[0];
 
-    let newShapes = this.involvedShapes.map(s => {
-      let newShape = new s.constructor({
+    const newShapes = this.involvedShapes.map(s => {
+      const newShape = new s.constructor({
         ...s,
         layer: 'main',
         id: undefined,
@@ -353,7 +353,7 @@ export class TranslationTool extends Tool {
 
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       newShape.geometryObject.geometryTransformationCharacteristicElements.elementIds.forEach(refId => {
-        let ref = findObjectById(refId);
+        const ref = findObjectById(refId);
         if (!ref.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
           ref.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
         }
@@ -367,14 +367,14 @@ export class TranslationTool extends Tool {
     });
 
     if (newShapes.length > 1) {
-      let userGroup = new ShapeGroup(0, 1);
+      const userGroup = new ShapeGroup(0, 1);
       userGroup.shapesIds = newShapes.map((s) => s.id);
       GroupManager.addGroup(userGroup);
     }
   }
 
   setSelectionConstraints() {
-    let constraints = app.fastSelectionConstraints.mousedown_all_shape;
+    const constraints = app.fastSelectionConstraints.mousedown_all_shape;
     constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryPointOnTheFlyChildId);
     app.workspace.selectionConstraints = constraints;
   }
@@ -382,9 +382,9 @@ export class TranslationTool extends Tool {
   showLastCharacteristicElements() {
     app.workspace.translationLastCharacteristicElements.forEach(characteristicElement => {
       if (characteristicElement.type == 'vector') {
-        let axis = findObjectById(characteristicElement.elementIds[0]);
-        let coordinates = [axis.points[0].coordinates, axis.points[1].coordinates];
-        let shape = new ArrowLineShape({
+        const axis = findObjectById(characteristicElement.elementIds[0]);
+        const coordinates = [axis.points[0].coordinates, axis.points[1].coordinates];
+        const shape = new ArrowLineShape({
           layer: 'upper',
           path: `M ${coordinates[0].x} ${coordinates[0].y} L ${coordinates[1].x} ${coordinates[1].y}`,
           name: 'Vector',
@@ -397,10 +397,10 @@ export class TranslationTool extends Tool {
           }),
         });
       } else {
-        let firstPoint = findObjectById(characteristicElement.elementIds[0]);
-        let secondPoint = findObjectById(characteristicElement.elementIds[1]);
+        const firstPoint = findObjectById(characteristicElement.elementIds[0]);
+        const secondPoint = findObjectById(characteristicElement.elementIds[1]);
 
-        let shape = new ArrowLineShape({
+        const shape = new ArrowLineShape({
           layer: 'upper',
           path: `M ${firstPoint.coordinates.x} ${firstPoint.coordinates.y} L ${secondPoint.coordinates.x} ${secondPoint.coordinates.y}`,
           name: 'Vector',

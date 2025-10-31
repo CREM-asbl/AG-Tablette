@@ -4,6 +4,24 @@
  */
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+
+// Mock des signaux et fonctions
+vi.mock('../../src/store/syncState.js', () => ({
+  syncProgress: { value: 100 },
+  syncInProgress: { value: false },
+  syncVisible: { value: false },
+  getSyncState: vi.fn(() => ({
+    progress: 100,
+    inProgress: false,
+    visible: false
+  })),
+  setSyncProgress: vi.fn(),
+  setSyncCompleted: vi.fn(),
+  showSyncIndicator: vi.fn(),
+  hideSyncIndicator: vi.fn(),
+  resetSyncState: vi.fn()
+}));
+
 import {
   getSyncState,
   hideSyncIndicator,

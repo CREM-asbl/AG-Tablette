@@ -33,7 +33,7 @@ export class CreateRegularTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>
@@ -59,7 +59,7 @@ export class CreateRegularTool extends Tool {
   animateFirstPoint() {
     this.removeListeners();
 
-    let newCoordinates = new Coordinates(
+    const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
     this.firstPoint = new Point({
@@ -82,7 +82,7 @@ export class CreateRegularTool extends Tool {
   animateSecondPoint() {
     this.removeListeners();
 
-    let newCoordinates = new Coordinates(
+    const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
     this.secondPoint = new Point({
@@ -140,7 +140,7 @@ export class CreateRegularTool extends Tool {
     } else {
       this.stopAnimation();
       if (SelectManager.areCoordinatesInMagnetismDistance(this.firstPoint.coordinates, this.secondPoint.coordinates)) {
-        let firstPointCoordinates = this.firstPoint.coordinates;
+        const firstPointCoordinates = this.firstPoint.coordinates;
         app.upperCanvasLayer.removeAllObjects();
         this.firstPoint = new Point({
           layer: 'upper',
@@ -179,7 +179,7 @@ export class CreateRegularTool extends Tool {
     } else {
       constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
-      let adjustedSegment = SelectManager.selectSegment(
+      const adjustedSegment = SelectManager.selectSegment(
         point.coordinates,
         constraints,
       );
@@ -202,7 +202,7 @@ export class CreateRegularTool extends Tool {
       );
       this.adjustPoint(this.secondPoint);
 
-      let path = this.getPath(
+      const path = this.getPath(
         this.firstPoint.coordinates,
         this.secondPoint.coordinates,
       );
@@ -210,7 +210,7 @@ export class CreateRegularTool extends Tool {
       if (this.shapeDrawnId)
         removeObjectById(this.shapeDrawnId);
 
-      let shape = new RegularShape({
+      const shape = new RegularShape({
         path: path,
         layer: 'upper',
         strokeColor: app.settings.temporaryDrawColor,
@@ -226,7 +226,7 @@ export class CreateRegularTool extends Tool {
 
   getPath(firstCoordinates, secondCoordinates) {
     this.numberOfPoints = app.settings.numberOfRegularPoints;
-    let externalAngle = (Math.PI * 2) / this.numberOfPoints;
+    const externalAngle = (Math.PI * 2) / this.numberOfPoints;
 
     let path = [
       'M',
@@ -237,9 +237,9 @@ export class CreateRegularTool extends Tool {
       secondCoordinates.y,
     ];
 
-    let length = firstCoordinates.dist(secondCoordinates);
+    const length = firstCoordinates.dist(secondCoordinates);
 
-    let startAngle = Math.atan2(
+    const startAngle = Math.atan2(
       -(firstCoordinates.y - secondCoordinates.y),
       -(firstCoordinates.x - secondCoordinates.x),
     );
@@ -247,8 +247,8 @@ export class CreateRegularTool extends Tool {
     let currentCoordinates = secondCoordinates;
 
     for (let i = 0; i < this.numberOfPoints - 2; i++) {
-      let dx = length * Math.cos(startAngle - (i + 1) * externalAngle);
-      let dy = length * Math.sin(startAngle - (i + 1) * externalAngle);
+      const dx = length * Math.cos(startAngle - (i + 1) * externalAngle);
+      const dy = length * Math.sin(startAngle - (i + 1) * externalAngle);
 
       currentCoordinates = currentCoordinates.add({ x: dx, y: dy });
 
@@ -263,9 +263,9 @@ export class CreateRegularTool extends Tool {
   }
 
   executeAction() {
-    let shapeDrawn = findObjectById(this.shapeDrawnId);
+    const shapeDrawn = findObjectById(this.shapeDrawnId);
 
-    let shape = new RegularShape({
+    const shape = new RegularShape({
       ...shapeDrawn,
       layer: 'main',
       path: shapeDrawn.getSVGPath('no-scale'),
@@ -275,7 +275,7 @@ export class CreateRegularTool extends Tool {
       geometryObject: new GeometryObject({}),
     });
 
-    let transformation = getShapeAdjustment([shape], shape);
+    const transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
     shape.vertexes[0].adjustedOn = this.firstPoint.adjustedOn;

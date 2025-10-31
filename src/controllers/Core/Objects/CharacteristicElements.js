@@ -44,7 +44,7 @@ export class CharacteristicElements {
   }
 
   saveData() {
-    let data = {
+    const data = {
       type: this.type,
       elementIds: [...this.elementIds],
       clockwise: this.clockwise,

@@ -41,11 +41,6 @@ export function validateCacheConfig() {
     console.warn(`[CACHE CONFIG] MAX_ACTIVITIES (${CACHE_CONFIG.MAX_ACTIVITIES}) inférieur au nombre total sur serveur (142). Synchronisation partielle attendue.`);
   }
 
-  console.log(`[CACHE CONFIG] Configuration validée:`, {
-    maxActivities: CACHE_CONFIG.MAX_ACTIVITIES,
-    estimatedSizeMB: estimatedSize,
-    strategy: CACHE_CONFIG.EVICTION_STRATEGY
-  });
 }
 
 // Strategies d'éviction

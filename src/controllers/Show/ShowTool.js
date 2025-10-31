@@ -16,7 +16,7 @@ export class ShowTool extends Tool {
   }
 
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -79,7 +79,7 @@ export class ShowTool extends Tool {
       .forEach(s => {
         if (s.geometryObject.geometryIsPermanentHidden)
           return;
-        let newShape = new s.constructor({
+        const newShape = new s.constructor({
           ...s,
           layer: 'upper',
           path: s.getSVGPath('no scale', false, false),
@@ -98,8 +98,8 @@ export class ShowTool extends Tool {
         if (s.geometryObject.geometryIsHidden === true) {
           newShape.drawHidden = true;
         }
-        let segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
-        let ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
+        const segIds = newShape.segments.map((seg, idx) => seg.id = s.segments[idx].id);
+        const ptIds = newShape.points.map((pt, idx) => pt.id = s.points[idx].id);
         newShape.segmentIds = [...segIds];
         newShape.pointIds = [...ptIds];
         newShape.points.forEach((pt, idx) => {
@@ -129,20 +129,20 @@ export class ShowTool extends Tool {
 
   _executeAction() {
     if (this.mode == 'shape') {
-      let workingShapes = ShapeManager.getAllBindedShapes(findObjectById(addInfoToId(this.shapeToShow.id, 'main')));
+      const workingShapes = ShapeManager.getAllBindedShapes(findObjectById(addInfoToId(this.shapeToShow.id, 'main')));
       workingShapes.forEach((s) => {
         s.geometryObject.geometryIsHidden = false;
       });
       app.mainCanvasLayer.shapes.forEach(s => {
         if (s instanceof SinglePointShape) {
-          let child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
+          const child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
           if (child)
             s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
         }
       });
       app.mainCanvasLayer.shapes.forEach(s => {
         if (s.geometryObject.geometryIsConstaintDraw) {
-          let child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
+          const child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
           if (child)
             s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
         }

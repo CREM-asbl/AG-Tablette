@@ -56,7 +56,7 @@ class SelectMenu extends LitElement {
   }
 
   clickHandler(e) {
-    let shapeId = e.target.innerText;
+    const shapeId = e.target.innerText;
     window.dispatchEvent(new CustomEvent('shapeSelected', { detail: { shapeId } }));
     this.close();
   }

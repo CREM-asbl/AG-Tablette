@@ -16,7 +16,7 @@ export class BuildCenterTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -66,7 +66,7 @@ export class BuildCenterTool extends Tool {
   }
 
   _executeAction() {
-    let mustShowCenter = this.involvedShapes.some((s) => {
+    const mustShowCenter = this.involvedShapes.some((s) => {
       return !s.isCenterShown;
     });
 

@@ -8,7 +8,7 @@ import { SelectManager } from './SelectManager';
  */
 export class FullHistoryManager {
   static startBrowsing() {
-    let numberOfActions = app.fullHistory.steps.filter((step) => step.type == 'add-fullstep').length;
+    const numberOfActions = app.fullHistory.steps.filter((step) => step.type == 'add-fullstep').length;
     if (numberOfActions == 0) {
       window.dispatchEvent(
         new CustomEvent('show-notif', { detail: { message: "L'historique est vide." } })
@@ -63,7 +63,7 @@ export class FullHistoryManager {
   }
 
   static playBrowsing(onlySingleAction = false) {
-    let timeoutId = setTimeout(
+    const timeoutId = setTimeout(
       () => FullHistoryManager.executeAllSteps(onlySingleAction),
       FullHistoryManager.nextTime + 50,
     );
@@ -94,7 +94,7 @@ export class FullHistoryManager {
     }
     if (data) {
       app.workspace.initFromObject({ ...data });
-      let settings = {
+      const settings = {
         ...app.settings,
         gridShown: data.settings.gridShown,
         gridType: data.settings.gridType,
@@ -123,8 +123,8 @@ export class FullHistoryManager {
     }
     if (!app.fullHistory.isRunning) return;
 
-    let index = app.fullHistory.index + 1;
-    let timeoutId = setTimeout(
+    const index = app.fullHistory.index + 1;
+    const timeoutId = setTimeout(
       () => FullHistoryManager.executeAllSteps(onlySingleAction),
       FullHistoryManager.nextTime + 50 // nextTime,
     );
@@ -133,7 +133,7 @@ export class FullHistoryManager {
   }
 
   static executeStep(index = app.fullHistory.index) {
-    let { type, detail } = app.fullHistory.steps[index];
+    const { type, detail } = app.fullHistory.steps[index];
     if (detail && detail.mousePos) { detail.mousePos = new Coordinates(detail.mousePos) }
 
     if (detail.actionIndex) {
@@ -154,7 +154,7 @@ export class FullHistoryManager {
         FullHistoryManager.nextTime = 0.5 * 1000;
       }
       setTimeout(() => {
-        let data = detail.data;
+        const data = detail.data;
         app.workspace.initFromObject(data);
         setState({ tangram: { ...data.tangram } });
       }, FullHistoryManager.nextTime + 30);
@@ -184,8 +184,8 @@ export class FullHistoryManager {
   static cleanMouseSteps() {
     let isClicked = false;
     for (let i = 0; i < app.fullHistory.steps.length - 1; i++) {
-      let { type, _ } = app.fullHistory.steps[i];
-      let nextType = app.fullHistory.steps[i + 1].type;
+      const { type, _ } = app.fullHistory.steps[i];
+      const nextType = app.fullHistory.steps[i + 1].type;
 
       if (type == 'canvasMouseUp') {
         isClicked = false;
@@ -202,10 +202,10 @@ export class FullHistoryManager {
 
   static cleanColorMultiplication() {
     for (let i = 0; i < app.fullHistory.steps.length - 2; i++) {
-      let { type, detail } = app.fullHistory.steps[i];
-      let nextType = app.fullHistory.steps[i + 1].type;
-      let nextNextType = app.fullHistory.steps[i + 2].type;
-      let nextNextDetail = app.fullHistory.steps[i + 2].detail;
+      const { type, detail } = app.fullHistory.steps[i];
+      const nextType = app.fullHistory.steps[i + 1].type;
+      const nextNextType = app.fullHistory.steps[i + 2].type;
+      const nextNextDetail = app.fullHistory.steps[i + 2].detail;
 
       if (type == 'tool-updated' && detail.name == 'color' && detail.currentStep == 'listen' && nextType == 'settings-changed' && nextNextType == 'tool-updated' && nextNextDetail.name == 'color' && nextNextDetail.currentStep == 'listen') {
         app.fullHistory.steps.splice(i, 1);
@@ -226,13 +226,13 @@ export class FullHistoryManager {
    */
   static addStep(type, event) {
     if (app.fullHistory.isRunning) return;
-    let detail = { ...event.detail };
+    const detail = { ...event.detail };
     if (type == 'objectSelected') detail.object = undefined;
     if (type == 'add-fullstep') {
       detail.actionIndex = app.fullHistory.steps.filter((step) => {
         return step.type == 'add-fullstep';
       }).length + 1;
-      let data = app.workspace.data;
+      const data = app.workspace.data;
       data.history = undefined;
       data.settings = { ...app.settings };
       data.tangram = { ...app.tangram };
@@ -248,8 +248,8 @@ export class FullHistoryManager {
     if ((type == 'tool-changed' || type == 'tool-updated') && (!detail.name || detail.name == 'solveChecker')) {
       return;
     }
-    let timeStamp = Date.now() - FullHistoryManager.startTimestamp;
-    let steps = [...app.fullHistory.steps, { type, detail, timeStamp }];
+    const timeStamp = Date.now() - FullHistoryManager.startTimestamp;
+    const steps = [...app.fullHistory.steps, { type, detail, timeStamp }];
     setState({ fullHistory: { ...app.fullHistory, steps } });
   }
 }

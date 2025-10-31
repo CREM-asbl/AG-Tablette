@@ -30,7 +30,7 @@ class PerformanceMonitor {
     this.setupEventListeners();
     this.startReporting();
     
-    console.log('Performance monitoring activé');
+    if (import.meta.env.DEV) console.log('Performance monitoring activé');
   }
 
   /**
@@ -42,7 +42,7 @@ class PerformanceMonitor {
     this.enabled = false;
     this.stopReporting();
     
-    console.log('Performance monitoring désactivé');
+    if (import.meta.env.DEV) console.log('Performance monitoring désactivé');
   }
 
   /**
@@ -148,7 +148,7 @@ class PerformanceMonitor {
    */
   resetMetrics() {
     this.metrics.clear();
-    console.log('Métriques de performance réinitialisées');
+    if (import.meta.env.DEV) console.log('Métriques de performance réinitialisées');
   }
 
   /**
@@ -266,18 +266,18 @@ class PerformanceMonitor {
       if (report.slowOperations.length > 0 || 
           report.recommendations.some(r => r.priority === 'high')) {
         console.group('📊 Rapport de performance AG-Tablette');
-        console.log('Opérations totales:', report.totalOperations);
+        if (import.meta.env.DEV) console.log('Opérations totales:', report.totalOperations);
         
         if (report.slowOperations.length > 0) {
           console.warn('Opérations lentes:', report.slowOperations);
         }
         
         if (report.recommendations.length > 0) {
-          console.log('Recommandations:', report.recommendations);
+          if (import.meta.env.DEV) console.log('Recommandations:', report.recommendations);
         }
         
         if (report.memoryUsage) {
-          console.log('Mémoire:', `${report.memoryUsage.used}MB/${report.memoryUsage.limit}MB`);
+          if (import.meta.env.DEV) console.log('Mémoire:', `${report.memoryUsage.used}MB/${report.memoryUsage.limit}MB`);
         }
         
         console.groupEnd();
@@ -306,7 +306,7 @@ class PerformanceMonitor {
    */
   setThresholds(newThresholds) {
     this.thresholds = { ...this.thresholds, ...newThresholds };
-    console.log('Seuils de performance mis à jour:', this.thresholds);
+    if (import.meta.env.DEV) console.log('Seuils de performance mis à jour:', this.thresholds);
   }
 }
 

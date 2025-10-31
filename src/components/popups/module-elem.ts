@@ -118,7 +118,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
     if (!this.loaded && cachedFiles.get()) {
       const cachedFilesForModule = cachedFiles.get().find(cache => cache.module === this.title);
       if (cachedFilesForModule) {
-        console.log('Récupération du cache au démarrage pour:', this.title);
+        
         this.files = cachedFilesForModule.files;
         this.loaded = true;
       }
@@ -126,7 +126,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
   }
 
   lastElemOfPath(path) {
-    let lastElem = path.substring(path.lastIndexOf('/') + 1);
+    const lastElem = path.substring(path.lastIndexOf('/') + 1);
     return lastElem;
   }
 
@@ -178,15 +178,15 @@ class ModuleElem extends SignalWatcher(LitElement) {
       cachedFiles.get().find(cache => cache.module === this.title);
 
     if (cachedFilesForModule) {
-      console.log('Utilisation des fichiers en cache pour le module:', this.title);
+      
       this.files = cachedFilesForModule.files;
       this.loaded = true;
       return;
     }
 
     // Sinon charger depuis le serveur
-    console.log('Chargement des fichiers depuis le serveur pour le module:', this.title);
-    let moduleDocRef = getModuleDocFromModuleName(this.title);
+    
+    const moduleDocRef = getModuleDocFromModuleName(this.title);
     let filesDoc = await getFilesDocFromModule(moduleDocRef);
     filesDoc = filesDoc.filter(fileDoc => !fileDoc.hidden);
     this.files = filesDoc;
@@ -221,7 +221,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
         ];
         cachedFiles.set(updatedCache);
       }
-      console.log('Fichiers mis en cache pour le module:', this.title);
+      
     }
   }
 

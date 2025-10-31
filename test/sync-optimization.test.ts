@@ -4,6 +4,18 @@
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
+// Mock des services
+vi.mock('@services/activity-sync', () => ({
+  smartSync: vi.fn()
+}));
+
+vi.mock('@controllers/Core/App', () => ({
+  app: {
+    workspace: { zoomLevel: 1 },
+    settings: { mainMenuWidth: 0 }
+  }
+}));
+
 // Mock IndexedDB pour les tests
 const mockIndexedDB = {
   open: vi.fn(),

@@ -25,7 +25,7 @@ export class Rotate45Tool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -71,7 +71,7 @@ export class Rotate45Tool extends Tool {
   }
 
   _executeAction() {
-    let centerCoord = this.selectedShape.centerCoordinates;
+    const centerCoord = this.selectedShape.centerCoordinates;
     this.involvedShapes.forEach((s) => {
       s.rotate(Math.PI / 4, centerCoord);
     });

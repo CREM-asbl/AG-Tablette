@@ -17,7 +17,7 @@ export class ToBackgroundTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -63,8 +63,8 @@ export class ToBackgroundTool extends Tool {
 
   _executeAction() {
     this.involvedShapes.forEach((s, index) => {
-      let shapeIndex = findIndexById(s.id);
-      let shape = app.mainCanvasLayer.shapes.splice(shapeIndex, 1)[0];
+      const shapeIndex = findIndexById(s.id);
+      const shape = app.mainCanvasLayer.shapes.splice(shapeIndex, 1)[0];
       app.mainCanvasLayer.shapes.splice(index, 0, shape);
     });
   }

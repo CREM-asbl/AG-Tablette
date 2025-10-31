@@ -22,7 +22,7 @@ const CONFIG = {
 const utils = {
   log: (message, ...args) => {
     if (CONFIG.DEBUG) {
-      console.log(`[SYNC] ${message}`, ...args);
+      
     }
   },
 

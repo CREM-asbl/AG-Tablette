@@ -17,7 +17,7 @@ export class BifaceTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -79,7 +79,7 @@ export class BifaceTool extends Tool {
   _executeAction() {
     // if ! all biface => set to biface
     // else set to not biface
-    let valueToSet = !this.involvedShapes.every((s) => {
+    const valueToSet = !this.involvedShapes.every((s) => {
       return s.isBiface;
     });
     this.involvedShapes.forEach((s) => {

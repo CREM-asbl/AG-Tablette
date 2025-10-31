@@ -30,18 +30,18 @@ export const Square = {
     () => new GeometryConstraint('isFree'),
   ],
   finishShape: (points, segments) => {
-    let externalAngle = (Math.PI * 2) / 4;
+    const externalAngle = (Math.PI * 2) / 4;
 
-    let length = points[0].coordinates.dist(points[1].coordinates);
+    const length = points[0].coordinates.dist(points[1].coordinates);
 
-    let startAngle = points[0].coordinates.angleWith(
+    const startAngle = points[0].coordinates.angleWith(
       points[1].coordinates,
     );
 
     for (let i = 0; i < 2; i++) {
-      let dx = length * Math.cos(startAngle - externalAngle * (i + 1));
-      let dy = length * Math.sin(startAngle - externalAngle * (i + 1));
-      let newCoordinates = points[i + 1].coordinates.add(
+      const dx = length * Math.cos(startAngle - externalAngle * (i + 1));
+      const dy = length * Math.sin(startAngle - externalAngle * (i + 1));
+      const newCoordinates = points[i + 1].coordinates.add(
         new Coordinates({ x: dx, y: dy }),
       );
       if (points.length == i + 2) {
@@ -65,11 +65,11 @@ export const Rectangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      let angle = points[0].coordinates.angleWith(
+      const angle = points[0].coordinates.angleWith(
         points[1].coordinates,
       );
-      let perpendicularAngle = angle + Math.PI / 2;
-      let lines = [
+      const perpendicularAngle = angle + Math.PI / 2;
+      const lines = [
         [
           points[1].coordinates,
           new Coordinates({
@@ -82,7 +82,7 @@ export const Rectangle = {
     }
   ],
   finishShape: (points, segments) => {
-    let newCoordinates = points[2].coordinates
+    const newCoordinates = points[2].coordinates
       .substract(points[1].coordinates)
       .add(points[0].coordinates);
     if (points.length == 3) {
@@ -105,7 +105,7 @@ export const Losange = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      let lines = [
+      const lines = [
         [
           points[0].coordinates,
           points[0].coordinates,
@@ -116,10 +116,10 @@ export const Losange = {
     }
   ],
   finishShape: (points, segments) => {
-    let diagonnalCenter = points[0].coordinates.middleWith(
+    const diagonnalCenter = points[0].coordinates.middleWith(
       points[2].coordinates,
     );
-    let newCoordinates = diagonnalCenter
+    const newCoordinates = diagonnalCenter
       .multiply(2)
       .substract(points[1].coordinates);
     if (points.length == 3) {
@@ -144,7 +144,7 @@ export const Parallelogram = {
     () => new GeometryConstraint('isFree'),
   ],
   finishShape: (points, segments) => {
-    let newCoordinates = points[2].coordinates
+    const newCoordinates = points[2].coordinates
       .substract(points[1].coordinates)
       .add(points[0].coordinates);
     if (points.length == 3) {
@@ -167,11 +167,11 @@ export const RightAngleTrapeze = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      let angle = points[0].coordinates.angleWith(
+      const angle = points[0].coordinates.angleWith(
         points[1].coordinates,
       );
-      let perpendicularAngle = angle + Math.PI / 2;
-      let lines = [
+      const perpendicularAngle = angle + Math.PI / 2;
+      const lines = [
         [
           points[1].coordinates,
           new Coordinates({
@@ -183,11 +183,11 @@ export const RightAngleTrapeze = {
       return new GeometryConstraint('isConstrained', lines);
     },
     (points) => {
-      let angle = points[1].coordinates.angleWith(
+      const angle = points[1].coordinates.angleWith(
         points[2].coordinates,
       );
-      let perpendicularAngle = angle + Math.PI / 2;
-      let lines = [
+      const perpendicularAngle = angle + Math.PI / 2;
+      const lines = [
         [
           points[2].coordinates,
           new Coordinates({
@@ -210,11 +210,11 @@ export const IsoscelesTrapeze = {
     () => new GeometryConstraint('isFree'),
   ],
   finishShape: (points, segments) => {
-    let projection = segments[0].projectionOnSegment(
+    const projection = segments[0].projectionOnSegment(
       points[2].coordinates,
     );
-    let middleOfSegment = segments[0].middle;
-    let newCoordinates = points[2].coordinates
+    const middleOfSegment = segments[0].middle;
+    const newCoordinates = points[2].coordinates
       .substract(projection.multiply(2))
       .add(middleOfSegment.multiply(2));
     if (points.length == 3) {
@@ -238,7 +238,7 @@ export const Trapeze = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      let lines = [
+      const lines = [
         [
           points[2].coordinates,
           points[2].coordinates

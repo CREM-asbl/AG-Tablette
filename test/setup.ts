@@ -50,7 +50,18 @@ vi.mock('@store/notions', () => ({
 }));
 
 vi.mock('@store/syncState', () => ({
-  syncInProgress: { value: false },
+syncInProgress: { value: false },
+}));
+
+vi.mock('@controllers/Core/App', () => ({
+  app: {
+    settings: {},
+    tool: {},
+    history: {},
+    workspace: {
+      lastKnownMouseCoordinates: { x: 0, y: 0 },
+    },
+  },
 }));
 
 // Mock window.dev_mode

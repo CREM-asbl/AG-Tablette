@@ -12,7 +12,7 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInSelectionDistance(c1, c2) {
-    let areInSelectionDistance = c1.equal(c2, app.settings.selectionDistance / app.workspace.zoomLevel);
+    const areInSelectionDistance = c1.equal(c2, app.settings.selectionDistance / app.workspace.zoomLevel);
     return areInSelectionDistance;
   }
 
@@ -22,7 +22,7 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInMagnetismDistance(c1, c2) {
-    let areInMagnetismDistance = c1.equal(c2, app.settings.magnetismDistance / app.workspace.zoomLevel);
+    const areInMagnetismDistance = c1.equal(c2, app.settings.magnetismDistance / app.workspace.zoomLevel);
     return areInMagnetismDistance;
   }
 
@@ -123,12 +123,12 @@ export class SelectManager {
   ) {
     if (!constraints.canSelect) return null;
 
-    let distCheckFunction = easySelection
+    const distCheckFunction = easySelection
       ? SelectManager.areCoordinatesInSelectionDistance
       : SelectManager.areCoordinatesInMagnetismDistance;
 
     // all points at the correct distance
-    let potentialPoints = [];
+    const potentialPoints = [];
     let allPoints = [...app.mainCanvasLayer.points];
 
     if (app.environment.name == 'Geometrie') {
@@ -210,8 +210,8 @@ export class SelectManager {
 
     // sort by distance, by shape height and by index in the shape, taking next criteria when equal
     constrainedPoints.sort((pt1, pt2) => {
-      let dist1 = pt1.coordinates.dist(mouseCoordinates);
-      let dist2 = pt2.coordinates.dist(mouseCoordinates);
+      const dist1 = pt1.coordinates.dist(mouseCoordinates);
+      const dist2 = pt2.coordinates.dist(mouseCoordinates);
       if (Math.abs(dist1 - dist2) > 0.001)
         return dist1 - dist2;
 
@@ -220,8 +220,8 @@ export class SelectManager {
       if (pt2.shape.layer == 'upper' && pt1.shape.layer == 'main')
         return 1;
 
-      let shapeIndex1 = ShapeManager.getShapeIndex(pt1.shape);
-      let shapeIndex2 = ShapeManager.getShapeIndex(pt2.shape);
+      const shapeIndex1 = ShapeManager.getShapeIndex(pt1.shape);
+      const shapeIndex2 = ShapeManager.getShapeIndex(pt2.shape);
       if (shapeIndex1 != shapeIndex2)
         return shapeIndex2 - shapeIndex1;
 
@@ -242,10 +242,10 @@ export class SelectManager {
         mouseCoordinates,
       );
       constrainedPoints.forEach((pt) => {
-        let shapeIndex = ShapeManager.getShapeIndex(pt.shape);
+        const shapeIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
           !shapes.every((s) => {
-            let otherShapeIndex = ShapeManager.getShapeIndex(s);
+            const otherShapeIndex = ShapeManager.getShapeIndex(s);
             return otherShapeIndex <= shapeIndex;
           })
         ) {
@@ -264,7 +264,7 @@ export class SelectManager {
     if (constraints.numberOfObjects == 'one')
       return constrainedPoints.find(pt => pt.isBehindShape == false);//notHiddenPoints[0];
     else if (constraints.numberOfObjects == 'allSuperimposed') {
-      let firstPointCoord = constrainedPoints.find(pt => pt.isBehindShape == false).coordinates;
+      const firstPointCoord = constrainedPoints.find(pt => pt.isBehindShape == false).coordinates;
       // let coordPt1 = constrainedPoints[firstPointIndex].coordinates//notHiddenPoints[0].coordinates;
       let i = 0;//1;
       for (; i < constrainedPoints.length; i++) {
@@ -353,10 +353,10 @@ export class SelectManager {
         mouseCoordinates,
       );
       constrainedSegments.forEach((seg) => {
-        let shapeIndex = ShapeManager.getShapeIndex(seg.shape);
+        const shapeIndex = ShapeManager.getShapeIndex(seg.shape);
         if (
           shapes.every((s) => {
-            let otherShapeIndex = ShapeManager.getShapeIndex(s);
+            const otherShapeIndex = ShapeManager.getShapeIndex(s);
             return otherShapeIndex <= shapeIndex;
           })
         )
@@ -410,12 +410,12 @@ export class SelectManager {
     if (shapes.length > 0) {
       if (shapes[0] instanceof RegularShape || shapes[0] instanceof StripLineShape || (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc()))
         return shapes[0]
-      let idx = shapes.findIndex(s => s instanceof RegularShape);
+      const idx = shapes.findIndex(s => s instanceof RegularShape);
       if (idx != -1)
         shapes = shapes.slice(0, idx);
-      let dists = shapes.map(s => {
+      const dists = shapes.map(s => {
         if (s instanceof LineShape) {
-          let projection = s.segments[0].projectionOnSegment(mouseCoordinates);
+          const projection = s.segments[0].projectionOnSegment(mouseCoordinates);
           return projection.dist(mouseCoordinates);
         } else if (s instanceof SinglePointShape) {
           return s.points[0].coordinates.dist(mouseCoordinates) / 10;
@@ -439,7 +439,7 @@ export class SelectManager {
    *          - Pour un point: un objet de type Point;
    */
   static selectObject(mouseCoordinates) {
-    let constr = app.workspace.selectionConstraints,
+    const constr = app.workspace.selectionConstraints,
       calls = {
         points: (mCoord, constr) => {
           return SelectManager.selectPoint(mCoord, constr);
@@ -463,7 +463,7 @@ export class SelectManager {
     }
 
     for (let i = 0; i < constr.priority.length; i++) {
-      let f = calls[constr.priority[i]],
+      const f = calls[constr.priority[i]],
         obj = f(mouseCoordinates, constr[constr.priority[i]]);
       if (obj) {
         window.dispatchEvent(
@@ -483,13 +483,13 @@ export function initSelectManager(app) {
     app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
   });
 
-  let click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
+  const click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
   click_all_shape_constr.eventType = 'click';
   click_all_shape_constr.shapes.canSelect = true;
-  let mousedown_all_shape_constr = SelectManager.getEmptySelectionConstraints();
+  const mousedown_all_shape_constr = SelectManager.getEmptySelectionConstraints();
   mousedown_all_shape_constr.eventType = 'mousedown';
   mousedown_all_shape_constr.shapes.canSelect = true;
-  let click_all_segments_constr = SelectManager.getEmptySelectionConstraints();
+  const click_all_segments_constr = SelectManager.getEmptySelectionConstraints();
   click_all_segments_constr.eventType = 'click';
   click_all_segments_constr.segments.canSelect = true;
   app.fastSelectionConstraints = {

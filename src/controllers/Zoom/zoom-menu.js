@@ -70,39 +70,39 @@ class ZoomMenu extends SignalWatcher(LitElement) {
 
   getZoomFromPosition(position) {
     // position will be between 0 and 100
-    let minp = 0;
-    let maxp = 100;
+    const minp = 0;
+    const maxp = 100;
 
     // The result should be between 0.1 an 10
-    let minv = Math.log10(app.settings.minZoomLevel);
-    let maxv = Math.log10(app.settings.maxZoomLevel);
+    const minv = Math.log10(app.settings.minZoomLevel);
+    const maxv = Math.log10(app.settings.maxZoomLevel);
 
     // calculate adjustment factor
-    let scale = (maxv - minv) / (maxp - minp);
+    const scale = (maxv - minv) / (maxp - minp);
 
-    let zoomLevel = Math.pow(10, minv + scale * (position - minp));
+    const zoomLevel = Math.pow(10, minv + scale * (position - minp));
     return zoomLevel;
   }
 
   getPositionFromZoom(zoomLevel) {
     // position will be between 0 and 100
-    let minp = 0;
-    let maxp = 100;
+    const minp = 0;
+    const maxp = 100;
 
     // The result should be between 0.1 an 10
-    let minv = Math.log10(app.settings.minZoomLevel);
-    let maxv = Math.log10(app.settings.maxZoomLevel);
+    const minv = Math.log10(app.settings.minZoomLevel);
+    const maxv = Math.log10(app.settings.maxZoomLevel);
 
     // calculate adjustment factor
-    let scale = (maxv - minv) / (maxp - minp);
+    const scale = (maxv - minv) / (maxp - minp);
 
-    let pos = (Math.log10(zoomLevel) - minv) / scale + minp;
+    const pos = (Math.log10(zoomLevel) - minv) / scale + minp;
     return pos;
   }
 
   showResult(sliderPos, applyZoom = true) {
     this.position = parseInt(sliderPos);
-    let zoom = this.getZoomFromPosition(sliderPos);
+    const zoom = this.getZoomFromPosition(sliderPos);
 
     const step = applyZoom ? 'execute' : 'zoom';
 

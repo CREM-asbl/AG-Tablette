@@ -11,7 +11,7 @@ export class Silhouette {
   constructor(shapes = [], loadFromSave = false, level = 1) {
     this.level = level;
     this.shapes = shapes.map((shape) => {
-      let shapeCopy = new RegularShape({
+      const shapeCopy = new RegularShape({
         ...shape,
         path: loadFromSave ? shape.path : shape.getSVGPath(false),
         layer: 'tangram',
@@ -35,9 +35,9 @@ export class Silhouette {
 
 
   saveToObject() {
-    let save = {
+    const save = {
       shapesData: app.tangramCanvasLayer.shapes.map((s) => {
-        let shapeData = s.saveData();
+        const shapeData = s.saveData();
         shapeData.segmentIds = undefined;
         shapeData.pointIds = undefined;
         return shapeData;
@@ -47,7 +47,7 @@ export class Silhouette {
   }
 
   get bounds() {
-    let bounds = Bounds.getOuterBounds(...this.shapes.map((s) => s.bounds));
+    const bounds = Bounds.getOuterBounds(...this.shapes.map((s) => s.bounds));
     return bounds;
   }
 

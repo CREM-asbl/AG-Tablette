@@ -275,7 +275,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     
-    let adjustedPoint = SelectManager.selectPoint(point.coordinates, constraints, false);
+    const adjustedPoint = SelectManager.selectPoint(point.coordinates, constraints, false);
     if (adjustedPoint) {
       point.coordinates = new Coordinates(adjustedPoint.coordinates);
       point.adjustedOn = adjustedPoint;
@@ -299,7 +299,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     constraints = SelectManager.getEmptySelectionConstraints().segments;
     constraints.canSelect = true;
     
-    let adjustedSegment = SelectManager.selectSegment(point.coordinates, constraints);
+    const adjustedSegment = SelectManager.selectSegment(point.coordinates, constraints);
     if (adjustedSegment) {
       point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
       point.adjustedOn = adjustedSegment;
@@ -313,14 +313,14 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     let adjustedCoordinates = this.constraints.projectionOnConstraints(point.coordinates);
 
     // Chercher des intersections avec d'autres segments
-    let constraints = SelectManager.getEmptySelectionConstraints().segments;
+    const constraints = SelectManager.getEmptySelectionConstraints().segments;
     constraints.canSelect = true;
     constraints.numberOfObjects = "allInDistance";
     
-    let adjustedSegments = SelectManager.selectSegment(adjustedCoordinates, constraints);
+    const adjustedSegments = SelectManager.selectSegment(adjustedCoordinates, constraints);
     
     if (adjustedSegments && this.constraints.segments) {
-      let adjustedSegment = adjustedSegments
+      const adjustedSegment = adjustedSegments
         .filter(seg => !seg.isParalleleWith(this.constraints.segments[0]))
         .sort((seg1, seg2) => {
           const dist1 = seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates);

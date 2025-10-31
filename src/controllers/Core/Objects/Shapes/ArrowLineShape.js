@@ -70,11 +70,11 @@ export class ArrowLineShape extends LineShape {
       }
     }
     if (forDrawing) {
-      let seg = this.segments[0];
+      const seg = this.segments[0];
       let arrowEndCoordinates = seg.vertexes[1].coordinates;
       let arrowAngle = seg.getAngleWithHorizontal() + Math.PI;
       if (seg.isArc()) {
-        let originVector = this.segments[0].getArcTangent(1);
+        const originVector = this.segments[0].getArcTangent(1);
         arrowAngle = Math.atan2(originVector.y, originVector.x) + Math.PI;
       }
       let firstTriangleCoord = arrowEndCoordinates.add(new Coordinates({
@@ -109,9 +109,9 @@ export class ArrowLineShape extends LineShape {
       return '';
     }
 
-    let path = this.getSVGPath();
+    const path = this.getSVGPath();
 
-    let attributes = {
+    const attributes = {
       d: path,
       stroke: this.strokeColor,
       fill: '#000',
@@ -121,12 +121,12 @@ export class ArrowLineShape extends LineShape {
     };
 
     let path_tag = '<path';
-    for (let [key, value] of Object.entries(attributes)) {
+    for (const [key, value] of Object.entries(attributes)) {
       path_tag += ' ' + key + '="' + value + '"';
     }
     path_tag += '/>\n';
 
-    let pointToDraw = [];
+    const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
       pointToDraw.push(this.segments[0].vertexes[0]);
@@ -144,13 +144,13 @@ export class ArrowLineShape extends LineShape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    let point_tags = pointToDraw.filter(pt => {
+    const point_tags = pointToDraw.filter(pt => {
       pt.visible &&
       pt.geometryIsVisible &&
       !pt.geometryIsHidden
     }).map(pt => pt.svg).join('\n');
 
-    let comment =
+    const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + path_tag + point_tags + '\n';
@@ -163,8 +163,8 @@ export class ArrowLineShape extends LineShape {
       if (
         this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
       ) {
-        let middlePointId = this.segments[i].vertexIds[1];
-        let ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
+        const middlePointId = this.segments[i].vertexIds[1];
+        const ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
         this.pointIds.splice(ptIdx, 1);
         removeObjectById(middlePointId);
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
@@ -193,7 +193,7 @@ export class ArrowLineShape extends LineShape {
   }
 
   saveData() {
-    let data = super.saveData();
+    const data = super.saveData();
     data.type = 'ArrowLineShape';
     return data;
   }
@@ -202,7 +202,7 @@ export class ArrowLineShape extends LineShape {
     if (!data.position) {
       data.position = 'main';
     }
-    let shape = new ArrowLineShape({
+    const shape = new ArrowLineShape({
       layer: data.position,
     });
     Object.assign(shape, data);

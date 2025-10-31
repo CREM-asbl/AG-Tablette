@@ -56,7 +56,7 @@ export class ReverseTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -91,7 +91,7 @@ export class ReverseTool extends Tool {
     this.removeListeners();
     app.upperCanvasLayer.removeAllObjects();
 
-    let selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
+    const selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
 
     this.shapesToCopy = [...this.involvedShapes];
     this.shapesToCopy.forEach(s => {
@@ -165,13 +165,13 @@ export class ReverseTool extends Tool {
         app.tool.currentStep == 'selectAxis') &&
       object instanceof Shape
     ) {
-      let selectedShape = object;
+      const selectedShape = object;
 
       this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
       if (app.environment.name == 'Geometrie') {
         this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(selectedShape);
         for (let i = 0; i < this.involvedShapes.length; i++) {
-          let currentShape = this.involvedShapes[i];
+          const currentShape = this.involvedShapes[i];
           if (currentShape.geometryObject?.geometryTransformationName != null) {
             window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
             return;
@@ -181,7 +181,7 @@ export class ReverseTool extends Tool {
             return;
           }
         }
-        let shapesToAdd = [];
+        const shapesToAdd = [];
         this.involvedShapes.forEach(s => {
           s.geometryObject?.geometryMultipliedChildShapeIds.forEach(sId => {
             shapesToAdd.push(findObjectById(sId));
@@ -201,14 +201,14 @@ export class ReverseTool extends Tool {
       app.tool.currentStep == 'selectAxis' &&
       object instanceof Segment
     ) {
-      let selectedAxis = object;
+      const selectedAxis = object;
       this.axisAngle = selectedAxis.getAngleWithHorizontal();
 
       this.shapesToMove.forEach((shape) => {
         shape.segments.forEach((seg) => {
           if (seg.arcCenter) {
-            let tangentCoord1 = seg.centerProjectionOnSegment(this.axisAngle);
-            let tangentPoint1 = new Point({
+            const tangentCoord1 = seg.centerProjectionOnSegment(this.axisAngle);
+            const tangentPoint1 = new Point({
               layer: 'upper',
               coordinates: tangentCoord1,
               visible: false,
@@ -221,10 +221,10 @@ export class ReverseTool extends Tool {
             });
             seg.tangentPoint1 = tangentPoint1;
 
-            let tangentCoord2 = seg.centerProjectionOnSegment(
+            const tangentCoord2 = seg.centerProjectionOnSegment(
               this.axisAngle + Math.PI / 2,
             );
-            let tangentPoint2 = new Point({
+            const tangentPoint2 = new Point({
               layer: 'upper',
               coordinates: tangentCoord2,
               visible: false,
@@ -241,7 +241,7 @@ export class ReverseTool extends Tool {
           }
         });
         shape.points.forEach(pt => {
-          let center = selectedAxis.projectionOnSegment(pt);
+          const center = selectedAxis.projectionOnSegment(pt);
 
           pt.startCoordinates = new Coordinates(pt.coordinates);
           pt.endCoordinates = new Coordinates({
@@ -263,7 +263,7 @@ export class ReverseTool extends Tool {
 
       app.upperCanvasLayer.shapes.forEach(s => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          let duplicateChild = findObjectById(duplicateChildId);
+          const duplicateChild = findObjectById(duplicateChildId);
           computeConstructionSpec(duplicateChild);
         });
       });
@@ -333,7 +333,7 @@ export class ReverseTool extends Tool {
     } else {
       console.error('orientation not supported : ', orientation);
     }
-    let axis = new LineShape({
+    const axis = new LineShape({
       layer: 'upper',
       path: path,
       strokeColor: this.symmetricalAxeColor,
@@ -367,7 +367,7 @@ export class ReverseTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'reverse') {
-      let progressInAnimation = Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
+      const progressInAnimation = Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
       this.shapesToMove.forEach((s) => {
         s.points.forEach(point => {
           if (point.startCoordinates)
@@ -379,14 +379,14 @@ export class ReverseTool extends Tool {
         })
         s.segments.forEach(seg => {
           if (seg.arcCenter) {
-            let point = seg.tangentPoint1
+            const point = seg.tangentPoint1
             if (point.startCoordinates)
               point.coordinates = point.startCoordinates.substract(
                 point.startCoordinates
                   .substract(point.endCoordinates)
                   .multiply(progressInAnimation)
               );
-            let point2 = seg.tangentPoint2
+            const point2 = seg.tangentPoint2
 
             if (point2.startCoordinates)
               point2.coordinates = point2.startCoordinates.substract(
@@ -418,20 +418,20 @@ export class ReverseTool extends Tool {
   }
 
   _executeAction() {
-    let selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
+    const selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
     app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => compareIdBetweenLayers(shapeToMove.id, editingShapeId))).forEach((sId, idxS) => {
-      let s = findObjectById(sId);
+      const s = findObjectById(sId);
       this.reverseShape(s, selectedAxis);
     });
     if (app.environment.name == 'Geometrie') {
       app.mainCanvasLayer.shapes.forEach(s => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          let duplicateChild = findObjectById(duplicateChildId);
+          const duplicateChild = findObjectById(duplicateChildId);
           computeConstructionSpec(duplicateChild);
         });
       });
       app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
-        let s = findObjectById(sId);
+        const s = findObjectById(sId);
         computeAllShapeTransform(s, 'main', false);
       });
     }
@@ -456,7 +456,7 @@ export class ReverseTool extends Tool {
    * @return {Point}          Nouvelles coordonnées
    */
   computePointPosition(point, selectedAxis) {
-    let center = selectedAxis.projectionOnSegment(point);
+    const center = selectedAxis.projectionOnSegment(point);
 
     //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
     point.coordinates = point.coordinates.add(

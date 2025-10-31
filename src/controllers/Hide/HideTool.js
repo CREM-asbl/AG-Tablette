@@ -15,7 +15,7 @@ export class HideTool extends Tool {
   }
 
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -68,20 +68,20 @@ export class HideTool extends Tool {
 
   _executeAction() {
     if (this.mode == 'shape') {
-      let workingShapes = this.involvedShapes.map((s) => findObjectById(addInfoToId(s.id, 'main')));
+      const workingShapes = this.involvedShapes.map((s) => findObjectById(addInfoToId(s.id, 'main')));
       workingShapes.forEach((s) => {
         s.geometryObject.geometryIsHidden = true;
       });
       app.mainCanvasLayer.shapes.forEach(s => {
         if (s instanceof SinglePointShape) {
-          let child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
+          const child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
           if (child)
             s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
         }
       });
       app.mainCanvasLayer.shapes.forEach(s => {
         if (s.geometryObject.geometryIsConstaintDraw) {
-          let child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
+          const child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
           if (child)
             s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
         }

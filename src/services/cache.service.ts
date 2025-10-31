@@ -109,7 +109,7 @@ export class CacheService {
 
       db.close();
 
-      console.log('[CACHE] Cache local vidé avec succès');
+      
 
       // Dispatch événement pour notifier les autres composants
       window.dispatchEvent(new CustomEvent('cache-cleared', {

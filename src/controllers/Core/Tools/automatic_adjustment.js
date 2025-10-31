@@ -22,7 +22,7 @@ function reduceAngle(angle) {
  */
 function computeTransformation(e1, e2, shapes, mainShape) {
   const maxRotateAngle = 0.25; //radians
-  let fix1 = e1.fixed.coordinates,
+  const fix1 = e1.fixed.coordinates,
     fix2 = e2.fixed.coordinates,
     moving1 = e1.moving.coordinates,
     moving2 = e2.moving.coordinates;
@@ -64,7 +64,7 @@ function checkCompatibility(e1, e2) {
   if (e1.moving.type == 'shapeCenter' || e2.moving.type == 'shapeCenter')
     return false;
 
-  let d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
+  const d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
     d2 = e1.moving.coordinates.dist(e2.moving.coordinates);
   if (Math.abs(d1 - d2) > 1) return false;
 
@@ -108,7 +108,7 @@ function bestPossibility(possibilities) {
  *
  */
 export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
-  let grid = gridStore.getState().isVisible,
+  const grid = gridStore.getState().isVisible,
     // tangram = app.tangram.isSilhouetteShown,
     automaticAdjustment = app.settings.automaticAdjustment,
     transformation = {
@@ -122,13 +122,13 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
   //   console.error('le Tangram et la Grille ne doivent pas être activés en même temps');
   // }
 
-  let shapesAndAllChildren = [...shapes];
+  const shapesAndAllChildren = [...shapes];
   if (app.environment.name == 'Geometrie') {
     shapes.forEach(s => getAllChildrenInGeometry(s, shapesAndAllChildren));
   }
 
   //Générer la liste des points du groupe de figures
-  let ptList = [];
+  const ptList = [];
   shapes.forEach((s) => {
     ptList.push(...s.vertexes, ...s.divisionPoints);
     if (s.isCenterShown) ptList.push(s.center);
@@ -146,7 +146,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
       const checkingCoordsInCanvasSpace = checkingCoordsInWorldSpace.toCanvasCoordinates();
 
       // getClosestGridPoint attend des coordonnées canevas et renvoie des coordonnées canevas
-      let closestGridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(checkingCoordsInCanvasSpace);
+      const closestGridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(checkingCoordsInCanvasSpace);
 
       if (closestGridPointInCanvasSpace) {
         // Reconvertir le point de grille trouvé en espace "monde" pour la cohérence
@@ -162,7 +162,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
         });
       }
     }
-    let constr = SelectManager.getEmptySelectionConstraints().points;
+    const constr = SelectManager.getEmptySelectionConstraints().points;
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
     if (blacklistShapeIds) {
@@ -173,7 +173,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
       });
     }
     constr.numberOfObjects = 'allInDistance';
-    let pts = SelectManager.selectPoint(point, constr, false);
+    const pts = SelectManager.selectPoint(point, constr, false);
     if (pts) {
       pts.forEach((pt) => {
         cPtListShape.push({
@@ -189,16 +189,16 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
     (pt) => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint',
   );
 
-  let possibilities = [];
+  const possibilities = [];
 
   if (grid) {
     //segment: 2 points de la grille ?
     for (let i = 0; i < cPtListGrid.length; i++) {
       for (let j = i + 1; j < cPtListGrid.length; j++) {
-        let e1 = cPtListGrid[i],
+        const e1 = cPtListGrid[i],
           e2 = cPtListGrid[j];
         if (checkCompatibility(e1, e2)) {
-          let t = computeTransformation(e1, e2, shapes, mainShape);
+          const t = computeTransformation(e1, e2, shapes, mainShape);
           possibilities.push(t);
         }
       }
@@ -213,10 +213,10 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
       //segment: 1 point de la grille et 1 point d'une autre figure ?
       for (let i = 0; i < cPtListGrid.length; i++) {
         for (let j = 0; j < cPtListBorder.length; j++) {
-          let e1 = cPtListGrid[i],
+          const e1 = cPtListGrid[i],
             e2 = cPtListBorder[j];
           if (checkCompatibility(e1, e2)) {
-            let t = computeTransformation(e1, e2, shapes, mainShape);
+            const t = computeTransformation(e1, e2, shapes, mainShape);
             possibilities.push(t);
           }
         }
@@ -232,10 +232,10 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
     //segment: 2 points d'autres figures ?
     for (let i = 0; i < cPtListBorder.length; i++) {
       for (let j = i + 1; j < cPtListBorder.length; j++) {
-        let e1 = cPtListBorder[i],
+        const e1 = cPtListBorder[i],
           e2 = cPtListBorder[j];
         if (checkCompatibility(e1, e2)) {
-          let t = computeTransformation(e1, e2, shapes, mainShape);
+          const t = computeTransformation(e1, e2, shapes, mainShape);
           possibilities.push(t);
         }
       }
@@ -251,7 +251,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
     let best = null,
       bestDist = 1000 * 1000;
     for (let i = 0; i < cPtListGrid.length; i++) {
-      let e = cPtListGrid[i];
+      const e = cPtListGrid[i];
       if (e.dist < bestDist) {
         bestDist = e.dist;
         best = e;
@@ -270,7 +270,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
     let best = null,
       bestDist = 1000 * 1000;
     for (let i = 0; i < cPtListShape.length; i++) {
-      let e = cPtListShape[i];
+      const e = cPtListShape[i];
       if (e.dist < bestDist) {
         bestDist = e.dist;
         best = e;

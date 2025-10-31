@@ -40,7 +40,7 @@ export class DuplicateTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -68,7 +68,7 @@ export class DuplicateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    let constraints = SelectManager.getEmptySelectionConstraints();
+    const constraints = SelectManager.getEmptySelectionConstraints();
     constraints.eventType = 'mousedown';
     constraints.shapes.canSelect = true;
     constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape && s.name != 'PointOnLine');
@@ -82,7 +82,7 @@ export class DuplicateTool extends Tool {
   selectSegment() {
     this.removeListeners();
 
-    let constraints = SelectManager.getEmptySelectionConstraints();
+    const constraints = SelectManager.getEmptySelectionConstraints();
     constraints.segments.canSelect = true;
     constraints.eventType = 'mousedown';
     app.workspace.selectionConstraints = constraints;
@@ -119,7 +119,7 @@ export class DuplicateTool extends Tool {
 
       this.involvedSegment = object;
 
-      let newShape = new LineShape({
+      const newShape = new LineShape({
         layer: 'upper',
         path: object.getSVGPath('no scale', true),
         id: undefined,
@@ -147,7 +147,7 @@ export class DuplicateTool extends Tool {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
-        let currentShape = this.involvedShapes[i];
+        const currentShape = this.involvedShapes[i];
         if (currentShape.name == 'Vector') {
           window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.' } }));
           return;
@@ -162,7 +162,7 @@ export class DuplicateTool extends Tool {
           ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
       );
       this.drawingShapes = this.involvedShapes.map((s) => {
-        let newShape = new s.constructor({
+        const newShape = new s.constructor({
           ...s,
           layer: 'upper',
           path: s.getSVGPath('no scale', false),
@@ -200,7 +200,7 @@ export class DuplicateTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
-      let transformation = app.workspace.lastKnownMouseCoordinates.substract(
+      const transformation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates,
       );
 
@@ -212,18 +212,18 @@ export class DuplicateTool extends Tool {
 
   _executeAction() {
     if (this.mode == 'point') {
-      let segment = this.segment;
+      const segment = this.segment;
       let coord;
-      let ratio = this.involvedPoint.points[0].ratio;
+      const ratio = this.involvedPoint.points[0].ratio;
       if (segment.shape.name == 'Circle') {
-        let refShape = segment.shape;
-        let angle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates) + ratio * Math.PI * 2;
+        const refShape = segment.shape;
+        const angle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates) + ratio * Math.PI * 2;
         coord = refShape.segments[0].arcCenter.coordinates.add({
           x: refShape.segments[0].radius * Math.cos(angle),
           y: refShape.segments[0].radius * Math.sin(angle),
         });
       } else if (segment.isArc()) {
-        let firstAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
+        const firstAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
         let secondAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[1].coordinates);
         if (secondAngle <= firstAngle) {
           secondAngle += Math.PI * 2;
@@ -237,8 +237,8 @@ export class DuplicateTool extends Tool {
           y: segment.arcCenter.coordinates.y + segment.radius * Math.sin(newAngle),
         });
       } else {
-        let firstPoint = segment.vertexes[0];
-        let secondPoint = segment.vertexes[1];
+        const firstPoint = segment.vertexes[0];
+        const secondPoint = segment.vertexes[1];
         const segLength = secondPoint.coordinates.substract(
           firstPoint.coordinates,
         );
@@ -247,7 +247,7 @@ export class DuplicateTool extends Tool {
         coord = firstPoint.coordinates.add(part);
       }
 
-      let shape = new SinglePointShape({
+      const shape = new SinglePointShape({
         layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'PointOnLine',
@@ -263,7 +263,7 @@ export class DuplicateTool extends Tool {
       segment.shape.geometryObject.geometryChildShapeIds.push(shape.id);
       this.involvedPoint.geometryObject.geometryDuplicateChildShapeIds.push(shape.id);
     } else if (this.mode == 'segment') {
-      let newShape = new LineShape({
+      const newShape = new LineShape({
         layer: 'main',
         familyName: 'duplicate',
         path: this.involvedSegment.getSVGPath('no scale', true),
@@ -282,7 +282,7 @@ export class DuplicateTool extends Tool {
         });
       this.involvedSegment.shape.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
 
-      let transformation = getShapeAdjustment([newShape], newShape);
+      const transformation = getShapeAdjustment([newShape], newShape);
 
       newShape.rotate(
         transformation.rotationAngle,
@@ -292,10 +292,10 @@ export class DuplicateTool extends Tool {
 
       computeConstructionSpec(newShape);
     } else {
-      let shapesList = [];
+      const shapesList = [];
 
       this.involvedShapes.forEach((s) => {
-        let newShape = new s.constructor({
+        const newShape = new s.constructor({
           ...s,
           layer: 'main',
           familyName: 'duplicate',
@@ -325,7 +325,7 @@ export class DuplicateTool extends Tool {
         newShape.translate(this.translation);
       });
 
-      let transformation = getShapeAdjustment(shapesList, shapesList[0]);
+      const transformation = getShapeAdjustment(shapesList, shapesList[0]);
 
       shapesList.forEach((newShape) => {
         newShape.rotate(
@@ -337,7 +337,7 @@ export class DuplicateTool extends Tool {
 
       //Si nécessaire, créer le userGroup
       if (shapesList.length > 1) {
-        let userGroup = new ShapeGroup(0, 1);
+        const userGroup = new ShapeGroup(0, 1);
         userGroup.shapesIds = shapesList.map((s) => s.id);
         GroupManager.addGroup(userGroup);
       }

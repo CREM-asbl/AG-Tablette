@@ -50,8 +50,8 @@ export class Coordinates {
   }
 
   equal(coordinates, precision = 0.001) {
-    let dist = this.dist(coordinates);
-    let isEqual = dist <= precision; // Changé de < à <=
+    const dist = this.dist(coordinates);
+    const isEqual = dist <= precision; // Changé de < à <=
     return isEqual;
   }
 
@@ -63,7 +63,7 @@ export class Coordinates {
    *                              l'intervalle [0, 2PI[
    */
   angleWith(coordinates) {
-    let coord = coordinates.substract(this);
+    const coord = coordinates.substract(this);
     //Trouver l'angle de coord par rapport à (0,0)
     // https://en.wikipedia.org/wiki/Atan2 -> voir image en haut à droite,
     //  sachant qu'ici l'axe des y est inversé.
@@ -78,7 +78,7 @@ export class Coordinates {
    * @param {*} coordinates
    */
   middleWith(coordinates) {
-    let middle = this.add(coordinates).multiply(1 / 2);
+    const middle = this.add(coordinates).multiply(1 / 2);
     return middle;
   }
 
@@ -88,7 +88,7 @@ export class Coordinates {
    * @param {Coordinates}  center
    */
   rotate(rotationAngle, center = Coordinates.nullCoordinates) {
-    let startAngle = center.angleWith(this),
+    const startAngle = center.angleWith(this),
       newAngle = startAngle + rotationAngle,
       dist = this.dist(center),
       newCoordinates = center.add(
@@ -101,9 +101,9 @@ export class Coordinates {
   }
 
   dist(coordinates) {
-    let pow1 = Math.pow(coordinates.x - this.x, 2),
+    const pow1 = Math.pow(coordinates.x - this.x, 2),
       pow2 = Math.pow(coordinates.y - this.y, 2);
-    let dist = Math.sqrt(pow1 + pow2);
+    const dist = Math.sqrt(pow1 + pow2);
     return dist;
   }
 
@@ -116,7 +116,7 @@ export class Coordinates {
   }
 
   static get nullCoordinates() {
-    let nullCoordinates = new Coordinates({ x: 0, y: 0 });
+    const nullCoordinates = new Coordinates({ x: 0, y: 0 });
     return nullCoordinates;
   }
 }

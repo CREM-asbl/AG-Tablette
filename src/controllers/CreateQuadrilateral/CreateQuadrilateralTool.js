@@ -37,7 +37,7 @@ export class CreateQuadrilateralTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
@@ -61,7 +61,7 @@ export class CreateQuadrilateralTool extends Tool {
 
   async drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
-    let quadrilateralsDef = await import(`./quadrilateralsDef.js`);
+    const quadrilateralsDef = await import(`./quadrilateralsDef.js`);
     this.quadrilateralDef = quadrilateralsDef[app.tool.selectedTemplate.name];
 
     this.points = [];
@@ -95,7 +95,7 @@ export class CreateQuadrilateralTool extends Tool {
 
 
   canvasMouseDown() {
-    let newCoordinates = new Coordinates(
+    const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
 
@@ -112,7 +112,7 @@ export class CreateQuadrilateralTool extends Tool {
     });
     this.numberOfPointsDrawn++;
     if (this.numberOfPointsDrawn > 1) {
-      let seg = new Segment({
+      const seg = new Segment({
         layer: 'upper',
         vertexIds: [
           this.points[this.numberOfPointsDrawn - 2].id,
@@ -123,12 +123,12 @@ export class CreateQuadrilateralTool extends Tool {
     }
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       if (this.numberOfPointsDrawn < 4) this.finishShape();
-      let seg = new Segment({
+      const seg = new Segment({
         layer: 'upper',
         vertexIds: [this.points[3].id, this.points[0].id],
       });
       this.segments.push(seg);
-      let shape = new RegularShape({
+      const shape = new RegularShape({
         layer: 'upper',
         segmentIds: this.segments.map((seg) => seg.id),
         pointIds: this.points.map((pt) => pt.id),
@@ -154,7 +154,7 @@ export class CreateQuadrilateralTool extends Tool {
   canvasMouseUp() {
     for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
       if (SelectManager.areCoordinatesInMagnetismDistance(this.points[i].coordinates, this.points[this.numberOfPointsDrawn - 1].coordinates)) {
-        let firstPointCoordinates = this.points[0].coordinates;
+        const firstPointCoordinates = this.points[0].coordinates;
         if (this.numberOfPointsDrawn == 2) {
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 1;
@@ -166,7 +166,7 @@ export class CreateQuadrilateralTool extends Tool {
           })];
           this.segments = [];
         } else if (this.numberOfPointsDrawn == 3) {
-          let secondPointCoordinates = this.points[1].coordinates;
+          const secondPointCoordinates = this.points[1].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 2;
           this.points = [new Point({
@@ -195,8 +195,8 @@ export class CreateQuadrilateralTool extends Tool {
             fillOpacity: 0,
           });
         } else if (this.numberOfPointsDrawn == 4) {
-          let secondPointCoordinates = this.points[1].coordinates;
-          let thirdPointCoordinates = this.points[2].coordinates;
+          const secondPointCoordinates = this.points[1].coordinates;
+          const thirdPointCoordinates = this.points[2].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 3;
           this.points = [new Point({
@@ -272,7 +272,7 @@ export class CreateQuadrilateralTool extends Tool {
       } else {
         constraints = SelectManager.getEmptySelectionConstraints().segments;
         constraints.canSelect = true;
-        let adjustedSegment = SelectManager.selectSegment(
+        const adjustedSegment = SelectManager.selectSegment(
           point.coordinates,
           constraints,
         );
@@ -286,15 +286,15 @@ export class CreateQuadrilateralTool extends Tool {
         point.coordinates,
       );
 
-      let constraints = SelectManager.getEmptySelectionConstraints().segments;
+      const constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
       constraints.numberOfObjects = "allInDistance";
-      let adjustedSegments = SelectManager.selectSegment(
+      const adjustedSegments = SelectManager.selectSegment(
         adjustedCoordinates,
         constraints,
       );
       if (adjustedSegments) {
-        let adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
+        const adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
           seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) > seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) ? 1 : -1
         )[0];
         if (adjustedSegment) {
@@ -351,7 +351,7 @@ export class CreateQuadrilateralTool extends Tool {
     path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
-    let shape = new RegularShape({
+    const shape = new RegularShape({
       layer: 'main',
       path: path,
       name: app.tool.selectedTemplate.name,

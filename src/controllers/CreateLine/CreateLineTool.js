@@ -40,7 +40,7 @@ export class CreateLineTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
@@ -136,7 +136,7 @@ export class CreateLineTool extends Tool {
   }
 
   canvasMouseDown() {
-    let newCoordinates = new Coordinates(
+    const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
 
@@ -155,15 +155,15 @@ export class CreateLineTool extends Tool {
       this.numberOfPointsDrawn++;
       if (app.tool.selectedTemplate.name == 'Strip') {
         if (this.numberOfPointsDrawn == this.numberOfPointsRequired() - 1) {
-          let seg = new Segment({
+          const seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[0].id, this.points[1].id],
             isInfinite: true,
           });
           this.segments.push(seg);
-          let familyName = 'Line';
-          let name = app.tool.selectedTemplate.name;
-          let shape = new LineShape({
+          const familyName = 'Line';
+          const name = app.tool.selectedTemplate.name;
+          const shape = new LineShape({
             layer: 'upper',
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
@@ -177,15 +177,15 @@ export class CreateLineTool extends Tool {
           });
         } else if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
           this.finishShape();
-          let seg = new Segment({
+          const seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[2].id, this.points[3].id],
             isInfinite: true,
           });
           this.segments.push(seg);
-          let familyName = 'Line';
-          let name = app.tool.selectedTemplate.name;
-          let shape = new LineShape({
+          const familyName = 'Line';
+          const name = app.tool.selectedTemplate.name;
+          const shape = new LineShape({
             layer: 'upper',
             segmentIds: this.segments.map((seg) => seg.id),
             pointIds: this.points.map((pt) => pt.id),
@@ -200,7 +200,7 @@ export class CreateLineTool extends Tool {
         }
       } else if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
         if (this.numberOfPointsDrawn < 2) this.finishShape();
-        let seg = new Segment({
+        const seg = new Segment({
           layer: 'upper',
           vertexIds: [this.points[0].id, this.points[1].id],
           // isInfinite: app.tool.selectedTemplate.endsWith('Parallele')
@@ -211,8 +211,8 @@ export class CreateLineTool extends Tool {
           seg.isInfinite = true;
         }
         this.segments.push(seg);
-        let familyName = 'Line';
-        let name = app.tool.selectedTemplate.name;
+        const familyName = 'Line';
+        const name = app.tool.selectedTemplate.name;
         let shape = new LineShape({
           layer: 'upper',
           segmentIds: this.segments.map((seg) => seg.id),
@@ -242,7 +242,7 @@ export class CreateLineTool extends Tool {
 
   canvasMouseUp() {
     if (this.numberOfPointsDrawn == 2 && SelectManager.areCoordinatesInMagnetismDistance(this.points[0].coordinates, this.points[1].coordinates)) {
-      let firstPointCoordinates = this.points[0].coordinates;
+      const firstPointCoordinates = this.points[0].coordinates;
       this.numberOfPointsDrawn = 1;
       app.upperCanvasLayer.removeAllObjects();
       this.points[0] = new Point({
@@ -288,7 +288,7 @@ export class CreateLineTool extends Tool {
       } else {
         constraints = SelectManager.getEmptySelectionConstraints().segments;
         constraints.canSelect = true;
-        let adjustedSegment = SelectManager.selectSegment(
+        const adjustedSegment = SelectManager.selectSegment(
           point.coordinates,
           constraints,
         );
@@ -302,15 +302,15 @@ export class CreateLineTool extends Tool {
         point.coordinates,
       );
 
-      let constraints = SelectManager.getEmptySelectionConstraints().segments;
+      const constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
       constraints.numberOfObjects = "allInDistance";
-      let adjustedSegments = SelectManager.selectSegment(
+      const adjustedSegments = SelectManager.selectSegment(
         adjustedCoordinates,
         constraints,
       );
       if (adjustedSegments) {
-        let adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
+        const adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
           seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) > seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) ? 1 : -1
         )[0];
         if (adjustedSegment) {
@@ -362,19 +362,19 @@ export class CreateLineTool extends Tool {
   finishShape() {
     let newCoordinates;
     if (app.tool.selectedTemplate.name == 'ParalleleStraightLine') {
-      let referenceSegment = findObjectById(this.geometryParentObjectId);
+      const referenceSegment = findObjectById(this.geometryParentObjectId);
       newCoordinates = this.points[0].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
         .add(referenceSegment.vertexes[1].coordinates);
     } else if (app.tool.selectedTemplate.name == 'PerpendicularStraightLine') {
-      let referenceSegment = findObjectById(this.geometryParentObjectId);
-      let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+      const referenceSegment = findObjectById(this.geometryParentObjectId);
+      const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
       newCoordinates = this.points[0].coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
     } else if (app.tool.selectedTemplate.name == 'Strip') {
-      let referenceSegment = this.segments[0];
+      const referenceSegment = this.segments[0];
       newCoordinates = this.points[2].coordinates
         .substract(referenceSegment.vertexes[0].coordinates)
         .add(referenceSegment.vertexes[1].coordinates);
@@ -402,24 +402,24 @@ export class CreateLineTool extends Tool {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 1) {
       if (app.tool.selectedTemplate.name.startsWith('Parallele')) {
-        let referenceSegment = findObjectById(
+        const referenceSegment = findObjectById(
           this.geometryParentObjectId
         );
-        let secondCoordinates = this.points[0].coordinates
+        const secondCoordinates = this.points[0].coordinates
           .substract(referenceSegment.vertexes[0].coordinates)
           .add(referenceSegment.vertexes[1].coordinates);
-        let lines = [[this.points[0].coordinates, secondCoordinates]];
+        const lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
       } else if (app.tool.selectedTemplate.name.startsWith('Perpendicular')) {
-        let referenceSegment = findObjectById(
+        const referenceSegment = findObjectById(
           this.geometryParentObjectId
         );
-        let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
-        let secondCoordinates = this.points[0].coordinates.add(new Coordinates({
+        const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+        const secondCoordinates = this.points[0].coordinates.add(new Coordinates({
           x: 100 * Math.cos(angle),
           y: 100 * Math.sin(angle),
         }));
-        let lines = [[this.points[0].coordinates, secondCoordinates]];
+        const lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
       } else {
         this.constraints = new GeometryConstraint('isFree');
@@ -503,7 +503,7 @@ export class CreateLineTool extends Tool {
 
     if (this.geometryParentObjectId) {
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId;
-      let reference = findObjectById(this.geometryParentObjectId);
+      const reference = findObjectById(this.geometryParentObjectId);
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }
 

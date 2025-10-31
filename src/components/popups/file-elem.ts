@@ -98,7 +98,7 @@ class FileElem extends SignalWatcher(LitElement) {
   }
 
   openFile() {
-    console.log(`Ouverture du fichier: ${this.title}, environnement: ${this.environment}`);
+    
     this.dispatchEvent(new CustomEvent('close-popup', { bubbles: true, composed: true }));
     openFileFromServer(this.title);
   }

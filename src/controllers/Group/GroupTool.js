@@ -23,7 +23,7 @@ export class GroupTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -56,7 +56,7 @@ export class GroupTool extends Tool {
     this.removeListeners();
 
     app.mainCanvasLayer.shapes.map((s) => {
-      let currentGroup = GroupManager.getShapeGroup(s);
+      const currentGroup = GroupManager.getShapeGroup(s);
       if (currentGroup != null) {
         new s.constructor({
           ...s,
@@ -103,7 +103,7 @@ export class GroupTool extends Tool {
 
   objectSelected(shape) {
     if (app.tool.currentStep == 'listen') {
-      let userGroup = GroupManager.getShapeGroup(shape);
+      const userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
         setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
@@ -126,7 +126,7 @@ export class GroupTool extends Tool {
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
     } else if (app.tool.currentStep == 'selectSecondShape') {
-      let userGroup = GroupManager.getShapeGroup(shape);
+      const userGroup = GroupManager.getShapeGroup(shape);
       if (shape.id == this.firstShapeId) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
@@ -188,7 +188,7 @@ export class GroupTool extends Tool {
       this.group.addShape(this.firstShapeId);
     } else {
       // merge
-      let group1 = this.group,
+      const group1 = this.group,
         group2 = this.secondGroup;
 
       group1.shapesIds = [...group1.shapesIds, ...group2.shapesIds];
@@ -196,7 +196,7 @@ export class GroupTool extends Tool {
     }
     app.upperCanvasLayer.removeAllObjects();
     app.mainCanvasLayer.shapes.map((s) => {
-      let currentGroup = GroupManager.getShapeGroup(s);
+      const currentGroup = GroupManager.getShapeGroup(s);
       if (currentGroup != null) {
         new s.constructor({
           ...s,
@@ -212,7 +212,7 @@ export class GroupTool extends Tool {
             return pt.color;
           }),
         });
-        if (window.dev_mode) console.info(s.getSVGPath('no scale', false, false));
+        console.info(s.getSVGPath('no scale', false, false));
       }
     });
 

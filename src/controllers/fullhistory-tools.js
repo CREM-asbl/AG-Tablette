@@ -302,12 +302,12 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
     this.tools = app.fullHistory.steps
       .filter((step) => (step.type == 'tool-changed') || step.type == 'undo' || step.type == 'redo')
       .map((step) => {
-        let time = step.timeStamp - previousStepTimestamp;
+        const time = step.timeStamp - previousStepTimestamp;
         previousStepTimestamp = step.timeStamp;
         let name = step.detail.title;
         if (step.type == 'undo') name = 'Annuler';
         if (step.type == 'redo') name = 'Refaire';
-        if (window.dev_mode) console.log(step);
+        
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;
@@ -315,7 +315,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
     app.fullHistory.steps
       .filter((step) => step.type == 'add-fullstep')
       .forEach((step) => {
-        let timeStamp = step.timeStamp;
+        const timeStamp = step.timeStamp;
         while (this.tools[toolIndex + 1]?.timeStamp < timeStamp) {
           toolIndex++;
           previousStepTimestamp = this.tools[toolIndex].timeStamp;
@@ -457,7 +457,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
   };
 
   _clickHandler(event) {
-    let index = parseInt(this.index);
+    const index = parseInt(this.index);
     let idx;
     switch (event.target.name) {
       case 'action-button':

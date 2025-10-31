@@ -31,7 +31,7 @@ export class HistoryManager {
       console.info('Nothing to undo');
       return;
     }
-    let index = app.history.index - 1;
+    const index = app.history.index - 1;
     let data;
     if (index == -1) {
       data = app.history.startSituation;
@@ -119,8 +119,8 @@ export class HistoryManager {
       console.info('Nothing to redo');
       return;
     }
-    let index = app.history.index + 1;
-    let data = app.history.steps[index];
+    const index = app.history.index + 1;
+    const data = app.history.steps[index];
     app.workspace.initFromObject(data); // This might use data.settings
 
     const historicalSettings = { ...data.settings }; // Settings from the history step to redo
@@ -172,20 +172,20 @@ export class HistoryManager {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   static addStep() {
-    let steps = [...app.history.steps];
+    const steps = [...app.history.steps];
     steps.splice(
       app.history.index + 1,
       app.history.steps.length,
       HistoryManager.saveData(),
     );
-    let index = steps.length - 1;
+    const index = steps.length - 1;
 
     HistoryManager.reduceSize(steps, index);
     setState({ history: { ...app.history, steps, index } });
   }
 
   static saveData() {
-    let data = app.workspace.data; // This is the object that will be stored in history.
+    const data = app.workspace.data; // This is the object that will be stored in history.
     // It typically includes shapes, segments, points, etc.
     const gridState = gridStore.getState();
 
@@ -229,7 +229,7 @@ export class HistoryManager {
     if (keys1.length !== keys2.length) {
       return false;
     }
-    for (let key of keys1) {
+    for (const key of keys1) {
       if (object1[key] instanceof Object) {
         if (!HistoryManager.isObjectEqual(object1[key], object2[key])) {
           return false;
@@ -246,8 +246,8 @@ export class HistoryManager {
     if (!steps[index] || !steps[index].objects || !steps[index].objects[objectType + 'Data']) return;
     if (!steps[index - 1] || !steps[index - 1].objects || !steps[index - 1].objects[objectType + 'Data']) return;
 
-    for (let indexOfObject in steps[index].objects[objectType + 'Data']) {
-      let objectData = steps[index].objects[objectType + 'Data'][indexOfObject];
+    for (const indexOfObject in steps[index].objects[objectType + 'Data']) {
+      const objectData = steps[index].objects[objectType + 'Data'][indexOfObject];
       let indexOfReference = index - 1;
       let previousObjectData = steps[index - 1].objects[objectType + 'Data'].find(sData => sData.id == objectData.id);
       if (previousObjectData) {

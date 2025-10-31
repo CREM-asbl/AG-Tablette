@@ -125,9 +125,9 @@ export class MergeTool extends Tool {
         this.firstShapeId = null;
         setState({ tool: { ...app.tool, currentStep: 'listen' } });
       } else {
-        let group = ShapeManager.getAllBindedShapes(shape);
+        const group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
-          let firstShape = findObjectById(
+          const firstShape = findObjectById(
             this.firstShapeId,
           );
           this.involvedShapes = [...group, firstShape];
@@ -148,10 +148,10 @@ export class MergeTool extends Tool {
         } else {
           this.secondShapeId = shape.id;
 
-          let firstShape = findObjectById(
+          const firstShape = findObjectById(
             this.firstShapeId,
           );
-          let secondShape = findObjectById(
+          const secondShape = findObjectById(
             this.secondShapeId,
           );
 
@@ -191,7 +191,7 @@ export class MergeTool extends Tool {
 
   _executeAction() {
     if (this.mode == 'twoShapes') {
-      let shape1 = ShapeManager.getShapeById(this.firstShapeId),
+      const shape1 = ShapeManager.getShapeById(this.firstShapeId),
         shape2 = ShapeManager.getShapeById(this.secondShapeId);
 
       const newSegments = this.createNewSegments(shape1, shape2);
@@ -210,11 +210,11 @@ export class MergeTool extends Tool {
   }
 
   getPathFromGroup() {
-    let segmentsList = this.checkGroupMerge(this.involvedShapes);
+    const segmentsList = this.checkGroupMerge(this.involvedShapes);
 
     if (!segmentsList) return null;
 
-    let path = this.linkNewSegments(segmentsList);
+    const path = this.linkNewSegments(segmentsList);
 
     return path;
   }
@@ -231,7 +231,7 @@ export class MergeTool extends Tool {
     )
       return null;
 
-    let oldSegments = shapes
+    const oldSegments = shapes
       .map((s) =>
         s.segments.map((seg) => {
           return new Segment({
@@ -247,9 +247,9 @@ export class MergeTool extends Tool {
       )
       .flat();
 
-    let cutSegments = oldSegments
+    const cutSegments = oldSegments
       .map((segment, idx, segments) => {
-        let pointsInside = segments
+        const pointsInside = segments
           .filter((seg, i) => i != idx)
           .map((seg) =>
             seg.points.filter((pt1) =>
@@ -271,12 +271,12 @@ export class MergeTool extends Tool {
       .flat();
 
     // delete common segments
-    let newSegments = [];
+    const newSegments = [];
     cutSegments.forEach((seg, i, segments) => {
       if (seg.used) {
         return;
       }
-      let segs = segments
+      const segs = segments
         .map((segment) => (segment.equal(seg) ? segment : undefined))
         .filter(Boolean);
       if (segs.length == 1) newSegments.push(seg);
@@ -291,8 +291,8 @@ export class MergeTool extends Tool {
    * @returns {Segment[]}  les segments temporaires (ni fusionnés ni ordonnés)
    */
   createNewSegments(shape1, shape2) {
-    let segments1 = shape1.segments.map((seg) => {
-      let segmentCopy = new Segment({
+    const segments1 = shape1.segments.map((seg) => {
+      const segmentCopy = new Segment({
         layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
@@ -304,8 +304,8 @@ export class MergeTool extends Tool {
       });
       return segmentCopy;
     });
-    let segments2 = shape2.segments.map((seg) => {
-      let segmentCopy = new Segment({
+    const segments2 = shape2.segments.map((seg) => {
+      const segmentCopy = new Segment({
         layer: 'invisible',
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
@@ -322,8 +322,8 @@ export class MergeTool extends Tool {
 
     for (let i = 0; i < segments1.length; i++) {
       for (let j = 0; j < segments2.length; j++) {
-        let firstSegment = segments1[i];
-        let secondSegment = segments2[j];
+        const firstSegment = segments1[i];
+        const secondSegment = segments2[j];
         if (firstSegment.isArc() || secondSegment.isArc()) {
           continue;
         }
@@ -335,7 +335,7 @@ export class MergeTool extends Tool {
         ) {
           secondSegment.reverse();
         }
-        let commonCoordinates = this.getCommonCoordinates(
+        const commonCoordinates = this.getCommonCoordinates(
           firstSegment,
           secondSegment,
         );
@@ -412,7 +412,7 @@ export class MergeTool extends Tool {
         }
       }
     }
-    let segments = [...segments1, ...segments2];
+    const segments = [...segments1, ...segments2];
     return segments;
   }
 
@@ -450,10 +450,10 @@ export class MergeTool extends Tool {
    * @returns {Segment[]}              les segments définitifs
    */
   linkNewSegments(segmentsList) {
-    let startCoordinates = segmentsList[0].vertexes[0].coordinates;
+    const startCoordinates = segmentsList[0].vertexes[0].coordinates;
     let path = ['M', startCoordinates.x, startCoordinates.y];
     let segmentUsed = 0;
-    let numberOfSegments = segmentsList.length;
+    const numberOfSegments = segmentsList.length;
 
     let nextSegmentIndex = 0;
     this.addPathElem(path, segmentsList[0]);
@@ -477,7 +477,7 @@ export class MergeTool extends Tool {
         return null;
       }
       nextSegmentIndex = potentialSegmentIdx[0];
-      let nextSegment = segmentsList[nextSegmentIndex];
+      const nextSegment = segmentsList[nextSegmentIndex];
       let mustReverse = false;
       if (
         !nextSegment.vertexes[0].coordinates.equal(this.lastUsedCoordinates)
@@ -507,7 +507,7 @@ export class MergeTool extends Tool {
       if (mustReverse) [firstCoord, secondCoord] = [secondCoord, firstCoord];
       path.push('L', secondCoord.x, secondCoord.y);
     } else {
-      let centerCoordinates = segment.arcCenter.coordinates;
+      const centerCoordinates = segment.arcCenter.coordinates;
       let radius = centerCoordinates.dist(secondCoord),
         firstAngle = centerCoordinates.angleWith(firstCoord),
         secondAngle = centerCoordinates.angleWith(secondCoord);
@@ -544,7 +544,7 @@ export class MergeTool extends Tool {
    * @param {String} path
    */
   createNewShape(path, ...shapes) {
-    let newShape = new shapes[0].constructor({
+    const newShape = new shapes[0].constructor({
       layer: 'main',
       path: path,
       name: 'Custom',

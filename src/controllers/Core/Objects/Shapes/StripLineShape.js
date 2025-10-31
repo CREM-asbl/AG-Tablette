@@ -62,8 +62,8 @@ export class StripLineShape extends Shape {
 
     let nextVertexCoordinates = null;
 
-    let createLineTo = (x, y) => {
-      let coordinates = new Coordinates({ x, y });
+    const createLineTo = (x, y) => {
+      const coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
       if (lastVertex == undefined || lastVertex.type != 'vertex' || this.points[this.points.length - 1].coordinates.equal(coordinates)) {
@@ -162,7 +162,7 @@ export class StripLineShape extends Shape {
             });
           }
 
-          let arcCenter = this.getArcCenterFromSVG(
+          const arcCenter = this.getArcCenterFromSVG(
             firstVertex,
             lastVertex,
             rx,
@@ -216,8 +216,8 @@ export class StripLineShape extends Shape {
    * @param  {Coordinates}  coord  les coordonnées
    */
   isCoordinatesInPath(coord) {
-    let firstProjection = this.segments[0].projectionOnSegment(coord);
-    let secondProjection = this.segments[1].projectionOnSegment(coord);
+    const firstProjection = this.segments[0].projectionOnSegment(coord);
+    const secondProjection = this.segments[1].projectionOnSegment(coord);
     if (firstProjection.x == secondProjection.x) {
       return (firstProjection.y - coord.y > 0) ^ (secondProjection.y - coord.y > 0);
     } else {
@@ -238,7 +238,7 @@ export class StripLineShape extends Shape {
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join(' ').split(' ');
     if (forDrawing || forDrawingButInvisible) {
-      let deletedElements = path.splice(6, 3);
+      const deletedElements = path.splice(6, 3);
       path.push('L', deletedElements[1], deletedElements[2]);
       path.push('L', path[1], path[2]);
     }
@@ -261,9 +261,9 @@ export class StripLineShape extends Shape {
       return '';
     }
 
-    let shapePath = this.getSVGPath('scale', true, true);
+    const shapePath = this.getSVGPath('scale', true, true);
 
-    let fillAttributes = {
+    const fillAttributes = {
       d: shapePath,
       fill: this.fillColor,
       'fill-opacity': this.fillOpacity,
@@ -272,22 +272,22 @@ export class StripLineShape extends Shape {
     };
 
     let fillPath = '<path';
-    for (let [key, value] of Object.entries(fillAttributes)) {
+    for (const [key, value] of Object.entries(fillAttributes)) {
       fillPath += ' ' + key + '="' + value + '"';
     }
     fillPath += '/>\n';
 
     let totalStrokePath = '';
     this.segments.forEach(seg => {
-      let segmentPath = seg.getSVGPath('scale', true);
-      let segmentColor = seg.color ? seg.color : this.strokeColor;
+      const segmentPath = seg.getSVGPath('scale', true);
+      const segmentColor = seg.color ? seg.color : this.strokeColor;
       let strokeWidth = 1;
       if (seg.width != 1)
         strokeWidth = seg.width;
       else
         strokeWidth = this.strokeWidth
 
-      let strokeAttributes = {
+      const strokeAttributes = {
         d: segmentPath,
         stroke: segmentColor,
         'fill-opacity': 0,
@@ -296,14 +296,14 @@ export class StripLineShape extends Shape {
       };
 
       let strokePath = '<path';
-      for (let [key, value] of Object.entries(strokeAttributes)) {
+      for (const [key, value] of Object.entries(strokeAttributes)) {
         strokePath += ' ' + key + '="' + value + '"';
       }
       strokePath += '/>\n';
       totalStrokePath += strokePath;
     });
 
-    let pointToDraw = [];
+    const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
       if (this.isSegment())
       pointToDraw.push(this.segments[0].vertexes[0]);
@@ -321,20 +321,20 @@ export class StripLineShape extends Shape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    let point_tags = pointToDraw.filter(pt => {
+    const point_tags = pointToDraw.filter(pt => {
       pt.visible &&
       pt.geometryIsVisible &&
       !pt.geometryIsHidden
     }).map(pt => pt.svg).join('\n');
 
-    let comment =
+    const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
 
     return comment + fillPath + totalStrokePath + point_tags + '\n';
   }
 
   saveData() {
-    let data = super.saveData();
+    const data = super.saveData();
     data.type = 'StripLineShape';
     if (this.fillColor !== '#aaa')
       data.fillColor = this.fillColor;
@@ -347,7 +347,7 @@ export class StripLineShape extends Shape {
     if (!data.position) {
       data.position = 'main';
     }
-    let shape = new StripLineShape({
+    const shape = new StripLineShape({
       layer: data.position,
     });
     Object.assign(shape, data);

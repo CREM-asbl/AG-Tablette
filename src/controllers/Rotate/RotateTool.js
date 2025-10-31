@@ -40,7 +40,7 @@ export class RotateTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>
@@ -94,7 +94,7 @@ export class RotateTool extends Tool {
     if (app.environment.name == 'Geometrie') {
       this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
-        let currentShape = this.involvedShapes[i];
+        const currentShape = this.involvedShapes[i];
         if (currentShape.geometryObject?.geometryTransformationName != null) {
           window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
           return;
@@ -104,7 +104,7 @@ export class RotateTool extends Tool {
           return;
         }
       }
-      let shapesToAdd = [];
+      const shapesToAdd = [];
       this.involvedShapes.forEach(s => {
         s.geometryObject?.geometryMultipliedChildShapeIds.forEach(sId => {
           shapesToAdd.push(findObjectById(sId));
@@ -149,7 +149,7 @@ export class RotateTool extends Tool {
 
     app.upperCanvasLayer.shapes.forEach(s => {
       s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-        let duplicateChild = findObjectById(duplicateChildId);
+        const duplicateChild = findObjectById(duplicateChildId);
         computeConstructionSpec(duplicateChild);
       });
     });
@@ -170,7 +170,7 @@ export class RotateTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'rotate') {
-      let newAngle = this.center.angleWith(
+      const newAngle = this.center.angleWith(
           app.workspace.lastKnownMouseCoordinates,
         ),
         diffAngle = newAngle - this.lastAngle;
@@ -185,13 +185,13 @@ export class RotateTool extends Tool {
   }
 
   _executeAction() {
-    let centerCoordinates = this.selectedShape.centerCoordinates;
-    let adjustment = getShapeAdjustment(
+    const centerCoordinates = this.selectedShape.centerCoordinates;
+    const adjustment = getShapeAdjustment(
       this.shapesToMove,
       this.selectedShape,
     );
     app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == addInfoToId(editingShapeId, 'upper'))).forEach((sId, idxS) => {
-      let s = findObjectById(sId);
+      const s = findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
         pt.coordinates = new Coordinates(this.shapesToMove[idxS].points[idxPt].coordinates);
         if (this.pointOnLineRatio)
@@ -207,12 +207,12 @@ export class RotateTool extends Tool {
     if (app.environment.name == 'Geometrie') {
       app.mainCanvasLayer.shapes.forEach(s => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          let duplicateChild = findObjectById(duplicateChildId);
+          const duplicateChild = findObjectById(duplicateChildId);
           computeConstructionSpec(duplicateChild);
         });
       });
       app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
-        let s = findObjectById(sId);
+        const s = findObjectById(sId);
         computeAllShapeTransform(s, 'main', false);
       });
     }

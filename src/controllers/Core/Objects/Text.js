@@ -57,12 +57,12 @@ export class Text {
 
   updateMessage() {
     if (this.type == 'group') {
-      let shape = app.mainCanvasLayer.shapes.find(
+      const shape = app.mainCanvasLayer.shapes.find(
         (s) => s.id == this.referenceId,
       );
-      let group = GroupManager.getShapeGroup(shape);
+      const group = GroupManager.getShapeGroup(shape);
       if (group == null) return;
-      let groupIndex = GroupManager.getGroupIndex(group);
+      const groupIndex = GroupManager.getGroupIndex(group);
       if (groupIndex != -1) this.message = 'Groupe ' + (groupIndex + 1);
     }
   }

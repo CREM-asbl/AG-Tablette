@@ -10,7 +10,7 @@ const objectTypeOrder = ['shape', 'segment', 'point'];
  * @param {String} colors couleurs (RGB) sous la figure #xxxxxx ou #xxx (lettres minuscules ou majuscules)
  */
 export function getAverageColor(...colors) {
-  let regex = /^#([0-9a-fA-F]{3}){1,2}$/,
+  const regex = /^#([0-9a-fA-F]{3}){1,2}$/,
     arglen = colors.length;
   for (let i = 0; i < arglen; i++) {
     if (!regex.test(colors[i])) {
@@ -20,7 +20,7 @@ export function getAverageColor(...colors) {
       return;
     }
   }
-  let usableColors = colors.map((color) => {
+  const usableColors = colors.map((color) => {
     if (color.length == 4) {
       return (
         '#' +
@@ -62,7 +62,7 @@ export function getAverageColor(...colors) {
  * @param color: couleur (RGB) sous la figure #xxxxxx ou #xxx (lettres minuscules ou majuscules)
  */
 export function getComplementaryColor(color) {
-  let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+  const regex = /^#([0-9a-fA-F]{3}){1,2}$/;
   if (!regex.test(color)) {
     console.error(
       "App.getComplementaryColor: la couleur n'a pas été reconnue: " + color,
@@ -86,9 +86,9 @@ export function getComplementaryColor(color) {
       color[3];
   color = color.toUpperCase();
 
-  let hexTodec = function (hex) {
+  const hexTodec = function (hex) {
     //transfigure un nombre hexadécimal à 2 chiffres en un nombre décimal
-    let conversion = {
+    const conversion = {
       0: 0,
       1: 1,
       2: 2,
@@ -108,9 +108,9 @@ export function getComplementaryColor(color) {
     };
     return conversion[hex[0]] * 16 + conversion[hex[1]];
   };
-  let decToHex = function (dec) {
+  const decToHex = function (dec) {
     //transfigure un nombre décimal de 0 à 255 en hexadécimal
-    let conversion = [
+    const conversion = [
       '0',
       '1',
       '2',
@@ -131,7 +131,7 @@ export function getComplementaryColor(color) {
     return conversion[parseInt(dec / 16)] + conversion[dec % 16];
   };
 
-  let red = 255 - hexTodec(color[1] + color[2]),
+  const red = 255 - hexTodec(color[1] + color[2]),
     green = 255 - hexTodec(color[3] + color[4]),
     blue = 255 - hexTodec(color[5] + color[6]);
 
@@ -139,7 +139,7 @@ export function getComplementaryColor(color) {
 }
 
 export function RGBFromColor(color) {
-  let regex = /^#([0-9a-fA-F]{3}){1,2}$/;
+  const regex = /^#([0-9a-fA-F]{3}){1,2}$/;
   if (!regex.test(color)) {
     console.error(
       "App.getComplementaryColor: la couleur n'a pas été reconnue: " + color,
@@ -163,9 +163,9 @@ export function RGBFromColor(color) {
       color[3];
   color = color.toUpperCase();
 
-  let hexTodec = function (hex) {
+  const hexTodec = function (hex) {
     //transfigure un nombre hexadécimal à 2 chiffres en un nombre décimal
-    let conversion = {
+    const conversion = {
       0: 0,
       1: 1,
       2: 2,
@@ -186,7 +186,7 @@ export function RGBFromColor(color) {
     return conversion[hex[0]] * 16 + conversion[hex[1]];
   };
 
-  let red = hexTodec(color[1] + color[2]),
+  const red = hexTodec(color[1] + color[2]),
     green = hexTodec(color[3] + color[4]),
     blue = hexTodec(color[5] + color[6]);
 
@@ -199,7 +199,7 @@ export function rgb2hex(rgb) {
 }
 
 export function hex(x) {
-  let hexDigits = new Array
+  const hexDigits = new Array
     ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
   return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
 }
@@ -214,11 +214,11 @@ export function addInfoToId(id, layer, objectType = undefined) {
     id = id.substring(0, 8)
   else
     id = id.substring(id.length - 8, id.length);
-  let layerId = layerOrder.indexOf(layer);
+  const layerId = layerOrder.indexOf(layer);
   if (objectType) {
     objectTypeId = objectTypeOrder.indexOf(objectType);
   }
-  let result = id + layerId + objectTypeId;
+  const result = id + layerId + objectTypeId;
   return result;
 }
 
@@ -227,8 +227,8 @@ export function addInfoToId(id, layer, objectType = undefined) {
  * @return {String} un identifiant unique
  */
 export function uniqId(layer, objectType) {
-  let timestamp = new Date().getTime() % 65536;
-  let randInt = Math.floor(Math.random() * 65536);
+  const timestamp = new Date().getTime() % 65536;
+  const randInt = Math.floor(Math.random() * 65536);
   let result = timestamp.toString(16).padStart(4, '0') + randInt.toString(16).padStart(4, '0');
   if (objectType != undefined && layer != undefined) {
     result = addInfoToId(result, layer, objectType);
@@ -239,35 +239,35 @@ export function uniqId(layer, objectType) {
 export function findObjectById(id) {
   if (!id)
     return;
-  let layer = layerOrder[id[8]];
-  let objectType = objectTypeOrder[id[9]];
-  let object = app[layer + 'CanvasLayer'][objectType + 's'].find((obj) => obj.id == id);
+  const layer = layerOrder[id[8]];
+  const objectType = objectTypeOrder[id[9]];
+  const object = app[layer + 'CanvasLayer'][objectType + 's'].find((obj) => obj.id == id);
   return object;
 }
 
 export function findIndexById(id) {
   if (!id)
     return -1;
-  let layer = layerOrder[id[8]];
-  let objectType = objectTypeOrder[id[9]];
-  let index = app[layer + 'CanvasLayer'][objectType + 's'].findIndex((obj) => obj.id == id);
+  const layer = layerOrder[id[8]];
+  const objectType = objectTypeOrder[id[9]];
+  const index = app[layer + 'CanvasLayer'][objectType + 's'].findIndex((obj) => obj.id == id);
   return index;
 }
 
 export function findObjectsByName(name, layer, objectType = 'shape') {
-  let objects = app[layer + 'CanvasLayer'][objectType + 's'].filter((obj) => obj.name == name);;
+  const objects = app[layer + 'CanvasLayer'][objectType + 's'].filter((obj) => obj.name == name);;
   return objects;
 }
 
 export function removeObjectById(id) {
   if (!id)
     return -1;
-  let objectType = objectTypeOrder[id[9]];
-  let index = findIndexById(id, objectType);
+  const objectType = objectTypeOrder[id[9]];
+  const index = findIndexById(id, objectType);
   if (index == -1)
     return;
-  let layer = layerOrder[id[8]];
-  let object = app[layer + 'CanvasLayer'][objectType + 's'][index];
+  const layer = layerOrder[id[8]];
+  const object = app[layer + 'CanvasLayer'][objectType + 's'][index];
   if (objectType == 'shape') {
     object.segments.forEach((seg) =>
       removeObjectById(seg.id),
@@ -299,12 +299,12 @@ export function createElem(name) {
 }
 
 export function isAlmostInfinite(number) {
-  let isReallyBigNumber = !isFinite(number) || Math.abs(number) > 1000000000;
+  const isReallyBigNumber = !isFinite(number) || Math.abs(number) > 1000000000;
   return isReallyBigNumber;
 }
 
 export function range(start, end) {
-  let numberOfelems = end - start;
+  const numberOfelems = end - start;
   return Array.apply(0, Array(numberOfelems)).map(
     (element, index) => index + start,
   );
@@ -327,7 +327,7 @@ export function goToHomePage() {
       url.search = ''; // Supprimer tous les paramètres de requête
       window.history.pushState({}, '', url.toString());
 
-      console.log('[NAVIGATION] Retour à la page d\'accueil sans rechargement');
+      
     } else {
       // Fallback : rechargement traditionnel si l'app n'est pas disponible
       window.location = window.location.href.split("?")[0];

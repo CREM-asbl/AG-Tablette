@@ -76,10 +76,10 @@ export class ScalarMultiplicationTool extends Tool {
     this.numerator = app.settings.scalarNumerator;
     this.denominator = app.settings.scalarDenominator;
 
-    let vector = findObjectById(
+    const vector = findObjectById(
       this.vectorId
     );
-    let secondPointCoordinates = vector.vertexes[0].coordinates.add(
+    const secondPointCoordinates = vector.vertexes[0].coordinates.add(
       vector.vertexes[1].coordinates
         .substract(vector.vertexes[0].coordinates)
         .multiply(this.numerator / this.denominator)
@@ -94,7 +94,7 @@ export class ScalarMultiplicationTool extends Tool {
     ];
     path = path.join(' ');
 
-    let newShape = new ArrowLineShape({
+    const newShape = new ArrowLineShape({
       layer: 'main',
       path: path,
       name: vector.name,

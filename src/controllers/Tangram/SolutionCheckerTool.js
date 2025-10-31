@@ -24,7 +24,7 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   render() {
-    if (window.dev_mode) console.log('render', this.data)
+    
     if (!this.data) return this.renderOpenPopup();
     closeForbiddenCanvas()
     app.tangramCanvasLayer.removeAllObjects();
@@ -64,11 +64,6 @@ export class SolutionCheckerTool extends LitElement {
 
     if (!backObjects) {
       console.warn('⚠️ SolutionCheckerTool: Aucun backObjects trouvé dans les données');
-      console.log('Données disponibles:', {
-        'data.wsdata': !!data.wsdata,
-        'data.workspaceData': !!data.workspaceData,
-        'app.workspace.data': !!app.workspace?.data
-      });
     }
 
     let isSilhouetteShown = false;
@@ -78,22 +73,22 @@ export class SolutionCheckerTool extends LitElement {
 
       if (level == 3 || level == 4) {
         app.workspace.limited = true;
-        app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`
+        app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`;
       }
 
-      const silhouette = new Silhouette(backObjects.shapesData, true, level)
+      const silhouette = new Silhouette(backObjects.shapesData, true, level);
 
       if (data.fileExtension != 'agt') {
-        if (level > 4) { silhouette.scale(0.6) }
-        silhouette.translate({ x: -silhouette.bounds.minX, y: (app.canvasHeight / 2) - silhouette.center.y })
-        const tangramCanvasLayerWidth = app.canvasWidth / 2
+        if (level > 4) { silhouette.scale(0.6); }
+        silhouette.translate({ x: -silhouette.bounds.minX, y: (app.canvasHeight / 2) - silhouette.center.y });
+        const tangramCanvasLayerWidth = app.canvasWidth / 2;
         if (silhouette.largeur > tangramCanvasLayerWidth) {
-          silhouette.translate({ x: 16, y: 0 })
-          app.workspace.setZoomLevel(app.workspace.zoomLevel * (app.canvasWidth / (2 * (silhouette.largeur + 32))))
+          silhouette.translate({ x: 16, y: 0 });
+          app.workspace.setZoomLevel(app.workspace.zoomLevel * (app.canvasWidth / (2 * (silhouette.largeur + 32))));
         }
         else {
-          const diff = (tangramCanvasLayerWidth - silhouette.largeur) / 2
-          silhouette.translate({ x: diff / app.workspace.zoomLevel, y: 0 })
+          const diff = (tangramCanvasLayerWidth - silhouette.largeur) / 2;
+          silhouette.translate({ x: diff / app.workspace.zoomLevel, y: 0 });
         }
       }
       app.tangramCanvasLayer.draw();
@@ -121,7 +116,7 @@ export class SolutionCheckerTool extends LitElement {
         },
       });
     }
-    this.showMenu()
+    this.showMenu();
   }
 
   connectedCallback() {
@@ -131,8 +126,8 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   disconnectedCallback() {
-    super.disconnectedCallback()
-    this.stateMenu.close()
+    super.disconnectedCallback();
+    this.stateMenu.close();
     closeForbiddenCanvas();
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('tangram-changed', this.tangramListener);
@@ -179,8 +174,8 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   objectSelected(object) {
-    let solutionShapes = app.mainCanvasLayer.shapes.filter(shape => shape.name == "tangramChecker");
-    let index = solutionShapes.findIndex((s) => object.id == s.id);
+    const solutionShapes = app.mainCanvasLayer.shapes.filter(shape => shape.name == "tangramChecker");
+    const index = solutionShapes.findIndex((s) => object.id == s.id);
     if (index == -1) setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } })
   }
 
@@ -197,12 +192,12 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   get solution() {
-    let segmentsList = this.checkGroupMerge(app.tangramCanvasLayer.shapes);
-    let paths = this.linkNewSegments(segmentsList);
+    const segmentsList = this.checkGroupMerge(app.tangramCanvasLayer.shapes);
+    const paths = this.linkNewSegments(segmentsList);
     const shapes = [];
 
     paths.forEach((path) => {
-      let shape = new RegularShape({
+      const shape = new RegularShape({
         layer: 'main',
         path: path,
         color: '#000',
@@ -217,10 +212,10 @@ export class SolutionCheckerTool extends LitElement {
     });
 
     if (app.tangram.level > 4) {
-      let silhouetteBounds = Bounds.getOuterBounds(
+      const silhouetteBounds = Bounds.getOuterBounds(
         ...shapes.map((s) => s.bounds),
       );
-      let center = new Coordinates({
+      const center = new Coordinates({
         x: (silhouetteBounds.maxX + silhouetteBounds.minX) / 2,
         y: (silhouetteBounds.maxY + silhouetteBounds.minY) / 2,
       });
@@ -228,7 +223,7 @@ export class SolutionCheckerTool extends LitElement {
     }
 
     if (shapes.length > 1) {
-      let userGroup = new ShapeGroup(0, 1);
+      const userGroup = new ShapeGroup(0, 1);
       userGroup.shapesIds = shapes.map(s => s.id);
       GroupManager.addGroup(userGroup);
     }
@@ -236,7 +231,7 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   checkGroupMerge(shapes) {
-    let oldSegments = shapes
+    const oldSegments = shapes
       .flatMap((s) =>
         s.segments.map((seg) => {
           return new Segment({
@@ -247,9 +242,9 @@ export class SolutionCheckerTool extends LitElement {
         }),
       );
 
-    let cutSegments = oldSegments
+    const cutSegments = oldSegments
       .flatMap((segment, idx, segments) => {
-        let vertexesInside = segments
+        const vertexesInside = segments
           .filter((seg, i) => i != idx)
           .flatMap((seg) =>
             seg.vertexes.filter((vertex) =>
@@ -269,10 +264,10 @@ export class SolutionCheckerTool extends LitElement {
       })
 
     // delete common segments
-    let newSegments = [];
+    const newSegments = [];
     cutSegments.forEach((seg, i, segments) => {
       if (seg.used) return;
-      let segs = segments
+      const segs = segments
         .map((segment) => (segment.equal(seg) ? segment : undefined))
         .filter(Boolean);
       if (segs.length == 1) newSegments.push(seg);
@@ -285,11 +280,11 @@ export class SolutionCheckerTool extends LitElement {
   linkNewSegments(segmentsList) {
     let paths = [];
     let segmentUsed = 0;
-    let numberOfSegments = segmentsList.length;
+    const numberOfSegments = segmentsList.length;
     let numberOfPathCreated = 0;
 
     while (segmentUsed != numberOfSegments) {
-      let startCoordinates = segmentsList[0].vertexes[0].coordinates;
+      const startCoordinates = segmentsList[0].vertexes[0].coordinates;
       paths.push([]);
       paths[numberOfPathCreated].push('M', startCoordinates.x, startCoordinates.y);
       let nextSegmentIndex = 0;
@@ -309,7 +304,7 @@ export class SolutionCheckerTool extends LitElement {
           return null;
         }
         nextSegmentIndex = potentialSegmentIdx[0];
-        let nextSegment = segmentsList[nextSegmentIndex];
+        const nextSegment = segmentsList[nextSegmentIndex];
         let mustReverse = false;
         if (
           !nextSegment.vertexes[0].coordinates.equal(this.lastUsedCoordinates)
@@ -336,7 +331,7 @@ export class SolutionCheckerTool extends LitElement {
     if (!segment.isArc()) {
       path.push('L', secondCoord.x, secondCoord.y);
     } else {
-      let centerCoordinates = segment.arcCenter.coordinates;
+      const centerCoordinates = segment.arcCenter.coordinates;
       let radius = centerCoordinates.dist(secondCoord),
         firstAngle = centerCoordinates.angleWith(firstCoord),
         secondAngle = centerCoordinates.angleWith(secondCoord);

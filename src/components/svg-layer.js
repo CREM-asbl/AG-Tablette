@@ -15,10 +15,10 @@ class SVGLayer extends LitElement {
   }
 
   render() {
-    console.log('render', this.paths);
+    
     if (!this.paths) return html``;
     const viewBox = `0 0 ${this.width || app.canvasWidth} ${this.height || app.canvasHeight}`
-    console.log(viewBox);
+
     return html`
       <svg width="100%" height="100%" viewBox="${viewBox}" preserveAspectRatio="xMidYMid meet">
         ${this.paths.map(path => html`
@@ -28,7 +28,7 @@ class SVGLayer extends LitElement {
   }
 
   firstUpdated() {
-    console.log('firstUpdated');
+    
     app.svgLayer = this
   }
 
@@ -36,7 +36,7 @@ class SVGLayer extends LitElement {
     const svg = app.svgLayer.shadowRoot.querySelector('svg')
     // svg.querySelectorAll('path').forEach(p => p.remove())
     if (!this.paths) return;
-    // console.log(this.paths)
+    
     this.paths.forEach(path => {
       const p = document.createElementNS('http://www.w3.org/2000/svg', 'path')
       p.setAttributeNS(null, 'd', path)
@@ -48,7 +48,7 @@ class SVGLayer extends LitElement {
   }
 
   handler() {
-    console.log('handler');
+    
   }
 }
 customElements.define('svg-layer', SVGLayer);

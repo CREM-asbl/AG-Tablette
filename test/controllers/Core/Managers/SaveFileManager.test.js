@@ -289,3 +289,4 @@ describe('SaveFileManager', () => {
       expect(options.types[2].description).toBe('Image vectorielle (*.svg)');
     });
   });
+});

@@ -40,7 +40,7 @@ export class Family {
    * @return Objet de type Shape (sans coordonnées)
    */
   getTemplate(name) {
-    let template = this.shapeTemplates.find(
+    const template = this.shapeTemplates.find(
       (shapeTemplate) => shapeTemplate.name === name,
     );
     if (template !== undefined) {

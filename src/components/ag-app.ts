@@ -5,7 +5,7 @@ import '../controllers/backbutton-manager';
 import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../controllers/Core/Manifest';
-import { openFileFromServer } from '../firebase/firebase-init';
+// import { openFileFromServer } from '../firebase/firebase-init'; // Moved to dynamic import
 
 /**
  * fix device-height != screen-height on pwa
@@ -30,16 +30,19 @@ export class App extends LitElement {
   }
 
   async parseURL() {
-    let parsedUrl = new URL(window.location.href);
-    let part = parsedUrl.searchParams.get("interface");
+    const parsedUrl = new URL(window.location.href);
+    const part = parsedUrl.searchParams.get("interface");
 
     if (['Grandeurs', 'Tangram', 'Cubes', 'Geometrie'].includes(part)) {
       loadEnvironnement(part);
       return;
     }
-    let activityName = parsedUrl.searchParams.get("activityName");
-    if (activityName)
-      openFileFromServer(activityName);
+    const activityName = parsedUrl.searchParams.get("activityName");
+    if (activityName) {
+    import('../firebase/firebase-init').then(module => {
+        module.openFileFromServer(activityName);
+      });
+    }
   }
 
   render() {

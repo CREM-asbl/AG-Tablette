@@ -28,7 +28,7 @@ export class ShapeGroup {
   }
 
   saveToObject() {
-    let save = {
+    const save = {
       id: this.id,
       shapesIds: [...this.shapesIds],
     };
@@ -45,7 +45,7 @@ export class ShapeGroup {
    * @param {Boolean} full si copie id aussi
    */
   copy(full = false) {
-    let copy = new ShapeGroup(0, 1);
+    const copy = new ShapeGroup(0, 1);
     copy.shapesIds = [...this.shapesIds];
     if (full) copy.id = this.id;
     return copy;
@@ -69,7 +69,7 @@ export class ShapeGroup {
    * @param {number} shapeId    La figure que l'on retire
    */
   deleteShape(shapeId) {
-    let length = this.shapesIds.length;
+    const length = this.shapesIds.length;
     this.shapesIds = this.shapesIds.filter((id) => shapeId != id);
     if (length == this.shapesIds.length)
       console.error("Couldn't delete shape from user group.");

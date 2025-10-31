@@ -25,7 +25,7 @@ export class GroupManager {
    * @return {Group}               le groupe, ou null s'il n'y en a pas.
    */
   static getShapeGroup(shape) {
-    let group = app.workspace.shapeGroups.find((gr) => gr.contains(shape.id));
+    const group = app.workspace.shapeGroups.find((gr) => gr.contains(shape.id));
     return group ? group : null;
   }
 
@@ -47,7 +47,7 @@ export class GroupManager {
    * @param  {Group} group         Le groupe
    */
   static deleteGroup(group) {
-    let idx = GroupManager.getGroupIndex(group);
+    const idx = GroupManager.getGroupIndex(group);
     if (idx != -1) app.workspace.shapeGroups.splice(idx, 1);
     else console.error("Couldn't delete group: ", group);
   }

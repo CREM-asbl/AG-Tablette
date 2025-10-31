@@ -215,14 +215,14 @@ class OpenServerPopup extends LitElement {
       this.successMessage = '';
 
       if (cachedThemes.get() && cachedThemes.get().length > 0) {
-        if (window.dev_mode) console.log('Utilisation des thèmes en cache mémoire:', cachedThemes.get());
+    
         this.allThemes = cachedThemes.get();
         this.scrollToOpenModule();
         return;
       }
 
       const themes = await findAllThemes();
-      if (window.dev_mode) console.log('Thèmes récupérés:', themes);
+  
       this.allThemes = themes;
 
       if (themes && themes.length > 0) {

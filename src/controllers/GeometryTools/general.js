@@ -12,44 +12,44 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes, includeDupli
   if (app.environment.name != 'Geometrie')
     return;
   shape.geometryObject.geometryChildShapeIds.forEach(ref => {
-    let s = findObjectById(ref);
+    const s = findObjectById(ref);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(sId => {
-    let s = findObjectById(sId);
+    const s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
   shape.geometryObject.geometryDuplicateChildShapeIds.forEach(sId => {
-    let s = findObjectById(sId);
+    const s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
   if (shape.geometryObject.geometryTransformationParentShapeId) {
-    let s = findObjectById(shape.geometryObject.geometryTransformationParentShapeId);
+    const s = findObjectById(shape.geometryObject.geometryTransformationParentShapeId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   }
   shape.geometryObject.geometryMultipliedChildShapeIds.forEach(sId => {
-    let s = findObjectById(sId);
+    const s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
-  let characteristicElements = shape.geometryObject.geometryTransformationCharacteristicElements;
+  const characteristicElements = shape.geometryObject.geometryTransformationCharacteristicElements;
   if (characteristicElements) {
     characteristicElements.elements.forEach(element => {
-      let s = element.shape;
+      const s = element.shape;
       if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
         involvedShapes.push(s);
         getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
@@ -75,8 +75,8 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes, includeDupli
   // });
 
   if (shape.geometryObject.geometryParentObjectId1) {
-    let seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    let s = seg.shape;
+    const seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
+    const s = seg.shape;
     // if (seg)
       // s = seg.shape;
     // else
@@ -85,8 +85,8 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes, includeDupli
       involvedShapes.push(s);
   }
   if (shape.geometryObject.geometryParentObjectId2) {
-    let seg = findObjectById(shape.geometryObject.geometryParentObjectId2);
-    let s = seg.shape;
+    const seg = findObjectById(shape.geometryObject.geometryParentObjectId2);
+    const s = seg.shape;
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id))
       involvedShapes.push(s);
   }
@@ -94,14 +94,14 @@ export function getAllLinkedShapesInGeometry(shape, involvedShapes, includeDupli
 
 export function getAllChildrenInGeometry(shape, involvedShapes) {
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(sId => {
-    let s = findObjectById(sId);
+    const s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllChildrenInGeometry(s, involvedShapes);
     }
   });
   shape.geometryObject.geometryChildShapeIds.forEach(sId => {
-    let s = findObjectById(sId);
+    const s = findObjectById(sId);
     if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
       involvedShapes.push(s);
       getAllChildrenInGeometry(s, involvedShapes);
@@ -138,14 +138,14 @@ export function linkNewlyCreatedPoint(shape, point) {
   ) {
     let constraintShape;
     if (shape.name == 'Rectangle' || shape.name == 'RightAngleTriangle' || (shape.name == 'RightAngleTrapeze' && point.idx == 2)) {
-      let referenceSegment = shape.segments[0];
-      let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
-      let newCoordinates = shape.vertexes[1].coordinates.add(new Coordinates({
+      const referenceSegment = shape.segments[0];
+      const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+      const newCoordinates = shape.vertexes[1].coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
 
-      let path = [
+      const path = [
         'M',
         shape.vertexes[1].coordinates.x,
         shape.vertexes[1].coordinates.y,
@@ -175,10 +175,10 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].visible = false;
       constraintShape.vertexes[1].visible = false;
     } else if (shape.name == 'Losange') {
-      let referenceSegment = shape.segments[0];
-      let oppositeCoordinates = referenceSegment.vertexes[1].coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
+      const referenceSegment = shape.segments[0];
+      const oppositeCoordinates = referenceSegment.vertexes[1].coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
           radius = referenceSegment.vertexes[0].coordinates.dist(referenceSegment.vertexes[1].coordinates);
-      let path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
+      const path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
         .concat([
           'A',
           radius,
@@ -211,10 +211,10 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].visible = false;
       constraintShape.segments[0].arcCenter.visible = false;
     } else if (shape.name == 'CircleArc') {
-      let referenceSegment = shape.segments[0];
-      let oppositeCoordinates = referenceSegment.arcCenter.coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
+      const referenceSegment = shape.segments[0];
+      const oppositeCoordinates = referenceSegment.arcCenter.coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
           radius = referenceSegment.vertexes[0].coordinates.dist(referenceSegment.arcCenter.coordinates);
-      let path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
+      const path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
         .concat([
           'A',
           radius,
@@ -247,10 +247,10 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].visible = false;
       constraintShape.segments[0].arcCenter.visible = false;
     } else if (shape.name == 'CirclePart') {
-      let referenceSegment = shape.segments[1];
-      let oppositeCoordinates = referenceSegment.arcCenter.coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
+      const referenceSegment = shape.segments[1];
+      const oppositeCoordinates = referenceSegment.arcCenter.coordinates.multiply(2).substract(referenceSegment.vertexes[0].coordinates),
           radius = referenceSegment.vertexes[0].coordinates.dist(referenceSegment.arcCenter.coordinates);
-      let path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
+      const path = ['M', referenceSegment.vertexes[0].coordinates.x, referenceSegment.vertexes[0].coordinates.y]
         .concat([
           'A',
           radius,
@@ -283,14 +283,14 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].visible = false;
       constraintShape.segments[0].arcCenter.visible = false;
     } else if (shape.name == 'Trapeze' || shape.name == 'RightAngleTrapeze') {
-      let referenceSegment = shape.segments[0];
-      let angle = referenceSegment.getAngleWithHorizontal();
-      let newCoordinates = shape.vertexes[2].coordinates.add(new Coordinates({
+      const referenceSegment = shape.segments[0];
+      const angle = referenceSegment.getAngleWithHorizontal();
+      const newCoordinates = shape.vertexes[2].coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
 
-      let path = [
+      const path = [
         'M',
         shape.vertexes[2].coordinates.x,
         shape.vertexes[2].coordinates.y,
@@ -320,15 +320,15 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].visible = false;
       constraintShape.vertexes[1].visible = false;
     } else if (shape.name == 'IsoscelesTriangle') {
-      let referenceSegment = shape.segments[0];
-      let referenceSegmentMiddle = referenceSegment.addPoint(referenceSegment.middle, 0.5, referenceSegment.vertexIds[0], referenceSegment.vertexIds[1], false);
-      let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
-      let newCoordinates = referenceSegmentMiddle.coordinates.add(new Coordinates({
+      const referenceSegment = shape.segments[0];
+      const referenceSegmentMiddle = referenceSegment.addPoint(referenceSegment.middle, 0.5, referenceSegment.vertexIds[0], referenceSegment.vertexIds[1], false);
+      const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+      const newCoordinates = referenceSegmentMiddle.coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
 
-      let path = [
+      const path = [
         'M',
         referenceSegmentMiddle.coordinates.x,
         referenceSegmentMiddle.coordinates.y,
@@ -359,14 +359,14 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[1].visible = false;
       referenceSegmentMiddle.visible = false;
     } else if (shape.name.startsWith('Parallele')) {
-      let referenceSegment = findObjectById(shape.geometryObject.geometryParentObjectId1);
-      let angle = referenceSegment.getAngleWithHorizontal();
-      let newCoordinates = shape.vertexes[0].coordinates.add(new Coordinates({
+      const referenceSegment = findObjectById(shape.geometryObject.geometryParentObjectId1);
+      const angle = referenceSegment.getAngleWithHorizontal();
+      const newCoordinates = shape.vertexes[0].coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
 
-      let path = [
+      const path = [
         'M',
         shape.vertexes[0].coordinates.x,
         shape.vertexes[0].coordinates.y,
@@ -396,14 +396,14 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[0].visible = false;
       constraintShape.vertexes[1].visible = false;
     } else if (shape.name.startsWith('Perpendicular')) {
-      let referenceSegment = findObjectById(shape.geometryObject.geometryParentObjectId1);
-      let angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
-      let newCoordinates = shape.vertexes[0].coordinates.add(new Coordinates({
+      const referenceSegment = findObjectById(shape.geometryObject.geometryParentObjectId1);
+      const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
+      const newCoordinates = shape.vertexes[0].coordinates.add(new Coordinates({
         x: 100 * Math.cos(angle),
         y: 100 * Math.sin(angle),
       }));
 
-      let path = [
+      const path = [
         'M',
         shape.vertexes[0].coordinates.x,
         shape.vertexes[0].coordinates.y,
@@ -434,7 +434,7 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.vertexes[1].visible = false;
     }
 
-    let newSinglePointShape = new SinglePointShape({
+    const newSinglePointShape = new SinglePointShape({
       layer: 'main',
       path: `M ${point.coordinates.x} ${point.coordinates.y}`,
       name: 'PointOnLine',
@@ -459,8 +459,8 @@ export function linkNewlyCreatedPoint(shape, point) {
   } else if (ref && ref instanceof Point) {
     if (ref.type == 'divisionPoint') {
       ref.endpointIds?.forEach(endPointId => {
-        let endPoint = findObjectById(endPointId);
-        let endPointShape = endPoint.shape;
+        const endPoint = findObjectById(endPointId);
+        const endPointShape = endPoint.shape;
         if (endPointShape.name == 'PointOnLine' || endPointShape.name.startsWith('PointOnIntersection'))
           addShapeToChildren(endPointShape, shape);
       })
@@ -468,7 +468,7 @@ export function linkNewlyCreatedPoint(shape, point) {
     addShapeToChildren(ref.shape, shape);
     point.reference = ref.id;
   } else {
-    let newSinglePointShape = new SinglePointShape({
+    const newSinglePointShape = new SinglePointShape({
       layer: 'main',
       path: `M ${point.coordinates.x} ${point.coordinates.y}`,
       name: 'Point',

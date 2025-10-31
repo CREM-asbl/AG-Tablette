@@ -37,7 +37,7 @@ export class CreatePointTool extends Tool {
    * @return {String} L'aide, en HTML
    */
   getHelpText() {
-    let toolName = this.title;
+    const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
       <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
@@ -126,7 +126,7 @@ export class CreatePointTool extends Tool {
       return;
     }
 
-    let newCoordinates = new Coordinates(
+    const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
 
@@ -158,7 +158,7 @@ export class CreatePointTool extends Tool {
     if (app.tool.selectedTemplate.name == 'Point' || app.environment.name == 'Geometrie') {
       // Convertir les coordonnées du point en espace canvas pour getClosestGridPoint
       const pointInCanvasSpace = point.coordinates.toCanvasCoordinates();
-      let gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(pointInCanvasSpace);
+      const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(pointInCanvasSpace);
       if (gridPointInCanvasSpace) {
         // Reconvertir le point de grille trouvé en espace monde
         const gridPointInWorldSpace = gridPointInCanvasSpace.fromCanvasCoordinates();
@@ -234,7 +234,7 @@ export class CreatePointTool extends Tool {
 
       computeConstructionSpec(shape);
 
-      let reference = findObjectById(this.geometryParentObjectId1);
+      const reference = findObjectById(this.geometryParentObjectId1);
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedTemplate.name == 'PointOnShape') {
       if (!this.geometryParentObjectId1) {
@@ -249,12 +249,12 @@ export class CreatePointTool extends Tool {
         geometryObject: new GeometryObject({}),
       });
       shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId1;
-      let reference = findObjectById(this.geometryParentObjectId1);
+      const reference = findObjectById(this.geometryParentObjectId1);
       reference.geometryObject.geometryChildShapeIds.push(shape.id);
     } else if (app.tool.selectedTemplate.name == 'PointOnIntersection') {
-      let firstSeg = findObjectById(this.geometryParentObjectId1);
-      let secondSeg = findObjectById(this.geometryParentObjectId2);
-      let coords = firstSeg.intersectionWith(secondSeg);
+      const firstSeg = findObjectById(this.geometryParentObjectId1);
+      const secondSeg = findObjectById(this.geometryParentObjectId2);
+      const coords = firstSeg.intersectionWith(secondSeg);
       if (!coords) {
         window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Il n\' a pas de point d\'intersection entre les deux objets sélectionnés.' } }));
         return;

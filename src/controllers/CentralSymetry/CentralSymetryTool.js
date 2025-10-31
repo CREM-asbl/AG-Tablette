@@ -53,7 +53,7 @@ export class CentralSymetryTool extends Tool {
       this.drawingShapes.forEach(s => {
         removeObjectById(s.id);
       })
-    let shapesToDelete = [];
+    const shapesToDelete = [];
     app.upperCanvasLayer.shapes.forEach(s => {
       if (s.geometryObject.geometryIsCharacteristicElements)
         shapesToDelete.push(s);
@@ -79,7 +79,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   canvasMouseDown() {
-    let coord = app.workspace.lastKnownMouseCoordinates;
+    const coord = app.workspace.lastKnownMouseCoordinates;
     this.pointDrawn = new Point({
       coordinates: coord,
       layer: 'upper',
@@ -97,7 +97,7 @@ export class CentralSymetryTool extends Tool {
     app.workspace.selectionConstraints.points.canSelect = true;
     app.workspace.selectionConstraints.points.canSelectFromUpper = true;
 
-    let coord = app.workspace.lastKnownMouseCoordinates;
+    const coord = app.workspace.lastKnownMouseCoordinates;
     let object = SelectManager.selectObject(coord);
     if (object) {
       if (object.shape.geometryObject.geometryIsCharacteristicElements) {
@@ -182,8 +182,8 @@ export class CentralSymetryTool extends Tool {
           );
       });
     } else if (app.tool.currentStep == 'animateCharacteristicElement') {
-      let coord = app.workspace.lastKnownMouseCoordinates;
-      let object = SelectManager.selectObject(coord);
+      const coord = app.workspace.lastKnownMouseCoordinates;
+      const object = SelectManager.selectObject(coord);
       if (object) {
         this.pointDrawn.coordinates = object.coordinates;
       } else {
@@ -194,8 +194,8 @@ export class CentralSymetryTool extends Tool {
 
   _executeAction() {
     if (!this.characteristicElements) {
-      let coord = this.pointDrawn.coordinates;
-      let point = new SinglePointShape({
+      const coord = this.pointDrawn.coordinates;
+      const point = new SinglePointShape({
         layer: 'main',
         path: `M ${coord.x} ${coord.y}`,
         name: 'Point',
@@ -207,8 +207,8 @@ export class CentralSymetryTool extends Tool {
     if (!app.workspace.centralSymetryLastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
       app.workspace.centralSymetryLastCharacteristicElements.push(this.characteristicElements);
     }
-    let newShapes = this.involvedShapes.map(s => {
-      let newShape = new s.constructor({
+    const newShapes = this.involvedShapes.map(s => {
+      const newShape = new s.constructor({
         ...s,
         layer: 'main',
         familyName: 'transformation',
@@ -231,7 +231,7 @@ export class CentralSymetryTool extends Tool {
         }),
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
-      let symetryCenter = this.characteristicElements.firstElement;
+      const symetryCenter = this.characteristicElements.firstElement;
       if (!symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
         symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       }
@@ -244,22 +244,22 @@ export class CentralSymetryTool extends Tool {
     });
 
     if (newShapes.length > 1) {
-      let userGroup = new ShapeGroup(0, 1);
+      const userGroup = new ShapeGroup(0, 1);
       userGroup.shapesIds = newShapes.map((s) => s.id);
       GroupManager.addGroup(userGroup);
     }
   }
 
   setSelectionConstraints() {
-    let constraints = app.fastSelectionConstraints.mousedown_all_shape;
+    const constraints = app.fastSelectionConstraints.mousedown_all_shape;
     constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryPointOnTheFlyChildId);
     app.workspace.selectionConstraints = constraints;
   }
 
   showLastCharacteristicElements() {
     app.workspace.centralSymetryLastCharacteristicElements.forEach(characteristicElement => {
-      let point = findObjectById(characteristicElement.elementIds[0]);
-      let shape = new SinglePointShape({
+      const point = findObjectById(characteristicElement.elementIds[0]);
+      const shape = new SinglePointShape({
         layer: 'upper',
         path: `M ${point.coordinates.x} ${point.coordinates.y}`,
         name: 'Point',

@@ -55,7 +55,7 @@ export class SilhouetteCreatorTool extends LitElement {
     let overlap = false
     app.mainCanvasLayer.shapes.forEach((s) => { s.isOverlappingAnotherInTangram = false });
     app.mainCanvasLayer.shapes.forEach((s, idx, shapes) => {
-      let index = app.mainCanvasLayer.shapes.findIndex((s2) => {
+      const index = app.mainCanvasLayer.shapes.findIndex((s2) => {
         if (s.id == s2.id) return false;
         if (s.overlapsWith(s2)) return true;
         return false;

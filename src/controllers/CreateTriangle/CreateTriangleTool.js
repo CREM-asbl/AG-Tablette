@@ -33,7 +33,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
 
   async drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
-    let triangleDef = await import(`./trianglesDef.js`);
+    const triangleDef = await import(`./trianglesDef.js`);
     this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
 
     this.points = [];
@@ -68,7 +68,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   }
 
   canvasMouseDown() {
-    let newCoordinates = new Coordinates(
+    const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
 
@@ -85,7 +85,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     });
     this.numberOfPointsDrawn++;
     if (this.numberOfPointsDrawn > 1) {
-      let seg = new Segment({
+      const seg = new Segment({
         layer: 'upper',
         vertexIds: [
           this.points[this.numberOfPointsDrawn - 2].id,
@@ -96,12 +96,12 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     }
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       if (this.numberOfPointsDrawn < 3) this.finishShape();
-      let seg = new Segment({
+      const seg = new Segment({
         layer: 'upper',
         vertexIds: [this.points[2].id, this.points[0].id],
       });
       this.segments.push(seg);
-      let shape = new RegularShape({
+      const shape = new RegularShape({
         layer: 'upper',
         segmentIds: this.segments.map((seg) => seg.id),
         pointIds: this.points.map((pt) => pt.id),
@@ -127,7 +127,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   canvasMouseUp() {
     for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
       if (SelectManager.areCoordinatesInMagnetismDistance(this.points[i].coordinates, this.points[this.numberOfPointsDrawn - 1].coordinates)) {
-        let firstPointCoordinates = this.points[0].coordinates;
+        const firstPointCoordinates = this.points[0].coordinates;
         if (this.numberOfPointsDrawn == 2) {
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 1;
@@ -139,7 +139,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
           })];
           this.segments = [];
         } else if (this.numberOfPointsDrawn == 3) {
-          let secondPointCoordinates = this.points[1].coordinates;
+          const secondPointCoordinates = this.points[1].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 2;
           this.points = [new Point({
@@ -204,7 +204,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       } else {
         constraints = SelectManager.getEmptySelectionConstraints().segments;
         constraints.canSelect = true;
-        let adjustedSegment = SelectManager.selectSegment(
+        const adjustedSegment = SelectManager.selectSegment(
           point.coordinates,
           constraints,
         );
@@ -218,15 +218,15 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
         point.coordinates,
       );
 
-      let constraints = SelectManager.getEmptySelectionConstraints().segments;
+      const constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
       constraints.numberOfObjects = "allInDistance";
-      let adjustedSegments = SelectManager.selectSegment(
+      const adjustedSegments = SelectManager.selectSegment(
         adjustedCoordinates,
         constraints,
       );
       if (adjustedSegments) {
-        let adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
+        const adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
           seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) > seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) ? 1 : -1
         )[0];
         if (adjustedSegment) {
@@ -299,7 +299,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
-    let shape = new RegularShape({
+    const shape = new RegularShape({
       layer: 'main',
       path: path,
       name: app.tool.selectedTemplate.name,
