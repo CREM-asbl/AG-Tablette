@@ -24,8 +24,8 @@ describe('Store de synchronisation', () => {
     resetSyncState();
 
     // Mock console pour éviter le spam dans les tests
-    vi.spyOn(console, 'log').mockImplementation(() => {});
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'log').mockImplementation(() => { });
+    vi.spyOn(console, 'warn').mockImplementation(() => { });
     vi.spyOn(console, 'error').mockImplementation(() => { });
   });
 

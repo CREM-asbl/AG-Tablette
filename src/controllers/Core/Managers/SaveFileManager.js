@@ -703,3 +703,4 @@ export const initSaveFileEventListener = (app) => {
 
 // Export des fonctions utilitaires pour les tests
 export { configureSaveOptions, prepareSaveData, validateAppState };
+

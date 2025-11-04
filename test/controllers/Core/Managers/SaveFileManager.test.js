@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock de window et des APIs
 const mockShowSaveFilePicker = vi.fn();
@@ -123,7 +123,7 @@ const mockApp = {
 };
 
 // Importer après les mocks
-import { saveFile, initSaveFileEventListener, prepareSaveData, validateAppState, configureSaveOptions } from '@controllers/Core/Managers/SaveFileManager.js';
+import { configureSaveOptions, prepareSaveData, validateAppState } from '@controllers/Core/Managers/SaveFileManager.js';
 
 describe('SaveFileManager', () => {
   beforeEach(() => {

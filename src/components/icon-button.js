@@ -77,16 +77,16 @@ class IconButton extends LitElement {
             type="color"
             value="${this.colorPickerValue}"
             @input="${(e) => {
-              if (app.tool.name === 'color') {
-                setState({
-                  settings: {
-                    ...app.settings,
-                    shapesDrawColor: e.target.value,
-                  },
-                  tool: { ...app.tool, currentStep: 'listen' },
-                });
-              }
-            }}"
+          if (app.tool.name === 'color') {
+            setState({
+              settings: {
+                ...app.settings,
+                shapesDrawColor: e.target.value,
+              },
+              tool: { ...app.tool, currentStep: 'listen' },
+            });
+          }
+        }}"
           />
         </button>
       `;
