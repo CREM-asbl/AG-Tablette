@@ -2,7 +2,11 @@
 // Utilise l'API native IndexedDB
 
 import { compressToUTF16, decompressFromUTF16 } from 'lz-string';
-import { CACHE_CONFIG, getEvictionStrategy, validateCacheConfig } from './cache-config.js';
+import {
+  CACHE_CONFIG,
+  getEvictionStrategy,
+  validateCacheConfig,
+} from './cache-config.js';
 
 const DB_NAME = 'agTabletteDB';
 const DB_VERSION = 3; // Incrémenté pour ajouter le store sync_metadata
@@ -10,7 +14,7 @@ const STORE_NAMES = {
   activities: 'activities',
   themes: 'themes',
   modules: 'modules',
-  sync_metadata: 'sync_metadata'
+  sync_metadata: 'sync_metadata',
 };
 
 // Validation de la configuration au chargement
@@ -19,9 +23,9 @@ validateCacheConfig();
 export function openDB() {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = event => {
+    request.onupgradeneeded = (event) => {
       const db = event.target.result;
-      Object.values(STORE_NAMES).forEach(storeName => {
+      Object.values(STORE_NAMES).forEach((storeName) => {
         if (!db.objectStoreNames.contains(storeName)) {
           db.createObjectStore(storeName, { keyPath: 'id' });
         }
@@ -57,7 +61,7 @@ export async function saveActivity(id, data, version = 1) {
     timestamp: now,
     lastAccess: now,
     accessCount: 1,
-    compressed: CACHE_CONFIG.COMPRESSION_ENABLED
+    compressed: CACHE_CONFIG.COMPRESSION_ENABLED,
   };
 
   // Vérifier si on dépasse la limite
@@ -69,7 +73,10 @@ export async function saveActivity(id, data, version = 1) {
 
   // Gestion intelligente du cache
   if (count >= CACHE_CONFIG.MAX_ACTIVITIES) {
-    await performIntelligentEviction(store, count - CACHE_CONFIG.MAX_ACTIVITIES + CACHE_CONFIG.EVICTION_BATCH_SIZE);
+    await performIntelligentEviction(
+      store,
+      count - CACHE_CONFIG.MAX_ACTIVITIES + CACHE_CONFIG.EVICTION_BATCH_SIZE,
+    );
   }
 
   // Sauvegarder l'activité
@@ -77,7 +84,6 @@ export async function saveActivity(id, data, version = 1) {
     const request = store.put(activityRecord);
     request.onsuccess = () => {
       if (CACHE_CONFIG.ENABLE_METRICS) {
-        
       }
       resolve();
     };
@@ -96,7 +102,6 @@ async function performIntelligentEviction(store, itemsToRemove) {
     const idsToRemove = await strategy.selectItemsToEvict(store, itemsToRemove);
 
     if (CACHE_CONFIG.ENABLE_METRICS) {
-      
     }
 
     // Supprimer les activités sélectionnées
@@ -107,9 +112,8 @@ async function performIntelligentEviction(store, itemsToRemove) {
         deleteRequest.onerror = () => reject(deleteRequest.error);
       });
     }
-
   } catch (error) {
-    console.error('[CACHE] Erreur lors de l\'éviction intelligente:', error);
+    console.error("[CACHE] Erreur lors de l'éviction intelligente:", error);
     // Fallback vers l'ancienne méthode
     await performSimpleEviction(store, itemsToRemove);
   }
@@ -174,13 +178,13 @@ export async function getActivity(id) {
             ? decompressFromUTF16(result.data)
             : result.data;
 
-          result.data = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+          result.data =
+            typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
 
           // Mettre à jour les métadonnées d'accès (async, ne pas attendre)
           if (CACHE_CONFIG.ENABLE_METRICS) {
             updateAccessMetadata(store, id, result);
           }
-
         } catch (e) {
           console.warn(`[CACHE] Erreur décompression activité ${id}:`, e);
           // Si la donnée n'est pas compressée (legacy), on la garde telle quelle
@@ -203,7 +207,7 @@ function updateAccessMetadata(store, id, currentRecord) {
     const updatedRecord = {
       ...currentRecord,
       lastAccess: Date.now(),
-      accessCount: (currentRecord.accessCount || 0) + 1
+      accessCount: (currentRecord.accessCount || 0) + 1,
     };
 
     store.put(updatedRecord);
@@ -215,7 +219,10 @@ function updateAccessMetadata(store, id, currentRecord) {
 export async function getTheme(id) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const request = db.transaction(STORE_NAMES.themes).objectStore(STORE_NAMES.themes).get(id);
+    const request = db
+      .transaction(STORE_NAMES.themes)
+      .objectStore(STORE_NAMES.themes)
+      .get(id);
     request.onsuccess = () => resolve(request.result?.data || null);
     request.onerror = () => reject(request.error);
   });
@@ -224,7 +231,10 @@ export async function getTheme(id) {
 export async function getModule(id) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const request = db.transaction(STORE_NAMES.modules).objectStore(STORE_NAMES.modules).get(id);
+    const request = db
+      .transaction(STORE_NAMES.modules)
+      .objectStore(STORE_NAMES.modules)
+      .get(id);
     request.onsuccess = () => resolve(request.result?.data || null);
     request.onerror = () => reject(request.error);
   });
@@ -233,7 +243,9 @@ export async function getModule(id) {
 export async function getAllActivities() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = db.transaction(STORE_NAMES.activities).objectStore(STORE_NAMES.activities);
+    const store = db
+      .transaction(STORE_NAMES.activities)
+      .objectStore(STORE_NAMES.activities);
     const request = store.getAll();
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -243,7 +255,9 @@ export async function getAllActivities() {
 export async function getAllThemes() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = db.transaction(STORE_NAMES.themes).objectStore(STORE_NAMES.themes);
+    const store = db
+      .transaction(STORE_NAMES.themes)
+      .objectStore(STORE_NAMES.themes);
     const request = store.getAll();
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -253,7 +267,9 @@ export async function getAllThemes() {
 export async function getAllModules() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const store = db.transaction(STORE_NAMES.modules).objectStore(STORE_NAMES.modules);
+    const store = db
+      .transaction(STORE_NAMES.modules)
+      .objectStore(STORE_NAMES.modules);
     const request = store.getAll();
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -267,7 +283,7 @@ export async function getAllModules() {
  */
 const SYNC_CONFIG = {
   CACHE_TTL: 24 * 60 * 60 * 1000, // 24 heures en millisecondes
-  METADATA_KEY: 'sync_metadata'
+  METADATA_KEY: 'sync_metadata',
 };
 
 /**
@@ -288,8 +304,8 @@ export async function saveSyncMetadata(metadata) {
     lastSyncDate: metadata.lastSyncDate || Date.now(),
     serverFiles: metadata.serverFiles || [],
     serverThemes: metadata.serverThemes || [],
-    expiryDate: metadata.expiryDate || (Date.now() + SYNC_CONFIG.CACHE_TTL),
-    ...metadata
+    expiryDate: metadata.expiryDate || Date.now() + SYNC_CONFIG.CACHE_TTL,
+    ...metadata,
   };
 
   return new Promise((resolve, reject) => {
@@ -306,7 +322,10 @@ export async function saveSyncMetadata(metadata) {
 export async function getSyncMetadata() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
-    const request = db.transaction(STORE_NAMES.sync_metadata).objectStore(STORE_NAMES.sync_metadata).get(SYNC_CONFIG.METADATA_KEY);
+    const request = db
+      .transaction(STORE_NAMES.sync_metadata)
+      .objectStore(STORE_NAMES.sync_metadata)
+      .get(SYNC_CONFIG.METADATA_KEY);
     request.onsuccess = () => {
       const result = request.result;
 
@@ -339,7 +358,10 @@ export async function isRecentSyncAvailable(maxAgeHours = 24) {
 
     return timeSinceLastSync < maxAge;
   } catch (error) {
-    console.warn('[SYNC-CACHE] Erreur lors de la vérification de sync récente:', error);
+    console.warn(
+      '[SYNC-CACHE] Erreur lors de la vérification de sync récente:',
+      error,
+    );
     return false;
   }
 }
@@ -391,7 +413,9 @@ export async function getCacheStatistics() {
     const stats = {
       totalActivities: allActivities.length,
       maxCapacity: CACHE_CONFIG.MAX_ACTIVITIES,
-      usagePercentage: Math.round((allActivities.length / CACHE_CONFIG.MAX_ACTIVITIES) * 100),
+      usagePercentage: Math.round(
+        (allActivities.length / CACHE_CONFIG.MAX_ACTIVITIES) * 100,
+      ),
 
       // Analyse temporelle
       activitiesAddedToday: 0,
@@ -413,15 +437,15 @@ export async function getCacheStatistics() {
       config: {
         maxActivities: CACHE_CONFIG.MAX_ACTIVITIES,
         evictionStrategy: CACHE_CONFIG.EVICTION_STRATEGY,
-        compressionEnabled: CACHE_CONFIG.COMPRESSION_ENABLED
-      }
+        compressionEnabled: CACHE_CONFIG.COMPRESSION_ENABLED,
+      },
     };
 
     // Traiter chaque activité
     let totalAccessCount = 0;
     let totalSizeEstimate = 0;
 
-    allActivities.forEach(activity => {
+    allActivities.forEach((activity) => {
       const timestamp = activity.timestamp || 0;
       const lastAccess = activity.lastAccess || 0;
       const accessCount = activity.accessCount || 0;
@@ -433,8 +457,8 @@ export async function getCacheStatistics() {
       totalSizeEstimate += sizeEstimate;
 
       // Analyse temporelle
-      const dayAgo = now - (24 * 60 * 60 * 1000);
-      const weekAgo = now - (7 * 24 * 60 * 60 * 1000);
+      const dayAgo = now - 24 * 60 * 60 * 1000;
+      const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
       if (timestamp > dayAgo) stats.activitiesAddedToday++;
       if (timestamp > weekAgo) stats.activitiesAddedThisWeek++;
@@ -442,49 +466,54 @@ export async function getCacheStatistics() {
     });
 
     // Calculer les moyennes
-    stats.averageAccessCount = allActivities.length > 0
-      ? Math.round(totalAccessCount / allActivities.length)
-      : 0;
+    stats.averageAccessCount =
+      allActivities.length > 0
+        ? Math.round(totalAccessCount / allActivities.length)
+        : 0;
 
-    stats.estimatedSizeMB = Math.round((totalSizeEstimate / (1024 * 1024)) * 100) / 100;
+    stats.estimatedSizeMB =
+      Math.round((totalSizeEstimate / (1024 * 1024)) * 100) / 100;
 
     // Top/Bottom lists
-    const sortedByAccess = [...allActivities].sort((a, b) => (b.accessCount || 0) - (a.accessCount || 0));
-    const sortedByTimestamp = [...allActivities].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    const sortedByAccess = [...allActivities].sort(
+      (a, b) => (b.accessCount || 0) - (a.accessCount || 0),
+    );
+    const sortedByTimestamp = [...allActivities].sort(
+      (a, b) => (b.timestamp || 0) - (a.timestamp || 0),
+    );
 
-    stats.mostUsedActivities = sortedByAccess.slice(0, 5).map(a => ({
+    stats.mostUsedActivities = sortedByAccess.slice(0, 5).map((a) => ({
       id: a.id,
       accessCount: a.accessCount || 0,
-      lastAccess: new Date(a.lastAccess || 0)
+      lastAccess: new Date(a.lastAccess || 0),
     }));
 
-    stats.leastUsedActivities = sortedByAccess.slice(-5).map(a => ({
+    stats.leastUsedActivities = sortedByAccess.slice(-5).map((a) => ({
       id: a.id,
       accessCount: a.accessCount || 0,
-      lastAccess: new Date(a.lastAccess || 0)
+      lastAccess: new Date(a.lastAccess || 0),
     }));
 
-    stats.newestActivities = sortedByTimestamp.slice(0, 5).map(a => ({
+    stats.newestActivities = sortedByTimestamp.slice(0, 5).map((a) => ({
       id: a.id,
       timestamp: new Date(a.timestamp || 0),
-      version: a.version || 1
+      version: a.version || 1,
     }));
 
-    stats.oldestActivities = sortedByTimestamp.slice(-5).map(a => ({
+    stats.oldestActivities = sortedByTimestamp.slice(-5).map((a) => ({
       id: a.id,
       timestamp: new Date(a.timestamp || 0),
-      version: a.version || 1
+      version: a.version || 1,
     }));
 
     return stats;
-
   } catch (error) {
     console.error('[CACHE] Erreur lors du calcul des statistiques:', error);
     return {
       error: error.message,
       totalActivities: 0,
       maxCapacity: CACHE_CONFIG.MAX_ACTIVITIES,
-      usagePercentage: 0
+      usagePercentage: 0,
     };
   }
 }

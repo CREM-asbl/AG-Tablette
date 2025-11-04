@@ -39,5 +39,5 @@ export default {
   kit: false,
   themeColor: '#888888',
   themeColorSoft: '#B8B8B8',
-  textColor: '#FFF'
+  textColor: '#FFF',
 };

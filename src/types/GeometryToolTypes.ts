@@ -8,21 +8,21 @@ export interface IGeometryTool {
   title: string;
   type: string;
   currentStep: string | null;
-  
+
   // Méthodes de cycle de vie
   start(): void;
   end(): void;
-  
+
   // Méthodes d'interaction
   canvasMouseDown(): void;
   canvasMouseUp(): void;
-  
+
   // Méthodes de rendu
   refreshStateUpper(): void;
-  
+
   // Méthodes d'aide
   getHelpText(): string;
-  
+
   // Exécution des actions
   executeAction(): void | Promise<void>;
 }
@@ -32,7 +32,7 @@ export interface IShapeCreationTool extends IGeometryTool {
   segments: any[];
   numberOfPointsDrawn: number;
   constraints: any;
-  
+
   // Méthodes spécifiques à la création de formes
   drawPoint(): void;
   animatePoint(): void;
@@ -78,7 +78,10 @@ export interface IConstraints {
   type: 'isFree' | 'isConstrained';
   isFree?: boolean;
   segments?: any[];
-  projectionOnConstraints?(coordinates: ICoordinates, validate?: boolean): ICoordinates | boolean;
+  projectionOnConstraints?(
+    coordinates: ICoordinates,
+    validate?: boolean,
+  ): ICoordinates | boolean;
 }
 
 /**

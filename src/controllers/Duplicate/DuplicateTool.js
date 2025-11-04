@@ -60,7 +60,13 @@ export class DuplicateTool extends Tool {
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -71,9 +77,15 @@ export class DuplicateTool extends Tool {
     const constraints = SelectManager.getEmptySelectionConstraints();
     constraints.eventType = 'mousedown';
     constraints.shapes.canSelect = true;
-    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape && s.name != 'PointOnLine');
+    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(
+      (s) => s instanceof SinglePointShape && s.name != 'PointOnLine',
+    );
     constraints.segments.canSelect = true;
-    constraints.segments.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof LineShape).map(s => { return { shapeId: s.id } });
+    constraints.segments.blacklist = app.mainCanvasLayer.shapes
+      .filter((s) => s instanceof LineShape)
+      .map((s) => {
+        return { shapeId: s.id };
+      });
     constraints.priority = ['points', 'shapes', 'segments'];
     app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -102,15 +114,20 @@ export class DuplicateTool extends Tool {
   }
 
   objectSelected(object) {
-    if (app.tool.currentStep != 'listen' && app.tool.currentStep != 'selectSegment') return;
+    if (
+      app.tool.currentStep != 'listen' &&
+      app.tool.currentStep != 'selectSegment'
+    )
+      return;
 
     if (app.tool.currentStep == 'selectSegment' && object instanceof Segment) {
-      if (object.isInfinite || object.isSemiInfinite)
-        return;
+      if (object.isInfinite || object.isSemiInfinite) return;
       this.mode = 'point';
       this.segment = object;
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+      });
     } else if (object instanceof Segment) {
       this.mode = 'segment';
 
@@ -124,9 +141,11 @@ export class DuplicateTool extends Tool {
         path: object.getSVGPath('no scale', true),
         id: undefined,
         segmentsColor: [object.color],
-        pointsColor: object.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-          return pt.color;
-        }),
+        pointsColor: object.points
+          .filter((pt) => pt.type != 'divisionPoint')
+          .map((pt) => {
+            return pt.color;
+          }),
       });
       newShape.translate(this.translateOffset);
 
@@ -142,14 +161,21 @@ export class DuplicateTool extends Tool {
         color: app.settings.referenceDrawColor,
         size: 2,
       });
-      setState({ tool: {...app.tool, currentStep: 'selectSegment'} });
+      setState({ tool: { ...app.tool, currentStep: 'selectSegment' } });
     } else {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
         if (currentShape.name == 'Vector') {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.' } }));
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message:
+                  'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.',
+              },
+            }),
+          );
           return;
         }
       }
@@ -173,11 +199,15 @@ export class DuplicateTool extends Tool {
           segmentsColor: s.segments.map((seg) => {
             return seg.color;
           }),
-          pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-            return pt.color;
-          }),
+          pointsColor: s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .map((pt) => {
+              return pt.color;
+            }),
         });
-        newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
+        newShape.vertexes.forEach(
+          (vx, idx) => (vx.visible = s.vertexes[idx].visible),
+        );
         newShape.translate(this.translateOffset);
         return newShape;
       });
@@ -217,24 +247,37 @@ export class DuplicateTool extends Tool {
       const ratio = this.involvedPoint.points[0].ratio;
       if (segment.shape.name == 'Circle') {
         const refShape = segment.shape;
-        const angle = refShape.segments[0].arcCenter.coordinates.angleWith(refShape.vertexes[0].coordinates) + ratio * Math.PI * 2;
+        const angle =
+          refShape.segments[0].arcCenter.coordinates.angleWith(
+            refShape.vertexes[0].coordinates,
+          ) +
+          ratio * Math.PI * 2;
         coord = refShape.segments[0].arcCenter.coordinates.add({
           x: refShape.segments[0].radius * Math.cos(angle),
           y: refShape.segments[0].radius * Math.sin(angle),
         });
       } else if (segment.isArc()) {
-        const firstAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[0].coordinates);
-        let secondAngle = segment.arcCenter.coordinates.angleWith(segment.vertexes[1].coordinates);
+        const firstAngle = segment.arcCenter.coordinates.angleWith(
+          segment.vertexes[0].coordinates,
+        );
+        let secondAngle = segment.arcCenter.coordinates.angleWith(
+          segment.vertexes[1].coordinates,
+        );
         if (secondAngle <= firstAngle) {
           secondAngle += Math.PI * 2;
         }
         let newAngle = firstAngle + ratio * (secondAngle - firstAngle);
         if (segment.counterclockwise) {
-          newAngle = firstAngle - ratio * (2 * Math.PI - secondAngle + firstAngle);
+          newAngle =
+            firstAngle - ratio * (2 * Math.PI - secondAngle + firstAngle);
         }
         coord = new Coordinates({
-          x: segment.arcCenter.coordinates.x + segment.radius * Math.cos(newAngle),
-          y: segment.arcCenter.coordinates.y + segment.radius * Math.sin(newAngle),
+          x:
+            segment.arcCenter.coordinates.x +
+            segment.radius * Math.cos(newAngle),
+          y:
+            segment.arcCenter.coordinates.y +
+            segment.radius * Math.sin(newAngle),
         });
       } else {
         const firstPoint = segment.vertexes[0];
@@ -261,7 +304,9 @@ export class DuplicateTool extends Tool {
       computeConstructionSpec(shape);
 
       segment.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-      this.involvedPoint.geometryObject.geometryDuplicateChildShapeIds.push(shape.id);
+      this.involvedPoint.geometryObject.geometryDuplicateChildShapeIds.push(
+        shape.id,
+      );
     } else if (this.mode == 'segment') {
       const newShape = new LineShape({
         layer: 'main',
@@ -269,25 +314,26 @@ export class DuplicateTool extends Tool {
         path: this.involvedSegment.getSVGPath('no scale', true),
         id: undefined,
         segmentsColor: [this.involvedSegment.color],
-        pointsColor: this.involvedSegment.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-          return pt.color;
-        }),
+        pointsColor: this.involvedSegment.points
+          .filter((pt) => pt.type != 'divisionPoint')
+          .map((pt) => {
+            return pt.color;
+          }),
         geometryObject: new GeometryObject({}),
       });
       newShape.translate(this.translation);
 
       if (newShape.geometryObject)
         newShape.geometryObject = new GeometryObject({
-          geometryDuplicateParentShapeId: this.involvedSegment.id
+          geometryDuplicateParentShapeId: this.involvedSegment.id,
         });
-      this.involvedSegment.shape.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
+      this.involvedSegment.shape.geometryObject.geometryDuplicateChildShapeIds.push(
+        newShape.id,
+      );
 
       const transformation = getShapeAdjustment([newShape], newShape);
 
-      newShape.rotate(
-        transformation.rotationAngle,
-        newShape.centerCoordinates,
-      );
+      newShape.rotate(transformation.rotationAngle, newShape.centerCoordinates);
       newShape.translate(transformation.translation);
 
       computeConstructionSpec(newShape);
@@ -307,18 +353,22 @@ export class DuplicateTool extends Tool {
           segmentsColor: s.segments.map((seg) => {
             return seg.color;
           }),
-          pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-            return pt.color;
-          }),
+          pointsColor: s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .map((pt) => {
+              return pt.color;
+            }),
         });
-        newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
+        newShape.vertexes.forEach(
+          (vx, idx) => (vx.visible = s.vertexes[idx].visible),
+        );
         if (newShape.name.startsWith('Parallele'))
           newShape.name = newShape.name.slice('Parallele'.length);
         if (newShape.name.startsWith('Perpendicular'))
           newShape.name = newShape.name.slice('Perpendicular'.length);
         if (newShape.geometryObject)
           newShape.geometryObject = new GeometryObject({
-            geometryDuplicateParentShapeId: s.id
+            geometryDuplicateParentShapeId: s.id,
           });
         s.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
         shapesList.push(newShape);

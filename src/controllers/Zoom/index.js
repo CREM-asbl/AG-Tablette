@@ -1,5 +1,5 @@
 import { ZoomTool } from './ZoomTool';
 
 export default {
-  tool: new ZoomTool()
+  tool: new ZoomTool(),
 };

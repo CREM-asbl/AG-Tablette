@@ -7,34 +7,37 @@ import { TemplatePopup } from './template-popup';
 
 class SettingsPopup extends LitElement {
   static properties = {
-    settings: { type: Array }
+    settings: { type: Array },
   };
 
   constructor() {
     super();
     this.settings = { ...app.settings };
-    window.addEventListener('settings-changed', () => (this.settings = { ...app.settings }));
+    window.addEventListener(
+      'settings-changed',
+      () => (this.settings = { ...app.settings }),
+    );
     window.addEventListener('close-popup', () => this.close());
   }
 
   static styles = [
     TemplatePopup.template_popup_styles(),
     css`
-        version-item {
-          margin-right: 8px;
-        }
+      version-item {
+        margin-right: 8px;
+      }
 
-        fieldset {
-          width: 100%;
-          box-sizing: border-box;
-          border-radius: 4px;
-        }
+      fieldset {
+        width: 100%;
+        box-sizing: border-box;
+        border-radius: 4px;
+      }
 
-        [slot=body] {
-          gap: 8px;
-        }
-      `,
-  ]
+      [slot='body'] {
+        gap: 8px;
+      }
+    `,
+  ];
 
   render() {
     return html`
@@ -54,18 +57,23 @@ class SettingsPopup extends LitElement {
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
 
-            ${app.environment.name === 'Geometrie' ? html`
-            <div class="field">
-              <input
-                type="checkbox"
-                name="settings_animation_in_geometry_tranformations"
-                id="settings_animation_in_geometry_tranformations"
-                .checked="${this.settings.geometryTransformationAnimation}"
-                @change="${this._actionHandle}"
-              />
-              <label for="settings_animation_in_geometry_tranformations">Animation des tranformations</label>
-            </div>` : ''
-      }
+            ${
+              app.environment.name === 'Geometrie'
+                ? html` <div class="field">
+                    <input
+                      type="checkbox"
+                      name="settings_animation_in_geometry_tranformations"
+                      id="settings_animation_in_geometry_tranformations"
+                      .checked="${this.settings
+                        .geometryTransformationAnimation}"
+                      @change="${this._actionHandle}"
+                    />
+                    <label for="settings_animation_in_geometry_tranformations"
+                      >Animation des tranformations</label
+                    >
+                  </div>`
+                : ''
+            }
 
             <div class="field">
               <color-button @click="${this.openToolChoicePopup}">
@@ -74,36 +82,57 @@ class SettingsPopup extends LitElement {
             </div>
           </fieldset>
 
-          ${app.environment.name != 'Tangram' ? html`
-          <fieldset>
-            <legend>Figures</legend>
-            ${app.environment.name === 'Grandeurs' ? html`
-            <div class="field">
-              <label for="settings_shapes_size">Taille des figures</label>
-              <select name="settings_shapes_size"
-                      id="settings_shapes_size"
-                      @change="${this._actionHandle}" >
-                <option value="1" ?selected="${this.settings.shapesSize === 1}">
-                  1
-                </option>
-                <option value="2" ?selected="${this.settings.shapesSize === 2}">
-                  2
-                </option>
-                <option value="3" ?selected="${this.settings.shapesSize === 3}">
-                  3
-                </option>
-              </select>
-            </div>`: ''}
+          ${
+            app.environment.name != 'Tangram'
+              ? html` <fieldset>
+                  <legend>Figures</legend>
+                  ${app.environment.name === 'Grandeurs'
+                    ? html` <div class="field">
+                        <label for="settings_shapes_size"
+                          >Taille des figures</label
+                        >
+                        <select
+                          name="settings_shapes_size"
+                          id="settings_shapes_size"
+                          @change="${this._actionHandle}"
+                        >
+                          <option
+                            value="1"
+                            ?selected="${this.settings.shapesSize === 1}"
+                          >
+                            1
+                          </option>
+                          <option
+                            value="2"
+                            ?selected="${this.settings.shapesSize === 2}"
+                          >
+                            2
+                          </option>
+                          <option
+                            value="3"
+                            ?selected="${this.settings.shapesSize === 3}"
+                          >
+                            3
+                          </option>
+                        </select>
+                      </div>`
+                    : ''}
 
-            <div class="field">
-              <input type="checkbox"
-                     name="settings_shapes_pointed"
-                     id="settings_shapes_pointed"
-                     .checked="${this.settings.areShapesPointed}"
-                     @change="${this._actionHandle}" />
-              <label for="settings_shapes_pointed">Figures pointées</label>
-            </div>
-          </fieldset>` : ''}
+                  <div class="field">
+                    <input
+                      type="checkbox"
+                      name="settings_shapes_pointed"
+                      id="settings_shapes_pointed"
+                      .checked="${this.settings.areShapesPointed}"
+                      @change="${this._actionHandle}"
+                    />
+                    <label for="settings_shapes_pointed"
+                      >Figures pointées</label
+                    >
+                  </div>
+                </fieldset>`
+              : ''
+          }
           </div>
 
           <footer slot="footer">
@@ -165,11 +194,11 @@ class SettingsPopup extends LitElement {
       default:
         console.error(
           'Settings: paramètre inconnu: ' +
-          event.target.name +
-          ' ' +
-          event.target.value +
-          ' ' +
-          event.target.checked,
+            event.target.name +
+            ' ' +
+            event.target.value +
+            ' ' +
+            event.target.checked,
         );
     }
     this.settings = { ...this.settings };

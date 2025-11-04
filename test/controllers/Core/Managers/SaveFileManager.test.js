@@ -123,7 +123,7 @@ const mockApp = {
 };
 
 // Importer après les mocks
-import { saveFile, initSaveFileEventListener, prepareSaveData, validateAppState } from '@controllers/Core/Managers/SaveFileManager.js';
+import { saveFile, initSaveFileEventListener, prepareSaveData, validateAppState, configureSaveOptions } from '@controllers/Core/Managers/SaveFileManager.js';
 
 describe('SaveFileManager', () => {
   beforeEach(() => {

@@ -14,7 +14,9 @@ export class GeometryConstraint {
    * @param {[Point]} points      pout isContructed
    */
   constructor(type, lines = [], points = []) {
-    findObjectsByName('constraints', 'upper').forEach(s => removeObjectById(s.id));
+    findObjectsByName('constraints', 'upper').forEach((s) =>
+      removeObjectById(s.id),
+    );
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';
@@ -100,7 +102,13 @@ export class GeometryConstraint {
         }),
       );
     projectionsOnContraints.sort((p1, p2) => (p1.dist > p2.dist ? 1 : -1));
-    if (errorWhenTooFar && !SelectManager.areCoordinatesInSelectionDistance(projectionsOnContraints[0].projection, coordinates)) {
+    if (
+      errorWhenTooFar &&
+      !SelectManager.areCoordinatesInSelectionDistance(
+        projectionsOnContraints[0].projection,
+        coordinates,
+      )
+    ) {
       return null;
     }
     return projectionsOnContraints[0].projection;

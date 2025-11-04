@@ -30,16 +30,16 @@ export class MergeTool extends Tool {
       <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        fusionner deux figures ayant au moins un côté commun en une seule figure.
-        Une nouvelle figure (le fruit de la fusion) est créée, et les deux figures
-        d'origine restent intactes.<br />
+        fusionner deux figures ayant au moins un côté commun en une seule
+        figure. Une nouvelle figure (le fruit de la fusion) est créée, et les
+        deux figures d'origine restent intactes.<br />
 
         Pour fusionner les deux figures, touchez la première figure puis la
         seconde.<br /><br />
 
-        <b>Note:</b> pour qu'une fusion entre deux figures soit possible, il faut
-        que les deux figures aient au moins un segment en commun (un côté entier,
-        ou une partie d'un côté). Il ne faut pas que les deux figures se
+        <b>Note:</b> pour qu'une fusion entre deux figures soit possible, il
+        faut que les deux figures aient au moins un segment en commun (un côté
+        entier, ou une partie d'un côté). Il ne faut pas que les deux figures se
         chevauchent pour que la fusion puisse être réalisée.
       </p>
     `;
@@ -49,7 +49,13 @@ export class MergeTool extends Tool {
    * initialiser l'état
    */
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -61,7 +67,6 @@ export class MergeTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
-
   }
 
   selectSecondShape() {
@@ -127,9 +132,7 @@ export class MergeTool extends Tool {
       } else {
         const group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
-          const firstShape = findObjectById(
-            this.firstShapeId,
-          );
+          const firstShape = findObjectById(this.firstShapeId);
           this.involvedShapes = [...group, firstShape];
           const path = this.getPathFromGroup();
           if (path) {
@@ -148,12 +151,8 @@ export class MergeTool extends Tool {
         } else {
           this.secondShapeId = shape.id;
 
-          const firstShape = findObjectById(
-            this.firstShapeId,
-          );
-          const secondShape = findObjectById(
-            this.secondShapeId,
-          );
+          const firstShape = findObjectById(this.firstShapeId);
+          const secondShape = findObjectById(this.secondShapeId);
 
           if (firstShape.getCommonsCoordinates(secondShape).length < 2) {
             window.dispatchEvent(
@@ -206,7 +205,11 @@ export class MergeTool extends Tool {
   }
 
   alertDigShape() {
-    window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'La figure créée est creuse' } }));
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: { message: 'La figure créée est creuse' },
+      }),
+    );
   }
 
   getPathFromGroup() {
@@ -239,7 +242,11 @@ export class MergeTool extends Tool {
             createFromNothing: true,
             vertexCoordinates: seg.vertexes.map((vx) => vx.coordinates),
             divisionPointInfos: seg.divisionPoints.map((dp) => {
-              return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
+              return {
+                coordinates: dp.coordinates,
+                ratio: dp.ratio,
+                color: dp.color,
+              };
             }),
             arcCenterCoordinates: seg.arcCenter?.coordinates,
           });
@@ -297,7 +304,11 @@ export class MergeTool extends Tool {
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
         divisionPointInfos: seg.divisionPoints.map((dp) => {
-          return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
+          return {
+            coordinates: dp.coordinates,
+            ratio: dp.ratio,
+            color: dp.color,
+          };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
         counterclockwise: seg.counterclockwise,
@@ -310,7 +321,11 @@ export class MergeTool extends Tool {
         createFromNothing: true,
         vertexCoordinates: seg.vertexes.map((v) => v.coordinates),
         divisionPointInfos: seg.divisionPoints.map((dp) => {
-          return { coordinates: dp.coordinates, ratio: dp.ratio, color: dp.color };
+          return {
+            coordinates: dp.coordinates,
+            ratio: dp.ratio,
+            color: dp.color,
+          };
         }),
         arcCenterCoordinates: seg.arcCenter?.coordinates,
         counterclockwise: seg.counterclockwise,
@@ -330,7 +345,7 @@ export class MergeTool extends Tool {
         if (
           Math.abs(
             firstSegment.getAngleWithHorizontal() -
-            secondSegment.getAngleWithHorizontal(),
+              secondSegment.getAngleWithHorizontal(),
           ) > 0.01
         ) {
           secondSegment.reverse();

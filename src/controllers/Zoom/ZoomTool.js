@@ -12,11 +12,11 @@ import { Tool } from '../Core/States/Tool';
  * @returns {number} Le nouveau niveau de zoom, en respectant les limites.
  */
 const calculateZoomWithLimits = (currentZoom, zoomOffset, minZoom, maxZoom) => {
-  let newZoom = currentZoom * zoomOffset
-  if (newZoom > maxZoom) newZoom = maxZoom
-  if (newZoom < minZoom) newZoom = minZoom
+  let newZoom = currentZoom * zoomOffset;
+  if (newZoom > maxZoom) newZoom = maxZoom;
+  if (newZoom < minZoom) newZoom = minZoom;
   return newZoom;
-}
+};
 
 /**
  * Zoomer/Dézoomer le plan
@@ -81,15 +81,21 @@ export class ZoomTool extends Tool {
   }
 
   canvasTouchStart(touches) {
-    this.running = true
+    this.running = true;
     if (touches.length == 2) {
-      const point1 = touches[0], point2 = touches[1];
+      const point1 = touches[0],
+        point2 = touches[1];
       this.baseDist = point1.dist(point2);
       if (this.baseDist == 0) this.baseDist = 0.001;
       this.originalZoom = app.workspace.zoomLevel;
       app.upperCanvasLayer.removeAllObjects();
       setState({
-        tool: { name: this.name, currentStep: 'start', mode: 'touch', title: this.title },
+        tool: {
+          name: this.name,
+          currentStep: 'start',
+          mode: 'touch',
+          title: this.title,
+        },
       });
     }
   }
@@ -97,33 +103,55 @@ export class ZoomTool extends Tool {
   canvasTouchMove(touches) {
     if (touches.length !== 2) return;
     if (app.tool.currentStep == 'start') {
-      const point1 = touches[0], point2 = touches[1]
+      const point1 = touches[0],
+        point2 = touches[1];
       let newDist = point1.dist(point2);
       if (newDist == 0) newDist = 0.001;
-      const scaleOffset = newDist / this.baseDist
-      const newZoom = calculateZoomWithLimits(this.originalZoom, scaleOffset, app.settings.minZoomLevel, app.settings.maxZoomLevel)
-      this.applyZoom(newZoom)
+      const scaleOffset = newDist / this.baseDist;
+      const newZoom = calculateZoomWithLimits(
+        this.originalZoom,
+        scaleOffset,
+        app.settings.minZoomLevel,
+        app.settings.maxZoomLevel,
+      );
+      this.applyZoom(newZoom);
     }
   }
 
   canvasTouchEnd() {
     if (!this.running) return;
     this.running = false;
-    window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }));
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', { detail: { name: this.title } }),
+    );
   }
 
   canvasMouseWheel(deltaY) {
     if (!this.isLastActionZoom)
-      setState({ tool: { name: this.name, currentStep: 'start', mode: 'wheel', title: this.title } });
+      setState({
+        tool: {
+          name: this.name,
+          currentStep: 'start',
+          mode: 'wheel',
+          title: this.title,
+        },
+      });
     clearTimeout(this.timeoutId);
     this.originalZoom = app.workspace.zoomLevel;
-    const scaleOffset = (this.originalZoom - deltaY / 100) / this.originalZoom
-    const newZoom = calculateZoomWithLimits(this.originalZoom, scaleOffset, app.settings.minZoomLevel, app.settings.maxZoomLevel)
+    const scaleOffset = (this.originalZoom - deltaY / 100) / this.originalZoom;
+    const newZoom = calculateZoomWithLimits(
+      this.originalZoom,
+      scaleOffset,
+      app.settings.minZoomLevel,
+      app.settings.maxZoomLevel,
+    );
     this.applyZoom(newZoom);
     this.isLastActionZoom = true;
     this.timeoutId = setTimeout(() => {
-      window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }))
+      window.dispatchEvent(
+        new CustomEvent('actions-executed', { detail: { name: this.title } }),
+      );
       this.isLastActionZoom = false;
-    }, 300)
+    }, 300);
   }
 }

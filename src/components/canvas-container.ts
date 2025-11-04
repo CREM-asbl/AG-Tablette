@@ -5,26 +5,32 @@ import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import './canvas-layer';
 
 class CanvasContainer extends LitElement {
-  @property({ type: Object }) cursorPos = Coordinates.nullCoordinates
-  @property({ type: Number }) cursorSize = 20
-  @property({ type: Boolean }) cursorShow = false
-  @property({ type: Object }) environment
+  @property({ type: Object }) cursorPos = Coordinates.nullCoordinates;
+  @property({ type: Number }) cursorSize = 20;
+  @property({ type: Boolean }) cursorShow = false;
+  @property({ type: Object }) environment;
 
   private timeoutId: number | undefined;
 
-  private resizeHandler = () => { this.setCanvasSize(); };
+  private resizeHandler = () => {
+    this.setCanvasSize();
+  };
   private mouseCoordinatesHandler = (event: CustomEvent) => {
-    app.workspace.lastKnownMouseCoordinates = new Coordinates(event.detail.mousePos);
+    app.workspace.lastKnownMouseCoordinates = new Coordinates(
+      event.detail.mousePos,
+    );
   };
   private mouseClickHandler = (event: CustomEvent) => {
-    app.workspace.lastKnownMouseClickCoordinates = new Coordinates(event.detail.mousePos);
+    app.workspace.lastKnownMouseClickCoordinates = new Coordinates(
+      event.detail.mousePos,
+    );
     app.workspace.lastKnownMouseClickTime = event.timeStamp;
   };
   private showCursorHandler = () => {
     const mousePos = app.workspace.lastKnownMouseCoordinates;
     this.cursorPos = mousePos.toCanvasCoordinates();
     this.cursorPos = this.cursorPos.substract(
-      new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 })
+      new Coordinates({ x: this.cursorSize / 2, y: this.cursorSize / 2 }),
     );
     this.cursorShow = true;
     window.clearTimeout(this.timeoutId);
@@ -43,7 +49,6 @@ class CanvasContainer extends LitElement {
     });
   };
 
-
   static styles = css`
     :host {
       display: block;
@@ -59,10 +64,10 @@ class CanvasContainer extends LitElement {
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0 , 0);
+      background-color: rgba(0, 0, 0, 0);
       box-sizing: border-box;
     }
-  `
+  `;
   render() {
     return html`
       <!-- for the paths -->
@@ -75,7 +80,12 @@ class CanvasContainer extends LitElement {
       <canvas-layer id="backgroundCanvas"></canvas-layer>
 
       <!-- for grid points or tangram outline -->
-      ${this.environment.name !== 'Tangram' ? html`<canvas-layer id="gridCanvas"></canvas-layer>` : html`<canvas-layer id="tangramCanvas" style="left:50%"></canvas-layer>`}
+      ${this.environment.name !== 'Tangram'
+        ? html`<canvas-layer id="gridCanvas"></canvas-layer>`
+        : html`<canvas-layer
+            id="tangramCanvas"
+            style="left:50%"
+          ></canvas-layer>`}
 
       <!-- for the shapes -->
       <canvas-layer id="mainCanvas"></canvas-layer>
@@ -87,9 +97,11 @@ class CanvasContainer extends LitElement {
         src="/images/fake_cursor.png"
         height="${this.cursorSize}"
         width="${this.cursorSize}"
-        style="margin-left: ${this.cursorPos.x}px; z-index: 50; position: relative; margin-top: ${this.cursorPos.y}px; display: ${this.cursorShow ? 'block' : 'none'}"
+        style="margin-left: ${this.cursorPos
+          .x}px; z-index: 50; position: relative; margin-top: ${this.cursorPos
+          .y}px; display: ${this.cursorShow ? 'block' : 'none'}"
       />
-    `
+    `;
   }
 
   firstUpdated() {
@@ -98,7 +110,10 @@ class CanvasContainer extends LitElement {
 
     setState({ started: true });
 
-    window.addEventListener('mouse-coordinates-changed', this.mouseCoordinatesHandler);
+    window.addEventListener(
+      'mouse-coordinates-changed',
+      this.mouseCoordinatesHandler,
+    );
     window.addEventListener('mouse-click-changed', this.mouseClickHandler);
     window.addEventListener('show-cursor', this.showCursorHandler);
     window.addEventListener('new-window', this.newWindowHandler);
@@ -107,15 +122,24 @@ class CanvasContainer extends LitElement {
   setCanvasSize() {
     app.canvasWidth = this.clientWidth;
     app.canvasHeight = this.clientHeight;
-    setState({ settings: { ...app.settings, selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60, magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60 } });
-    const layers = this.shadowRoot.querySelectorAll('canvas-layer')
-    layers.forEach(layer => layer.requestUpdate())
+    setState({
+      settings: {
+        ...app.settings,
+        selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60,
+        magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60,
+      },
+    });
+    const layers = this.shadowRoot.querySelectorAll('canvas-layer');
+    layers.forEach((layer) => layer.requestUpdate());
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     window.removeEventListener('resize', this.resizeHandler);
-    window.removeEventListener('mouse-coordinates-changed', this.mouseCoordinatesHandler);
+    window.removeEventListener(
+      'mouse-coordinates-changed',
+      this.mouseCoordinatesHandler,
+    );
     window.removeEventListener('mouse-click-changed', this.mouseClickHandler);
     window.removeEventListener('show-cursor', this.showCursorHandler);
     window.removeEventListener('new-window', this.newWindowHandler);

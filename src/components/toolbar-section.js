@@ -9,8 +9,8 @@ class ToolbarSection extends LitElement {
     toolsType: { type: String },
     tools: { type: Array },
     helpSelected: { type: Boolean },
-    selected: { type: String }
-  }
+    selected: { type: String },
+  };
 
   constructor() {
     super();
@@ -23,8 +23,12 @@ class ToolbarSection extends LitElement {
 
   shouldUpdate(changedProperties) {
     // Ne mettre à jour que si les props pertinentes ont changé
-    if (changedProperties.has('toolsType') || changedProperties.has('tools') ||
-      changedProperties.has('helpSelected') || changedProperties.has('selected')) {
+    if (
+      changedProperties.has('toolsType') ||
+      changedProperties.has('tools') ||
+      changedProperties.has('helpSelected') ||
+      changedProperties.has('selected')
+    ) {
       return true;
     }
     return super.shouldUpdate(changedProperties);
@@ -33,9 +37,14 @@ class ToolbarSection extends LitElement {
   // Calcule les outils filtrés une seule fois entre les rendus
   _getFilteredTools() {
     // Vérifier si nous avons besoin de recalculer
-    if (this._lastToolsType !== this.toolsType || this._lastTools !== this.tools || !this._filteredTools.length) {
+    if (
+      this._lastToolsType !== this.toolsType ||
+      this._lastTools !== this.tools ||
+      !this._filteredTools.length
+    ) {
       this._filteredTools = (this.tools || []).filter(
-        (tool) => tool.type === this.toolsType && tool.isVisible && !tool.isDisable
+        (tool) =>
+          tool.type === this.toolsType && tool.isVisible && !tool.isDisable,
       );
       this._lastToolsType = this.toolsType;
       this._lastTools = this.tools;
@@ -51,16 +60,19 @@ class ToolbarSection extends LitElement {
       <template-toolbar>
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
-          ${tools.map((tool) => html`
-              <icon-button
+          ${tools.map(
+            (tool) =>
+              html` <icon-button
                 name="${tool.name}"
                 type="State"
                 title="${tool.title}"
                 ?active="${tool.name === this.selected}"
                 ?helpanimation="${this.helpSelected}"
                 cantInteract="${this.helpSelected}"
-                @click="${this._actionHandle}">
-              </icon-button>`)}
+                @click="${this._actionHandle}"
+              >
+              </icon-button>`,
+          )}
         </div>
       </template-toolbar>
     `;
@@ -71,10 +83,14 @@ class ToolbarSection extends LitElement {
 
     // Éviter les clics multiples rapides
     this._pendingUpdate = true;
-    setTimeout(() => this._pendingUpdate = false, 100);
+    setTimeout(() => (this._pendingUpdate = false), 100);
 
     if (this.helpSelected) {
-      window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: event.target.name } }));
+      window.dispatchEvent(
+        new CustomEvent('helpToolChosen', {
+          detail: { toolname: event.target.name },
+        }),
+      );
       setState({ helpSelected: false });
     } else if (!app.fullHistory.isRunning) {
       setState({ tool: { name: event.target.name, currentStep: 'start' } });

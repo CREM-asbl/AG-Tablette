@@ -12,7 +12,10 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInSelectionDistance(c1, c2) {
-    const areInSelectionDistance = c1.equal(c2, app.settings.selectionDistance / app.workspace.zoomLevel);
+    const areInSelectionDistance = c1.equal(
+      c2,
+      app.settings.selectionDistance / app.workspace.zoomLevel,
+    );
     return areInSelectionDistance;
   }
 
@@ -22,7 +25,10 @@ export class SelectManager {
    * @param  {Coordinates}  c2
    */
   static areCoordinatesInMagnetismDistance(c1, c2) {
-    const areInMagnetismDistance = c1.equal(c2, app.settings.magnetismDistance / app.workspace.zoomLevel);
+    const areInMagnetismDistance = c1.equal(
+      c2,
+      app.settings.magnetismDistance / app.workspace.zoomLevel,
+    );
     return areInMagnetismDistance;
   }
 
@@ -72,7 +78,13 @@ export class SelectManager {
         canSelectFromUpper: false,
         //Indépendamment de whitelist et blacklist, le point doit être
         //d'un des types renseignés dans ce tableau.
-        types: ['shapeCenter', 'vertex', 'divisionPoint', 'modifiablePoint', 'arcCenter'],
+        types: [
+          'shapeCenter',
+          'vertex',
+          'divisionPoint',
+          'modifiablePoint',
+          'arcCenter',
+        ],
         /*
                 Liste pouvant contenir différents éléments sous la figure:
                     - {'shapeId': shapeId}
@@ -116,11 +128,7 @@ export class SelectManager {
    * @param  {Boolean} all si retourne tous les points et pas seulement le plus haut / proche
    * @return {Point}
    */
-  static selectPoint(
-    mouseCoordinates,
-    constraints,
-    easySelection = true,
-  ) {
+  static selectPoint(mouseCoordinates, constraints, easySelection = true) {
     if (!constraints.canSelect) return null;
 
     const distCheckFunction = easySelection
@@ -132,9 +140,12 @@ export class SelectManager {
     let allPoints = [...app.mainCanvasLayer.points];
 
     if (app.environment.name == 'Geometrie') {
-      allPoints = allPoints.filter(pt => pt.shape.geometryObject?.geometryIsVisible !== false)
-        .filter(pt => pt.shape.geometryObject?.geometryIsHidden !== true)
-        .filter(pt => pt.shape.geometryObject?.geometryIsConstaintDraw == false);
+      allPoints = allPoints
+        .filter((pt) => pt.shape.geometryObject?.geometryIsVisible !== false)
+        .filter((pt) => pt.shape.geometryObject?.geometryIsHidden !== true)
+        .filter(
+          (pt) => pt.shape.geometryObject?.geometryIsConstaintDraw == false,
+        );
     }
 
     if (constraints.canSelectFromUpper)
@@ -212,35 +223,30 @@ export class SelectManager {
     constrainedPoints.sort((pt1, pt2) => {
       const dist1 = pt1.coordinates.dist(mouseCoordinates);
       const dist2 = pt2.coordinates.dist(mouseCoordinates);
-      if (Math.abs(dist1 - dist2) > 0.001)
-        return dist1 - dist2;
+      if (Math.abs(dist1 - dist2) > 0.001) return dist1 - dist2;
 
-      if (pt1.shape.layer == 'upper' && pt2.shape.layer == 'main')
-        return -1;
-      if (pt2.shape.layer == 'upper' && pt1.shape.layer == 'main')
-        return 1;
+      if (pt1.shape.layer == 'upper' && pt2.shape.layer == 'main') return -1;
+      if (pt2.shape.layer == 'upper' && pt1.shape.layer == 'main') return 1;
 
       const shapeIndex1 = ShapeManager.getShapeIndex(pt1.shape);
       const shapeIndex2 = ShapeManager.getShapeIndex(pt2.shape);
-      if (shapeIndex1 != shapeIndex2)
-        return shapeIndex2 - shapeIndex1;
+      if (shapeIndex1 != shapeIndex2) return shapeIndex2 - shapeIndex1;
 
       if (pt1.type == 'vertex' && pt2.type == 'vertex')
         return pt2.idx - pt1.idx;
       return 0;
     });
 
-    if (constraints.numberOfObjects == "allInDistance") {
+    if (constraints.numberOfObjects == 'allInDistance') {
       return constrainedPoints;
     }
 
     // let notHiddenPoints = constrainedPoints;
-    constrainedPoints.forEach(pt => pt.isBehindShape = false);
+    constrainedPoints.forEach((pt) => (pt.isBehindShape = false));
     if (constraints.blockHidden) {
       // notHiddenPoints = [];
-      const shapes = ShapeManager.shapesThatContainsCoordinates(
-        mouseCoordinates,
-      );
+      const shapes =
+        ShapeManager.shapesThatContainsCoordinates(mouseCoordinates);
       constrainedPoints.forEach((pt) => {
         const shapeIndex = ShapeManager.getShapeIndex(pt.shape);
         if (
@@ -258,15 +264,18 @@ export class SelectManager {
 
       // if no possibilities
       // if (notHiddenPoints.length == 0) return null;
-      if (!constrainedPoints.find(pt => pt.isBehindShape == false)) return false
+      if (!constrainedPoints.find((pt) => pt.isBehindShape == false))
+        return false;
     }
 
     if (constraints.numberOfObjects == 'one')
-      return constrainedPoints.find(pt => pt.isBehindShape == false);//notHiddenPoints[0];
+      return constrainedPoints.find((pt) => pt.isBehindShape == false); //notHiddenPoints[0];
     else if (constraints.numberOfObjects == 'allSuperimposed') {
-      const firstPointCoord = constrainedPoints.find(pt => pt.isBehindShape == false).coordinates;
+      const firstPointCoord = constrainedPoints.find(
+        (pt) => pt.isBehindShape == false,
+      ).coordinates;
       // let coordPt1 = constrainedPoints[firstPointIndex].coordinates//notHiddenPoints[0].coordinates;
-      let i = 0;//1;
+      let i = 0; //1;
       for (; i < constrainedPoints.length; i++) {
         if (firstPointCoord.dist(constrainedPoints[i]) > 0.01) {
           return constrainedPoints.slice(0, i);
@@ -284,9 +293,12 @@ export class SelectManager {
     let allSegments = [...app.mainCanvasLayer.segments];
 
     if (app.environment.name == 'Geometrie') {
-      allSegments = allSegments.filter(seg => seg.shape.geometryObject?.geometryIsVisible !== false)
-        .filter(seg => seg.shape.geometryObject?.geometryIsHidden !== true)
-        .filter(seg => seg.shape.geometryObject?.geometryIsConstaintDraw == false);
+      allSegments = allSegments
+        .filter((seg) => seg.shape.geometryObject?.geometryIsVisible !== false)
+        .filter((seg) => seg.shape.geometryObject?.geometryIsHidden !== true)
+        .filter(
+          (seg) => seg.shape.geometryObject?.geometryIsConstaintDraw == false,
+        );
     }
 
     if (constraints.canSelectFromUpper)
@@ -310,7 +322,7 @@ export class SelectManager {
     potentialSegments.sort((segInfo1, segInfo2) => {
       return segInfo1.dist - segInfo2.dist;
     });
-    potentialSegments = potentialSegments.map(segInfo => segInfo.segment);
+    potentialSegments = potentialSegments.map((segInfo) => segInfo.segment);
 
     // apply constrains
     const constrainedSegments = potentialSegments.filter((potentialSegment) => {
@@ -318,7 +330,8 @@ export class SelectManager {
         if (
           !constraints.whitelist.some((constr) => {
             if (constr.shapeId != potentialSegment.shapeId) return false;
-            if (constr.index !== undefined) return constr.index == potentialSegment.idx;
+            if (constr.index !== undefined)
+              return constr.index == potentialSegment.idx;
             return true;
           })
         )
@@ -328,7 +341,8 @@ export class SelectManager {
         if (
           constraints.blacklist.some((constr) => {
             if (constr.shapeId != potentialSegment.shapeId) return false;
-            if (constr.index !== undefined) return constr.index == potentialSegment.idx;
+            if (constr.index !== undefined)
+              return constr.index == potentialSegment.idx;
             return true;
           })
         )
@@ -340,7 +354,7 @@ export class SelectManager {
     // if no possibilities
     if (constrainedSegments.length == 0) return null;
 
-    if (constraints.numberOfObjects == "allInDistance") {
+    if (constraints.numberOfObjects == 'allInDistance') {
       return constrainedSegments;
     }
 
@@ -349,9 +363,8 @@ export class SelectManager {
     let notHiddenSegments = constrainedSegments;
     if (constraints.blockHidden) {
       notHiddenSegments = [];
-      const shapes = ShapeManager.shapesThatContainsCoordinates(
-        mouseCoordinates,
-      );
+      const shapes =
+        ShapeManager.shapesThatContainsCoordinates(mouseCoordinates);
       constrainedSegments.forEach((seg) => {
         const shapeIndex = ShapeManager.getShapeIndex(seg.shape);
         if (
@@ -383,12 +396,13 @@ export class SelectManager {
     let shapes = ShapeManager.shapesThatContainsCoordinates(
       mouseCoordinates,
       constraints,
-    )
+    );
 
     if (app.environment.name == 'Geometrie') {
-      shapes = shapes.filter(s => s.geometryObject?.geometryIsVisible !== false)
-        .filter(s => s.geometryObject?.geometryIsHidden !== true)
-        .filter(s => s.geometryObject?.geometryIsConstaintDraw == false);
+      shapes = shapes
+        .filter((s) => s.geometryObject?.geometryIsVisible !== false)
+        .filter((s) => s.geometryObject?.geometryIsHidden !== true)
+        .filter((s) => s.geometryObject?.geometryIsConstaintDraw == false);
     }
 
     if (constraints.whitelist != null) {
@@ -408,14 +422,18 @@ export class SelectManager {
     }
 
     if (shapes.length > 0) {
-      if (shapes[0] instanceof RegularShape || shapes[0] instanceof StripLineShape || (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc()))
-        return shapes[0]
-      const idx = shapes.findIndex(s => s instanceof RegularShape);
-      if (idx != -1)
-        shapes = shapes.slice(0, idx);
-      const dists = shapes.map(s => {
+      if (
+        shapes[0] instanceof RegularShape ||
+        shapes[0] instanceof StripLineShape ||
+        (shapes[0] instanceof LineShape && shapes[0].segments[0].isArc())
+      )
+        return shapes[0];
+      const idx = shapes.findIndex((s) => s instanceof RegularShape);
+      if (idx != -1) shapes = shapes.slice(0, idx);
+      const dists = shapes.map((s) => {
         if (s instanceof LineShape) {
-          const projection = s.segments[0].projectionOnSegment(mouseCoordinates);
+          const projection =
+            s.segments[0].projectionOnSegment(mouseCoordinates);
           return projection.dist(mouseCoordinates);
         } else if (s instanceof SinglePointShape) {
           return s.points[0].coordinates.dist(mouseCoordinates) / 10;
@@ -480,16 +498,19 @@ export class SelectManager {
 
 export function initSelectManager(app) {
   window.addEventListener('reset-selection-constraints', () => {
-    app.workspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
+    app.workspace.selectionConstraints =
+      SelectManager.getEmptySelectionConstraints();
   });
 
   const click_all_shape_constr = SelectManager.getEmptySelectionConstraints();
   click_all_shape_constr.eventType = 'click';
   click_all_shape_constr.shapes.canSelect = true;
-  const mousedown_all_shape_constr = SelectManager.getEmptySelectionConstraints();
+  const mousedown_all_shape_constr =
+    SelectManager.getEmptySelectionConstraints();
   mousedown_all_shape_constr.eventType = 'mousedown';
   mousedown_all_shape_constr.shapes.canSelect = true;
-  const click_all_segments_constr = SelectManager.getEmptySelectionConstraints();
+  const click_all_segments_constr =
+    SelectManager.getEmptySelectionConstraints();
   click_all_segments_constr.eventType = 'click';
   click_all_segments_constr.segments.canSelect = true;
   app.fastSelectionConstraints = {

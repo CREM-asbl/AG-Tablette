@@ -35,11 +35,7 @@ class OpacityPopup extends LitElement {
   }
 
   static get styles() {
-    return [
-      TemplatePopup.template_popup_styles(),
-      css`
-      `,
-    ];
+    return [TemplatePopup.template_popup_styles(), css``];
   }
 
   render() {
@@ -60,15 +56,17 @@ class OpacityPopup extends LitElement {
               <option value="0.7" ?selected="${this.opacity == 0.7}">
                 semi-transparente
               </option>
-              <option value="1" ?selected="${this.opacity == 1}">
-                opaque
-              </option>
+              <option value="1" ?selected="${this.opacity == 1}">opaque</option>
             </select>
           </div>
         </div>
 
         <div slot="footer">
-          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok"></color-button>
+          <color-button
+            @click="${() =>
+              window.dispatchEvent(new CustomEvent('close-popup'))}"
+            innerText="Ok"
+          ></color-button>
         </div>
       </template-popup>
     `;

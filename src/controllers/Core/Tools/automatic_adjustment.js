@@ -36,10 +36,7 @@ function computeTransformation(e1, e2, shapes, mainShape) {
 
   rotationAngle = reduceAngle(rotationAngle);
 
-  if (
-    Math.abs(rotationAngle) > maxRotateAngle
-  )
-    return undefined;
+  if (Math.abs(rotationAngle) > maxRotateAngle) return undefined;
 
   return {
     rotationAngle: rotationAngle,
@@ -124,7 +121,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
 
   const shapesAndAllChildren = [...shapes];
   if (app.environment.name == 'Geometrie') {
-    shapes.forEach(s => getAllChildrenInGeometry(s, shapesAndAllChildren));
+    shapes.forEach((s) => getAllChildrenInGeometry(s, shapesAndAllChildren));
   }
 
   //Générer la liste des points du groupe de figures
@@ -143,17 +140,21 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
       // point.coordinates sont en espace "monde"
       const checkingCoordsInWorldSpace = point.coordinates;
       // Convertir les coordonnées du point de la figure en espace canevas pour getClosestGridPoint
-      const checkingCoordsInCanvasSpace = checkingCoordsInWorldSpace.toCanvasCoordinates();
+      const checkingCoordsInCanvasSpace =
+        checkingCoordsInWorldSpace.toCanvasCoordinates();
 
       // getClosestGridPoint attend des coordonnées canevas et renvoie des coordonnées canevas
-      const closestGridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(checkingCoordsInCanvasSpace);
+      const closestGridPointInCanvasSpace =
+        app.gridCanvasLayer.getClosestGridPoint(checkingCoordsInCanvasSpace);
 
       if (closestGridPointInCanvasSpace) {
         // Reconvertir le point de grille trouvé en espace "monde" pour la cohérence
-        const closestGridPointInWorldSpace = closestGridPointInCanvasSpace.fromCanvasCoordinates();
+        const closestGridPointInWorldSpace =
+          closestGridPointInCanvasSpace.fromCanvasCoordinates();
 
         cPtListGrid.push({
-          fixed: { // Assurer une structure compatible avec ce qu'attendent les fonctions consommatrices
+          fixed: {
+            // Assurer une structure compatible avec ce qu'attendent les fonctions consommatrices
             coordinates: closestGridPointInWorldSpace, // Coordonnées en espace monde
             type: 'grid',
           },
@@ -166,7 +167,9 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
     constr.canSelect = true;
     constr.types = ['vertex', 'divisionPoint', 'shapeCenter'];
     if (blacklistShapeIds) {
-      constr.blacklist = blacklistShapeIds.map(sId => { return { shapeId: sId } });
+      constr.blacklist = blacklistShapeIds.map((sId) => {
+        return { shapeId: sId };
+      });
     } else {
       constr.blacklist = shapesAndAllChildren.map((s) => {
         return { shapeId: addInfoToId(s.id, 'main') };

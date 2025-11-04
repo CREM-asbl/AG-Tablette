@@ -11,18 +11,17 @@ import '../controllers/Core/Manifest';
  * fix device-height != screen-height on pwa
  **/
 if (document.body.clientHeight > screen.height) {
-  document.body.style.height = `${screen.height}px`
+  document.body.style.height = `${screen.height}px`;
 }
 
 export class App extends LitElement {
-
-  @property({ type: Boolean }) appLoading
-  @property({ type: Boolean }) environnement_selected
+  @property({ type: Boolean }) appLoading;
+  @property({ type: Boolean }) environnement_selected;
 
   constructor() {
-    super()
-    this.parseURL()
-    this.setState()
+    super();
+    this.parseURL();
+    this.setState();
   }
 
   firstUpdated() {
@@ -31,15 +30,15 @@ export class App extends LitElement {
 
   async parseURL() {
     const parsedUrl = new URL(window.location.href);
-    const part = parsedUrl.searchParams.get("interface");
+    const part = parsedUrl.searchParams.get('interface');
 
     if (['Grandeurs', 'Tangram', 'Cubes', 'Geometrie'].includes(part)) {
       loadEnvironnement(part);
       return;
     }
-    const activityName = parsedUrl.searchParams.get("activityName");
+    const activityName = parsedUrl.searchParams.get('activityName');
     if (activityName) {
-    import('../firebase/firebase-init').then(module => {
+      import('../firebase/firebase-init').then((module) => {
         module.openFileFromServer(activityName);
       });
     }
@@ -47,9 +46,9 @@ export class App extends LitElement {
 
   render() {
     if (this.environnement_selected) {
-      history.pushState({}, "main page");
+      history.pushState({}, 'main page');
       import('@layouts/ag-main');
-      app.appLoading = false
+      app.appLoading = false;
       return html`<ag-main></ag-main>`;
     } else if (!this.appLoading) {
       import('./ag-environnements');

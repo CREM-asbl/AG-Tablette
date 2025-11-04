@@ -15,14 +15,14 @@ export class Family {
     this.defaultFillOpacity = fillOpacity;
     this.id = uniqId();
     this.isVisible = true;
-    this.shapeTemplates = shapeTemplates.map(template => {
+    this.shapeTemplates = shapeTemplates.map((template) => {
       return {
         name: 'Custom',
         familyName: 'Custom',
         fillColor: fillColor || '#aaa',
         fillOpacity: fillOpacity || 0.7,
-        ...template
-      }
+        ...template,
+      };
     });
   }
 

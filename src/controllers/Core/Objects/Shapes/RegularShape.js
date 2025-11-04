@@ -1,6 +1,11 @@
 import { deleteChildren } from '../../../GeometryTools/deleteShape';
 import { app } from '../../App';
-import { findObjectById, getComplementaryColor, mod, removeObjectById } from '../../Tools/general';
+import {
+  findObjectById,
+  getComplementaryColor,
+  mod,
+  removeObjectById,
+} from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
 import { Point } from '../Point';
@@ -12,7 +17,6 @@ import { Shape } from './Shape';
  * Représente une figure classique (rectangle, disque, ...)
  */
 export class RegularShape extends Shape {
-
   constructor({
     id,
     layer,
@@ -113,24 +117,28 @@ export class RegularShape extends Shape {
       const point = this.points.find((pt) => pt.type == 'shapeCenter');
       if (app.environment.name == 'Geometrie' && point.layer == 'main') {
         const shapesToDelete = [];
-        this.geometryObject.geometryChildShapeIds.forEach(sId => {
+        this.geometryObject.geometryChildShapeIds.forEach((sId) => {
           const s = findObjectById(sId);
-          if (s && s.points.some(pt => pt.reference == point.id)) {
+          if (s && s.points.some((pt) => pt.reference == point.id)) {
             shapesToDelete.push(s);
           }
         });
         shapesToDelete.forEach((s) => {
-          if (app.environment.name == 'Geometrie')
-            deleteChildren(s);
+          if (app.environment.name == 'Geometrie') deleteChildren(s);
           removeObjectById(s.id);
         });
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
           const s = app.mainCanvasLayer.shapes[i];
-          s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
-            if (pt.reference && !findObjectById(pt.reference))
-              pt.reference = null;
-          });
-          if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
+          s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .forEach((pt) => {
+              if (pt.reference && !findObjectById(pt.reference))
+                pt.reference = null;
+            });
+          if (
+            s.geometryObject.geometryPointOnTheFlyChildId &&
+            !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)
+          ) {
             deleteChildren(s);
             i--;
           }
@@ -162,7 +170,11 @@ export class RegularShape extends Shape {
       const coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex' || allPathElements.length != 0) {
+      if (
+        lastVertex == undefined ||
+        lastVertex.type != 'vertex' ||
+        allPathElements.length != 0
+      ) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -289,15 +301,16 @@ export class RegularShape extends Shape {
       }
     }
     // if segment length == 0
-    if (app.environment.name == 'Geometrie' && !this.isCircle() && this.points.filter(pt => pt.type != 'arcCenter').length != this.segmentIds.length) {
+    if (
+      app.environment.name == 'Geometrie' &&
+      !this.isCircle() &&
+      this.points.filter((pt) => pt.type != 'arcCenter').length !=
+        this.segmentIds.length
+    ) {
       const coord = this.points[0].coordinates;
       const numberOfSegment = this.segmentIds.length;
-      this.pointIds.forEach(ptId => removeObjectById(
-        ptId
-      ));
-      this.segmentIds.forEach(segId => removeObjectById(
-        segId
-      ));
+      this.pointIds.forEach((ptId) => removeObjectById(ptId));
+      this.segmentIds.forEach((segId) => removeObjectById(segId));
       this.pointIds = [];
       this.segmentIds = [];
       for (let idx = 0; idx < numberOfSegment; idx++) {
@@ -315,7 +328,10 @@ export class RegularShape extends Shape {
           shapeId: this.id,
           layer: this.layer,
           idx,
-          vertexIds: [this.pointIds[idx], this.pointIds[(idx + 1) % numberOfSegment]],
+          vertexIds: [
+            this.pointIds[idx],
+            this.pointIds[(idx + 1) % numberOfSegment],
+          ],
         });
       }
     }
@@ -373,15 +389,15 @@ export class RegularShape extends Shape {
     sweepFlag,
   ) {
     let middle = firstVertex.coordinates
-      .add(lastVertex.coordinates)
-      .multiply(1 / 2),
+        .add(lastVertex.coordinates)
+        .multiply(1 / 2),
       isHorizontal = Math.abs(firstVertex.y - lastVertex.y) < 0.01,
       isVertical = Math.abs(firstVertex.x - lastVertex.x) < 0.01,
       distanceMiddleArcCenter = Math.sqrt(
         Math.pow(radius, 2) -
-        (Math.pow(firstVertex.x - lastVertex.x, 2) +
-          Math.pow(firstVertex.y - lastVertex.y, 2)) /
-        4,
+          (Math.pow(firstVertex.x - lastVertex.x, 2) +
+            Math.pow(firstVertex.y - lastVertex.y, 2)) /
+            4,
       );
 
     if (isNaN(distanceMiddleArcCenter)) distanceMiddleArcCenter = 0;
@@ -439,14 +455,13 @@ export class RegularShape extends Shape {
 
   isCircle() {
     return (
-      this.name == 'Circle' || this.name.startsWith('Disque') ||
-      (
-        this.segments.length == 1 &&
+      this.name == 'Circle' ||
+      this.name.startsWith('Disque') ||
+      (this.segments.length == 1 &&
         this.segments[0].isArc() &&
         this.segments[0].vertexes[0].coordinates.equal(
           this.segments[0].vertexes[1].coordinates,
-        )
-      )
+        ))
     );
   }
 
@@ -520,7 +535,8 @@ export class RegularShape extends Shape {
           !shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates)) ||
         (shape.isCoordinatesInPath(s1_segment.middle) &&
           !shape.isCoordinatesOnBorder(s1_segment.middle))
-      ) return true;
+      )
+        return true;
     }
     return false;
   }
@@ -547,8 +563,7 @@ export class RegularShape extends Shape {
     this.segments.forEach((seg) => {
       if (seg.arcCenter) seg.counterclockwise = !seg.counterclockwise;
     });
-    if (this.isBiface)
-      this.fillColor = getComplementaryColor(this.fillColor);
+    if (this.isBiface) this.fillColor = getComplementaryColor(this.fillColor);
     this.isReversed = !this.isReversed;
   }
 
@@ -605,12 +620,11 @@ export class RegularShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
-    if (this.geometryObject &&
-      (
-        this.geometryObject.geometryIsVisible === false ||
+    if (
+      this.geometryObject &&
+      (this.geometryObject.geometryIsVisible === false ||
         this.geometryObject.geometryIsHidden === true ||
-        this.geometryObject.geometryIsConstaintDraw === true
-      )
+        this.geometryObject.geometryIsConstaintDraw === true)
     ) {
       return '';
     }
@@ -632,14 +646,12 @@ export class RegularShape extends Shape {
     fillPath += '/>\n';
 
     let totalStrokePath = '';
-    this.segments.forEach(seg => {
+    this.segments.forEach((seg) => {
       const segmentPath = seg.getSVGPath('scale', true);
       const segmentColor = seg.color ? seg.color : this.strokeColor;
       let strokeWidth = 1;
-      if (seg.width != 1)
-        strokeWidth = seg.width;
-      else
-        strokeWidth = this.strokeWidth
+      if (seg.width != 1) strokeWidth = seg.width;
+      else strokeWidth = this.strokeWidth;
 
       const strokeAttributes = {
         d: segmentPath,
@@ -659,12 +671,9 @@ export class RegularShape extends Shape {
 
     const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
-      if (this.isSegment())
-        pointToDraw.push(this.segments[0].vertexes[0]);
+      if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
-        this.segments.forEach(
-          (seg) => (pointToDraw.push(seg.vertexes[1])),
-        );
+        this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));
     }
 
     this.segments.forEach((seg) => {
@@ -675,11 +684,12 @@ export class RegularShape extends Shape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    const point_tags = pointToDraw.filter(pt => {
-      pt.visible &&
-        pt.geometryIsVisible &&
-        !pt.geometryIsHidden
-    }).map(pt => pt.svg).join('\n');
+    const point_tags = pointToDraw
+      .filter((pt) => {
+        pt.visible && pt.geometryIsVisible && !pt.geometryIsHidden;
+      })
+      .map((pt) => pt.svg)
+      .join('\n');
 
     const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
@@ -697,12 +707,8 @@ export class RegularShape extends Shape {
         if (this.name == 'Circle' && this.segments[0].radius < 0.001) {
           const coord = this.segments[0].arcCenter.coordinates;
           const counterclockwise = this.segments[0].counterclockwise;
-          this.pointIds.forEach(ptId => removeObjectById(
-            ptId
-          ));
-          this.segmentIds.forEach(segId => removeObjectById(
-            segId
-          ));
+          this.pointIds.forEach((ptId) => removeObjectById(ptId));
+          this.segmentIds.forEach((segId) => removeObjectById(segId));
           this.pointIds = [];
           this.segmentIds = [];
           new Point({
@@ -730,7 +736,9 @@ export class RegularShape extends Shape {
           });
         } else {
           const middlePointId = this.segments[i].vertexIds[1];
-          const ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
+          const ptIdx = this.pointIds.findIndex(
+            (ptId) => ptId == middlePointId,
+          );
           this.pointIds.splice(ptIdx, 1);
           removeObjectById(middlePointId);
           this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
@@ -739,17 +747,13 @@ export class RegularShape extends Shape {
           );
           this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
           if (this.segments[nextIdx].arcCenterId) {
-            removeObjectById(
-              this.segments[nextIdx].arcCenterId
-            );
+            removeObjectById(this.segments[nextIdx].arcCenterId);
             idx = this.pointIds.findIndex(
               (id) => id == this.segments[nextIdx].arcCenterId,
             );
             this.pointIds.splice(idx, 1);
           }
-          removeObjectById(
-            this.segmentIds[nextIdx]
-          );
+          removeObjectById(this.segmentIds[nextIdx]);
           this.segmentIds.splice(nextIdx, 1);
         }
         i--; // try to merge this new segment again!
@@ -762,15 +766,13 @@ export class RegularShape extends Shape {
   saveData() {
     const data = super.saveData();
     data.type = 'RegularShape';
-    if (this.fillColor !== '#aaa')
-      data.fillColor = this.fillColor;
-    if (this.fillOpacity !== 0.7)
-      data.fillOpacity = this.fillOpacity;
+    if (this.fillColor !== '#aaa') data.fillColor = this.fillColor;
+    if (this.fillOpacity !== 0.7) data.fillOpacity = this.fillOpacity;
     return data;
   }
 
   static loadFromData(data) {
-    if (!data.position) data.position = 'main'
+    if (!data.position) data.position = 'main';
     const shape = new RegularShape({ layer: data.position });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];

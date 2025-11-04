@@ -11,8 +11,10 @@ import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { duplicateShape } from '../Core/Tools/shapesTools';
 import {
   computeConstructionSpec,
-  computeShapeTransform, getRatioWithPosition, projectionOnConstraints,
-  recomputeAllVisibilities
+  computeShapeTransform,
+  getRatioWithPosition,
+  projectionOnConstraints,
+  recomputeAllVisibilities,
 } from '../GeometryTools/recomputeShape';
 
 /**
@@ -63,7 +65,13 @@ export class TransformTool extends Tool {
     this.constraints = null;
     this.line = null;
 
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
+        }),
+      50,
+    );
   }
 
   selectPoint() {
@@ -107,24 +115,26 @@ export class TransformTool extends Tool {
       }
       points[i].computeTransformConstraint();
     }
-    points = points.filter(point => (point.transformConstraints.isFree
-      || point.transformConstraints.isConstrained)
-      && !point.transformConstraints.isBlocked
-      && !point.transformConstraints.isConstructed)
+    points = points.filter(
+      (point) =>
+        (point.transformConstraints.isFree ||
+          point.transformConstraints.isConstrained) &&
+        !point.transformConstraints.isBlocked &&
+        !point.transformConstraints.isConstructed,
+    );
 
-    if (points.length == 0)
-      return
+    if (points.length == 0) return;
 
-    let point = points.find(point => point.transformConstraints.isConstrained);
-    if (!point)
-      point = points[0]
+    let point = points.find(
+      (point) => point.transformConstraints.isConstrained,
+    );
+    if (!point) point = points[0];
 
     this.constraints = point.transformConstraints;
 
     app.upperCanvasLayer.removeAllObjects();
 
-    if (!this.constraintsDrawn)
-      this.drawConstraints(point);
+    if (!this.constraintsDrawn) this.drawConstraints(point);
 
     this.pointSelectedId = point.id;
 
@@ -135,65 +145,92 @@ export class TransformTool extends Tool {
         children: [],
         isDone: 0,
       },
-    }
+    };
     this.createTree(0, this.tree);
     const involvedShapeIds = Object.keys(this.tree);
-    const involvedShapes = involvedShapeIds.map(shapeId => findObjectById(shapeId));
+    const involvedShapes = involvedShapeIds.map((shapeId) =>
+      findObjectById(shapeId),
+    );
 
-    involvedShapeIds.forEach(oldKey => {
+    involvedShapeIds.forEach((oldKey) => {
       const newKey = addInfoToId(oldKey, 'upper');
       delete Object.assign(this.tree, { [newKey]: this.tree[oldKey] })[oldKey];
       for (let i = 0; i < this.tree[newKey].parents.length; i++) {
-        this.tree[newKey].parents[i] = addInfoToId(this.tree[newKey].parents[i], 'upper');
+        this.tree[newKey].parents[i] = addInfoToId(
+          this.tree[newKey].parents[i],
+          'upper',
+        );
       }
       for (let i = 0; i < this.tree[newKey].children.length; i++) {
-        this.tree[newKey].children[i] = addInfoToId(this.tree[newKey].children[i], 'upper');
+        this.tree[newKey].children[i] = addInfoToId(
+          this.tree[newKey].children[i],
+          'upper',
+        );
       }
     });
 
     involvedShapes.sort((s1, s2) => {
       return ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2);
     });
-    this.drawingShapes = involvedShapes.map(s => duplicateShape(s));
-    this.drawingShapes.forEach(s => {
+    this.drawingShapes = involvedShapes.map((s) => duplicateShape(s));
+    this.drawingShapes.forEach((s) => {
       if (!findObjectById(s.geometryObject.geometryParentObjectId1)) {
-        s.geometryObject.geometryParentObjectId1 = addInfoToId(s.geometryObject.geometryParentObjectId1, 'main')
+        s.geometryObject.geometryParentObjectId1 = addInfoToId(
+          s.geometryObject.geometryParentObjectId1,
+          'main',
+        );
       }
       if (!findObjectById(s.geometryObject.geometryParentObjectId2)) {
-        s.geometryObject.geometryParentObjectId2 = addInfoToId(s.geometryObject.geometryParentObjectId2, 'main')
+        s.geometryObject.geometryParentObjectId2 = addInfoToId(
+          s.geometryObject.geometryParentObjectId2,
+          'main',
+        );
       }
-      if (!findObjectById(s.geometryObject.geometryTransformationParentShapeId)) {
-        s.geometryObject.geometryTransformationParentShapeId = addInfoToId(s.geometryObject.geometryTransformationParentShapeId, 'main')
+      if (
+        !findObjectById(s.geometryObject.geometryTransformationParentShapeId)
+      ) {
+        s.geometryObject.geometryTransformationParentShapeId = addInfoToId(
+          s.geometryObject.geometryTransformationParentShapeId,
+          'main',
+        );
       }
-      const characteristicElements = s.geometryObject.geometryTransformationCharacteristicElements;
+      const characteristicElements =
+        s.geometryObject.geometryTransformationCharacteristicElements;
       if (characteristicElements && characteristicElements.elementIds) {
-        characteristicElements.elementIds = characteristicElements.elementIds.map(elId => {
-          if (!findObjectById(elId)) {
-            return addInfoToId(elId, 'main');
-          }
-          return elId;
-        });
+        characteristicElements.elementIds =
+          characteristicElements.elementIds.map((elId) => {
+            if (!findObjectById(elId)) {
+              return addInfoToId(elId, 'main');
+            }
+            return elId;
+          });
       }
       if (!findObjectById(s.geometryObject.geometryDuplicateParentShapeId)) {
-        s.geometryObject.geometryDuplicateParentShapeId = addInfoToId(s.geometryObject.geometryDuplicateParentShapeId, 'main')
+        s.geometryObject.geometryDuplicateParentShapeId = addInfoToId(
+          s.geometryObject.geometryDuplicateParentShapeId,
+          'main',
+        );
       }
       if (!findObjectById(s.geometryObject.geometryMultipliedParentShapeId)) {
-        s.geometryObject.geometryMultipliedParentShapeId = addInfoToId(s.geometryObject.geometryMultipliedParentShapeId, 'main')
+        s.geometryObject.geometryMultipliedParentShapeId = addInfoToId(
+          s.geometryObject.geometryMultipliedParentShapeId,
+          'main',
+        );
       }
     });
 
-    app.mainCanvasLayer.editingShapeIds = involvedShapes.map(s => s.id);
+    app.mainCanvasLayer.editingShapeIds = involvedShapes.map((s) => s.id);
 
     if (point.shape.name == 'PointOnLine') {
       let constraintSegment = findObjectById(
         addInfoToId(
           point.shape.geometryObject.geometryParentObjectId1,
-          'upper'
-        )
+          'upper',
+        ),
       );
       if (!constraintSegment) {
         constraintSegment = findObjectById(
-          point.shape.geometryObject.geometryParentObjectId1
+          point.shape.geometryObject.geometryParentObjectId1,
         );
       }
 
@@ -208,27 +245,37 @@ export class TransformTool extends Tool {
       });
     }
 
-    app.upperCanvasLayer.shapes.forEach(s => {
-      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-        const duplicateChild = findObjectById(duplicateChildId);
-        computeConstructionSpec(duplicateChild);
-      });
-      s.geometryObject?.geometryMultipliedChildShapeIds.forEach(multipliedChildId => {
-        const multipliedChild = findObjectById(multipliedChildId);
-        computeConstructionSpec(multipliedChild);
-      });
+    app.upperCanvasLayer.shapes.forEach((s) => {
+      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
+        (duplicateChildId) => {
+          const duplicateChild = findObjectById(duplicateChildId);
+          computeConstructionSpec(duplicateChild);
+        },
+      );
+      s.geometryObject?.geometryMultipliedChildShapeIds.forEach(
+        (multipliedChildId) => {
+          const multipliedChild = findObjectById(multipliedChildId);
+          computeConstructionSpec(multipliedChild);
+        },
+      );
     });
 
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'transform' } })
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'transform' },
+    });
   }
 
   createTree(index, tree) {
     const currentEntries = Object.entries(tree);
-    if (currentEntries.length == index)
-      return;
+    if (currentEntries.length == index) return;
     const currentShapeId = currentEntries[index][0];
     const currentShape = findObjectById(currentShapeId);
-    const dependenciesIds = [...currentShape.geometryObject.geometryChildShapeIds, ...currentShape.geometryObject.geometryTransformationChildShapeIds, ...currentShape.geometryObject.geometryDuplicateChildShapeIds, ...currentShape.geometryObject.geometryMultipliedChildShapeIds];
+    const dependenciesIds = [
+      ...currentShape.geometryObject.geometryChildShapeIds,
+      ...currentShape.geometryObject.geometryTransformationChildShapeIds,
+      ...currentShape.geometryObject.geometryDuplicateChildShapeIds,
+      ...currentShape.geometryObject.geometryMultipliedChildShapeIds,
+    ];
     dependenciesIds.sort((dp1, dp2) => {
       if (findObjectById(dp1).geometryObject.geometryIsConstaintDraw) {
         return -1;
@@ -236,15 +283,15 @@ export class TransformTool extends Tool {
         return 1;
       }
     });
-    dependenciesIds.forEach(dependenciesId => {
+    dependenciesIds.forEach((dependenciesId) => {
       if (tree[dependenciesId])
-        tree[dependenciesId].parents.push(currentShapeId)
+        tree[dependenciesId].parents.push(currentShapeId);
       else
         tree[dependenciesId] = {
           isDone: 0,
           parents: [currentShapeId],
           children: [],
-        }
+        };
     });
     tree[currentShapeId].children = dependenciesIds;
     this.createTree(index + 1, tree);
@@ -261,48 +308,61 @@ export class TransformTool extends Tool {
       console.error('too much call on browsetree');
       return;
     }
-    let elementDone = 0, treeLength = 0;
+    let elementDone = 0,
+      treeLength = 0;
     for (const currentShapeId in tree) {
       if (tree[currentShapeId].isDone == 0) {
-        if (tree[currentShapeId].parents.every(parentId => {
-          if (tree[parentId].isDone > 0) {
-            return true;
-          }
-          const parent = findObjectById(parentId);
-          if (parent.name == 'PointOnLine' || parent.name == 'PointOnIntersection2') {
-            const constraint = findObjectById(parent.geometryObject.geometryParentObjectId1);
-            if (constraint.shape.geometryObject.geometryIsConstaintDraw)
+        if (
+          tree[currentShapeId].parents.every((parentId) => {
+            if (tree[parentId].isDone > 0) {
               return true;
-            else
+            }
+            const parent = findObjectById(parentId);
+            if (
+              parent.name == 'PointOnLine' ||
+              parent.name == 'PointOnIntersection2'
+            ) {
+              const constraint = findObjectById(
+                parent.geometryObject.geometryParentObjectId1,
+              );
+              if (constraint.shape.geometryObject.geometryIsConstaintDraw)
+                return true;
+              else return false;
+            } else {
               return false;
-          } else {
-            return false
-          }
-        })) {
+            }
+          })
+        ) {
           const currentShape = findObjectById(currentShapeId);
           computeShapeTransform(currentShape);
-          currentShape.geometryObject.geometryChildShapeIds.map(childId => findObjectById(childId)).filter(child => child.geometryObject.geometryIsConstaintDraw).forEach(
-            constraint => {
+          currentShape.geometryObject.geometryChildShapeIds
+            .map((childId) => findObjectById(childId))
+            .filter((child) => child.geometryObject.geometryIsConstaintDraw)
+            .forEach((constraint) => {
               computeShapeTransform(constraint);
               tree[constraint.id].isDone++;
-              constraint.geometryObject.geometryChildShapeIds.map(childId => findObjectById(childId)).filter(child => child.name == 'PointOnLine' || child.name == 'PointOnIntersection2').forEach(
-                pointOnLine => {
+              constraint.geometryObject.geometryChildShapeIds
+                .map((childId) => findObjectById(childId))
+                .filter(
+                  (child) =>
+                    child.name == 'PointOnLine' ||
+                    child.name == 'PointOnIntersection2',
+                )
+                .forEach((pointOnLine) => {
                   computeShapeTransform(pointOnLine);
                   tree[pointOnLine.id].isDone++;
-                }
-              )
-            }
-          )
+                });
+            });
           computeShapeTransform(currentShape);
           tree[currentShapeId].isDone++;
         }
       } else {
         elementDone++;
       }
-      treeLength++
+      treeLength++;
     }
     if (elementDone == treeLength) {
-      return
+      return;
     }
     this.browseTree(tree, callNumber + 1);
   }
@@ -310,17 +370,22 @@ export class TransformTool extends Tool {
   canvasMouseUp() {
     this.stopAnimation();
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' } })
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
+    });
   }
 
   _executeAction() {
     app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
       const s = findObjectById(sId);
       s.points.forEach((pt, idxPt) => {
-        pt.coordinates = new Coordinates(this.drawingShapes[idxS].points[idxPt].coordinates);
+        pt.coordinates = new Coordinates(
+          this.drawingShapes[idxS].points[idxPt].coordinates,
+        );
         pt.ratio = this.drawingShapes[idxS].points[idxPt].ratio;
       });
-      s.geometryObject.geometryIsVisibleByChoice = this.drawingShapes[idxS].geometryObject.geometryIsVisibleByChoice;
+      s.geometryObject.geometryIsVisibleByChoice =
+        this.drawingShapes[idxS].geometryObject.geometryIsVisibleByChoice;
       computeConstructionSpec(s);
     });
     recomputeAllVisibilities('main');
@@ -364,13 +429,21 @@ export class TransformTool extends Tool {
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
       this.adjustPoint(point);
       if (shape.name == 'PointOnLine') {
-        const reference = findObjectById(shape.geometryObject.geometryParentObjectId1);
+        const reference = findObjectById(
+          shape.geometryObject.geometryParentObjectId1,
+        );
         point.coordinates = reference.projectionOnSegment(point.coordinates);
         computeConstructionSpec(shape);
       } else if (point.transformConstraints.isConstrained) {
-        point.coordinates = projectionOnConstraints(point.coordinates, point.transformConstraints);
+        point.coordinates = projectionOnConstraints(
+          point.coordinates,
+          point.transformConstraints,
+        );
         if (point.reference) {
-          point.ratio = getRatioWithPosition(point, findObjectById(point.reference));
+          point.ratio = getRatioWithPosition(
+            point,
+            findObjectById(point.reference),
+          );
         } else {
           computeConstructionSpec(shape, point.idx);
         }
@@ -393,35 +466,44 @@ export class TransformTool extends Tool {
         s.vertexes.forEach((pt) => {
           pt.computeTransformConstraint();
         });
-        s.points.filter(pt =>
-          pt.type == 'arcCenter'
-        ).forEach(pt => {
-          pt.computeTransformConstraint();
-        });
+        s.points
+          .filter((pt) => pt.type == 'arcCenter')
+          .forEach((pt) => {
+            pt.computeTransformConstraint();
+          });
       });
 
-      app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryIsVisible !== false && s.geometryObject.geometryIsHidden !== true).forEach((s) => {
-        const points = [...s.vertexes, ...s.points.filter(pt => pt.type == 'arcCenter')];
-        points.forEach((pt) => {
-          const transformConstraints = pt.transformConstraints;
-          const colorPicker = {
-            [transformConstraints.isFree]: '#0f0',
-            [transformConstraints.isBlocked]: '#f00',
-            [transformConstraints.isConstructed]: '#f00',
-            [transformConstraints.isConstrained]: '#FF8C00',
-          };
-          const color = colorPicker[true];
+      app.mainCanvasLayer.shapes
+        .filter(
+          (s) =>
+            s.geometryObject.geometryIsVisible !== false &&
+            s.geometryObject.geometryIsHidden !== true,
+        )
+        .forEach((s) => {
+          const points = [
+            ...s.vertexes,
+            ...s.points.filter((pt) => pt.type == 'arcCenter'),
+          ];
+          points.forEach((pt) => {
+            const transformConstraints = pt.transformConstraints;
+            const colorPicker = {
+              [transformConstraints.isFree]: '#0f0',
+              [transformConstraints.isBlocked]: '#f00',
+              [transformConstraints.isConstructed]: '#f00',
+              [transformConstraints.isConstrained]: '#FF8C00',
+            };
+            const color = colorPicker[true];
 
-          if (color != '#f00' && color != undefined) {
-            new Point({
-              layer: 'upper',
-              coordinates: pt.coordinates,
-              size: 2,
-              color: color
-            });
-          }
+            if (color != '#f00' && color != undefined) {
+              new Point({
+                layer: 'upper',
+                coordinates: pt.coordinates,
+                size: 2,
+                color: color,
+              });
+            }
+          });
         });
-      });
     }
   }
 
@@ -429,11 +511,21 @@ export class TransformTool extends Tool {
     const constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     if (point.shape.name == 'PointOnLine') {
-      const segment = findObjectById(point.shape.geometryObject.geometryParentObjectId1);
+      const segment = findObjectById(
+        point.shape.geometryObject.geometryParentObjectId1,
+      );
       constraints.whitelist = [
-        { shapeId: segment.shape.id, type: 'divisionPoint', index: segment.idx },
+        {
+          shapeId: segment.shape.id,
+          type: 'divisionPoint',
+          index: segment.idx,
+        },
         { shapeId: segment.shape.id, type: 'vertex', index: segment.idx },
-        { shapeId: segment.shape.id, type: 'vertex', index: (segment.idx + 1) % segment.shape.segmentIds.length }
+        {
+          shapeId: segment.shape.id,
+          type: 'vertex',
+          index: (segment.idx + 1) % segment.shape.segmentIds.length,
+        },
       ];
     } else if (point.transformConstraints.isConstrained) {
       return;
@@ -450,9 +542,12 @@ export class TransformTool extends Tool {
     if (adjustedCoordinates) {
       point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
     } else if (point.shape.name != 'PointOnLine') {
-      const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates());
+      const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(
+        point.coordinates.toCanvasCoordinates(),
+      );
       if (gridPointInCanvasSpace) {
-        const gridPointInWorldSpace = gridPointInCanvasSpace.fromCanvasCoordinates();
+        const gridPointInWorldSpace =
+          gridPointInCanvasSpace.fromCanvasCoordinates();
         point.coordinates = new Coordinates(gridPointInWorldSpace);
       }
     }
@@ -460,7 +555,7 @@ export class TransformTool extends Tool {
 
   drawConstraints(point) {
     if (point.transformConstraints.isConstrained) {
-      point.transformConstraints.lines.forEach(ln => {
+      point.transformConstraints.lines.forEach((ln) => {
         const segment = ln.segment;
         const shape = new LineShape({
           layer: 'upper',
@@ -469,11 +564,10 @@ export class TransformTool extends Tool {
           fillOpacity: 0,
           strokeWidth: 2,
         });
-        if (ln.isInfinite)
-          shape.segments[0].isInfinite = true;
-        shape.vertexes.forEach(pt => pt.visible = false);
+        if (ln.isInfinite) shape.segments[0].isInfinite = true;
+        shape.vertexes.forEach((pt) => (pt.visible = false));
       });
-      point.transformConstraints.points.forEach(pt => {
+      point.transformConstraints.points.forEach((pt) => {
         new Point({
           layer: 'upper',
           coordinates: pt,

@@ -5,7 +5,11 @@ import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import { Point } from '../controllers/Core/Objects/Point';
 import { Segment } from '../controllers/Core/Objects/Segment';
 // Shapes imported lazily in loadFromData
-import { capitalizeFirstLetter, createElem, findObjectById } from '../controllers/Core/Tools/general';
+import {
+  capitalizeFirstLetter,
+  createElem,
+  findObjectById,
+} from '../controllers/Core/Tools/general';
 import { gridStore } from '../store/gridStore.js';
 
 // Constantes pour le rendu de la grille
@@ -14,11 +18,10 @@ const GRID_CONSTANTS = {
   LONG_PRESS_DELAY: 1000,
   DOUBLE_CLICK_THRESHOLD: 100,
   MOVEMENT_THRESHOLD_MOUSE: 5,
-  MOVEMENT_THRESHOLD_TOUCH: 20
+  MOVEMENT_THRESHOLD_TOUCH: 20,
 };
 
 class CanvasLayer extends LitElement {
-
   constructor() {
     super();
     this.shapes = [];
@@ -46,21 +49,24 @@ class CanvasLayer extends LitElement {
       left: 0;
       right: 0;
       top: 0;
-      background-color: rgba(0, 0, 0 , 0);
+      background-color: rgba(0, 0, 0, 0);
       box-sizing: border-box;
     }
 
     canvas {
       box-sizing: border-box;
-      background-color: rgba(0, 0, 0 , 0);
+      background-color: rgba(0, 0, 0, 0);
       width: 100%;
       height: 100%;
       object-fit: contain;
     }
-  `
+  `;
 
   render() {
-    return html`<canvas width="${this.clientWidth}" height="${this.clientHeight}"></canvas>`;
+    return html`<canvas
+      width="${this.clientWidth}"
+      height="${this.clientHeight}"
+    ></canvas>`;
   }
 
   updated() {
@@ -136,12 +142,11 @@ class CanvasLayer extends LitElement {
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id === id) === -1) {
-          if (s.geometryObject &&
-            (
-              s.geometryObject.geometryIsVisible === false ||
+          if (
+            s.geometryObject &&
+            (s.geometryObject.geometryIsVisible === false ||
               s.geometryObject.geometryIsHidden === true ||
-              s.geometryObject.geometryIsConstaintDraw === true
-            )
+              s.geometryObject.geometryIsConstaintDraw === true)
           )
             return;
           this.drawShape(s, scaling);
@@ -180,7 +185,10 @@ class CanvasLayer extends LitElement {
       }
     } else {
       shape.points.forEach((pt) => {
-        if (pt.visible && (pt.type === 'shapeCenter' || pt.type === 'divisionPoint'))
+        if (
+          pt.visible &&
+          (pt.type === 'shapeCenter' || pt.type === 'divisionPoint')
+        )
           this.drawPoint(pt);
       });
     }
@@ -212,12 +220,11 @@ class CanvasLayer extends LitElement {
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id === id) === -1) {
-          if (s.geometryObject &&
-            (
-              s.geometryObject.geometryIsVisible === false ||
+          if (
+            s.geometryObject &&
+            (s.geometryObject.geometryIsVisible === false ||
               s.geometryObject.geometryIsHidden === true ||
-              s.geometryObject.geometryIsConstaintDraw === true
-            )
+              s.geometryObject.geometryIsConstaintDraw === true)
           ) {
             return;
           }
@@ -249,8 +256,7 @@ class CanvasLayer extends LitElement {
       let segId;
       if (pt1.shape.name === 'PointOnLine')
         segId = pt1.shape.geometryObject.geometryParentObjectId1;
-      else
-        segId = pt2.shape.geometryObject.geometryParentObjectId1;
+      else segId = pt2.shape.geometryObject.geometryParentObjectId1;
       return findObjectById(segId);
     }
     const segmentIds1 = pt1.segmentIds;
@@ -284,59 +290,88 @@ class CanvasLayer extends LitElement {
     }
 
     const shapesData = Array.isArray(data.shapesData) ? data.shapesData : [];
-    const segmentsData = Array.isArray(data.segmentsData) ? data.segmentsData : [];
+    const segmentsData = Array.isArray(data.segmentsData)
+      ? data.segmentsData
+      : [];
     const pointsData = Array.isArray(data.pointsData) ? data.pointsData : [];
 
     if (shapesData.length || segmentsData.length || pointsData.length) {
       for (const shapeData of shapesData) {
         let currentShapeData = shapeData;
         if (isFinite(shapeData.indexOfReference)) {
-          currentShapeData = app.history.steps[shapeData.indexOfReference].objects.shapesData.find(s => s.id === shapeData.id);
+          currentShapeData = app.history.steps[
+            shapeData.indexOfReference
+          ].objects.shapesData.find((s) => s.id === shapeData.id);
         }
         if (currentShapeData.type === 'Shape') {
-          const { Shape } = await import('../controllers/Core/Objects/Shapes/Shape');
+          const { Shape } = await import(
+            '../controllers/Core/Objects/Shapes/Shape'
+          );
           Shape.loadFromData(currentShapeData);
         } else if (currentShapeData.type === 'RegularShape') {
-          const { RegularShape } = await import('../controllers/Core/Objects/Shapes/RegularShape');
+          const { RegularShape } = await import(
+            '../controllers/Core/Objects/Shapes/RegularShape'
+          );
           RegularShape.loadFromData(currentShapeData);
         } else if (currentShapeData.type === 'CubeShape') {
-          const { CubeShape } = await import('../controllers/Core/Objects/Shapes/CubeShape');
+          const { CubeShape } = await import(
+            '../controllers/Core/Objects/Shapes/CubeShape'
+          );
           CubeShape.loadFromData(currentShapeData);
         } else if (currentShapeData.type === 'LineShape') {
-          const { LineShape } = await import('../controllers/Core/Objects/Shapes/LineShape');
+          const { LineShape } = await import(
+            '../controllers/Core/Objects/Shapes/LineShape'
+          );
           LineShape.loadFromData(currentShapeData);
         } else if (currentShapeData.type === 'SinglePointShape') {
-          const { SinglePointShape } = await import('../controllers/Core/Objects/Shapes/SinglePointShape');
+          const { SinglePointShape } = await import(
+            '../controllers/Core/Objects/Shapes/SinglePointShape'
+          );
           SinglePointShape.loadFromData(currentShapeData);
         } else if (currentShapeData.type === 'ArrowLineShape') {
-          const { ArrowLineShape } = await import('../controllers/Core/Objects/Shapes/ArrowLineShape');
+          const { ArrowLineShape } = await import(
+            '../controllers/Core/Objects/Shapes/ArrowLineShape'
+          );
           ArrowLineShape.loadFromData(currentShapeData);
         } else if (currentShapeData.type === 'StripLineShape') {
-          const { StripLineShape } = await import('../controllers/Core/Objects/Shapes/StripLineShape');
+          const { StripLineShape } = await import(
+            '../controllers/Core/Objects/Shapes/StripLineShape'
+          );
           StripLineShape.loadFromData(currentShapeData);
         } else {
           currentShapeData.fillColor = currentShapeData.color;
           currentShapeData.fillOpacity = parseFloat(currentShapeData.opacity);
           currentShapeData.strokeColor = currentShapeData.borderColor;
           currentShapeData.strokeWidth = currentShapeData.borderSize;
-          if (currentShapeData.segmentIds.length === 1 && !currentShapeData.name.startsWith('Disque')) {
-            const { LineShape } = await import('../controllers/Core/Objects/Shapes/LineShape');
+          if (
+            currentShapeData.segmentIds.length === 1 &&
+            !currentShapeData.name.startsWith('Disque')
+          ) {
+            const { LineShape } = await import(
+              '../controllers/Core/Objects/Shapes/LineShape'
+            );
             LineShape.loadFromData(currentShapeData);
           } else {
-            const { RegularShape } = await import('../controllers/Core/Objects/Shapes/RegularShape');
+            const { RegularShape } = await import(
+              '../controllers/Core/Objects/Shapes/RegularShape'
+            );
             RegularShape.loadFromData(currentShapeData);
           }
         }
       }
       segmentsData.forEach((segmentData) => {
         if (isFinite(segmentData.indexOfReference)) {
-          segmentData = app.history.steps[segmentData.indexOfReference].objects.segmentsData.find(seg => seg.id === segmentData.id);
+          segmentData = app.history.steps[
+            segmentData.indexOfReference
+          ].objects.segmentsData.find((seg) => seg.id === segmentData.id);
         }
         Segment.loadFromData(segmentData);
       });
       pointsData.forEach((pointData) => {
         if (isFinite(pointData.indexOfReference)) {
-          pointData = app.history.steps[pointData.indexOfReference].objects.pointsData.find(pt => pt.id === pointData.id);
+          pointData = app.history.steps[
+            pointData.indexOfReference
+          ].objects.pointsData.find((pt) => pt.id === pointData.id);
         }
         Point.loadFromData(pointData);
       });
@@ -358,12 +393,15 @@ class CanvasLayer extends LitElement {
       window.dispatchEvent(new CustomEvent('tangram-canvas-ready'));
     }
 
-    window.addEventListener('refresh' + capitalizeFirstLetter(this.canvasName), () => {
-      this.redraw();
-    });
+    window.addEventListener(
+      'refresh' + capitalizeFirstLetter(this.canvasName),
+      () => {
+        this.redraw();
+      },
+    );
 
     if (this.canvasName === 'upper') {
-      this.createListeners()
+      this.createListeners();
       window.addEventListener('tool-updated', () => this.redraw());
     } else if (this.canvasName === 'main') {
       window.addEventListener('refresh', () => this.redraw());
@@ -376,10 +414,15 @@ class CanvasLayer extends LitElement {
         if (app.tool?.name === 'grid') {
           if (app.environment.name === 'Cubes') {
             const currentGridState = gridStore.getState();
-            if (currentGridState.isVisible && currentGridState.gridType === 'vertical-triangle') { // Toggle off if it's the specific cube grid
+            if (
+              currentGridState.isVisible &&
+              currentGridState.gridType === 'vertical-triangle'
+            ) {
+              // Toggle off if it's the specific cube grid
               gridStore.setGridType('none'); // This will also set isVisible to false
               // gridStore.setGridSize(2); // Keep previous size or reset? Original code set to 2.
-            } else { // Toggle on to vertical-triangle or switch to it
+            } else {
+              // Toggle on to vertical-triangle or switch to it
               gridStore.setGridType('vertical-triangle'); // This will also set isVisible to true
               gridStore.setGridSize(2); // Original code set size to 2 for cubes
             }
@@ -448,7 +491,9 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       const mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        new CustomEvent('mouse-coordinates-changed', {
+          detail: { mousePos: mousePos },
+        }),
       );
       if (
         app.listenerCounter.objectSelected &&
@@ -464,19 +509,36 @@ class CanvasLayer extends LitElement {
 
       let mustExitFunction = false;
 
-      if (app.workspace.lastKnownMouseClickTime && app.workspace.lastKnownMouseClickTime > event.timeStamp - GRID_CONSTANTS.DOUBLE_CLICK_THRESHOLD && app.workspace.lastKnownMouseClickCoordinates.dist(mousePos) < GRID_CONSTANTS.MOVEMENT_THRESHOLD_MOUSE) {
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: "Double clic détecté, le deuxième clic n'a pas été pris en compte." } }));
+      if (
+        app.workspace.lastKnownMouseClickTime &&
+        app.workspace.lastKnownMouseClickTime >
+          event.timeStamp - GRID_CONSTANTS.DOUBLE_CLICK_THRESHOLD &&
+        app.workspace.lastKnownMouseClickCoordinates.dist(mousePos) <
+          GRID_CONSTANTS.MOVEMENT_THRESHOLD_MOUSE
+      ) {
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: {
+              message:
+                "Double clic détecté, le deuxième clic n'a pas été pris en compte.",
+            },
+          }),
+        );
         mustExitFunction = true;
       }
 
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        new CustomEvent('mouse-coordinates-changed', {
+          detail: { mousePos: mousePos },
+        }),
       );
       window.dispatchEvent(
-        new CustomEvent('mouse-click-changed', { detail: { mousePos: mousePos } })
+        new CustomEvent('mouse-click-changed', {
+          detail: { mousePos: mousePos },
+        }),
       );
 
-      if (mustExitFunction) return
+      if (mustExitFunction) return;
 
       if (
         app.listenerCounter.objectSelected &&
@@ -484,7 +546,10 @@ class CanvasLayer extends LitElement {
       )
         SelectManager.selectObject(mousePos);
       this.pressPositionForLongPress = mousePos;
-      this.pressTimeoutId = window.setTimeout(() => window.dispatchEvent(new CustomEvent('canvasLongPress')), GRID_CONSTANTS.LONG_PRESS_DELAY);
+      this.pressTimeoutId = window.setTimeout(
+        () => window.dispatchEvent(new CustomEvent('canvasLongPress')),
+        GRID_CONSTANTS.LONG_PRESS_DELAY,
+      );
       window.dispatchEvent(new CustomEvent('canvasMouseDown'));
     });
 
@@ -492,7 +557,9 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       const mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        new CustomEvent('mouse-coordinates-changed', {
+          detail: { mousePos: mousePos },
+        }),
       );
       window.clearTimeout(this.pressTimeoutId);
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
@@ -502,9 +569,14 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       const mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        new CustomEvent('mouse-coordinates-changed', {
+          detail: { mousePos: mousePos },
+        }),
       );
-      if (this.pressPositionForLongPress?.dist(mousePos) > GRID_CONSTANTS.MOVEMENT_THRESHOLD_MOUSE)
+      if (
+        this.pressPositionForLongPress?.dist(mousePos) >
+        GRID_CONSTANTS.MOVEMENT_THRESHOLD_MOUSE
+      )
         window.clearTimeout(this.pressTimeoutId);
       window.dispatchEvent(new CustomEvent('canvasMouseMove'));
     });
@@ -514,7 +586,9 @@ class CanvasLayer extends LitElement {
       if (app.fullHistory.isRunning) return;
       const mousePos = this.getMousePos(event);
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        new CustomEvent('mouse-coordinates-changed', {
+          detail: { mousePos: mousePos },
+        }),
       );
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
     });
@@ -527,7 +601,9 @@ class CanvasLayer extends LitElement {
         y: event.clientY,
       });
       window.dispatchEvent(
-        new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+        new CustomEvent('mouse-coordinates-changed', {
+          detail: { mousePos: mousePos },
+        }),
       );
       let correctedDeltaY = event.deltaY;
       if (event.deltaY > 0) {
@@ -538,8 +614,10 @@ class CanvasLayer extends LitElement {
       const detail = {
         deltaY: correctedDeltaY,
       };
-      window.dispatchEvent(new CustomEvent('canvasMouseWheel', { detail: detail }));
-    }
+      window.dispatchEvent(
+        new CustomEvent('canvasMouseWheel', { detail: detail }),
+      );
+    };
 
     this.canvas.addEventListener('wheel', handleWheel);
     this.canvas.addEventListener('touchstart', (event) => {
@@ -548,7 +626,9 @@ class CanvasLayer extends LitElement {
       const mousePos = this.getMousePos(event);
       if (event.touches.length === 1)
         window.dispatchEvent(
-          new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+          new CustomEvent('mouse-coordinates-changed', {
+            detail: { mousePos: mousePos },
+          }),
         );
       if (
         app.listenerCounter.objectSelected &&
@@ -565,40 +645,58 @@ class CanvasLayer extends LitElement {
         );
       }
       this.pressPositionForLongPress = mousePos;
-      this.pressTimeoutId = window.setTimeout(() => window.dispatchEvent(new CustomEvent('canvasLongPress')), GRID_CONSTANTS.LONG_PRESS_DELAY);
+      this.pressTimeoutId = window.setTimeout(
+        () => window.dispatchEvent(new CustomEvent('canvasLongPress')),
+        GRID_CONSTANTS.LONG_PRESS_DELAY,
+      );
       window.dispatchEvent(new CustomEvent('canvasMouseDown'));
-      window.dispatchEvent(new CustomEvent('canvasTouchStart', { detail: detail }));
+      window.dispatchEvent(
+        new CustomEvent('canvasTouchStart', { detail: detail }),
+      );
     });
 
-    this.canvas.addEventListener('touchmove', (event) => {
-      event.preventDefault();
-      if (app.fullHistory.isRunning) return;
-      const mousePos = this.getMousePos(event);
-      if (event.touches.length === 1)
+    this.canvas.addEventListener(
+      'touchmove',
+      (event) => {
+        event.preventDefault();
+        if (app.fullHistory.isRunning) return;
+        const mousePos = this.getMousePos(event);
+        if (event.touches.length === 1)
+          window.dispatchEvent(
+            new CustomEvent('mouse-coordinates-changed', {
+              detail: { mousePos: mousePos },
+            }),
+          );
+        const detail = { touches: [] };
+        for (const touch of event.touches) {
+          detail.touches.push(
+            new Coordinates({
+              x: touch.clientX - app.settings.mainMenuWidth,
+              y: touch.clientY,
+            }),
+          );
+        }
+        if (this.isOutsideOfCanvas(mousePos)) {
+          event.stopPropagation();
+          window.clearTimeout(this.pressTimeoutId);
+          window.dispatchEvent(new CustomEvent('canvasMouseUp'));
+          window.dispatchEvent(
+            new CustomEvent('canvasTouchEnd', { detail: detail }),
+          );
+          return;
+        }
+        if (
+          this.pressPositionForLongPress?.dist(mousePos) >
+          GRID_CONSTANTS.MOVEMENT_THRESHOLD_TOUCH
+        )
+          window.clearTimeout(this.pressTimeoutId);
+        window.dispatchEvent(new CustomEvent('canvasMouseMove'));
         window.dispatchEvent(
-          new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+          new CustomEvent('canvasTouchMove', { detail: detail }),
         );
-      const detail = { touches: [] };
-      for (const touch of event.touches) {
-        detail.touches.push(
-          new Coordinates({
-            x: touch.clientX - app.settings.mainMenuWidth,
-            y: touch.clientY,
-          }),
-        );
-      }
-      if (this.isOutsideOfCanvas(mousePos)) {
-        event.stopPropagation();
-        window.clearTimeout(this.pressTimeoutId);
-        window.dispatchEvent(new CustomEvent('canvasMouseUp'));
-        window.dispatchEvent(new CustomEvent('canvasTouchEnd', { detail: detail }));
-        return;
-      }
-      if (this.pressPositionForLongPress?.dist(mousePos) > GRID_CONSTANTS.MOVEMENT_THRESHOLD_TOUCH)
-        window.clearTimeout(this.pressTimeoutId);
-      window.dispatchEvent(new CustomEvent('canvasMouseMove'));
-      window.dispatchEvent(new CustomEvent('canvasTouchMove', { detail: detail }));
-    }, false);
+      },
+      false,
+    );
 
     this.canvas.addEventListener('touchend', (event) => {
       event.preventDefault();
@@ -606,14 +704,16 @@ class CanvasLayer extends LitElement {
       const mousePos = this.getMousePos(event);
       if (event.touches.length === 1)
         window.dispatchEvent(
-          new CustomEvent('mouse-coordinates-changed', { detail: { mousePos: mousePos } })
+          new CustomEvent('mouse-coordinates-changed', {
+            detail: { mousePos: mousePos },
+          }),
         );
       if (
         app.listenerCounter.objectSelected &&
         'click' === app.workspace.selectionConstraints.eventType
       )
         SelectManager.selectObject(mousePos);
-      const detail = { touches: [] }
+      const detail = { touches: [] };
       for (const touch of event.changedTouches) {
         detail.touches.push(
           new Coordinates({
@@ -625,30 +725,41 @@ class CanvasLayer extends LitElement {
       window.clearTimeout(this.pressTimeoutId);
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
       window.dispatchEvent(new CustomEvent('canvasClick'));
-      window.dispatchEvent(new CustomEvent('canvasTouchEnd', { detail: detail }));
+      window.dispatchEvent(
+        new CustomEvent('canvasTouchEnd', { detail: detail }),
+      );
     });
 
     this.canvas.addEventListener('touchcancel', (event) => {
       event.preventDefault();
       if (app.fullHistory.isRunning) return;
       const mousePos = this.getMousePos(event);
-      window.dispatchEvent(new CustomEvent('mouse-coordinates-changed',
-        { detail: { mousePos: mousePos } }));
-      if (app.listenerCounter.objectSelected && 'click' === app.workspace.selectionConstraints.eventType)
+      window.dispatchEvent(
+        new CustomEvent('mouse-coordinates-changed', {
+          detail: { mousePos: mousePos },
+        }),
+      );
+      if (
+        app.listenerCounter.objectSelected &&
+        'click' === app.workspace.selectionConstraints.eventType
+      )
         SelectManager.selectObject(mousePos);
 
       const detail = { touches: [] };
       for (const touch of event.changedTouches) {
-        detail.touches.push(new Coordinates({
-          x: touch.clientX - app.settings.mainMenuWidth,
-          y: touch.clientY
-        })
+        detail.touches.push(
+          new Coordinates({
+            x: touch.clientX - app.settings.mainMenuWidth,
+            y: touch.clientY,
+          }),
         );
       }
       window.clearTimeout(this.pressTimeoutId);
       window.dispatchEvent(new CustomEvent('canvasMouseUp'));
       window.dispatchEvent(new CustomEvent('canvasClick'));
-      window.dispatchEvent(new CustomEvent('canvastouchcancel', { detail: detail }));
+      window.dispatchEvent(
+        new CustomEvent('canvastouchcancel', { detail: detail }),
+      );
     });
   }
 
@@ -704,7 +815,8 @@ class CanvasLayer extends LitElement {
     if (mousePos.x < 0 || mousePos.y < 0) return true;
     if (mousePos.x > app.canvasWidth || mousePos.y > app.canvasHeight)
       return true;
-    if (app.workspace.limited && mousePos.x > (app.canvasWidth / 2) - 16) return true
+    if (app.workspace.limited && mousePos.x > app.canvasWidth / 2 - 16)
+      return true;
     return false;
   }
 
@@ -726,7 +838,11 @@ class CanvasLayer extends LitElement {
     }
 
     let zoomLevel = app.workspace.zoomLevel;
-    if (typeof zoomLevel !== 'number' || !isFinite(zoomLevel) || zoomLevel <= 0) {
+    if (
+      typeof zoomLevel !== 'number' ||
+      !isFinite(zoomLevel) ||
+      zoomLevel <= 0
+    ) {
       zoomLevel = 1.0;
     }
 
@@ -734,9 +850,16 @@ class CanvasLayer extends LitElement {
     const baseGridStep = gridSize * GRID_CONSTANTS.PIXELS_PER_CM; // Pas de grille en espace monde
 
     // Utiliser la même transformation que toCanvasCoordinates pour la cohérence
-    const translateOffset = app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
-    const offsetX = (translateOffset && typeof translateOffset.x === 'number') ? translateOffset.x : 0;
-    const offsetY = (translateOffset && typeof translateOffset.y === 'number') ? translateOffset.y : 0;
+    const translateOffset =
+      app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
+    const offsetX =
+      translateOffset && typeof translateOffset.x === 'number'
+        ? translateOffset.x
+        : 0;
+    const offsetY =
+      translateOffset && typeof translateOffset.y === 'number'
+        ? translateOffset.y
+        : 0;
 
     const pointRadius = 2 * zoomLevel;
 
@@ -748,8 +871,12 @@ class CanvasLayer extends LitElement {
       const canvasY = worldY * zoomLevel + offsetY;
 
       // Vérifier que le point est visible sur le canvas
-      if (canvasX >= -pointRadius && canvasX <= canvasWidth + pointRadius &&
-        canvasY >= -pointRadius && canvasY <= canvasHeight + pointRadius) {
+      if (
+        canvasX >= -pointRadius &&
+        canvasX <= canvasWidth + pointRadius &&
+        canvasY >= -pointRadius &&
+        canvasY <= canvasHeight + pointRadius
+      ) {
         ctx.beginPath();
         ctx.arc(canvasX, canvasY, pointRadius, 0, 2 * Math.PI);
         ctx.fill();
@@ -757,8 +884,8 @@ class CanvasLayer extends LitElement {
     };
 
     // Calculer la zone visible en espace monde pour optimiser le rendu
-    const worldVisibleLeft = (-offsetX) / zoomLevel;
-    const worldVisibleTop = (-offsetY) / zoomLevel;
+    const worldVisibleLeft = -offsetX / zoomLevel;
+    const worldVisibleTop = -offsetY / zoomLevel;
     const worldVisibleRight = (canvasWidth - offsetX) / zoomLevel;
     const worldVisibleBottom = (canvasHeight - offsetY) / zoomLevel;
 
@@ -766,8 +893,16 @@ class CanvasLayer extends LitElement {
       const startX = Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
       const startY = Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
 
-      for (let x = startX; x <= worldVisibleRight + baseGridStep; x += baseGridStep) {
-        for (let y = startY; y <= worldVisibleBottom + baseGridStep; y += baseGridStep) {
+      for (
+        let x = startX;
+        x <= worldVisibleRight + baseGridStep;
+        x += baseGridStep
+      ) {
+        for (
+          let y = startY;
+          y <= worldVisibleBottom + baseGridStep;
+          y += baseGridStep
+        ) {
           drawPointAt(x, y);
         }
       }
@@ -775,37 +910,69 @@ class CanvasLayer extends LitElement {
       const startX = Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
       const startY = Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
 
-      for (let y = startY; y <= worldVisibleBottom + baseGridStep; y += baseGridStep) {
+      for (
+        let y = startY;
+        y <= worldVisibleBottom + baseGridStep;
+        y += baseGridStep
+      ) {
         drawPointAt(startX, y);
       }
     } else if (gridState.gridType === 'horizontal-lines') {
       const startX = Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
       const startY = Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
 
-      for (let x = startX; x <= worldVisibleRight + baseGridStep; x += baseGridStep) {
+      for (
+        let x = startX;
+        x <= worldVisibleRight + baseGridStep;
+        x += baseGridStep
+      ) {
         drawPointAt(x, startY);
       }
     } else if (gridState.gridType === 'horizontal-triangle') {
       const triangleHeight = baseGridStep * (Math.sqrt(3) / 2);
-      const startY = Math.floor(worldVisibleTop / triangleHeight) * triangleHeight;
+      const startY =
+        Math.floor(worldVisibleTop / triangleHeight) * triangleHeight;
 
-      for (let y = startY, row = Math.floor(startY / triangleHeight); y <= worldVisibleBottom + triangleHeight; y += triangleHeight, row++) {
-        const offsetX = (row % 2 === 0) ? 0 : baseGridStep / 2;
-        const startX = Math.floor((worldVisibleLeft - offsetX) / baseGridStep) * baseGridStep + offsetX;
+      for (
+        let y = startY, row = Math.floor(startY / triangleHeight);
+        y <= worldVisibleBottom + triangleHeight;
+        y += triangleHeight, row++
+      ) {
+        const offsetX = row % 2 === 0 ? 0 : baseGridStep / 2;
+        const startX =
+          Math.floor((worldVisibleLeft - offsetX) / baseGridStep) *
+            baseGridStep +
+          offsetX;
 
-        for (let x = startX; x <= worldVisibleRight + baseGridStep; x += baseGridStep) {
+        for (
+          let x = startX;
+          x <= worldVisibleRight + baseGridStep;
+          x += baseGridStep
+        ) {
           drawPointAt(x, y);
         }
       }
     } else if (gridState.gridType === 'vertical-triangle') {
       const horizontalStep = baseGridStep * (Math.sqrt(3) / 2);
-      const startX = Math.floor(worldVisibleLeft / horizontalStep) * horizontalStep;
+      const startX =
+        Math.floor(worldVisibleLeft / horizontalStep) * horizontalStep;
 
-      for (let x = startX, col = Math.floor(startX / horizontalStep); x <= worldVisibleRight + horizontalStep; x += horizontalStep, col++) {
-        const offsetY = (col % 2 === 0) ? 0 : baseGridStep / 2;
-        const startY = Math.floor((worldVisibleTop - offsetY) / baseGridStep) * baseGridStep + offsetY;
+      for (
+        let x = startX, col = Math.floor(startX / horizontalStep);
+        x <= worldVisibleRight + horizontalStep;
+        x += horizontalStep, col++
+      ) {
+        const offsetY = col % 2 === 0 ? 0 : baseGridStep / 2;
+        const startY =
+          Math.floor((worldVisibleTop - offsetY) / baseGridStep) *
+            baseGridStep +
+          offsetY;
 
-        for (let y = startY; y <= worldVisibleBottom + baseGridStep; y += baseGridStep) {
+        for (
+          let y = startY;
+          y <= worldVisibleBottom + baseGridStep;
+          y += baseGridStep
+        ) {
           drawPointAt(x, y);
         }
       }
@@ -823,7 +990,13 @@ class CanvasLayer extends LitElement {
    * }
    */
   getClosestGridPoint(checkingCoordinates) {
-    if (!checkingCoordinates || typeof checkingCoordinates.x !== 'number' || typeof checkingCoordinates.y !== 'number' || !isFinite(checkingCoordinates.x) || !isFinite(checkingCoordinates.y)) {
+    if (
+      !checkingCoordinates ||
+      typeof checkingCoordinates.x !== 'number' ||
+      typeof checkingCoordinates.y !== 'number' ||
+      !isFinite(checkingCoordinates.x) ||
+      !isFinite(checkingCoordinates.y)
+    ) {
       // console.warn("getClosestGridPoint: checkingCoordinates are invalid", checkingCoordinates);
       return undefined;
     }
@@ -834,7 +1007,11 @@ class CanvasLayer extends LitElement {
     }
 
     let zoomLevel = app.workspace.zoomLevel;
-    if (typeof zoomLevel !== 'number' || !isFinite(zoomLevel) || zoomLevel <= 0) {
+    if (
+      typeof zoomLevel !== 'number' ||
+      !isFinite(zoomLevel) ||
+      zoomLevel <= 0
+    ) {
       // console.warn("getClosestGridPoint: Invalid app.workspace.zoomLevel, defaulting to 1.0. Value:", zoomLevel);
       zoomLevel = 1.0;
     }
@@ -843,9 +1020,16 @@ class CanvasLayer extends LitElement {
     const baseGridStep = gridSize * GRID_CONSTANTS.PIXELS_PER_CM; // Pas de grille en espace monde
 
     // Convertir les coordonnées canvas en coordonnées monde (inverse de toCanvasCoordinates)
-    const translateOffset = app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
-    const offsetX = (translateOffset && typeof translateOffset.x === 'number') ? translateOffset.x : 0;
-    const offsetY = (translateOffset && typeof translateOffset.y === 'number') ? translateOffset.y : 0;
+    const translateOffset =
+      app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
+    const offsetX =
+      translateOffset && typeof translateOffset.x === 'number'
+        ? translateOffset.x
+        : 0;
+    const offsetY =
+      translateOffset && typeof translateOffset.y === 'number'
+        ? translateOffset.y
+        : 0;
 
     const worldX = (checkingCoordinates.x - offsetX) / zoomLevel;
     const worldY = (checkingCoordinates.y - offsetY) / zoomLevel;
@@ -862,7 +1046,8 @@ class CanvasLayer extends LitElement {
     } else if (gridState.gridType === 'horizontal-lines') {
       gridWorldX = worldX; // Pas de contrainte sur X
       gridWorldY = Math.round(worldY / baseGridStep) * baseGridStep;
-    } else if (gridState.gridType === 'horizontal-triangle') { // Grille triangulaire verticale
+    } else if (gridState.gridType === 'horizontal-triangle') {
+      // Grille triangulaire verticale
       const triangleHeight = baseGridStep * (Math.sqrt(3) / 2);
 
       // Trouver la rangée la plus proche
@@ -870,13 +1055,14 @@ class CanvasLayer extends LitElement {
       gridWorldY = row * triangleHeight;
 
       // Calculer le décalage X pour cette rangée
-      const offsetX = (row % 2 === 0) ? 0 : baseGridStep / 2;
+      const offsetX = row % 2 === 0 ? 0 : baseGridStep / 2;
 
       // Trouver la colonne la plus proche en tenant compte du décalage
       const adjustedX = worldX - offsetX;
       const col = Math.round(adjustedX / baseGridStep);
       gridWorldX = col * baseGridStep + offsetX;
-    } else if (gridState.gridType === 'vertical-triangle') { // Grille triangulaire horizontale
+    } else if (gridState.gridType === 'vertical-triangle') {
+      // Grille triangulaire horizontale
       const horizontalStep = baseGridStep * (Math.sqrt(3) / 2);
 
       // Trouver la colonne la plus proche
@@ -884,7 +1070,7 @@ class CanvasLayer extends LitElement {
       gridWorldX = col * horizontalStep;
 
       // Calculer le décalage Y pour cette colonne
-      const offsetY = (col % 2 === 0) ? 0 : baseGridStep / 2;
+      const offsetY = col % 2 === 0 ? 0 : baseGridStep / 2;
 
       // Trouver la rangée la plus proche en tenant compte du décalage
       const adjustedY = worldY - offsetY;
@@ -905,13 +1091,23 @@ class CanvasLayer extends LitElement {
     if (!this.canvas) return;
 
     // Validate scale
-    if (typeof this.scale !== 'number' || !isFinite(this.scale) || this.scale <= 0.00001) {
+    if (
+      typeof this.scale !== 'number' ||
+      !isFinite(this.scale) ||
+      this.scale <= 0.00001
+    ) {
       this.scale = 1.0;
     }
 
     // Validate canvas dimensions
-    const canvasWidth = typeof this.canvas.width === 'number' && isFinite(this.canvas.width) ? this.canvas.width : 0;
-    const canvasHeight = typeof this.canvas.height === 'number' && isFinite(this.canvas.height) ? this.canvas.height : 0;
+    const canvasWidth =
+      typeof this.canvas.width === 'number' && isFinite(this.canvas.width)
+        ? this.canvas.width
+        : 0;
+    const canvasHeight =
+      typeof this.canvas.height === 'number' && isFinite(this.canvas.height)
+        ? this.canvas.height
+        : 0;
 
     const newX = Math.floor(this.xOffset / this.scale);
     const newY = Math.floor(this.yOffset / this.scale);
@@ -919,7 +1115,13 @@ class CanvasLayer extends LitElement {
     const newHeight = Math.ceil(canvasHeight / this.scale);
 
     // Only update if there is a change or if forced
-    if (forced || this.canvasVisibleLeft !== newX || this.canvasVisibleTop !== newY || this.canvasVisibleWidth !== newWidth || this.canvasVisibleHeight !== newHeight) {
+    if (
+      forced ||
+      this.canvasVisibleLeft !== newX ||
+      this.canvasVisibleTop !== newY ||
+      this.canvasVisibleWidth !== newWidth ||
+      this.canvasVisibleHeight !== newHeight
+    ) {
       this.canvasVisibleLeft = newX;
       this.canvasVisibleTop = newY;
       this.canvasVisibleWidth = newWidth;
@@ -935,15 +1137,17 @@ class CanvasLayer extends LitElement {
     let pathScaleMethod = this.mustScaleShapes ? 'scale' : 'no scale',
       path = new Path2D(shape.getSVGPath(pathScaleMethod, true, false, true));
     if (shape.drawHidden) {
-      const canvasPattern = document.createElement("canvas");
+      const canvasPattern = document.createElement('canvas');
       canvasPattern.width = 10;
       canvasPattern.height = 10;
-      const contextPattern = canvasPattern.getContext("2d");
-      const path = new Path2D(`M 5 0 L 10 5 L 10 10 L 0 0 L 5 0 M 0 5 L 5 10 L 0 10 L 0 5`);
+      const contextPattern = canvasPattern.getContext('2d');
+      const path = new Path2D(
+        `M 5 0 L 10 5 L 10 10 L 0 0 L 5 0 M 0 5 L 5 10 L 0 10 L 0 5`,
+      );
       contextPattern.fillStyle = this.ctx.fillStyle;
       contextPattern.fill(path);
 
-      const pattern = this.ctx.createPattern(canvasPattern, "repeat");
+      const pattern = this.ctx.createPattern(canvasPattern, 'repeat');
       canvasPattern.remove();
 
       this.ctx.fillStyle = pattern;
@@ -956,16 +1160,15 @@ class CanvasLayer extends LitElement {
     if (shape.drawHidden) {
       this.ctx.setLineDash([5, 15]);
     }
-    if (shape.segments.some(seg => seg.color !== undefined)) {
-      shape.segments.forEach(seg => {
+    if (shape.segments.some((seg) => seg.color !== undefined)) {
+      shape.segments.forEach((seg) => {
         const path = new Path2D(seg.getSVGPath(pathScaleMethod, true));
         this.ctx.strokeStyle = seg.color ? seg.color : shape.strokeColor;
         if (seg.width !== 1) this.ctx.lineWidth = seg.width;
         this.ctx.stroke(path);
         this.ctx.lineWidth = shape.strokeWidth;
       });
-    } else
-      this.ctx.stroke(path);
+    } else this.ctx.stroke(path);
     this.ctx.setLineDash([]);
   }
 
@@ -985,7 +1188,7 @@ class CanvasLayer extends LitElement {
       point.size * 2, // Coordonnées déjà converties par toCanvasCoordinates()
       0,
       2 * Math.PI,
-      0
+      0,
     );
     this.ctx.closePath();
     this.ctx.fill();
@@ -993,15 +1196,14 @@ class CanvasLayer extends LitElement {
     if (doSave) this.ctx.restore();
   }
 
-  drawText(
-    text,
-    doSave = true,
-  ) {
+  drawText(text, doSave = true) {
     if (doSave) this.ctx.save();
 
     const fontSize = 20;
     let position = text.coordinates.add({
-      x: (((-3 * fontSize) / 13) * text.message.length) / app.workspace.zoomLevel,
+      x:
+        (((-3 * fontSize) / 13) * text.message.length) /
+        app.workspace.zoomLevel,
       y: fontSize / 2 / app.workspace.zoomLevel,
     });
     position = position.toCanvasCoordinates();

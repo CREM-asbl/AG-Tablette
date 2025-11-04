@@ -15,7 +15,16 @@ export class GroupTool extends Tool {
 
     this.firstShape = null;
 
-    this.groupsColor = ['#77b5fe', '#096a09', '#f00020', '#03224c', '#34c924', '#d473d4', '#fd3f92', '#ff8400'];
+    this.groupsColor = [
+      '#77b5fe',
+      '#096a09',
+      '#f00020',
+      '#03224c',
+      '#34c924',
+      '#d473d4',
+      '#fd3f92',
+      '#ff8400',
+    ];
   }
 
   /**
@@ -34,12 +43,12 @@ export class GroupTool extends Tool {
         Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
         figure appartenant à un groupe.<br /><br />
 
-        Pour créer un nouveau groupe, touchez deux figures n'appartenant pas à un
-        groupe. Toutes les figures touchées par la suite seront ajoutées à ce
+        Pour créer un nouveau groupe, touchez deux figures n'appartenant pas à
+        un groupe. Toutes les figures touchées par la suite seront ajoutées à ce
         groupe.<br /><br />
 
-        Pour ajouter une figure à un groupe, touchez une des figures appartenant à
-        ce groupe, puis touchez la figure que vous souhaitez ajouter.<br /><br />
+        Pour ajouter une figure à un groupe, touchez une des figures appartenant
+        à ce groupe, puis touchez la figure que vous souhaitez ajouter.<br /><br />
 
         Pour fusionner deux groupes, touchez une des figures appartenant au
         premier groupe, puis touchez une des figures de l'autre groupe.
@@ -48,7 +57,13 @@ export class GroupTool extends Tool {
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -66,7 +81,13 @@ export class GroupTool extends Tool {
           strokeColor: currentGroup.color,
           strokeWidth: 3,
           divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+            return {
+              coordinates: dp.coordinates,
+              ratio: dp.ratio,
+              segmentIdx: dp.segments[0].idx,
+              id: dp.id,
+              color: dp.color,
+            };
           }),
           pointsColor: s.points.map((pt) => {
             return pt.color;
@@ -117,7 +138,13 @@ export class GroupTool extends Tool {
           strokeColor: this.groupsColor[app.nextGroupColorIdx % 8],
           strokeWidth: 3,
           divisionPointInfos: shape.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+            return {
+              coordinates: dp.coordinates,
+              ratio: dp.ratio,
+              segmentIdx: dp.segments[0].idx,
+              id: dp.id,
+              color: dp.color,
+            };
           }),
           pointsColor: shape.points.map((pt) => {
             return pt.color;
@@ -206,7 +233,13 @@ export class GroupTool extends Tool {
           strokeColor: currentGroup.color,
           strokeWidth: 3,
           divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+            return {
+              coordinates: dp.coordinates,
+              ratio: dp.ratio,
+              segmentIdx: dp.segments[0].idx,
+              id: dp.id,
+              color: dp.color,
+            };
           }),
           pointsColor: s.points.map((pt) => {
             return pt.color;
@@ -215,6 +248,5 @@ export class GroupTool extends Tool {
         console.info(s.getSVGPath('no scale', false, false));
       }
     });
-
   }
 }

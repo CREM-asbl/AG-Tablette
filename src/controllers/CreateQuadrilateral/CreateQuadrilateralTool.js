@@ -17,7 +17,11 @@ import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
  */
 export class CreateQuadrilateralTool extends Tool {
   constructor() {
-    super('createQuadrilateral', 'Construire un quadrilatère', 'geometryCreator');
+    super(
+      'createQuadrilateral',
+      'Construire un quadrilatère',
+      'geometryCreator',
+    );
 
     // show-quadrilaterals -> select-points
     this.currentStep = null;
@@ -54,8 +58,8 @@ export class CreateQuadrilateralTool extends Tool {
     elem.family = 'Quadrilatères';
     elem.templatesNames = quadrilateres;
     elem.selectedTemplate = app.tool.selectedTemplate;
-    elem.type = "Geometry"
-    elem.nextStep = 'drawFirstPoint'
+    elem.type = 'Geometry';
+    elem.nextStep = 'drawFirstPoint';
     document.querySelector('body').appendChild(elem);
   }
 
@@ -68,7 +72,13 @@ export class CreateQuadrilateralTool extends Tool {
     this.segments = [];
     this.numberOfPointsDrawn = 0;
 
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        }),
+      50,
+    );
   }
 
   drawPoint() {
@@ -93,14 +103,20 @@ export class CreateQuadrilateralTool extends Tool {
     this.stopAnimation();
   }
 
-
   canvasMouseDown() {
     const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
     );
 
-    if (this.constraints.type == 'isConstrained' && !this.constraints.projectionOnConstraints(newCoordinates, true)) {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point sur la contrainte.' } }))
+    if (
+      this.constraints.type == 'isConstrained' &&
+      !this.constraints.projectionOnConstraints(newCoordinates, true)
+    ) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Veuillez placer le point sur la contrainte.' },
+        }),
+      );
       return;
     }
 
@@ -148,45 +164,56 @@ export class CreateQuadrilateralTool extends Tool {
         fillOpacity: 0,
       });
     }
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+    });
   }
 
   canvasMouseUp() {
     for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
-      if (SelectManager.areCoordinatesInMagnetismDistance(this.points[i].coordinates, this.points[this.numberOfPointsDrawn - 1].coordinates)) {
+      if (
+        SelectManager.areCoordinatesInMagnetismDistance(
+          this.points[i].coordinates,
+          this.points[this.numberOfPointsDrawn - 1].coordinates,
+        )
+      ) {
         const firstPointCoordinates = this.points[0].coordinates;
         if (this.numberOfPointsDrawn == 2) {
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 1;
-          this.points = [new Point({
-            layer: 'upper',
-            coordinates: firstPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          })];
+          this.points = [
+            new Point({
+              layer: 'upper',
+              coordinates: firstPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+          ];
           this.segments = [];
         } else if (this.numberOfPointsDrawn == 3) {
           const secondPointCoordinates = this.points[1].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 2;
-          this.points = [new Point({
-            layer: 'upper',
-            coordinates: firstPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          }), new Point({
-            layer: 'upper',
-            coordinates: secondPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          })];
-          this.segments = [new Segment({
-            layer: 'upper',
-            vertexIds: [
-              this.points[0].id,
-              this.points[1].id,
-            ],
-          })];
+          this.points = [
+            new Point({
+              layer: 'upper',
+              coordinates: firstPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+            new Point({
+              layer: 'upper',
+              coordinates: secondPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+          ];
+          this.segments = [
+            new Segment({
+              layer: 'upper',
+              vertexIds: [this.points[0].id, this.points[1].id],
+            }),
+          ];
           new RegularShape({
             layer: 'upper',
             segmentIds: [this.segments[0].id],
@@ -199,45 +226,52 @@ export class CreateQuadrilateralTool extends Tool {
           const thirdPointCoordinates = this.points[2].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 3;
-          this.points = [new Point({
-            layer: 'upper',
-            coordinates: firstPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          }), new Point({
-            layer: 'upper',
-            coordinates: secondPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          }), new Point({
-            layer: 'upper',
-            coordinates: thirdPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          })];
-          this.segments = [new Segment({
-            layer: 'upper',
-            vertexIds: [
-              this.points[0].id,
-              this.points[1].id,
-            ],
-          }), new Segment({
-            layer: 'upper',
-            vertexIds: [
-              this.points[1].id,
-              this.points[2].id,
-            ],
-          })];
+          this.points = [
+            new Point({
+              layer: 'upper',
+              coordinates: firstPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+            new Point({
+              layer: 'upper',
+              coordinates: secondPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+            new Point({
+              layer: 'upper',
+              coordinates: thirdPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+          ];
+          this.segments = [
+            new Segment({
+              layer: 'upper',
+              vertexIds: [this.points[0].id, this.points[1].id],
+            }),
+            new Segment({
+              layer: 'upper',
+              vertexIds: [this.points[1].id, this.points[2].id],
+            }),
+          ];
           new RegularShape({
             layer: 'upper',
-            segmentIds: this.segments.map(seg => seg.id),
-            pointIds: this.points.map(pt => pt.id),
+            segmentIds: this.segments.map((seg) => seg.id),
+            pointIds: this.points.map((pt) => pt.id),
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
         }
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
-        setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Veuillez placer le point autre part.' },
+          }),
+        );
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        });
         return;
       }
     }
@@ -245,10 +279,14 @@ export class CreateQuadrilateralTool extends Tool {
     if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+      });
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      });
     }
   }
 
@@ -258,14 +296,20 @@ export class CreateQuadrilateralTool extends Tool {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
       let adjustedPoint;
-      if (adjustedPoint = SelectManager.selectPoint(
-        point.coordinates,
-        constraints,
-        false,
-      )) {
+      if (
+        (adjustedPoint = SelectManager.selectPoint(
+          point.coordinates,
+          constraints,
+          false,
+        ))
+      ) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
-      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates())) {
+      } else if (
+        (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
+          point.coordinates.toCanvasCoordinates(),
+        ))
+      ) {
         const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
         point.coordinates = new Coordinates(adjustedPointInWorldSpace);
         point.adjustedOn = adjustedPointInWorldSpace;
@@ -277,30 +321,47 @@ export class CreateQuadrilateralTool extends Tool {
           constraints,
         );
         if (adjustedSegment) {
-          point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+          point.coordinates = adjustedSegment.projectionOnSegment(
+            point.coordinates,
+          );
           point.adjustedOn = adjustedSegment;
         }
       }
-    } else { // This is the correct else for if (this.constraints.isFree)
+    } else {
+      // This is the correct else for if (this.constraints.isFree)
       let adjustedCoordinates = this.constraints.projectionOnConstraints(
         point.coordinates,
       );
 
       const constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
-      constraints.numberOfObjects = "allInDistance";
+      constraints.numberOfObjects = 'allInDistance';
       const adjustedSegments = SelectManager.selectSegment(
         adjustedCoordinates,
         constraints,
       );
       if (adjustedSegments) {
-        const adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
-          seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) > seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) ? 1 : -1
-        )[0];
-        if (adjustedSegment) {
-          adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
-            intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1
+        const adjustedSegment = adjustedSegments
+          .filter((seg) => !seg.isParalleleWith(this.constraints.segments[0]))
+          .sort((seg1, seg2) =>
+            seg1
+              .projectionOnSegment(adjustedCoordinates)
+              .dist(adjustedCoordinates) >
+            seg2
+              .projectionOnSegment(adjustedCoordinates)
+              .dist(adjustedCoordinates)
+              ? 1
+              : -1,
           )[0];
+        if (adjustedSegment) {
+          adjustedCoordinates = adjustedSegment
+            .intersectionWith(this.constraints.segments[0])
+            .sort((intersection1, intersection2) =>
+              intersection1.dist(adjustedCoordinates) >
+              intersection2.dist(adjustedCoordinates)
+                ? 1
+                : -1,
+            )[0];
           point.adjustedOn = adjustedSegment;
         }
       }
@@ -332,8 +393,13 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   getConstraints(pointNb) {
-    findObjectsByName('constraints', 'upper').forEach(obj => removeObjectById(obj.id));
-    this.constraints = this.quadrilateralDef.constraints[pointNb](this.points, this.segments);
+    findObjectsByName('constraints', 'upper').forEach((obj) =>
+      removeObjectById(obj.id),
+    );
+    this.constraints = this.quadrilateralDef.constraints[pointNb](
+      this.points,
+      this.segments,
+    );
   }
 
   _executeAction() {
@@ -344,7 +410,11 @@ export class CreateQuadrilateralTool extends Tool {
       familyName = 'Irregular';
     }
 
-    let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
+    let path = [
+      'M',
+      this.points[0].coordinates.x,
+      this.points[0].coordinates.y,
+    ];
     path.push('L', this.points[1].coordinates.x, this.points[1].coordinates.y);
     path.push('L', this.points[2].coordinates.x, this.points[2].coordinates.y);
     path.push('L', this.points[3].coordinates.x, this.points[3].coordinates.y);
@@ -364,11 +434,23 @@ export class CreateQuadrilateralTool extends Tool {
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    if (shape.name == 'Rectangle' || shape.name == 'Losange' || shape.name == 'Parallelogram' || shape.name == 'RightAngleTrapeze' || shape.name == 'IsoscelesTrapeze' || shape.name == 'Trapeze' || shape.name == 'IrregularQuadrilateral') {
+    if (
+      shape.name == 'Rectangle' ||
+      shape.name == 'Losange' ||
+      shape.name == 'Parallelogram' ||
+      shape.name == 'RightAngleTrapeze' ||
+      shape.name == 'IsoscelesTrapeze' ||
+      shape.name == 'Trapeze' ||
+      shape.name == 'IrregularQuadrilateral'
+    ) {
       shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }
-    if (shape.name == 'RightAngleTrapeze' || shape.name == 'Trapeze' || shape.name == 'IrregularQuadrilateral') {
+    if (
+      shape.name == 'RightAngleTrapeze' ||
+      shape.name == 'Trapeze' ||
+      shape.name == 'IrregularQuadrilateral'
+    ) {
       shape.vertexes[3].adjustedOn = this.points[3].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[3]);
     }

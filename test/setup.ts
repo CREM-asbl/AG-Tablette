@@ -49,9 +49,7 @@ vi.mock('@store/notions', () => ({
   },
 }));
 
-vi.mock('@store/syncState', () => ({
-syncInProgress: { value: false },
-}));
+// Ne pas mocker syncState globalement - le laisser aux tests individuels qui en ont besoin
 
 vi.mock('@controllers/Core/App', () => ({
   app: {

@@ -45,7 +45,13 @@ export class CreateIrregularTool extends Tool {
     this.points = [];
     this.segments = [];
 
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        }),
+      50,
+    );
   }
 
   drawPoint() {
@@ -140,14 +146,20 @@ export class CreateIrregularTool extends Tool {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
       let adjustedPoint;
-      if (adjustedPoint = SelectManager.selectPoint(
-        point.coordinates,
-        constraints,
-        false,
-      )) {
+      if (
+        (adjustedPoint = SelectManager.selectPoint(
+          point.coordinates,
+          constraints,
+          false,
+        ))
+      ) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
-      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates())) {
+      } else if (
+        (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
+          point.coordinates.toCanvasCoordinates(),
+        ))
+      ) {
         const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
         point.coordinates = new Coordinates(adjustedPointInWorldSpace);
         point.adjustedOn = adjustedPointInWorldSpace;
@@ -159,7 +171,9 @@ export class CreateIrregularTool extends Tool {
           constraints,
         );
         if (adjustedSegment) {
-          point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+          point.coordinates = adjustedSegment.projectionOnSegment(
+            point.coordinates,
+          );
           point.adjustedOn = adjustedSegment;
         }
       }
@@ -178,11 +192,14 @@ export class CreateIrregularTool extends Tool {
   _executeAction() {
     const familyName = 'Irregular';
 
-    let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
+    let path = [
+      'M',
+      this.points[0].coordinates.x,
+      this.points[0].coordinates.y,
+    ];
     this.points.forEach((point, i) => {
-      if (i != 0)
-        path.push('L', point.coordinates.x, point.coordinates.y);
-    })
+      if (i != 0) path.push('L', point.coordinates.x, point.coordinates.y);
+    });
     // path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 

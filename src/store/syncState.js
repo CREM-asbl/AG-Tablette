@@ -4,8 +4,11 @@ import { signal } from '@lit-labs/signals';
 const CONFIG = {
   MIN_PROGRESS: 0,
   MAX_PROGRESS: 100,
-  DEBUG_LOGS: typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.search.includes('debug=true')),
-  STORE_KEY: '__AG_SYNC_STORE__'
+  DEBUG_LOGS:
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.search.includes('debug=true')),
+  STORE_KEY: '__AG_SYNC_STORE__',
 };
 
 /**
@@ -18,10 +21,12 @@ const utils = {
    * @returns {boolean} Vrai si valide
    */
   isValidPercent: (percent) => {
-    return typeof percent === 'number' &&
+    return (
+      typeof percent === 'number' &&
       !isNaN(percent) &&
       percent >= CONFIG.MIN_PROGRESS &&
-      percent <= CONFIG.MAX_PROGRESS;
+      percent <= CONFIG.MAX_PROGRESS
+    );
   },
 
   /**
@@ -30,8 +35,10 @@ const utils = {
    * @returns {number} Valeur normalisée
    */
   normalizePercent: (percent) => {
-    if (typeof percent !== 'number' || isNaN(percent)) return CONFIG.MAX_PROGRESS;
-    return Math.round(Math.max(CONFIG.MIN_PROGRESS, Math.min(CONFIG.MAX_PROGRESS, percent)));
+    if (typeof percent !== 'number' || isNaN(percent))
+      return CONFIG.MAX_PROGRESS;
+    // Ne pas arrondir pour préserver les valeurs décimales précises
+    return Math.max(CONFIG.MIN_PROGRESS, Math.min(CONFIG.MAX_PROGRESS, percent));
   },
 
   /**
@@ -44,7 +51,7 @@ const utils = {
     if (CONFIG.DEBUG_LOGS) {
       console[level](`[SYNCSTATE] ${message}`, ...args);
     }
-  }
+  },
 };
 
 // Garantir un store global unique (évite des doubles instances en dev/hot reload et en SSR/hydratation)
@@ -72,14 +79,23 @@ export function setSyncProgress(percent) {
   // Validation stricte en mode développement
   if (!utils.isValidPercent(percent)) {
     const normalizedPercent = utils.normalizePercent(percent);
-    utils.log('warn', `Valeur de progression invalide: ${percent}, normalisée à: ${normalizedPercent}`);
+    utils.log(
+      'warn',
+      `Valeur de progression invalide: ${percent}, normalisée à: ${normalizedPercent}`,
+    );
     percent = normalizedPercent;
   }
 
   const oldValue = syncProgress.value;
 
   try {
-    utils.log('log', 'setSyncProgress:', percent, '→ syncProgress.value avant:', oldValue);
+    utils.log(
+      'log',
+      'setSyncProgress:',
+      percent,
+      '→ syncProgress.value avant:',
+      oldValue,
+    );
 
     // Mise à jour atomique des signaux
     syncProgress.value = percent;
@@ -90,21 +106,37 @@ export function setSyncProgress(percent) {
       syncVisible.value = true;
     }
 
-    utils.log('log', 'setSyncProgress:', percent, '→ syncProgress.value après:', syncProgress.value,
-      'visible:', syncVisible.value, 'inProgress:', syncInProgress.value);
+    utils.log(
+      'log',
+      'setSyncProgress:',
+      percent,
+      '→ syncProgress.value après:',
+      syncProgress.value,
+      'visible:',
+      syncVisible.value,
+      'inProgress:',
+      syncInProgress.value,
+    );
 
     // Émettre un événement personnalisé pour les composants qui ne peuvent pas utiliser les signaux
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('sync-progress-changed', {
-        detail: { percent, oldValue, inProgress: syncInProgress.value }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('sync-progress-changed', {
+          detail: { percent, oldValue, inProgress: syncInProgress.value },
+        }),
+      );
     }
-
   } catch (error) {
-    utils.log('error', 'Erreur lors de la mise à jour de la progression:', error);
+    utils.log(
+      'error',
+      'Erreur lors de la mise à jour de la progression:',
+      error,
+    );
     // Restaurer l'ancienne valeur en cas d'erreur
     syncProgress.value = oldValue;
-    throw new Error(`Erreur lors de la mise à jour de la progression: ${error.message}`);
+    throw new Error(
+      `Erreur lors de la mise à jour de la progression: ${error.message}`,
+    );
   }
 }
 
@@ -126,15 +158,20 @@ export function setSyncCompleted(hideIndicator = false) {
 
     // Émettre un événement de fin de synchronisation
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('sync-completed', {
-        detail: { hideIndicator }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('sync-completed', {
+          detail: { hideIndicator },
+        }),
+      );
     }
 
     utils.log('log', 'Synchronisation marquée comme terminée');
-
   } catch (error) {
-    utils.log('error', 'Erreur lors de la finalisation de la synchronisation:', error);
+    utils.log(
+      'error',
+      'Erreur lors de la finalisation de la synchronisation:',
+      error,
+    );
     throw new Error(`Erreur lors de la finalisation: ${error.message}`);
   }
 }
@@ -146,7 +183,10 @@ export function setSyncCompleted(hideIndicator = false) {
 export function hideSyncIndicator(force = false) {
   try {
     if (!force && syncInProgress.value) {
-      utils.log('warn', 'Tentative de masquage de l\'indicateur alors qu\'une sync est en cours');
+      utils.log(
+        'warn',
+        "Tentative de masquage de l'indicateur alors qu'une sync est en cours",
+      );
       return;
     }
 
@@ -154,11 +194,12 @@ export function hideSyncIndicator(force = false) {
     syncVisible.value = false;
 
     if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('sync-indicator-hidden', { detail: { force } }));
+      window.dispatchEvent(
+        new CustomEvent('sync-indicator-hidden', { detail: { force } }),
+      );
     }
-
   } catch (error) {
-    utils.log('error', 'Erreur lors du masquage de l\'indicateur:', error);
+    utils.log('error', "Erreur lors du masquage de l'indicateur:", error);
   }
 }
 
@@ -173,9 +214,8 @@ export function showSyncIndicator() {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('sync-indicator-shown'));
     }
-
   } catch (error) {
-    utils.log('error', 'Erreur lors de l\'affichage de l\'indicateur:', error);
+    utils.log('error', "Erreur lors de l'affichage de l'indicateur:", error);
   }
 }
 
@@ -185,7 +225,7 @@ export function showSyncIndicator() {
  */
 export function resetSyncState() {
   try {
-    utils.log('log', 'Réinitialisation de l\'état de synchronisation');
+    utils.log('log', "Réinitialisation de l'état de synchronisation");
 
     syncProgress.value = CONFIG.MAX_PROGRESS;
     syncInProgress.value = false;
@@ -194,7 +234,6 @@ export function resetSyncState() {
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('sync-state-reset'));
     }
-
   } catch (error) {
     utils.log('error', 'Erreur lors de la réinitialisation:', error);
     throw new Error(`Erreur lors de la réinitialisation: ${error.message}`);
@@ -210,6 +249,6 @@ export function getSyncState() {
     progress: syncProgress.value,
     inProgress: syncInProgress.value,
     visible: syncVisible.value,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
 }

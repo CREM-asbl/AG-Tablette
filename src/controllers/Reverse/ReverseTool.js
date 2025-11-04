@@ -9,9 +9,15 @@ import { Shape } from '../Core/Objects/Shapes/Shape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
-import { compareIdBetweenLayers, duplicateShape } from '../Core/Tools/shapesTools';
+import {
+  compareIdBetweenLayers,
+  duplicateShape,
+} from '../Core/Tools/shapesTools';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
-import { computeAllShapeTransform, computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import {
+  computeAllShapeTransform,
+  computeConstructionSpec,
+} from '../GeometryTools/recomputeShape';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -72,7 +78,13 @@ export class ReverseTool extends Tool {
    * initialiser l'état
    */
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -83,7 +95,8 @@ export class ReverseTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
+    app.workspace.selectionConstraints.shapes.blacklist =
+      app.mainCanvasLayer.shapes.filter((s) => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -94,8 +107,8 @@ export class ReverseTool extends Tool {
     const selectedShape = ShapeManager.getShapeById(app.tool.selectedShapeId);
 
     this.shapesToCopy = [...this.involvedShapes];
-    this.shapesToCopy.forEach(s => {
-      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false)
+    this.shapesToCopy.forEach((s) => {
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false);
     });
 
     this.center = selectedShape.centerCoordinates;
@@ -109,14 +122,14 @@ export class ReverseTool extends Tool {
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
 
-    this.drawingShapes = this.shapesToCopy.map(
-      (s) => duplicateShape(s)
+    this.drawingShapes = this.shapesToCopy.map((s) => duplicateShape(s));
+    this.shapesToMove = this.drawingShapes.filter((s) =>
+      this.involvedShapes.find((inShape) =>
+        compareIdBetweenLayers(inShape.id, s.id),
+      ),
     );
-    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => compareIdBetweenLayers(inShape.id, s.id)));
 
-    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
-      (s) => s.id,
-    );
+    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map((s) => s.id);
     this.createAllAxes();
 
     window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
@@ -131,7 +144,10 @@ export class ReverseTool extends Tool {
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.shapes.blacklist = [
       // { shapeId: selectedShape.id },
-      app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape)
+      (app.workspace.selectionConstraints.shapes.blacklist =
+        app.mainCanvasLayer.shapes.filter(
+          (s) => s instanceof SinglePointShape,
+        )),
     ];
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -169,23 +185,38 @@ export class ReverseTool extends Tool {
 
       this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
       if (app.environment.name == 'Geometrie') {
-        this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(selectedShape);
+        this.involvedShapes =
+          ShapeManager.getAllBindedShapesInGeometry(selectedShape);
         for (let i = 0; i < this.involvedShapes.length; i++) {
           const currentShape = this.involvedShapes[i];
           if (currentShape.geometryObject?.geometryTransformationName != null) {
-            window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être retournées.' } }));
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: {
+                  message:
+                    'Les images issues de transfomation ne peuvent pas être retournées.',
+                },
+              }),
+            );
             return;
           }
           if (currentShape.familyName == 'multipliedVector') {
-            window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs multipliés ne peuvent pas être retournés, mais peuvent l\'être via leur parent.' } }));
+            window.dispatchEvent(
+              new CustomEvent('show-notif', {
+                detail: {
+                  message:
+                    "Les vecteurs multipliés ne peuvent pas être retournés, mais peuvent l'être via leur parent.",
+                },
+              }),
+            );
             return;
           }
         }
         const shapesToAdd = [];
-        this.involvedShapes.forEach(s => {
-          s.geometryObject?.geometryMultipliedChildShapeIds.forEach(sId => {
+        this.involvedShapes.forEach((s) => {
+          s.geometryObject?.geometryMultipliedChildShapeIds.forEach((sId) => {
             shapesToAdd.push(findObjectById(sId));
-          })
+          });
         });
         this.involvedShapes.push(...shapesToAdd);
       }
@@ -240,7 +271,7 @@ export class ReverseTool extends Tool {
             seg.axisAngle = this.axisAngle;
           }
         });
-        shape.points.forEach(pt => {
+        shape.points.forEach((pt) => {
           const center = selectedAxis.projectionOnSegment(pt);
 
           pt.startCoordinates = new Coordinates(pt.coordinates);
@@ -248,7 +279,7 @@ export class ReverseTool extends Tool {
             x: pt.x + 2 * (center.x - pt.x),
             y: pt.y + 2 * (center.y - pt.y),
           });
-        })
+        });
       });
 
       // app.upperCanvasLayer.points.forEach((point) => {
@@ -261,16 +292,16 @@ export class ReverseTool extends Tool {
       //   });
       // });
 
-      app.upperCanvasLayer.shapes.forEach(s => {
-        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          const duplicateChild = findObjectById(duplicateChildId);
-          computeConstructionSpec(duplicateChild);
-        });
+      app.upperCanvasLayer.shapes.forEach((s) => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
+          (duplicateChildId) => {
+            const duplicateChild = findObjectById(duplicateChildId);
+            computeConstructionSpec(duplicateChild);
+          },
+        );
       });
 
-      this.axes.forEach((axis) =>
-        removeObjectById(axis.id)
-      );
+      this.axes.forEach((axis) => removeObjectById(axis.id));
 
       setState({
         tool: {
@@ -367,35 +398,36 @@ export class ReverseTool extends Tool {
    */
   refreshStateUpper() {
     if (app.tool.currentStep == 'reverse') {
-      const progressInAnimation = Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
+      const progressInAnimation =
+        Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
       this.shapesToMove.forEach((s) => {
-        s.points.forEach(point => {
+        s.points.forEach((point) => {
           if (point.startCoordinates)
             point.coordinates = point.startCoordinates.substract(
               point.startCoordinates
                 .substract(point.endCoordinates)
                 .multiply(progressInAnimation),
             );
-        })
-        s.segments.forEach(seg => {
+        });
+        s.segments.forEach((seg) => {
           if (seg.arcCenter) {
-            const point = seg.tangentPoint1
+            const point = seg.tangentPoint1;
             if (point.startCoordinates)
               point.coordinates = point.startCoordinates.substract(
                 point.startCoordinates
                   .substract(point.endCoordinates)
-                  .multiply(progressInAnimation)
+                  .multiply(progressInAnimation),
               );
-            const point2 = seg.tangentPoint2
+            const point2 = seg.tangentPoint2;
 
             if (point2.startCoordinates)
               point2.coordinates = point2.startCoordinates.substract(
                 point2.startCoordinates
                   .substract(point2.endCoordinates)
-                  .multiply(progressInAnimation)
+                  .multiply(progressInAnimation),
               );
           }
-        })
+        });
         if (this.progress >= 0.5 && this.lastProgress < 0.5) {
           s.reverse();
         }
@@ -419,16 +451,24 @@ export class ReverseTool extends Tool {
 
   _executeAction() {
     const selectedAxis = this.createAxis(app.tool.axisAngle).segments[0];
-    app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => compareIdBetweenLayers(shapeToMove.id, editingShapeId))).forEach((sId, idxS) => {
-      const s = findObjectById(sId);
-      this.reverseShape(s, selectedAxis);
-    });
+    app.mainCanvasLayer.editingShapeIds
+      .filter((editingShapeId) =>
+        this.shapesToMove.some((shapeToMove) =>
+          compareIdBetweenLayers(shapeToMove.id, editingShapeId),
+        ),
+      )
+      .forEach((sId, idxS) => {
+        const s = findObjectById(sId);
+        this.reverseShape(s, selectedAxis);
+      });
     if (app.environment.name == 'Geometrie') {
-      app.mainCanvasLayer.shapes.forEach(s => {
-        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          const duplicateChild = findObjectById(duplicateChildId);
-          computeConstructionSpec(duplicateChild);
-        });
+      app.mainCanvasLayer.shapes.forEach((s) => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
+          (duplicateChildId) => {
+            const duplicateChild = findObjectById(duplicateChildId);
+            computeConstructionSpec(duplicateChild);
+          },
+        );
       });
       app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
         const s = findObjectById(sId);

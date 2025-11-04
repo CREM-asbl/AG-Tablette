@@ -2,7 +2,9 @@ import { app } from '../../App';
 import {
   addInfoToId,
   getComplementaryColor,
-  mod, removeObjectById, uniqId
+  mod,
+  removeObjectById,
+  uniqId,
 } from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
@@ -54,10 +56,8 @@ export class Shape {
 
     geometryObject = null,
   }) {
-    if (id == undefined)
-      id = uniqId(layer, 'shape');
-    else
-      id = addInfoToId(id, layer, 'shape');
+    if (id == undefined) id = uniqId(layer, 'shape');
+    else id = addInfoToId(id, layer, 'shape');
     this.id = id;
     this.layer = layer;
     this.canvasLayer.shapes.push(this);
@@ -71,20 +71,23 @@ export class Shape {
       this._isCenterShown = false;
       if (_isCenterShown === undefined) this.isCenterShown = this.isCircle();
       else this.isCenterShown = _isCenterShown;
-      this.pointIds = [...this.pointIds, ...divisionPointInfos.map((dInfo) => {
-        const segment = this.segments[dInfo.segmentIdx];
-        const newPoint = new Point({
-          layer: this.layer,
-          segmentIds: [segment.id],
-          shapeId: this.id,
-          type: 'divisionPoint',
-          coordinates: dInfo.coordinates,
-          ratio: dInfo.ratio,
-          color: dInfo.color,
-        });
-        segment.divisionPointIds.push(newPoint.id);
-        return newPoint.id;
-      })];
+      this.pointIds = [
+        ...this.pointIds,
+        ...divisionPointInfos.map((dInfo) => {
+          const segment = this.segments[dInfo.segmentIdx];
+          const newPoint = new Point({
+            layer: this.layer,
+            segmentIds: [segment.id],
+            shapeId: this.id,
+            type: 'divisionPoint',
+            coordinates: dInfo.coordinates,
+            ratio: dInfo.ratio,
+            color: dInfo.color,
+          });
+          segment.divisionPointIds.push(newPoint.id);
+          return newPoint.id;
+        }),
+      ];
       if (this.isCircle() && app.environment.name != 'Geometrie') {
         this.vertexes[0].visible = false;
       }
@@ -104,10 +107,12 @@ export class Shape {
     this.isBiface = isBiface;
 
     if (segmentsColor) {
-      segmentsColor.forEach((segColor, idx) => this.segments[idx].color = segColor);
+      segmentsColor.forEach(
+        (segColor, idx) => (this.segments[idx].color = segColor),
+      );
     }
     if (pointsColor) {
-      pointsColor.forEach((ptColor, idx) => this.points[idx].color = ptColor);
+      pointsColor.forEach((ptColor, idx) => (this.points[idx].color = ptColor));
     }
 
     if (geometryObject) {
@@ -189,24 +194,28 @@ export class Shape {
       const point = this.points.find((pt) => pt.type == 'shapeCenter');
       if (app.environment.name == 'Geometrie' && point.layer == 'main') {
         const shapesToDelete = [];
-        this.geometryObject.geometryChildShapeIds.forEach(sId => {
+        this.geometryObject.geometryChildShapeIds.forEach((sId) => {
           const s = findObjectById(sId);
-          if (s && s.points.some(pt => pt.reference == point.id)) {
+          if (s && s.points.some((pt) => pt.reference == point.id)) {
             shapesToDelete.push(s);
           }
         });
         shapesToDelete.forEach((s) => {
-          if (app.environment.name == 'Geometrie')
-            deleteChildren(s);
+          if (app.environment.name == 'Geometrie') deleteChildren(s);
           removeObjectById(s.id);
         });
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
           const s = app.mainCanvasLayer.shapes[i];
-          s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
-            if (pt.reference && !findObjectById(pt.reference))
-              pt.reference = null;
-          });
-          if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
+          s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .forEach((pt) => {
+              if (pt.reference && !findObjectById(pt.reference))
+                pt.reference = null;
+            });
+          if (
+            s.geometryObject.geometryPointOnTheFlyChildId &&
+            !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)
+          ) {
             deleteChildren(s);
             i--;
           }
@@ -221,8 +230,8 @@ export class Shape {
   }
 
   /**
-  * moyenne des vertexes et medianes, pour l'offset de cut
-  */
+   * moyenne des vertexes et medianes, pour l'offset de cut
+   */
   get fake_center() {
     if (this.isCircle()) {
       const center = this.segments[0].arcCenter;
@@ -272,15 +281,15 @@ export class Shape {
     sweepFlag,
   ) {
     let middle = firstVertex.coordinates
-      .add(lastVertex.coordinates)
-      .multiply(1 / 2),
+        .add(lastVertex.coordinates)
+        .multiply(1 / 2),
       isHorizontal = Math.abs(firstVertex.y - lastVertex.y) < 0.01,
       isVertical = Math.abs(firstVertex.x - lastVertex.x) < 0.01,
       distanceMiddleArcCenter = Math.sqrt(
         Math.pow(radius, 2) -
-        (Math.pow(firstVertex.x - lastVertex.x, 2) +
-          Math.pow(firstVertex.y - lastVertex.y, 2)) /
-        4,
+          (Math.pow(firstVertex.x - lastVertex.x, 2) +
+            Math.pow(firstVertex.y - lastVertex.y, 2)) /
+            4,
       );
 
     if (isNaN(distanceMiddleArcCenter)) distanceMiddleArcCenter = 0;
@@ -419,9 +428,11 @@ export class Shape {
         shape.isCoordinatesInPath(s1_segment.vertexes[0].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.vertexes[1].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.middle) &&
-        !(shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
+        !(
+          shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
           shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
-          shape.isCoordinatesOnBorder(s1_segment.middle))
+          shape.isCoordinatesOnBorder(s1_segment.middle)
+        )
       ) {
         console.info('shape inside another');
         return true;
@@ -452,8 +463,7 @@ export class Shape {
     this.segments.forEach((seg) => {
       if (seg.arcCenter) seg.counterclockwise = !seg.counterclockwise;
     });
-    if (this.isBiface)
-      this.color = getComplementaryColor(this.color);
+    if (this.isBiface) this.color = getComplementaryColor(this.color);
     this.isReversed = !this.isReversed;
   }
 
@@ -463,8 +473,7 @@ export class Shape {
    * @param {Boolean} negativeTranslation true if the coordinates must be reversed
    */
   translate(coordinates, negativeTranslation = false) {
-    if (negativeTranslation)
-      coordinates = coordinates.multiply(-1);
+    if (negativeTranslation) coordinates = coordinates.multiply(-1);
     this.points.forEach((pt) => pt.translate(coordinates));
   }
 
@@ -580,17 +589,13 @@ export class Shape {
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
-          removeObjectById(
-            this.segments[nextIdx].arcCenterId
-          );
+          removeObjectById(this.segments[nextIdx].arcCenterId);
           idx = this.pointIds.findIndex(
             (id) => id == this.segments[nextIdx].arcCenterId,
           );
           this.pointIds.splice(idx, 1);
         }
-        removeObjectById(
-          this.segmentIds[nextIdx]
-        );
+        removeObjectById(this.segmentIds[nextIdx]);
         this.segmentIds.splice(nextIdx, 1);
         i--; // try to merge this new segment again!
       }
@@ -624,22 +629,14 @@ export class Shape {
 
       // isOverlappingAnotherInTangram: this.isOverlappingAnotherInTangram,
     };
-    if (this.name !== 'Custom')
-      data.name = this.name;
-    if (this.familyName !== 'Custom')
-      data.familyName = this.familyName;
-    if (this.strokeColor !== '#000')
-      data.strokeColor = this.strokeColor;
-    if (this.strokeWidth !== 1)
-      data.strokeWidth = this.strokeWidth;
-    if (this.isPointed !== true)
-      data.isPointed = this.isPointed;
-    if (this.size !== 2)
-      data.size = this.size;
-    if (this.isReversed !== false)
-      data.isReversed = this.isReversed;
-    if (this.isBiface !== false)
-      data.isBiface = this.isBiface;
+    if (this.name !== 'Custom') data.name = this.name;
+    if (this.familyName !== 'Custom') data.familyName = this.familyName;
+    if (this.strokeColor !== '#000') data.strokeColor = this.strokeColor;
+    if (this.strokeWidth !== 1) data.strokeWidth = this.strokeWidth;
+    if (this.isPointed !== true) data.isPointed = this.isPointed;
+    if (this.size !== 2) data.size = this.size;
+    if (this.isReversed !== false) data.isReversed = this.isReversed;
+    if (this.isBiface !== false) data.isBiface = this.isBiface;
 
     if (this.isOverlappingAnotherInTangram)
       data.isOverlappingAnotherInTangram = this.isOverlappingAnotherInTangram;
@@ -651,7 +648,7 @@ export class Shape {
   }
 
   static loadFromData(data) {
-    if (!data.position) data.position = 'main'
+    if (!data.position) data.position = 'main';
     const shape = new Shape({ layer: data.position });
     Object.assign(shape, data);
     shape.segmentIds = [...data.segmentIds];

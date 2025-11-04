@@ -73,7 +73,7 @@ class RegularPopup extends LitElement {
           </label>
           <div id="hello">
             <div class="clickable" @click="${this.decrementNumberOfPoints}">
-                -
+              -
             </div>
             <input
               id="myRange"
@@ -105,13 +105,20 @@ class RegularPopup extends LitElement {
               <option value="20" label="20">20</option>
             </datalist>
             <div class="clickable" @click="${this.incrementNumberOfPoints}">
-                +
+              +
             </div>
           </div>
         </div>
 
         <div slot="footer">
-          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok" backgroundColor="${getComputedStyle(document.documentElement).getPropertyValue('--theme-color')}"></color-button>
+          <color-button
+            @click="${() =>
+              window.dispatchEvent(new CustomEvent('close-popup'))}"
+            innerText="Ok"
+            backgroundColor="${getComputedStyle(
+              document.documentElement,
+            ).getPropertyValue('--theme-color')}"
+          ></color-button>
         </div>
       </template-popup>
     `;
@@ -119,31 +126,42 @@ class RegularPopup extends LitElement {
 
   changeNumberOfPoints(event) {
     setState({
-      settings: { ...app.settings, numberOfRegularPoints: parseInt(event.target.value) },
+      settings: {
+        ...app.settings,
+        numberOfRegularPoints: parseInt(event.target.value),
+      },
     });
   }
 
   decrementNumberOfPoints() {
-    if (app.settings.numberOfRegularPoints == 3)
-      return;
+    if (app.settings.numberOfRegularPoints == 3) return;
     setState({
-      settings: { ...app.settings, numberOfRegularPoints: app.settings.numberOfRegularPoints - 1 },
+      settings: {
+        ...app.settings,
+        numberOfRegularPoints: app.settings.numberOfRegularPoints - 1,
+      },
     });
-    this.shadowRoot.querySelector("#myRange").value = this.points;
+    this.shadowRoot.querySelector('#myRange').value = this.points;
   }
 
   incrementNumberOfPoints() {
-    if (app.settings.numberOfRegularPoints == 20)
-      return;
+    if (app.settings.numberOfRegularPoints == 20) return;
     setState({
-      settings: { ...app.settings, numberOfRegularPoints: app.settings.numberOfRegularPoints + 1 },
+      settings: {
+        ...app.settings,
+        numberOfRegularPoints: app.settings.numberOfRegularPoints + 1,
+      },
     });
-    this.shadowRoot.querySelector("#myRange").value = this.points;
+    this.shadowRoot.querySelector('#myRange').value = this.points;
   }
 
   submit() {
     setState({
-      tool: { ...app.tool, name: 'createRegularPolygon', currentStep: 'drawFirstPoint' },
+      tool: {
+        ...app.tool,
+        name: 'createRegularPolygon',
+        currentStep: 'drawFirstPoint',
+      },
     });
   }
 

@@ -13,17 +13,16 @@ import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
 
 if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
-initializeCachesFromIndexedDB().catch(error => {
-  console.warn('Erreur lors de l\'initialisation des caches:', error);
+initializeCachesFromIndexedDB().catch((error) => {
+  console.warn("Erreur lors de l'initialisation des caches:", error);
 });
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        
-      })
-      .catch(error => {
-        console.log('Échec de l\'enregistrement du Service Worker:', error);
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {})
+      .catch((error) => {
+        console.log("Échec de l'enregistrement du Service Worker:", error);
       });
   });
 }
@@ -87,11 +86,15 @@ class AGMain extends LitElement {
           .helpSelected="${this.helpSelected}"
           .tool="${this.tool}"
           .canUndo="${this.canUndo}"
-          .canRedo="${this.canRedo}">
+          .canRedo="${this.canRedo}"
+        >
         </ag-menu>
-        <canvas-container id="canvas-container" .environment="${app.environment}"></canvas-container>
+        <canvas-container
+          id="canvas-container"
+          .environment="${app.environment}"
+        ></canvas-container>
       </div>
-  <sync-status-indicator></sync-status-indicator>
+      <sync-status-indicator></sync-status-indicator>
       <notif-center></notif-center>
       <input
         id="fileSelector"
@@ -100,8 +103,7 @@ class AGMain extends LitElement {
         style="display: none"
         @change="${(event) => this.handleFileChange(event)}"
       />
-      ${this.addModules()}
-      ${this.showZoom()}
+      ${this.addModules()} ${this.showZoom()}
     `;
   }
 
@@ -111,7 +113,7 @@ class AGMain extends LitElement {
       window.dispatchEvent(
         new CustomEvent('file-opened', {
           detail: { method: 'old', file: input.files[0] },
-        })
+        }),
       );
       input.value = '';
     }
@@ -139,18 +141,20 @@ class AGMain extends LitElement {
 
   preventZoom(e) {
     const t2 = e.timeStamp;
-    const t1 = Number((e.currentTarget).dataset.lastTouch) || t2;
+    const t1 = Number(e.currentTarget.dataset.lastTouch) || t2;
     const dt = t2 - t1;
     const fingers = (e.touches || []).length;
-    (e.currentTarget).dataset.lastTouch = String(t2);
+    e.currentTarget.dataset.lastTouch = String(t2);
     if (!dt || dt > 500 || fingers > 1) return;
-    (e.currentTarget).dataset.lastTouch = null;
+    e.currentTarget.dataset.lastTouch = null;
     e.preventDefault();
   }
 
   async firstUpdated() {
     window.addEventListener('show-file-selector', () => {
-      const input = this.shadowRoot?.querySelector('#fileSelector') as HTMLInputElement;
+      const input = this.shadowRoot?.querySelector(
+        '#fileSelector',
+      ) as HTMLInputElement;
       input?.click();
     });
     window.addEventListener('history-changed', () => {

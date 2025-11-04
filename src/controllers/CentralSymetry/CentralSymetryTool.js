@@ -20,9 +20,21 @@ export class CentralSymetryTool extends Tool {
 
   start() {
     this.removeListeners();
-    this.duration = app.settings.geometryTransformationAnimation ? app.settings.geometryTransformationAnimationDuration : 0.001;
+    this.duration = app.settings.geometryTransformationAnimation
+      ? app.settings.geometryTransformationAnimationDuration
+      : 0.001;
 
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectCharacteristicElement' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: {
+            ...app.tool,
+            name: this.name,
+            currentStep: 'selectCharacteristicElement',
+          },
+        }),
+      50,
+    );
   }
 
   selectCharacteristicElement() {
@@ -50,15 +62,15 @@ export class CentralSymetryTool extends Tool {
 
   selectObject() {
     if (this.drawingShapes)
-      this.drawingShapes.forEach(s => {
+      this.drawingShapes.forEach((s) => {
         removeObjectById(s.id);
-      })
+      });
     const shapesToDelete = [];
-    app.upperCanvasLayer.shapes.forEach(s => {
+    app.upperCanvasLayer.shapes.forEach((s) => {
       if (s.geometryObject.geometryIsCharacteristicElements)
         shapesToDelete.push(s);
     });
-    shapesToDelete.forEach(s => removeObjectById(s.id));
+    shapesToDelete.forEach((s) => removeObjectById(s.id));
     this.removeListeners();
 
     this.setSelectionConstraints();
@@ -86,7 +98,13 @@ export class CentralSymetryTool extends Tool {
       color: app.settings.referenceDrawColor,
       size: 2,
     });
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animateCharacteristicElement' } });
+    setState({
+      tool: {
+        ...app.tool,
+        name: this.name,
+        currentStep: 'animateCharacteristicElement',
+      },
+    });
   }
 
   canvasMouseUp() {
@@ -101,15 +119,22 @@ export class CentralSymetryTool extends Tool {
     let object = SelectManager.selectObject(coord);
     if (object) {
       if (object.shape.geometryObject.geometryIsCharacteristicElements) {
-        this.characteristicElements = new CharacteristicElements(object.shape.geometryObject.geometryTransformationCharacteristicElements);
+        this.characteristicElements = new CharacteristicElements(
+          object.shape.geometryObject.geometryTransformationCharacteristicElements,
+        );
       } else {
         app.workspace.selectionConstraints.points.canSelectFromUpper = false;
         object = SelectManager.selectObject(coord);
 
-        this.characteristicElements = new CharacteristicElements({ type: 'symetryCenter', elementIds: [object.id] });
+        this.characteristicElements = new CharacteristicElements({
+          type: 'symetryCenter',
+          elementIds: [object.id],
+        });
       }
     }
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectObject' } });
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+    });
   }
 
   objectSelected(object) {
@@ -134,8 +159,8 @@ export class CentralSymetryTool extends Tool {
     setState({
       tool: {
         ...app.tool,
-        currentStep: 'central'
-      }
+        currentStep: 'central',
+      },
     });
   }
 
@@ -202,12 +227,21 @@ export class CentralSymetryTool extends Tool {
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       }).points[0];
-      this.characteristicElements = new CharacteristicElements({ type: 'symetryCenter', elementIds: [point.id] });
+      this.characteristicElements = new CharacteristicElements({
+        type: 'symetryCenter',
+        elementIds: [point.id],
+      });
     }
-    if (!app.workspace.centralSymetryLastCharacteristicElements.find(elements => this.characteristicElements.equal(elements))) {
-      app.workspace.centralSymetryLastCharacteristicElements.push(this.characteristicElements);
+    if (
+      !app.workspace.centralSymetryLastCharacteristicElements.find((elements) =>
+        this.characteristicElements.equal(elements),
+      )
+    ) {
+      app.workspace.centralSymetryLastCharacteristicElements.push(
+        this.characteristicElements,
+      );
     }
-    const newShapes = this.involvedShapes.map(s => {
+    const newShapes = this.involvedShapes.map((s) => {
       const newShape = new s.constructor({
         ...s,
         layer: 'main',
@@ -223,7 +257,8 @@ export class CentralSymetryTool extends Tool {
         geometryObject: new GeometryObject({
           geometryTransformationChildShapeIds: [],
           geometryTransformationParentShapeId: s.id,
-          geometryTransformationCharacteristicElements: this.characteristicElements,
+          geometryTransformationCharacteristicElements:
+            this.characteristicElements,
           geometryTransformationName: 'centralSymetry',
           geometryIsVisible: s.geometryObject.geometryIsVisible,
           geometryIsHidden: s.geometryObject.geometryIsHidden,
@@ -232,8 +267,14 @@ export class CentralSymetryTool extends Tool {
       });
       s.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
       const symetryCenter = this.characteristicElements.firstElement;
-      if (!symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.includes(newShape.id)) {
-        symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.push(newShape.id);
+      if (
+        !symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.includes(
+          newShape.id,
+        )
+      ) {
+        symetryCenter.shape.geometryObject.geometryTransformationChildShapeIds.push(
+          newShape.id,
+        );
       }
       newShape.rotate(Math.PI, symetryCenter.coordinates);
       newShape.points.forEach((pt, idx) => {
@@ -252,25 +293,29 @@ export class CentralSymetryTool extends Tool {
 
   setSelectionConstraints() {
     const constraints = app.fastSelectionConstraints.mousedown_all_shape;
-    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s.geometryObject.geometryPointOnTheFlyChildId);
+    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(
+      (s) => s.geometryObject.geometryPointOnTheFlyChildId,
+    );
     app.workspace.selectionConstraints = constraints;
   }
 
   showLastCharacteristicElements() {
-    app.workspace.centralSymetryLastCharacteristicElements.forEach(characteristicElement => {
-      const point = findObjectById(characteristicElement.elementIds[0]);
-      const shape = new SinglePointShape({
-        layer: 'upper',
-        path: `M ${point.coordinates.x} ${point.coordinates.y}`,
-        name: 'Point',
-        familyName: 'Point',
-        geometryObject: new GeometryObject({
-          geometryIsCharacteristicElements: true,
-          geometryTransformationCharacteristicElements: characteristicElement,
-        }),
-      })
-      shape.points[0].color = app.settings.referenceDrawColor2;
-      shape.points[0].size = 2;
-    })
+    app.workspace.centralSymetryLastCharacteristicElements.forEach(
+      (characteristicElement) => {
+        const point = findObjectById(characteristicElement.elementIds[0]);
+        const shape = new SinglePointShape({
+          layer: 'upper',
+          path: `M ${point.coordinates.x} ${point.coordinates.y}`,
+          name: 'Point',
+          familyName: 'Point',
+          geometryObject: new GeometryObject({
+            geometryIsCharacteristicElements: true,
+            geometryTransformationCharacteristicElements: characteristicElement,
+          }),
+        });
+        shape.points[0].color = app.settings.referenceDrawColor2;
+        shape.points[0].size = 2;
+      },
+    );
   }
 }

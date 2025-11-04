@@ -12,7 +12,7 @@ export class ResetPositionTool extends Tool {
   }
 
   start() {
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } })
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   listen() {
@@ -39,8 +39,10 @@ export class ResetPositionTool extends Tool {
   }
 
   _executeAction() {
-    this.involvedShapes.forEach(s => {
-      s.points.forEach(pt => pt.coordinates = new Coordinates(pt.startTangramCoordinates));
-    })
+    this.involvedShapes.forEach((s) => {
+      s.points.forEach(
+        (pt) => (pt.coordinates = new Coordinates(pt.startTangramCoordinates)),
+      );
+    });
   }
 }

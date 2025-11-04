@@ -1,22 +1,26 @@
-import { findObjectById } from "../Tools/general";
+import { findObjectById } from '../Tools/general';
 
 /**
  * Représente le ou les éléments caractéristiques d'un transformation
  */
 export class CharacteristicElements {
-  constructor({
-    type = '',
-    elementIds = [],
-    clockwise = false,
-  }) {
+  constructor({ type = '', elementIds = [], clockwise = false }) {
     this.type = type;
     this.elementIds = [...elementIds];
     this.clockwise = clockwise;
   }
 
   equal(characteristicElements) {
-    if (this.type == characteristicElements.type && this.clockwise == characteristicElements.clockwise) {
-      if (this.elementIds.length == characteristicElements.elementIds.length && this.elementIds.every((elem, index) => elem === characteristicElements.elementIds[index])) {
+    if (
+      this.type == characteristicElements.type &&
+      this.clockwise == characteristicElements.clockwise
+    ) {
+      if (
+        this.elementIds.length == characteristicElements.elementIds.length &&
+        this.elementIds.every(
+          (elem, index) => elem === characteristicElements.elementIds[index],
+        )
+      ) {
         return true;
       }
     }
@@ -24,7 +28,7 @@ export class CharacteristicElements {
   }
 
   get elements() {
-    return this.elementIds.map(elId => findObjectById(elId));
+    return this.elementIds.map((elId) => findObjectById(elId));
   }
 
   get firstElement() {

@@ -1,5 +1,10 @@
 import { signal } from '@lit-labs/signals';
-import { getAllModules, getAllThemes, saveModule, saveTheme } from '../utils/indexeddb-activities.js';
+import {
+  getAllModules,
+  getAllThemes,
+  saveModule,
+  saveTheme,
+} from '../utils/indexeddb-activities.js';
 
 // Signal pour le thème sélectionné
 export const selectedNotion = signal(null);
@@ -21,18 +26,16 @@ export async function initializeCachesFromIndexedDB() {
     // Charger les thèmes depuis IndexedDB
     const savedThemes = await getAllThemes();
     if (savedThemes && savedThemes.length > 0) {
-      cachedThemes.set(savedThemes.map(t => ({ id: t.id, ...t.data })));
-      
+      cachedThemes.set(savedThemes.map((t) => ({ id: t.id, ...t.data })));
     }
 
     // Charger les modules depuis IndexedDB
     const savedModules = await getAllModules();
-    
-    if (savedModules && savedModules.length > 0) {
 
+    if (savedModules && savedModules.length > 0) {
       // Grouper les modules par thème
       const modulesByTheme = {};
-      savedModules.forEach(module => {
+      savedModules.forEach((module) => {
         const themeId = module.data?.theme || module.theme;
 
         if (!modulesByTheme[themeId]) {
@@ -41,16 +44,19 @@ export async function initializeCachesFromIndexedDB() {
         modulesByTheme[themeId].push({ id: module.id, ...module.data });
       });
       // Convertir en format cachedSequences
-      const sequences = Object.entries(modulesByTheme).map(([theme, modules]) => ({
-        theme,
-        modules
-      }));
+      const sequences = Object.entries(modulesByTheme).map(
+        ([theme, modules]) => ({
+          theme,
+          modules,
+        }),
+      );
       cachedSequences.set(sequences);
-
     }
-  }
-  catch (error) {
-    console.warn('Erreur lors de l\'initialisation des caches depuis IndexedDB:', error);
+  } catch (error) {
+    console.warn(
+      "Erreur lors de l'initialisation des caches depuis IndexedDB:",
+      error,
+    );
   }
 }
 /**
@@ -73,7 +79,6 @@ export async function saveThemesToIndexedDB(themes) {
       }
       await saveTheme(theme.id, serializableTheme);
     }
-    
   } catch (error) {
     console.warn('Erreur lors de la sauvegarde des thèmes:', error);
   }
@@ -86,10 +91,11 @@ export async function saveModulesToIndexedDB(modules, themeId) {
   try {
     for (const module of modules) {
       // Nettoyer les données pour éviter les erreurs de sérialisation
-      const cleanedModule = JSON.parse(JSON.stringify({ ...module, theme: themeId }));
+      const cleanedModule = JSON.parse(
+        JSON.stringify({ ...module, theme: themeId }),
+      );
       await saveModule(module.id, cleanedModule);
     }
-    
   } catch (error) {
     console.warn('Erreur lors de la sauvegarde des modules:', error);
   }
@@ -101,18 +107,16 @@ export async function saveModulesToIndexedDB(modules, themeId) {
  */
 export async function syncAllThemesAndModules() {
   if (!navigator.onLine) {
-    
     return;
   }
   try {
-    const { findAllThemes, getModulesDocFromTheme, debugFirebaseModules } = await import('../firebase/firebase-init');
-
+    const { findAllThemes, getModulesDocFromTheme, debugFirebaseModules } =
+      await import('../firebase/firebase-init');
 
     // Diagnostic Firebase avant synchronisation
     await debugFirebaseModules();
 
     const themes = await findAllThemes();
-
 
     if (themes && themes.length > 0) {
       await saveThemesToIndexedDB(themes);
@@ -120,46 +124,54 @@ export async function syncAllThemesAndModules() {
       const allSequences = [];
       for (const theme of themes) {
         try {
-          
           const modules = await getModulesDocFromTheme(theme.id);
-          
 
           if (modules && modules.length > 0) {
             await saveModulesToIndexedDB(modules, theme.id);
             allSequences.push({ theme: theme.id, modules });
-            
           } else {
             // Conserver les modules déjà présents en cache si aucun module trouvé
-            const cached = cachedSequences.get().find(seq => seq.theme === theme.id);
+            const cached = cachedSequences
+              .get()
+              .find((seq) => seq.theme === theme.id);
             if (cached && cached.modules?.length > 0) {
               allSequences.push(cached);
-              
             } else {
-              console.warn(`⚠️ Aucun module disponible pour le thème '${theme.id}' (ni en ligne, ni en cache).`);
+              console.warn(
+                `⚠️ Aucun module disponible pour le thème '${theme.id}' (ni en ligne, ni en cache).`,
+              );
             }
           }
         } catch (err) {
-          console.error(`❌ Erreur lors de la récupération des modules pour le thème '${theme.id}':`, err);
+          console.error(
+            `❌ Erreur lors de la récupération des modules pour le thème '${theme.id}':`,
+            err,
+          );
 
           // En cas d'erreur, essayer de conserver le cache existant
-          const cached = cachedSequences.get().find(seq => seq.theme === theme.id);
+          const cached = cachedSequences
+            .get()
+            .find((seq) => seq.theme === theme.id);
           if (cached && cached.modules?.length > 0) {
             allSequences.push(cached);
-            
           }
         }
       }
       if (allSequences.length > 0) {
         cachedSequences.set(allSequences);
-        
       } else {
-        console.warn('Aucun module n\'a pu être synchronisé, cache mémoire conservé.');
+        console.warn(
+          "Aucun module n'a pu être synchronisé, cache mémoire conservé.",
+        );
       }
     } else {
       console.warn('Aucun thème trouvé lors de la synchronisation globale.');
     }
   } catch (error) {
-    console.warn('Erreur lors de la synchronisation globale des thèmes/modules:', error);
+    console.warn(
+      'Erreur lors de la synchronisation globale des thèmes/modules:',
+      error,
+    );
   }
 }
 

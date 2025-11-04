@@ -8,7 +8,6 @@ import { LineShape } from './LineShape';
  * Représente une figure linéaire (segment, demi-droite, droite, arc de cercle)
  */
 export class ArrowLineShape extends LineShape {
-
   constructor({
     id,
     layer,
@@ -40,8 +39,7 @@ export class ArrowLineShape extends LineShape {
     ctx.fillStyle = this.fillColor;
     ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
-    if (scaling == 'no scale')
-      ctx.lineWidth = this.strokeWidth;
+    if (scaling == 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */
@@ -51,22 +49,40 @@ export class ArrowLineShape extends LineShape {
   /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale', infiniteCheck = true, forDrawing = false, forDrawingButInvisible = false) {
+  getSVGPath(
+    scaling = 'scale',
+    infiniteCheck = true,
+    forDrawing = false,
+    forDrawingButInvisible = false,
+  ) {
     let path = '';
     path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
     if (forDrawingButInvisible) {
       if (this.vertexes[1] && this.segments[0].isArc()) {
-        let arcCenterCoordinates =  this.segments[0].arcCenter.coordinates;
-        let firstVertex =  this.vertexes[0].coordinates;
-        let secondVertex =  this.vertexes[1].coordinates;
+        let arcCenterCoordinates = this.segments[0].arcCenter.coordinates;
+        let firstVertex = this.vertexes[0].coordinates;
+        let secondVertex = this.vertexes[1].coordinates;
         if (scaling == 'scale') {
           arcCenterCoordinates = arcCenterCoordinates.toCanvasCoordinates();
           firstVertex = firstVertex.toCanvasCoordinates();
           secondVertex = secondVertex.toCanvasCoordinates();
         }
-        path += ['M', arcCenterCoordinates.x, arcCenterCoordinates.y, 'L', firstVertex.x, firstVertex.y, 'L', secondVertex.x, secondVertex.y, 'L', arcCenterCoordinates.x, arcCenterCoordinates.y].join(' ');
+        path += [
+          'M',
+          arcCenterCoordinates.x,
+          arcCenterCoordinates.y,
+          'L',
+          firstVertex.x,
+          firstVertex.y,
+          'L',
+          secondVertex.x,
+          secondVertex.y,
+          'L',
+          arcCenterCoordinates.x,
+          arcCenterCoordinates.y,
+        ].join(' ');
       }
     }
     if (forDrawing) {
@@ -77,14 +93,18 @@ export class ArrowLineShape extends LineShape {
         const originVector = this.segments[0].getArcTangent(1);
         arrowAngle = Math.atan2(originVector.y, originVector.x) + Math.PI;
       }
-      let firstTriangleCoord = arrowEndCoordinates.add(new Coordinates({
-        x: 20 * Math.cos(arrowAngle + 0.35),
-        y: 20 * Math.sin(arrowAngle + 0.35),
-      }));
-      let secondTriangleCoord = arrowEndCoordinates.add(new Coordinates({
-        x: 20 * Math.cos(arrowAngle - 0.35),
-        y: 20 * Math.sin(arrowAngle - 0.35),
-      }));
+      let firstTriangleCoord = arrowEndCoordinates.add(
+        new Coordinates({
+          x: 20 * Math.cos(arrowAngle + 0.35),
+          y: 20 * Math.sin(arrowAngle + 0.35),
+        }),
+      );
+      let secondTriangleCoord = arrowEndCoordinates.add(
+        new Coordinates({
+          x: 20 * Math.cos(arrowAngle - 0.35),
+          y: 20 * Math.sin(arrowAngle - 0.35),
+        }),
+      );
       if (scaling == 'scale') {
         arrowEndCoordinates = arrowEndCoordinates.toCanvasCoordinates();
         firstTriangleCoord = firstTriangleCoord.toCanvasCoordinates();
@@ -99,12 +119,11 @@ export class ArrowLineShape extends LineShape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
-    if (this.geometryObject &&
-      (
-        this.geometryObject.geometryIsVisible === false ||
+    if (
+      this.geometryObject &&
+      (this.geometryObject.geometryIsVisible === false ||
         this.geometryObject.geometryIsHidden === true ||
-        this.geometryObject.geometryIsConstaintDraw === true
-      )
+        this.geometryObject.geometryIsConstaintDraw === true)
     ) {
       return '';
     }
@@ -128,12 +147,9 @@ export class ArrowLineShape extends LineShape {
 
     const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
-      if (this.isSegment())
-      pointToDraw.push(this.segments[0].vertexes[0]);
+      if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
-        this.segments.forEach(
-          (seg) => (pointToDraw.push(seg.vertexes[1])),
-        );
+        this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));
     }
 
     this.segments.forEach((seg) => {
@@ -144,11 +160,12 @@ export class ArrowLineShape extends LineShape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    const point_tags = pointToDraw.filter(pt => {
-      pt.visible &&
-      pt.geometryIsVisible &&
-      !pt.geometryIsHidden
-    }).map(pt => pt.svg).join('\n');
+    const point_tags = pointToDraw
+      .filter((pt) => {
+        pt.visible && pt.geometryIsVisible && !pt.geometryIsHidden;
+      })
+      .map((pt) => pt.svg)
+      .join('\n');
 
     const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
@@ -173,17 +190,13 @@ export class ArrowLineShape extends LineShape {
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
-          removeObjectById(
-            this.segments[nextIdx].arcCenterId
-          );
+          removeObjectById(this.segments[nextIdx].arcCenterId);
           idx = this.pointIds.findIndex(
             (id) => id == this.segments[nextIdx].arcCenterId,
           );
           this.pointIds.splice(idx, 1);
         }
-        removeObjectById(
-          this.segmentIds[nextIdx]
-        );
+        removeObjectById(this.segmentIds[nextIdx]);
         this.segmentIds.splice(nextIdx, 1);
         i--; // try to merge this new segment again!
       }

@@ -27,8 +27,8 @@ export class OpacityTool extends Tool {
       <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        définir pour chaque figure si elle est transparente, semi-transparente ou
-        complètement opaque.<br />
+        définir pour chaque figure si elle est transparente, semi-transparente
+        ou complètement opaque.<br />
         Après avoir choisit l'une de ces 3 options dans le menu, touchez une
         figure pour lui appliquer la modification.
       </p>

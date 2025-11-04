@@ -1,4 +1,7 @@
-import { getFilesDocFromModule, getModuleDocFromModuleName } from '@db/firebase-init';
+import {
+  getFilesDocFromModule,
+  getModuleDocFromModuleName,
+} from '@db/firebase-init';
 import { SignalWatcher } from '@lit-labs/signals';
 import { cachedFiles, selectedSequence, toggleSequence } from '@store/notions';
 import { LitElement, css, html } from 'lit';
@@ -84,7 +87,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
       font-size: 0.85em;
       color: rgba(0, 0, 0, 0.6);
     }
-  `
+  `;
 
   firstUpdated() {
     this.isOpen = selectedSequence.get() === this.title;
@@ -99,7 +102,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
 
     if (Array.isArray(this.fileNames)) {
       // fileNames est déjà un tableau, rien à faire
-    } else if (typeof this.fileNames === "string") {
+    } else if (typeof this.fileNames === 'string') {
       this.fileNamesList = this.fileNames.split(',');
     }
   }
@@ -116,9 +119,10 @@ class ModuleElem extends SignalWatcher(LitElement) {
   // Méthode pour vérifier si les données sont disponibles dans le cache
   checkCache() {
     if (!this.loaded && cachedFiles.get()) {
-      const cachedFilesForModule = cachedFiles.get().find(cache => cache.module === this.title);
+      const cachedFilesForModule = cachedFiles
+        .get()
+        .find((cache) => cache.module === this.title);
       if (cachedFilesForModule) {
-        
         this.files = cachedFilesForModule.files;
         this.loaded = true;
       }
@@ -135,19 +139,25 @@ class ModuleElem extends SignalWatcher(LitElement) {
 
     return html`
       <details name="summary" ?open=${isSelected}>
-        <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
-        ${!this.loaded ?
-        html`<div class="loading-container">
-                <progress></progress>
-                <span class="loading-text">Chargement des fichiers...</span>
-              </div>` :
-        html`<div class="grid">
-                ${this.files.length > 0 ?
-            this.files.map(info => html`<file-elem title="${info.id}" environment="${info.environment}"></file-elem>`) :
-            html`<div class="no-files">Aucun fichier disponible</div>`
-          }
-              </div>`
-      }
+        <summary name="summary" @click="${this.summaryClick}">
+          ${this.title}
+        </summary>
+        ${!this.loaded
+          ? html`<div class="loading-container">
+              <progress></progress>
+              <span class="loading-text">Chargement des fichiers...</span>
+            </div>`
+          : html`<div class="grid">
+              ${this.files.length > 0
+                ? this.files.map(
+                    (info) =>
+                      html`<file-elem
+                        title="${info.id}"
+                        environment="${info.environment}"
+                      ></file-elem>`,
+                  )
+                : html`<div class="no-files">Aucun fichier disponible</div>`}
+            </div>`}
       </details>
     `;
   }
@@ -174,31 +184,35 @@ class ModuleElem extends SignalWatcher(LitElement) {
     if (this.loaded) return;
 
     // Vérifier d'abord si des fichiers pour ce module sont déjà en cache
-    const cachedFilesForModule = cachedFiles.get() &&
-      cachedFiles.get().find(cache => cache.module === this.title);
+    const cachedFilesForModule =
+      cachedFiles.get() &&
+      cachedFiles.get().find((cache) => cache.module === this.title);
 
     if (cachedFilesForModule) {
-      
       this.files = cachedFilesForModule.files;
       this.loaded = true;
       return;
     }
 
     // Sinon charger depuis le serveur
-    
+
     const moduleDocRef = getModuleDocFromModuleName(this.title);
     let filesDoc = await getFilesDocFromModule(moduleDocRef);
-    filesDoc = filesDoc.filter(fileDoc => !fileDoc.hidden);
+    filesDoc = filesDoc.filter((fileDoc) => !fileDoc.hidden);
     this.files = filesDoc;
     this.loaded = true;
 
     // Mise à jour du cache des fichiers
     if (filesDoc && filesDoc.length > 0) {
       // S'assurer que cachedFiles.get() est initialisé comme un tableau
-      const currentCachedFiles = Array.isArray(cachedFiles.get()) ? cachedFiles.get() : [];
+      const currentCachedFiles = Array.isArray(cachedFiles.get())
+        ? cachedFiles.get()
+        : [];
 
       // Rechercher si ce module existe déjà dans le cache pour le mettre à jour au lieu de l'ajouter
-      const existingModuleIndex = currentCachedFiles.findIndex(cache => cache.module === this.title);
+      const existingModuleIndex = currentCachedFiles.findIndex(
+        (cache) => cache.module === this.title,
+      );
 
       if (existingModuleIndex >= 0) {
         // Mettre à jour l'entrée existante
@@ -206,7 +220,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
         updatedCache[existingModuleIndex] = {
           module: this.title,
           files: filesDoc,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
         cachedFiles.set(updatedCache);
       } else {
@@ -216,12 +230,11 @@ class ModuleElem extends SignalWatcher(LitElement) {
           {
             module: this.title,
             files: filesDoc,
-            timestamp: Date.now()
-          }
+            timestamp: Date.now(),
+          },
         ];
         cachedFiles.set(updatedCache);
       }
-      
     }
   }
 

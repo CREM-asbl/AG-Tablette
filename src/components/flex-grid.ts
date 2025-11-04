@@ -3,7 +3,6 @@ import { customElement } from 'lit/decorators/custom-element.js';
 
 @customElement('flex-grid')
 export class FlexGrid extends LitElement {
-
   static styles = css`
     div {
       display: grid;
@@ -14,11 +13,9 @@ export class FlexGrid extends LitElement {
       padding: 4px;
       scrollbar-width: none;
     }
-  `
+  `;
 
   render() {
-    return html`
-      <div><slot>Aucun élément</slot></div>
-    `
+    return html` <div><slot>Aucun élément</slot></div> `;
   }
 }

@@ -9,33 +9,41 @@ export function initOfflineSupport() {
     if ('serviceWorker' in navigator && navigator.onLine) {
       // Attendre un peu pour ne pas surcharger le démarrage
       setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('show-notif', {
-          detail: {
-            message: 'Mode hors ligne activé : les activités téléchargées sont disponibles sans connexion',
-            type: 'info'
-          }
-        }));
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: {
+              message:
+                'Mode hors ligne activé : les activités téléchargées sont disponibles sans connexion',
+              type: 'info',
+            },
+          }),
+        );
       }, 3000);
     }
   });
 
   // Gérer les transitions online/offline
   window.addEventListener('online', () => {
-    window.dispatchEvent(new CustomEvent('show-notif', {
-      detail: {
-        message: 'Connexion rétablie - Synchronisation en cours...',
-        type: 'success'
-      }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: {
+          message: 'Connexion rétablie - Synchronisation en cours...',
+          type: 'success',
+        },
+      }),
+    );
   });
 
   window.addEventListener('offline', () => {
-    window.dispatchEvent(new CustomEvent('show-notif', {
-      detail: {
-        message: 'Mode hors ligne activé - Les activités déjà téléchargées restent disponibles',
-        type: 'warning'
-      }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: {
+          message:
+            'Mode hors ligne activé - Les activités déjà téléchargées restent disponibles',
+          type: 'warning',
+        },
+      }),
+    );
   });
 }
 

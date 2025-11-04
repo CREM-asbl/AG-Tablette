@@ -2,11 +2,19 @@ import '@components/color-button';
 import '@components/popups/template-popup';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { downloadFileZip, findAllFiles, findAllThemes } from '../../firebase/firebase-init';
+import {
+  downloadFileZip,
+  findAllFiles,
+  findAllThemes,
+} from '../../firebase/firebase-init';
 import { getLastSyncInfo } from '../../services/activity-sync.js';
 import { cachedThemes, selectedSequence } from '../../store/notions';
 import { syncInProgress } from '../../store/syncState.js';
-import { OptimizedSignalController, debounce, throttle } from '../../utils/signal-observer.js';
+import {
+  OptimizedSignalController,
+  debounce,
+  throttle,
+} from '../../utils/signal-observer.js';
 import './sync-settings-popup';
 import './theme-elem';
 
@@ -21,7 +29,7 @@ declare global {
 class OpenServerPopup extends LitElement {
   private signalController = new OptimizedSignalController(this);
 
-  @property({ type: Array }) allThemes = []
+  @property({ type: Array }) allThemes = [];
   @property({ type: Boolean }) isDownloading = false;
   @property({ type: String }) errorMessage = '';
   @property({ type: String }) successMessage = '';
@@ -42,15 +50,20 @@ class OpenServerPopup extends LitElement {
     try {
       this.lastSyncInfo = await getLastSyncInfo();
     } catch (error) {
-      console.warn('Erreur lors du chargement des informations de sync:', error);
+      console.warn(
+        'Erreur lors du chargement des informations de sync:',
+        error,
+      );
     }
   }
 
   close() {
-    this.dispatchEvent(new CustomEvent('closed', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('closed', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
     if (this.parentNode) {
       this.parentNode.removeChild(this);
     }
@@ -94,17 +107,23 @@ class OpenServerPopup extends LitElement {
 
     .skeleton-line {
       height: 20px;
-      background: linear-gradient(90deg,
-        rgba(255,255,255,0.1) 0%,
-        rgba(255,255,255,0.2) 50%,
-        rgba(255,255,255,0.1) 100%);
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
       border-radius: 4px;
       animation: shimmer 1.5s infinite;
     }
 
     @keyframes shimmer {
-      0% { background-position: -200px 0; }
-      100% { background-position: 200px 0; }
+      0% {
+        background-position: -200px 0;
+      }
+      100% {
+        background-position: 200px 0;
+      }
     }
 
     .main-action color-button {
@@ -121,7 +140,7 @@ class OpenServerPopup extends LitElement {
       font-size: 0.85em;
       color: var(--theme-text-color, #222);
       padding: 8px 12px;
-      background: var(--theme-color-soft, rgba(255,255,255,0.05));
+      background: var(--theme-color-soft, rgba(255, 255, 255, 0.05));
       border-radius: 6px;
     }
 
@@ -132,9 +151,9 @@ class OpenServerPopup extends LitElement {
     }
 
     .settings-button {
-  background: var(--theme-color-soft, rgba(255,255,255,0.1));
-  border: 1px solid var(--theme-color, rgba(255,255,255,0.2));
-  color: var(--theme-text-color, #222);
+      background: var(--theme-color-soft, rgba(255, 255, 255, 0.1));
+      border: 1px solid var(--theme-color, rgba(255, 255, 255, 0.2));
+      color: var(--theme-text-color, #222);
       border-radius: 4px;
       width: 28px;
       height: 28px;
@@ -159,31 +178,46 @@ class OpenServerPopup extends LitElement {
       border-radius: 50%;
     }
 
-    .status-dot.success { background: #4CAF50; }
+    .status-dot.success {
+      background: #4caf50;
+    }
     .status-dot.warning {
-      background: #FF9800;
+      background: #ff9800;
       animation: pulse 2s infinite;
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
     }
 
     .loading-indicator {
       height: 4px;
-      background: linear-gradient(90deg,
-        var(--theme-color, #4CAF50) 0%,
+      background: linear-gradient(
+        90deg,
+        var(--theme-color, #4caf50) 0%,
         rgba(76, 175, 80, 0.3) 50%,
-        var(--theme-color, #4CAF50) 100%);
+        var(--theme-color, #4caf50) 100%
+      );
       border-radius: 2px;
       animation: progress 2s infinite;
     }
 
     @keyframes progress {
-      0% { opacity: 0.6; }
-      50% { opacity: 1; }
-      100% { opacity: 0.6; }
+      0% {
+        opacity: 0.6;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.6;
+      }
     }
 
     .message {
@@ -206,7 +240,7 @@ class OpenServerPopup extends LitElement {
       background: rgba(46, 204, 113, 0.1);
       border: 1px solid rgba(46, 204, 113, 0.2);
     }
-  `
+  `;
 
   async loadThemes() {
     try {
@@ -215,21 +249,21 @@ class OpenServerPopup extends LitElement {
       this.successMessage = '';
 
       if (cachedThemes.get() && cachedThemes.get().length > 0) {
-    
         this.allThemes = cachedThemes.get();
         this.scrollToOpenModule();
         return;
       }
 
       const themes = await findAllThemes();
-  
+
       this.allThemes = themes;
 
       if (themes && themes.length > 0) {
         cachedThemes.set(themes);
         this.successMessage = `${themes.length} thèmes chargés`;
       } else if (!navigator.onLine) {
-        this.errorMessage = 'Mode hors ligne - aucun thème disponible dans le cache local';
+        this.errorMessage =
+          'Mode hors ligne - aucun thème disponible dans le cache local';
       } else {
         this.errorMessage = 'Aucun thème disponible';
       }
@@ -238,7 +272,8 @@ class OpenServerPopup extends LitElement {
     } catch (error) {
       console.error('Erreur lors du chargement des thèmes:', error);
       if (!navigator.onLine) {
-        this.errorMessage = 'Mode hors ligne - impossible de charger les thèmes.';
+        this.errorMessage =
+          'Mode hors ligne - impossible de charger les thèmes.';
       } else {
         this.errorMessage = `Erreur lors du chargement des thèmes: ${error.message}`;
       }
@@ -251,7 +286,9 @@ class OpenServerPopup extends LitElement {
     setTimeout(() => {
       const currentSequence = selectedSequence.get();
       if (currentSequence) {
-        const moduleElement = this.shadowRoot?.querySelector(`module-elem[title="${currentSequence}"]`);
+        const moduleElement = this.shadowRoot?.querySelector(
+          `module-elem[title="${currentSequence}"]`,
+        );
         if (moduleElement) {
           moduleElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -282,12 +319,17 @@ class OpenServerPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
-      const { setSyncProgress, setSyncCompleted } = await import('../../store/syncState.js');
+      const { setSyncProgress, setSyncCompleted } = await import(
+        '../../store/syncState.js'
+      );
       setSyncProgress(0);
 
       const files = await findAllFiles();
       if (files && files.length > 0) {
-        await downloadFileZip('tous_les_fichiers.zip', files.map(file => file.id));
+        await downloadFileZip(
+          'tous_les_fichiers.zip',
+          files.map((file) => file.id),
+        );
         this.successMessage = '✅ Téléchargement terminé';
         setSyncCompleted();
       } else {
@@ -309,7 +351,8 @@ class OpenServerPopup extends LitElement {
     // Focus automatique sur le bouton principal
     setTimeout(() => {
       const mainButton = this.shadowRoot?.querySelector('color-button');
-      if (mainButton && 'focus' in mainButton) (mainButton as HTMLElement).focus();
+      if (mainButton && 'focus' in mainButton)
+        (mainButton as HTMLElement).focus();
     }, 100);
     // Listener Escape
     window.addEventListener('keydown', this.handleEscape);
@@ -326,7 +369,7 @@ class OpenServerPopup extends LitElement {
   // Fermeture via Escape
   handleEscape = (e: KeyboardEvent) => {
     if (e.key === 'Escape') this.close();
-  }
+  };
 
   // Focus trap : empêche le focus de sortir du popup
   handleFocusTrap = (e: KeyboardEvent) => {
@@ -344,14 +387,16 @@ class OpenServerPopup extends LitElement {
       e.preventDefault();
       (last as HTMLElement).focus();
     }
-  }
+  };
 
   getFocusableElements() {
     const root = this.shadowRoot;
     if (!root) return [];
-    return Array.from(root.querySelectorAll(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-    )).filter((el: any) => !el.disabled && el.offsetParent !== null);
+    return Array.from(
+      root.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el: any) => !el.disabled && el.offsetParent !== null);
   }
 
   render() {
@@ -360,63 +405,88 @@ class OpenServerPopup extends LitElement {
         <h2 slot="title">📁 Ouvrir un fichier</h2>
 
         <div slot="body" class="popup-content" tabindex="-1">
-
-          ${this.isLoadingThemes || (this.allThemes.length === 0 && !this.errorMessage) ?
-        html`
-            <div class="loading-skeleton" role="status" aria-live="polite">
-              <div class="skeleton-line"></div>
-              <div class="skeleton-line"></div>
-              <div class="skeleton-line"></div>
-            </div>
-          ` :
-        html`
-            <div class="theme-list" role="list" aria-label="Thèmes disponibles">
-              ${this.allThemes.map(theme => html`<theme-elem role="listitem" .theme=${theme}></theme-elem>`)}
-            </div>
-          `
-      }
+          ${this.isLoadingThemes ||
+          (this.allThemes.length === 0 && !this.errorMessage)
+            ? html`
+                <div class="loading-skeleton" role="status" aria-live="polite">
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line"></div>
+                </div>
+              `
+            : html`
+                <div
+                  class="theme-list"
+                  role="list"
+                  aria-label="Thèmes disponibles"
+                >
+                  ${this.allThemes.map(
+                    (theme) =>
+                      html`<theme-elem
+                        role="listitem"
+                        .theme=${theme}
+                      ></theme-elem>`,
+                  )}
+                </div>
+              `}
 
           <div class="main-action">
             <color-button
               @click="${this.debouncedDownload}"
               ?disabled="${this.isDownloading}"
-              aria-label="Télécharger tous les fichiers">
-              ${this.isDownloading ? '⬇️ Téléchargement...' : '💾 Télécharger tous les fichiers'}
+              aria-label="Télécharger tous les fichiers"
+            >
+              ${this.isDownloading
+                ? '⬇️ Téléchargement...'
+                : '💾 Télécharger tous les fichiers'}
             </color-button>
           </div>
 
-          ${this.isDownloading ? html`<div class="loading-indicator"></div>` : ''}
-
-          ${this.errorMessage ? html`
-            <div class="message error-message">
-              <span>⚠️</span>
-              <span>${this.errorMessage}</span>
-            </div>
-          ` : ''}
-
-          ${this.successMessage ? html`
-            <div class="message success-message">
-              <span>${this.successMessage}</span>
-            </div>
-          ` : ''}
+          ${this.isDownloading
+            ? html`<div class="loading-indicator"></div>`
+            : ''}
+          ${this.errorMessage
+            ? html`
+                <div class="message error-message">
+                  <span>⚠️</span>
+                  <span>${this.errorMessage}</span>
+                </div>
+              `
+            : ''}
+          ${this.successMessage
+            ? html`
+                <div class="message success-message">
+                  <span>${this.successMessage}</span>
+                </div>
+              `
+            : ''}
 
           <div class="sync-status">
             <div class="sync-info">
-              <div class="status-dot ${syncInProgress.value ? 'warning' : 'success'}"></div>
+              <div
+                class="status-dot ${syncInProgress.value
+                  ? 'warning'
+                  : 'success'}"
+              ></div>
               <span>Sync: ${syncInProgress.value ? 'En cours' : 'OK'}</span>
             </div>
             <button
               class="settings-button"
               @click="${this.openSyncSettings}"
               title="Paramètres de synchronisation"
-              aria-label="Ouvrir les paramètres de synchronisation">
+              aria-label="Ouvrir les paramètres de synchronisation"
+            >
               ⚙️
             </button>
           </div>
         </div>
       </template-popup>
 
-      ${this.showSyncSettings ? html`<sync-settings-popup @closed="${this.closeSyncSettings}"></sync-settings-popup>` : ''}
+      ${this.showSyncSettings
+        ? html`<sync-settings-popup
+            @closed="${this.closeSyncSettings}"
+          ></sync-settings-popup>`
+        : ''}
     `;
   }
 }

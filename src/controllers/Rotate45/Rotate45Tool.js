@@ -37,7 +37,13 @@ export class Rotate45Tool extends Tool {
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -67,7 +73,13 @@ export class Rotate45Tool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   _executeAction() {

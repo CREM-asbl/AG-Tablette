@@ -27,7 +27,9 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
 
     if (!this.triangleDef) {
-      throw new Error(`Définition non trouvée pour ${app.tool.selectedTemplate.name}`);
+      throw new Error(
+        `Définition non trouvée pour ${app.tool.selectedTemplate.name}`,
+      );
     }
   }
 
@@ -40,7 +42,13 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     this.segments = [];
     this.numberOfPointsDrawn = 0;
 
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        }),
+      50,
+    );
   }
 
   drawPoint() {
@@ -72,8 +80,15 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       app.workspace.lastKnownMouseCoordinates,
     );
 
-    if (this.constraints.type == 'isConstrained' && !this.constraints.projectionOnConstraints(newCoordinates, true)) {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point sur la contrainte.' } }))
+    if (
+      this.constraints.type == 'isConstrained' &&
+      !this.constraints.projectionOnConstraints(newCoordinates, true)
+    ) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Veuillez placer le point sur la contrainte.' },
+        }),
+      );
       return;
     }
 
@@ -121,45 +136,56 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
         fillOpacity: 0,
       });
     }
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+    });
   }
 
   canvasMouseUp() {
     for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
-      if (SelectManager.areCoordinatesInMagnetismDistance(this.points[i].coordinates, this.points[this.numberOfPointsDrawn - 1].coordinates)) {
+      if (
+        SelectManager.areCoordinatesInMagnetismDistance(
+          this.points[i].coordinates,
+          this.points[this.numberOfPointsDrawn - 1].coordinates,
+        )
+      ) {
         const firstPointCoordinates = this.points[0].coordinates;
         if (this.numberOfPointsDrawn == 2) {
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 1;
-          this.points = [new Point({
-            layer: 'upper',
-            coordinates: firstPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          })];
+          this.points = [
+            new Point({
+              layer: 'upper',
+              coordinates: firstPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+          ];
           this.segments = [];
         } else if (this.numberOfPointsDrawn == 3) {
           const secondPointCoordinates = this.points[1].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 2;
-          this.points = [new Point({
-            layer: 'upper',
-            coordinates: firstPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          }), new Point({
-            layer: 'upper',
-            coordinates: secondPointCoordinates,
-            color: app.settings.temporaryDrawColor,
-            size: 2,
-          })];
-          this.segments = [new Segment({
-            layer: 'upper',
-            vertexIds: [
-              this.points[0].id,
-              this.points[1].id,
-            ],
-          })];
+          this.points = [
+            new Point({
+              layer: 'upper',
+              coordinates: firstPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+            new Point({
+              layer: 'upper',
+              coordinates: secondPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+          ];
+          this.segments = [
+            new Segment({
+              layer: 'upper',
+              vertexIds: [this.points[0].id, this.points[1].id],
+            }),
+          ];
           new RegularShape({
             layer: 'upper',
             segmentIds: [this.segments[0].id],
@@ -168,8 +194,14 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
             fillOpacity: 0,
           });
         }
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
-        setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Veuillez placer le point autre part.' },
+          }),
+        );
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        });
         return;
       }
     }
@@ -178,9 +210,13 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       this.stopAnimation();
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+      });
     } else {
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      });
     }
   }
 
@@ -190,14 +226,20 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
       let adjustedPoint;
-      if (adjustedPoint = SelectManager.selectPoint(
-        point.coordinates,
-        constraints,
-        false,
-      )) {
+      if (
+        (adjustedPoint = SelectManager.selectPoint(
+          point.coordinates,
+          constraints,
+          false,
+        ))
+      ) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
-      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates())) {
+      } else if (
+        (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
+          point.coordinates.toCanvasCoordinates(),
+        ))
+      ) {
         const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
         point.coordinates = new Coordinates(adjustedPointInWorldSpace);
         point.adjustedOn = adjustedPointInWorldSpace;
@@ -209,7 +251,9 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
           constraints,
         );
         if (adjustedSegment) {
-          point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+          point.coordinates = adjustedSegment.projectionOnSegment(
+            point.coordinates,
+          );
           point.adjustedOn = adjustedSegment;
         }
       }
@@ -220,19 +264,33 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
 
       const constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
-      constraints.numberOfObjects = "allInDistance";
+      constraints.numberOfObjects = 'allInDistance';
       const adjustedSegments = SelectManager.selectSegment(
         adjustedCoordinates,
         constraints,
       );
       if (adjustedSegments) {
-        const adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
-          seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) > seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) ? 1 : -1
-        )[0];
-        if (adjustedSegment) {
-          adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
-            intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1
+        const adjustedSegment = adjustedSegments
+          .filter((seg) => !seg.isParalleleWith(this.constraints.segments[0]))
+          .sort((seg1, seg2) =>
+            seg1
+              .projectionOnSegment(adjustedCoordinates)
+              .dist(adjustedCoordinates) >
+            seg2
+              .projectionOnSegment(adjustedCoordinates)
+              .dist(adjustedCoordinates)
+              ? 1
+              : -1,
           )[0];
+        if (adjustedSegment) {
+          adjustedCoordinates = adjustedSegment
+            .intersectionWith(this.constraints.segments[0])
+            .sort((intersection1, intersection2) =>
+              intersection1.dist(adjustedCoordinates) >
+              intersection2.dist(adjustedCoordinates)
+                ? 1
+                : -1,
+            )[0];
           point.adjustedOn = adjustedSegment;
         }
       }
@@ -276,13 +334,18 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   }
 
   getConstraints(pointNb) {
-    this.constraints = this.triangleDef.constraints[pointNb](this.points, this.segments);
+    this.constraints = this.triangleDef.constraints[pointNb](
+      this.points,
+      this.segments,
+    );
   }
 
   async executeAction() {
     this._executeAction();
     window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }));
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', { detail: { name: this.title } }),
+    );
   }
 
   _executeAction() {
@@ -293,7 +356,11 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       familyName = 'Irregular';
     }
 
-    let path = ['M', this.points[0].coordinates.x, this.points[0].coordinates.y];
+    let path = [
+      'M',
+      this.points[0].coordinates.x,
+      this.points[0].coordinates.y,
+    ];
     path.push('L', this.points[1].coordinates.x, this.points[1].coordinates.y);
     path.push('L', this.points[2].coordinates.x, this.points[2].coordinates.y);
     path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
@@ -312,7 +379,11 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    if (shape.name == 'RightAngleTriangle' || shape.name == 'IsoscelesTriangle' || shape.name == 'IrregularTriangle') {
+    if (
+      shape.name == 'RightAngleTriangle' ||
+      shape.name == 'IsoscelesTriangle' ||
+      shape.name == 'IrregularTriangle'
+    ) {
       shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }

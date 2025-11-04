@@ -6,9 +6,7 @@ import { initSelectManager } from './Managers/SelectManager';
 import { uniqId } from './Tools/general';
 import { Workspace } from './Objects/Workspace';
 
-
-
-export const changes = signal({})
+export const changes = signal({});
 
 /**
  * @typedef {object} Settings Configuration de l'application
@@ -129,11 +127,11 @@ export class App {
 
     /** @type {TangramState} État spécifique à l'outil Tangram */
     this.tangram = {
-      isSilhouetteShown: false
-    }
+      isSilhouetteShown: false,
+    };
 
     /** @type {boolean} Indique si une action a été effectuée depuis la dernière sauvegarde */
-    this.stepSinceSave = false
+    this.stepSinceSave = false;
     /** @type {boolean} Indique si l'application a démarré */
     this.started = false;
     /** @type {boolean} Indique si l'application est en cours de chargement */
@@ -188,7 +186,12 @@ export class App {
    * @returns {void}
    */
   removeListener(listenerName, id) {
-    if (!id || !this.listenerCounter[listenerName] || !this.listenerCounter[listenerName][id]) { // Vérification ajoutée pour la robustesse
+    if (
+      !id ||
+      !this.listenerCounter[listenerName] ||
+      !this.listenerCounter[listenerName][id]
+    ) {
+      // Vérification ajoutée pour la robustesse
       return;
     }
     window.removeEventListener(
@@ -206,7 +209,7 @@ export class App {
    */
   resetSettings() {
     resetToolsVisibility();
-    resetKitVisibility()
+    resetKitVisibility();
     setState({
       settings: {
         ...app.defaultState.settings,
@@ -257,5 +260,5 @@ export const setState = (update) => {
     window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
   }
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
-  changes.set(update)
+  changes.set(update);
 };

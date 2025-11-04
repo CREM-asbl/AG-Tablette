@@ -2,8 +2,7 @@ import { css, html, LitElement } from 'lit';
 
 class SaveWarning extends LitElement {
   static get properties() {
-    return {
-    };
+    return {};
   }
 
   constructor() {
@@ -27,7 +26,7 @@ class SaveWarning extends LitElement {
 
   render() {
     return html`
-      Voulez-vous partir sans enregistrer votre travail ? <br>
+      Voulez-vous partir sans enregistrer votre travail ? <br />
       Attention votre travail actuel sera perdu !
     `;
   }

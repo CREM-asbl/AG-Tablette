@@ -1,6 +1,10 @@
 // OpenFileManager - Version fonctionnelle
 import { app, setState } from '@controllers/Core/App';
-import { addInfoToId, createElem, getExtension } from '@controllers/Core/Tools/general.js';
+import {
+  addInfoToId,
+  createElem,
+  getExtension,
+} from '@controllers/Core/Tools/general.js';
 import { applyMigrations } from '@controllers/Core/Tools/version-migration.js';
 import { gridStore } from '@store/gridStore.js';
 import { setFamiliesVisibility } from '@store/kit.js';
@@ -11,7 +15,7 @@ const ERROR_MESSAGES = {
   FILE_READ_ERROR: 'Erreur lors de la lecture du fichier',
   FILE_PARSE_ERROR: 'Erreur lors du parsing du fichier',
   UNSUPPORTED_VERSION: 'Version non supportée',
-  WRONG_ENVIRONMENT: 'Environnement incorrect: '
+  WRONG_ENVIRONMENT: 'Environnement incorrect: ',
 };
 
 // Constantes pour les paramètres par défaut
@@ -19,7 +23,7 @@ const DEFAULT_SETTINGS = {
   numberOfDivisionParts: 2,
   numberOfRegularPoints: 3,
   shapesDrawColor: '#ff0000',
-  shapeOpacity: 0.7
+  shapeOpacity: 0.7,
 };
 
 // Détection de l'API File System Access
@@ -30,9 +34,11 @@ const hasNativeFS = 'showOpenFilePicker' in window;
  * @param {string} message - Message d'erreur à afficher
  */
 const showErrorNotification = (message) => {
-  window.dispatchEvent(new CustomEvent('show-notif', {
-    detail: { message, type: 'error' }
-  }));
+  window.dispatchEvent(
+    new CustomEvent('show-notif', {
+      detail: { message, type: 'error' },
+    }),
+  );
 };
 
 /**
@@ -52,12 +58,14 @@ export const updateGeometryReference = (geometryObject, oldId, newId) => {
     'geometryChildShapeIds',
     'geometryTransformationChildShapeIds',
     'geometryDuplicateChildShapeIds',
-    'geometryTransformationCharacteristicElementIds'
+    'geometryTransformationCharacteristicElementIds',
   ];
 
-  arrayProperties.forEach(prop => {
+  arrayProperties.forEach((prop) => {
     if (updated[prop]) {
-      updated[prop] = updated[prop].map(elemId => elemId === oldId ? newId : elemId);
+      updated[prop] = updated[prop].map((elemId) =>
+        elemId === oldId ? newId : elemId,
+      );
     }
   });
 
@@ -66,10 +74,10 @@ export const updateGeometryReference = (geometryObject, oldId, newId) => {
     'geometryTransformationParentShapeId',
     'geometryDuplicateParentShapeId',
     'geometryParentObjectId1',
-    'geometryParentObjectId2'
+    'geometryParentObjectId2',
   ];
 
-  simpleProperties.forEach(prop => {
+  simpleProperties.forEach((prop) => {
     if (updated[prop] === oldId) {
       updated[prop] = newId;
     }
@@ -87,62 +95,76 @@ export const updateGeometryReference = (geometryObject, oldId, newId) => {
  * @param {boolean} isGeometry - Si c'est un environnement géométrie
  * @returns {Object} - Les objets mis à jour
  */
-export const updateReferences = (objects, oldId, newId, type, isGeometry = false) => {
+export const updateReferences = (
+  objects,
+  oldId,
+  newId,
+  type,
+  isGeometry = false,
+) => {
   const updated = {
     shapesData: [...objects.shapesData],
     segmentsData: [...objects.segmentsData],
-    pointsData: [...objects.pointsData]
+    pointsData: [...objects.pointsData],
   };
 
   // Mise à jour selon le type
   switch (type) {
     case 'shape':
       // Mise à jour des références dans segments et points
-      updated.segmentsData = updated.segmentsData.map(seg =>
-        seg.shapeId === oldId ? { ...seg, shapeId: newId } : seg
+      updated.segmentsData = updated.segmentsData.map((seg) =>
+        seg.shapeId === oldId ? { ...seg, shapeId: newId } : seg,
       );
-      updated.pointsData = updated.pointsData.map(pt =>
-        pt.shapeId === oldId ? { ...pt, shapeId: newId } : pt
+      updated.pointsData = updated.pointsData.map((pt) =>
+        pt.shapeId === oldId ? { ...pt, shapeId: newId } : pt,
       );
       break;
 
     case 'segment':
       // Mise à jour des références dans shapes et points
-      updated.shapesData = updated.shapesData.map(s => ({
+      updated.shapesData = updated.shapesData.map((s) => ({
         ...s,
-        segmentIds: s.segmentIds.map(segId => segId === oldId ? newId : segId)
+        segmentIds: s.segmentIds.map((segId) =>
+          segId === oldId ? newId : segId,
+        ),
       }));
-      updated.pointsData = updated.pointsData.map(pt => ({
+      updated.pointsData = updated.pointsData.map((pt) => ({
         ...pt,
-        segmentIds: pt.segmentIds.map(segId => segId === oldId ? newId : segId)
+        segmentIds: pt.segmentIds.map((segId) =>
+          segId === oldId ? newId : segId,
+        ),
       }));
       break;
 
     case 'point':
       // Mise à jour des références dans shapes
-      updated.shapesData = updated.shapesData.map(s => ({
+      updated.shapesData = updated.shapesData.map((s) => ({
         ...s,
-        pointIds: s.pointIds.map(ptId => ptId === oldId ? newId : ptId)
+        pointIds: s.pointIds.map((ptId) => (ptId === oldId ? newId : ptId)),
       }));
-      updated.segmentsData = updated.segmentsData.map(seg => ({
+      updated.segmentsData = updated.segmentsData.map((seg) => ({
         ...seg,
-        vertexIds: seg.vertexIds.map(ptId => ptId === oldId ? newId : ptId),
-        divisionPointIds: seg.divisionPointIds.map(ptId => ptId === oldId ? newId : ptId),
-        arcCenterId: seg.arcCenterId === oldId ? newId : seg.arcCenterId
+        vertexIds: seg.vertexIds.map((ptId) => (ptId === oldId ? newId : ptId)),
+        divisionPointIds: seg.divisionPointIds.map((ptId) =>
+          ptId === oldId ? newId : ptId,
+        ),
+        arcCenterId: seg.arcCenterId === oldId ? newId : seg.arcCenterId,
       }));
-      updated.pointsData = updated.pointsData.map(pt => ({
+      updated.pointsData = updated.pointsData.map((pt) => ({
         ...pt,
-        endpointIds: pt.endpointIds?.map(ptId => ptId === oldId ? newId : ptId),
-        reference: pt.reference === oldId ? newId : pt.reference
+        endpointIds: pt.endpointIds?.map((ptId) =>
+          ptId === oldId ? newId : ptId,
+        ),
+        reference: pt.reference === oldId ? newId : pt.reference,
       }));
       break;
   }
 
   // Mise à jour des références géométriques si en mode Géométrie
   if (isGeometry) {
-    updated.shapesData = updated.shapesData.map(s => ({
+    updated.shapesData = updated.shapesData.map((s) => ({
       ...s,
-      geometryObject: updateGeometryReference(s.geometryObject, oldId, newId)
+      geometryObject: updateGeometryReference(s.geometryObject, oldId, newId),
     }));
   }
 
@@ -158,10 +180,16 @@ export const updateReferences = (objects, oldId, newId, type, isGeometry = false
  * @param {boolean} isGeometry - Si c'est un environnement géométrie
  * @returns {Object} - Les objets avec IDs transformés
  */
-export const transformIds = (dataArray, objects, layer, type, isGeometry = false) => {
+export const transformIds = (
+  dataArray,
+  objects,
+  layer,
+  type,
+  isGeometry = false,
+) => {
   let updatedObjects = { ...objects };
 
-  dataArray.forEach(item => {
+  dataArray.forEach((item) => {
     const oldId = item.id;
     const newId = addInfoToId(item.id, layer, type);
 
@@ -169,11 +197,19 @@ export const transformIds = (dataArray, objects, layer, type, isGeometry = false
     const updatedItem = { ...item, id: newId };
 
     // Mettre à jour les références
-    updatedObjects = updateReferences(updatedObjects, oldId, newId, type, isGeometry);
+    updatedObjects = updateReferences(
+      updatedObjects,
+      oldId,
+      newId,
+      type,
+      isGeometry,
+    );
 
     // Mettre à jour l'objet dans le tableau approprié
     const arrayName = `${type}sData`;
-    const index = updatedObjects[arrayName].findIndex(obj => obj.id === oldId);
+    const index = updatedObjects[arrayName].findIndex(
+      (obj) => obj.id === oldId,
+    );
     if (index !== -1) {
       updatedObjects[arrayName][index] = updatedItem;
     }
@@ -201,7 +237,13 @@ export const transformShapeIds = (objects, layer, isGeometry = false) => {
  * @returns {Object} - Nouveaux objets avec les IDs de segments transformés
  */
 export const transformSegmentIds = (objects, layer, isGeometry = false) => {
-  return transformIds(objects.segmentsData, objects, layer, 'segment', isGeometry);
+  return transformIds(
+    objects.segmentsData,
+    objects,
+    layer,
+    'segment',
+    isGeometry,
+  );
 };
 
 /**
@@ -256,7 +298,10 @@ export const validateFileContent = (saveObject, environment) => {
 
   // Vérification de la structure des données
   if (!saveObject.workspaceData && !saveObject.wsdata) {
-    return { isValid: false, error: 'Données de workspace manquantes dans le fichier.' };
+    return {
+      isValid: false,
+      error: 'Données de workspace manquantes dans le fichier.',
+    };
   }
 
   return { isValid: true, error: null };
@@ -296,8 +341,8 @@ export const processSettings = (saveObject, appInstance, gridStoreInstance) => {
     setState({
       settings: {
         ...saveObject.settings,
-        ...DEFAULT_SETTINGS
-      }
+        ...DEFAULT_SETTINGS,
+      },
     });
   } else {
     appInstance.resetSettings();
@@ -356,8 +401,8 @@ export const processTangramHistory = (saveObject, appInstance) => {
           ...saveObject.history.startSituation,
           tangram: {
             isSilhouetteShown: true,
-            currentStep: 'start'
-          }
+            currentStep: 'start',
+          },
         },
       },
     });
@@ -401,11 +446,16 @@ export const processDefaultHistory = (saveObject, appInstance) => {
  * @param {Function} setToolsVisibilityFn - Fonction pour définir la visibilité des outils
  * @param {Function} setFamiliesVisibilityFn - Fonction pour définir la visibilité des familles
  */
-export const processVisibility = (saveObject, setToolsVisibilityFn, setFamiliesVisibilityFn) => {
+export const processVisibility = (
+  saveObject,
+  setToolsVisibilityFn,
+  setFamiliesVisibilityFn,
+) => {
   const toolsVisibility = saveObject.toolsVisibility || saveObject.toolsVisible;
   if (toolsVisibility) setToolsVisibilityFn(toolsVisibility);
 
-  const familiesVisibility = saveObject.familiesVisibility || saveObject.familiesVisible;
+  const familiesVisibility =
+    saveObject.familiesVisibility || saveObject.familiesVisible;
   if (familiesVisibility?.length) setFamiliesVisibilityFn(familiesVisibility);
 };
 
@@ -525,11 +575,18 @@ export const parseFile = async (fileContent, filename) => {
     applyMigrations(saveObject);
 
     // Chargement du workspace
-    const WorkspaceManagerModule = await import('@controllers/Core/Managers/WorkspaceManager.js');
-    await WorkspaceManagerModule.setWorkspaceFromObject(saveObject.workspaceData || saveObject.wsdata);
+    const WorkspaceManagerModule = await import(
+      '@controllers/Core/Managers/WorkspaceManager.js'
+    );
+    await WorkspaceManagerModule.setWorkspaceFromObject(
+      saveObject.workspaceData || saveObject.wsdata,
+    );
 
     // Traitement spécial pour Tangram
-    if (app.environment.name === 'Tangram' && saveObject.fileExtension === 'ags') {
+    if (
+      app.environment.name === 'Tangram' &&
+      saveObject.fileExtension === 'ags'
+    ) {
       app.mainCanvasLayer.removeAllObjects();
     }
 
@@ -540,9 +597,10 @@ export const parseFile = async (fileContent, filename) => {
 
     // Finalisation
     setState({ filename });
-    window.dispatchEvent(new CustomEvent('file-parsed', { detail: saveObject }));
+    window.dispatchEvent(
+      new CustomEvent('file-parsed', { detail: saveObject }),
+    );
     triggerRefreshEvents();
-
   } catch (error) {
     const errorMessage = error.message.includes('vide')
       ? ERROR_MESSAGES.FILE_PARSE_ERROR + ' (fichier vide)'
@@ -557,8 +615,7 @@ window.addEventListener('local-open-file', () => {
   openFile();
 });
 window.addEventListener('file-opened', (event) => {
-  if (event.detail.method === 'old')
-    oldReadFile(event.detail.file);
+  if (event.detail.method === 'old') oldReadFile(event.detail.file);
   else newReadFile(event.detail.file[0]);
 });
 
@@ -582,5 +639,5 @@ export const OpenFileManager = {
   transformPointIds,
   updateGeometryReference,
   updateReferences,
-  transformIds
+  transformIds,
 };

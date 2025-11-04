@@ -23,10 +23,13 @@ class PerformanceManager {
       return; // Déjà en cours d'exécution
     }
 
-    this.throttleTimers.set(key, setTimeout(() => {
-      fn();
-      this.throttleTimers.delete(key);
-    }, delay));
+    this.throttleTimers.set(
+      key,
+      setTimeout(() => {
+        fn();
+        this.throttleTimers.delete(key);
+      }, delay),
+    );
   }
 
   /**
@@ -40,10 +43,13 @@ class PerformanceManager {
       clearTimeout(this.debounceTimers.get(key));
     }
 
-    this.debounceTimers.set(key, setTimeout(() => {
-      fn();
-      this.debounceTimers.delete(key);
-    }, delay));
+    this.debounceTimers.set(
+      key,
+      setTimeout(() => {
+        fn();
+        this.debounceTimers.delete(key);
+      }, delay),
+    );
   }
 
   /**
@@ -78,7 +84,7 @@ class PerformanceManager {
 
     this.cache.set(key, {
       value,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -97,7 +103,7 @@ class PerformanceManager {
     if (this.cache.size >= this.cacheMaxSize) {
       const entries = Array.from(this.cache.entries());
       entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
-      
+
       const toDelete = entries.slice(0, Math.floor(this.cacheMaxSize / 2));
       toDelete.forEach(([key]) => this.cache.delete(key));
     }
@@ -107,8 +113,8 @@ class PerformanceManager {
    * Annuler tous les timers en attente
    */
   cancelAll() {
-    this.throttleTimers.forEach(timer => clearTimeout(timer));
-    this.debounceTimers.forEach(timer => clearTimeout(timer));
+    this.throttleTimers.forEach((timer) => clearTimeout(timer));
+    this.debounceTimers.forEach((timer) => clearTimeout(timer));
     this.throttleTimers.clear();
     this.debounceTimers.clear();
   }
@@ -129,7 +135,7 @@ class PerformanceManager {
     const start = performance.now();
     const result = await fn();
     const end = performance.now();
-    
+
     console.log(`${label}: ${(end - start).toFixed(2)}ms`);
     return result;
   }
@@ -139,9 +145,9 @@ class PerformanceManager {
    * @param {Function[]} operations - Tableau d'opérations à executer
    */
   batch(operations) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       requestAnimationFrame(() => {
-        operations.forEach(op => op());
+        operations.forEach((op) => op());
         resolve();
       });
     });
@@ -155,7 +161,7 @@ class PerformanceManager {
       size: this.cache.size,
       maxSize: this.cacheMaxSize,
       activeThrottles: this.throttleTimers.size,
-      activeDebounces: this.debounceTimers.size
+      activeDebounces: this.debounceTimers.size,
     };
   }
 }
@@ -168,16 +174,20 @@ export const performanceManager = new PerformanceManager();
  * @param {number} delay - Délai de throttling
  */
 export function throttled(delay = 16) {
-  return function(target, propertyKey, descriptor) {
+  return function (target, propertyKey, descriptor) {
     const originalMethod = descriptor.value;
-    
-    descriptor.value = function(...args) {
+
+    descriptor.value = function (...args) {
       const key = `${target.constructor.name}.${propertyKey}`;
-      performanceManager.throttle(key, () => {
-        originalMethod.apply(this, args);
-      }, delay);
+      performanceManager.throttle(
+        key,
+        () => {
+          originalMethod.apply(this, args);
+        },
+        delay,
+      );
     };
-    
+
     return descriptor;
   };
 }
@@ -187,16 +197,20 @@ export function throttled(delay = 16) {
  * @param {number} delay - Délai de debouncing
  */
 export function debounced(delay = 300) {
-  return function(target, propertyKey, descriptor) {
+  return function (target, propertyKey, descriptor) {
     const originalMethod = descriptor.value;
-    
-    descriptor.value = function(...args) {
+
+    descriptor.value = function (...args) {
       const key = `${target.constructor.name}.${propertyKey}`;
-      performanceManager.debounce(key, () => {
-        originalMethod.apply(this, args);
-      }, delay);
+      performanceManager.debounce(
+        key,
+        () => {
+          originalMethod.apply(this, args);
+        },
+        delay,
+      );
     };
-    
+
     return descriptor;
   };
 }
@@ -206,13 +220,13 @@ export function debounced(delay = 300) {
  */
 export function measured(target, propertyKey, descriptor) {
   const originalMethod = descriptor.value;
-  
-  descriptor.value = async function(...args) {
+
+  descriptor.value = async function (...args) {
     const label = `${target.constructor.name}.${propertyKey}`;
     return await performanceManager.measure(label, () => {
       return originalMethod.apply(this, args);
     });
   };
-  
+
   return descriptor;
 }

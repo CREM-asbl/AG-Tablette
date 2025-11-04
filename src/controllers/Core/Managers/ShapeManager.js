@@ -100,15 +100,30 @@ export class ShapeManager {
       if (shape.isSegment() && !shape.segments[0].isArc()) {
         const seg = shape.segments[0];
         const projection = seg.projectionOnSegment(coord);
-        if (seg.isCoordinatesOnSegment(projection) && SelectManager.areCoordinatesInSelectionDistance(projection, coord)) {
+        if (
+          seg.isCoordinatesOnSegment(projection) &&
+          SelectManager.areCoordinatesInSelectionDistance(projection, coord)
+        ) {
           return true;
         }
-        if (SelectManager.areCoordinatesInSelectionDistance(seg.vertexes[0].coordinates, coord) || SelectManager.areCoordinatesInSelectionDistance(seg.vertexes[1].coordinates, coord)) {
+        if (
+          SelectManager.areCoordinatesInSelectionDistance(
+            seg.vertexes[0].coordinates,
+            coord,
+          ) ||
+          SelectManager.areCoordinatesInSelectionDistance(
+            seg.vertexes[1].coordinates,
+            coord,
+          )
+        ) {
           return true;
         }
         return false;
       } else if (shape.isPoint()) {
-        return SelectManager.areCoordinatesInSelectionDistance(coord, shape.points[0].coordinates);
+        return SelectManager.areCoordinatesInSelectionDistance(
+          coord,
+          shape.points[0].coordinates,
+        );
       } else {
         return (
           shape.isCoordinatesInPath(coord) || shape.isCoordinatesOnBorder(coord)
@@ -145,72 +160,87 @@ export class ShapeManager {
 
     const getParents = (currentShape) => {
       const parents = [];
-      currentShape.points.filter(pt => pt.type != 'divisionPoint').forEach(vx => {
-        if (vx.reference != null) {
-          parents.push(findObjectById(vx.reference).shape);
-        }
-      });
+      currentShape.points
+        .filter((pt) => pt.type != 'divisionPoint')
+        .forEach((vx) => {
+          if (vx.reference != null) {
+            parents.push(findObjectById(vx.reference).shape);
+          }
+        });
       if (currentShape.geometryObject.geometryParentObjectId1) {
-        const seg = findObjectById(currentShape.geometryObject.geometryParentObjectId1);
-        const s = seg ? seg.shape : findObjectById(currentShape.geometryObject.geometryParentObjectId1);
+        const seg = findObjectById(
+          currentShape.geometryObject.geometryParentObjectId1,
+        );
+        const s = seg
+          ? seg.shape
+          : findObjectById(currentShape.geometryObject.geometryParentObjectId1);
         parents.push(s);
       }
       if (currentShape.geometryObject.geometryParentObjectId2)
-        parents.push(findObjectById(currentShape.geometryObject.geometryParentObjectId2).shape);
+        parents.push(
+          findObjectById(currentShape.geometryObject.geometryParentObjectId2)
+            .shape,
+        );
       return parents;
-    }
+    };
     const getChildren = (currentShape) => {
-      const children = currentShape.geometryObject.geometryChildShapeIds.map(sId =>
-        findObjectById(sId)
-      ).filter(child => child.name != 'PointOnIntersection');//&& child.name != 'cut');
+      const children = currentShape.geometryObject.geometryChildShapeIds
+        .map((sId) => findObjectById(sId))
+        .filter((child) => child.name != 'PointOnIntersection'); //&& child.name != 'cut');
       return children;
-    }
+    };
 
     const getParentAndChildren = (shape, currentShapeArray) => {
       const parents = getParents(shape);
       const children = getChildren(shape);
-      [...parents, ...children].forEach(s => {
-        if (allLinkedShapes.every(linkedShape => linkedShape.id != s.id) && currentShapeArray.every(linkedShape => linkedShape.id != s.id)) {
+      [...parents, ...children].forEach((s) => {
+        if (
+          allLinkedShapes.every((linkedShape) => linkedShape.id != s.id) &&
+          currentShapeArray.every((linkedShape) => linkedShape.id != s.id)
+        ) {
           currentShapeArray.push(s);
           getParentAndChildren(s, currentShapeArray);
         }
-      })
-    }
+      });
+    };
     getParentAndChildren(shape, allLinkedShapes);
 
     let allGroups = [];
     const getGroups = (shapes, currentGroupArray) => {
-      shapes.forEach(s => {
+      shapes.forEach((s) => {
         const group = GroupManager.getShapeGroup(s);
-        if (!group)
-          return;
-        if (allGroups.every(groupFound => groupFound.id != group.id) && currentGroupArray.every(groupFound => groupFound.id != group.id)) {
+        if (!group) return;
+        if (
+          allGroups.every((groupFound) => groupFound.id != group.id) &&
+          currentGroupArray.every((groupFound) => groupFound.id != group.id)
+        ) {
           currentGroupArray.push(group);
         }
       });
     };
     const iterateWithGroups = (workingShapes, workingGroups) => {
       getGroups(workingShapes, workingGroups);
-      if (workingGroups.length == 0)
-        return
+      if (workingGroups.length == 0) return;
 
       const newLinkedShapes = [];
-      workingGroups.forEach(group => {
+      workingGroups.forEach((group) => {
         group.shapesIds.forEach((id) => {
           const shape = findObjectById(id);
-          if (allLinkedShapes.every(linkedShape => linkedShape.id != shape.id)) {
+          if (
+            allLinkedShapes.every((linkedShape) => linkedShape.id != shape.id)
+          ) {
             newLinkedShapes.push(shape);
           }
-        })
+        });
       });
-      newLinkedShapes.forEach(currentShape => {
+      newLinkedShapes.forEach((currentShape) => {
         getParentAndChildren(currentShape, newLinkedShapes);
       });
 
       allLinkedShapes = [...allLinkedShapes, ...newLinkedShapes];
       allGroups = [...allGroups, ...workingGroups];
       iterateWithGroups(newLinkedShapes, []);
-    }
+    };
     iterateWithGroups(allLinkedShapes, allGroups);
 
     return allLinkedShapes;

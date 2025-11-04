@@ -9,7 +9,6 @@ import { Shape } from './Shape';
  * Représente une figure linéaire (segment, demi-droite, droite, arc de cercle)
  */
 export class StripLineShape extends Shape {
-
   constructor({
     id,
     layer,
@@ -66,7 +65,11 @@ export class StripLineShape extends Shape {
       const coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex' || this.points[this.points.length - 1].coordinates.equal(coordinates)) {
+      if (
+        lastVertex == undefined ||
+        lastVertex.type != 'vertex' ||
+        this.points[this.points.length - 1].coordinates.equal(coordinates)
+      ) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -199,8 +202,7 @@ export class StripLineShape extends Shape {
     ctx.fillStyle = this.fillColor;
     ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
-    if (scaling == 'no scale')
-      ctx.lineWidth = this.strokeWidth;
+    if (scaling == 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */
@@ -219,9 +221,13 @@ export class StripLineShape extends Shape {
     const firstProjection = this.segments[0].projectionOnSegment(coord);
     const secondProjection = this.segments[1].projectionOnSegment(coord);
     if (firstProjection.x == secondProjection.x) {
-      return (firstProjection.y - coord.y > 0) ^ (secondProjection.y - coord.y > 0);
+      return (
+        (firstProjection.y - coord.y > 0) ^ (secondProjection.y - coord.y > 0)
+      );
     } else {
-      return (firstProjection.x - coord.x > 0) ^ (secondProjection.x - coord.x > 0);
+      return (
+        (firstProjection.x - coord.x > 0) ^ (secondProjection.x - coord.x > 0)
+      );
     }
   }
 
@@ -232,11 +238,17 @@ export class StripLineShape extends Shape {
   /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale', infiniteCheck = true, forDrawing = false, forDrawingButInvisible = false) {
-    let path //= '';
+  getSVGPath(
+    scaling = 'scale',
+    infiniteCheck = true,
+    forDrawing = false,
+    forDrawingButInvisible = false,
+  ) {
+    let path; //= '';
     path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
-      .join(' ').split(' ');
+      .join(' ')
+      .split(' ');
     if (forDrawing || forDrawingButInvisible) {
       const deletedElements = path.splice(6, 3);
       path.push('L', deletedElements[1], deletedElements[2]);
@@ -251,12 +263,11 @@ export class StripLineShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
-    if (this.geometryObject &&
-      (
-        this.geometryObject.geometryIsVisible === false ||
+    if (
+      this.geometryObject &&
+      (this.geometryObject.geometryIsVisible === false ||
         this.geometryObject.geometryIsHidden === true ||
-        this.geometryObject.geometryIsConstaintDraw === true
-      )
+        this.geometryObject.geometryIsConstaintDraw === true)
     ) {
       return '';
     }
@@ -278,14 +289,12 @@ export class StripLineShape extends Shape {
     fillPath += '/>\n';
 
     let totalStrokePath = '';
-    this.segments.forEach(seg => {
+    this.segments.forEach((seg) => {
       const segmentPath = seg.getSVGPath('scale', true);
       const segmentColor = seg.color ? seg.color : this.strokeColor;
       let strokeWidth = 1;
-      if (seg.width != 1)
-        strokeWidth = seg.width;
-      else
-        strokeWidth = this.strokeWidth
+      if (seg.width != 1) strokeWidth = seg.width;
+      else strokeWidth = this.strokeWidth;
 
       const strokeAttributes = {
         d: segmentPath,
@@ -305,12 +314,9 @@ export class StripLineShape extends Shape {
 
     const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
-      if (this.isSegment())
-      pointToDraw.push(this.segments[0].vertexes[0]);
+      if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
-        this.segments.forEach(
-          (seg) => (pointToDraw.push(seg.vertexes[1])),
-        );
+        this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));
     }
 
     this.segments.forEach((seg) => {
@@ -321,11 +327,12 @@ export class StripLineShape extends Shape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    const point_tags = pointToDraw.filter(pt => {
-      pt.visible &&
-      pt.geometryIsVisible &&
-      !pt.geometryIsHidden
-    }).map(pt => pt.svg).join('\n');
+    const point_tags = pointToDraw
+      .filter((pt) => {
+        pt.visible && pt.geometryIsVisible && !pt.geometryIsHidden;
+      })
+      .map((pt) => pt.svg)
+      .join('\n');
 
     const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
@@ -336,10 +343,8 @@ export class StripLineShape extends Shape {
   saveData() {
     const data = super.saveData();
     data.type = 'StripLineShape';
-    if (this.fillColor !== '#aaa')
-      data.fillColor = this.fillColor;
-    if (this.fillOpacity !== 0.7)
-      data.fillOpacity = this.fillOpacity;
+    if (this.fillColor !== '#aaa') data.fillColor = this.fillColor;
+    if (this.fillOpacity !== 0.7) data.fillOpacity = this.fillOpacity;
     return data;
   }
 

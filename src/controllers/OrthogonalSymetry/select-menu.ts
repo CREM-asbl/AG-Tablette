@@ -39,17 +39,14 @@ class SelectMenu extends LitElement {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">
-          ${'Figure'}
-        </h2>
+        <h2 slot="title">${'Figure'}</h2>
         <div slot="body" id="body">
-          ${this.potentialShapes.map(s => html`
-            <color-button
-              @click="${this.clickHandler}"
-              innerText="${s.id}"
-            >
-            </color-button>
-          `)}
+          ${this.potentialShapes.map(
+            (s) => html`
+              <color-button @click="${this.clickHandler}" innerText="${s.id}">
+              </color-button>
+            `,
+          )}
         </div>
       </template-popup>
     `;
@@ -57,7 +54,9 @@ class SelectMenu extends LitElement {
 
   clickHandler(e) {
     const shapeId = e.target.innerText;
-    window.dispatchEvent(new CustomEvent('shapeSelected', { detail: { shapeId } }));
+    window.dispatchEvent(
+      new CustomEvent('shapeSelected', { detail: { shapeId } }),
+    );
     this.close();
   }
 

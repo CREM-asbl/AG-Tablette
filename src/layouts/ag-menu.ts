@@ -42,25 +42,23 @@ class AGMenu extends SignalWatcher(LitElement) {
 
   render() {
     return html`
-        <h3>
-          ${this.tool?.title != undefined
-        ? 'mode: ' + this.tool.title
-        : 'Sélectionnez une fonctionnalité'}
-        </h3>
-        <template-toolbar>
-          <div slot="body">
-            ${this._renderActionButtons()}
-          </div>
-        </template-toolbar>
+      <h3>
+        ${this.tool?.title != undefined
+          ? 'mode: ' + this.tool.title
+          : 'Sélectionnez une fonctionnalité'}
+      </h3>
+      <template-toolbar>
+        <div slot="body">${this._renderActionButtons()}</div>
+      </template-toolbar>
 
-        <toolbar-kit
-          .kit=${kit.get()}
-          selectedFamily="${this.tool?.selectedFamily}"
-          ?helpSelected="${this.helpSelected}"
-          selected="${this.tool?.name}"
-        >
+      <toolbar-kit
+        .kit=${kit.get()}
+        selectedFamily="${this.tool?.selectedFamily}"
+        ?helpSelected="${this.helpSelected}"
+        selected="${this.tool?.name}"
+      >
       </toolbar-kit>
-        ${this._renderToolbarSections()}
+      ${this._renderToolbarSections()}
     `;
   }
 
@@ -86,7 +84,7 @@ class AGMenu extends SignalWatcher(LitElement) {
           ?helpanimation="${this.helpSelected}"
           @click="${this._actionHandle}"
         ></icon-button>
-      `
+      `,
     );
   }
 
@@ -108,7 +106,7 @@ class AGMenu extends SignalWatcher(LitElement) {
           ?helpSelected="${this.helpSelected}"
           selected="${this.tool?.name}"
         ></toolbar-section>
-      `
+      `,
     );
   }
 
@@ -122,7 +120,7 @@ class AGMenu extends SignalWatcher(LitElement) {
       window.dispatchEvent(
         new CustomEvent('helpToolChosen', {
           detail: { toolname: event.target.name },
-        })
+        }),
       );
       setState({ helpSelected: false });
       return;
@@ -165,13 +163,13 @@ class AGMenu extends SignalWatcher(LitElement) {
     } else {
       console.info(
         'unknow event type: ' + event.type + ', with event: ',
-        event
+        event,
       );
     }
   }
 
   firstUpdated() {
-    app.left_menu = this.shadowRoot
+    app.left_menu = this.shadowRoot;
     this.addEventListener('touchstart', (event) => {
       if (event.touches.length > 1) event.preventDefault();
     });

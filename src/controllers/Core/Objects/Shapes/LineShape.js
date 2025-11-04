@@ -11,7 +11,6 @@ import { Shape } from './Shape';
  * Représente une figure linéaire (segment, demi-droite, droite, arc de cercle)
  */
 export class LineShape extends Shape {
-
   constructor({
     id,
     layer,
@@ -42,7 +41,12 @@ export class LineShape extends Shape {
 
     const centerId = this.center?.id;
     if (centerId && this.pointIds[2] != centerId) {
-      this.pointIds = [this.pointIds[0], this.pointIds[1], centerId, ...this.pointIds.slice(2, -1)];
+      this.pointIds = [
+        this.pointIds[0],
+        this.pointIds[1],
+        centerId,
+        ...this.pointIds.slice(2, -1),
+      ];
     }
 
     if (this.name.endsWith('SemiStraightLine')) {
@@ -125,24 +129,28 @@ export class LineShape extends Shape {
       const point = this.points.find((pt) => pt.type == 'shapeCenter');
       if (app.environment.name == 'Geometrie' && point.layer == 'main') {
         const shapesToDelete = [];
-        this.geometryObject.geometryChildShapeIds.forEach(sId => {
+        this.geometryObject.geometryChildShapeIds.forEach((sId) => {
           const s = findObjectById(sId);
-          if (s && s.points.some(pt => pt.reference == point.id)) {
+          if (s && s.points.some((pt) => pt.reference == point.id)) {
             shapesToDelete.push(s);
           }
         });
         shapesToDelete.forEach((s) => {
-          if (app.environment.name == 'Geometrie')
-            deleteChildren(s);
+          if (app.environment.name == 'Geometrie') deleteChildren(s);
           removeObjectById(s.id);
         });
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
           const s = app.mainCanvasLayer.shapes[i];
-          s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
-            if (pt.reference && !findObjectById(pt.reference))
-              pt.reference = null;
-          });
-          if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
+          s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .forEach((pt) => {
+              if (pt.reference && !findObjectById(pt.reference))
+                pt.reference = null;
+            });
+          if (
+            s.geometryObject.geometryPointOnTheFlyChildId &&
+            !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)
+          ) {
             deleteChildren(s);
             i--;
           }
@@ -174,7 +182,11 @@ export class LineShape extends Shape {
       const coordinates = new Coordinates({ x, y });
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
-      if (lastVertex == undefined || lastVertex.type != 'vertex' || this.points[this.points.length - 1].coordinates.equal(coordinates)) {
+      if (
+        lastVertex == undefined ||
+        lastVertex.type != 'vertex' ||
+        this.points[this.points.length - 1].coordinates.equal(coordinates)
+      ) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -399,8 +411,7 @@ export class LineShape extends Shape {
       type: 'arcCenter',
       visible: false,
     });
-    if (app.environment.name == 'Geometrie')
-      arcCenter.visible = true;
+    if (app.environment.name == 'Geometrie') arcCenter.visible = true;
 
     return arcCenter;
   }
@@ -410,8 +421,7 @@ export class LineShape extends Shape {
     ctx.fillStyle = this.fillColor;
     ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
-    if (scaling == 'no scale')
-      ctx.lineWidth = this.strokeWidth;
+    if (scaling == 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */
@@ -423,9 +433,7 @@ export class LineShape extends Shape {
   }
 
   isCircle() {
-    return (
-      this.name == 'Circle'
-    );
+    return this.name == 'Circle';
   }
 
   isCircleArc() {
@@ -546,9 +554,11 @@ export class LineShape extends Shape {
         shape.isCoordinatesInPath(s1_segment.vertexes[0].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.vertexes[1].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.middle) &&
-        !(shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
-        shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
-        shape.isCoordinatesOnBorder(s1_segment.middle))
+        !(
+          shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
+          shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
+          shape.isCoordinatesOnBorder(s1_segment.middle)
+        )
       ) {
         console.info('shape inside another');
         return true;
@@ -624,22 +634,40 @@ export class LineShape extends Shape {
   /**
    * convertit la shape en commande de path svg
    */
-  getSVGPath(scaling = 'scale', infiniteCheck = true, forDrawing = false, forDrawingButInvisible = false) {
+  getSVGPath(
+    scaling = 'scale',
+    infiniteCheck = true,
+    forDrawing = false,
+    forDrawingButInvisible = false,
+  ) {
     let path = '';
     path = this.segments
       .map((seg) => seg.getSVGPath(scaling, false, infiniteCheck))
       .join('\n');
     if (forDrawingButInvisible) {
       if (this.vertexes[1] && this.segments[0].isArc()) {
-        let arcCenterCoordinates =  this.segments[0].arcCenter.coordinates;
-        let firstVertex =  this.vertexes[0].coordinates;
-        let secondVertex =  this.vertexes[1].coordinates;
+        let arcCenterCoordinates = this.segments[0].arcCenter.coordinates;
+        let firstVertex = this.vertexes[0].coordinates;
+        let secondVertex = this.vertexes[1].coordinates;
         if (scaling == 'scale') {
           arcCenterCoordinates = arcCenterCoordinates.toCanvasCoordinates();
           firstVertex = firstVertex.toCanvasCoordinates();
           secondVertex = secondVertex.toCanvasCoordinates();
         }
-        path += ['M', arcCenterCoordinates.x, arcCenterCoordinates.y, 'L', firstVertex.x, firstVertex.y, 'L', secondVertex.x, secondVertex.y, 'L', arcCenterCoordinates.x, arcCenterCoordinates.y].join(' ');
+        path += [
+          'M',
+          arcCenterCoordinates.x,
+          arcCenterCoordinates.y,
+          'L',
+          firstVertex.x,
+          firstVertex.y,
+          'L',
+          secondVertex.x,
+          secondVertex.y,
+          'L',
+          arcCenterCoordinates.x,
+          arcCenterCoordinates.y,
+        ].join(' ');
       }
     }
     return path;
@@ -649,12 +677,11 @@ export class LineShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
-    if (this.geometryObject &&
-      (
-        this.geometryObject.geometryIsVisible === false ||
+    if (
+      this.geometryObject &&
+      (this.geometryObject.geometryIsVisible === false ||
         this.geometryObject.geometryIsHidden === true ||
-        this.geometryObject.geometryIsConstaintDraw === true
-      )
+        this.geometryObject.geometryIsConstaintDraw === true)
     ) {
       return '';
     }
@@ -678,12 +705,9 @@ export class LineShape extends Shape {
 
     const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
-      if (this.isSegment())
-      pointToDraw.push(this.segments[0].vertexes[0]);
+      if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
-        this.segments.forEach(
-          (seg) => (pointToDraw.push(seg.vertexes[1])),
-        );
+        this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));
     }
 
     this.segments.forEach((seg) => {
@@ -694,11 +718,12 @@ export class LineShape extends Shape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    const point_tags = pointToDraw.filter(pt => {
-      pt.visible &&
-      pt.geometryIsVisible &&
-      !pt.geometryIsHidden
-    }).map(pt => pt.svg).join('\n');
+    const point_tags = pointToDraw
+      .filter((pt) => {
+        pt.visible && pt.geometryIsVisible && !pt.geometryIsHidden;
+      })
+      .map((pt) => pt.svg)
+      .join('\n');
 
     const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
@@ -716,12 +741,8 @@ export class LineShape extends Shape {
         if (this.name == 'Circle' && this.segments[0].radius < 0.001) {
           const coord = this.segments[0].arcCenter.coordinates;
           const counterclockwise = this.segments[0].counterclockwise;
-          this.pointIds.forEach(ptId => removeObjectById(
-            ptId
-          ));
-          this.segmentIds.forEach(segId => removeObjectById(
-            segId
-          ));
+          this.pointIds.forEach((ptId) => removeObjectById(ptId));
+          this.segmentIds.forEach((segId) => removeObjectById(segId));
           this.pointIds = [];
           this.segmentIds = [];
           new Point({
@@ -749,7 +770,9 @@ export class LineShape extends Shape {
           });
         } else {
           const middlePointId = this.segments[i].vertexIds[1];
-          const ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
+          const ptIdx = this.pointIds.findIndex(
+            (ptId) => ptId == middlePointId,
+          );
           this.pointIds.splice(ptIdx, 1);
           removeObjectById(middlePointId);
           this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
@@ -760,23 +783,21 @@ export class LineShape extends Shape {
             this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
           } else {
             const secondPointId = this.segments[i].vertexIds[1];
-            const ptIdx = this.pointIds.findIndex((ptId) => ptId == secondPointId);
+            const ptIdx = this.pointIds.findIndex(
+              (ptId) => ptId == secondPointId,
+            );
             this.pointIds.splice(ptIdx, 1);
             removeObjectById(secondPointId);
             // this.segments[i].vertexIds.splice(1);
           }
           if (this.segments[nextIdx].arcCenterId) {
-            removeObjectById(
-              this.segments[nextIdx].arcCenterId
-            );
+            removeObjectById(this.segments[nextIdx].arcCenterId);
             const idx = this.pointIds.findIndex(
               (id) => id == this.segments[nextIdx].arcCenterId,
             );
             this.pointIds.splice(idx, 1);
           }
-          removeObjectById(
-            this.segmentIds[nextIdx]
-          );
+          removeObjectById(this.segmentIds[nextIdx]);
           this.segmentIds.splice(nextIdx, 1);
         }
         i--; // try to merge this new segment again!

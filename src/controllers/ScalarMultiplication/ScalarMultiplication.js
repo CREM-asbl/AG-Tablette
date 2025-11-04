@@ -10,7 +10,11 @@ import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
  */
 export class ScalarMultiplicationTool extends Tool {
   constructor() {
-    super('scalarMultiplication', 'Multiplier un vecteur par un scalaire', 'operation');
+    super(
+      'scalarMultiplication',
+      'Multiplier un vecteur par un scalaire',
+      'operation',
+    );
 
     this.timeoutRef = null;
 
@@ -29,7 +33,8 @@ export class ScalarMultiplicationTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_shape;
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -37,7 +42,7 @@ export class ScalarMultiplicationTool extends Tool {
     if (object.name != 'Vector') {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
-          detail: { message: "La figure sélectionnée doit être un vecteur" },
+          detail: { message: 'La figure sélectionnée doit être un vecteur' },
         }),
       );
       return;
@@ -76,13 +81,11 @@ export class ScalarMultiplicationTool extends Tool {
     this.numerator = app.settings.scalarNumerator;
     this.denominator = app.settings.scalarDenominator;
 
-    const vector = findObjectById(
-      this.vectorId
-    );
+    const vector = findObjectById(this.vectorId);
     const secondPointCoordinates = vector.vertexes[0].coordinates.add(
       vector.vertexes[1].coordinates
         .substract(vector.vertexes[0].coordinates)
-        .multiply(this.numerator / this.denominator)
+        .multiply(this.numerator / this.denominator),
     );
     let path = [
       'M',
@@ -107,7 +110,7 @@ export class ScalarMultiplicationTool extends Tool {
         geometryConstructionSpec: {
           numerator: this.numerator,
           denominator: this.denominator,
-        }
+        },
       }),
     });
 

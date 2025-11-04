@@ -5,7 +5,11 @@ import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shapes/Shape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
-import { deleteChildren, deleteChildrenOfDivisionPoint, deleteSubDivisionPoints } from '../GeometryTools/deleteShape';
+import {
+  deleteChildren,
+  deleteChildrenOfDivisionPoint,
+  deleteSubDivisionPoints,
+} from '../GeometryTools/deleteShape';
 
 /**
  * Supprimer une figure (et supprime le groupe dont la figure faisait partie s'il
@@ -35,7 +39,13 @@ export class DeleteTool extends Tool {
    * initialiser l'état
    */
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -57,9 +67,7 @@ export class DeleteTool extends Tool {
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = [
-      'divisionPoint',
-    ];
+    app.workspace.selectionConstraints.points.types = ['divisionPoint'];
   }
 
   /**
@@ -85,8 +93,7 @@ export class DeleteTool extends Tool {
   _executeAction() {
     if (this.mode == 'shape') {
       this.involvedShapes.forEach((s) => {
-        if (app.environment.name == 'Geometrie')
-          deleteChildren(s);
+        if (app.environment.name == 'Geometrie') deleteChildren(s);
         removeObjectById(s.id);
       });
 
@@ -103,11 +110,16 @@ export class DeleteTool extends Tool {
     if (app.environment.name == 'Geometrie') {
       for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
         const s = app.mainCanvasLayer.shapes[i];
-        s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
-          if (pt.reference && !findObjectById(pt.reference))
-            pt.reference = null;
-        });
-        if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
+        s.points
+          .filter((pt) => pt.type != 'divisionPoint')
+          .forEach((pt) => {
+            if (pt.reference && !findObjectById(pt.reference))
+              pt.reference = null;
+          });
+        if (
+          s.geometryObject.geometryPointOnTheFlyChildId &&
+          !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)
+        ) {
           deleteChildren(s);
           i--;
         }

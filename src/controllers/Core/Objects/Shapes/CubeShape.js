@@ -10,7 +10,6 @@ import { RegularShape } from './RegularShape';
  * Représente un cube
  */
 export class CubeShape extends RegularShape {
-
   constructor({
     id,
     layer,
@@ -59,7 +58,12 @@ export class CubeShape extends RegularShape {
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
       const lastPointDrawn = this.points[this.points.length - 1];
-      if (lastVertex == undefined || lastVertex.type != 'vertex' || (lastPointDrawn.coordinates.equal(coordinates) && lastPointDrawn.type == 'vertex')) {
+      if (
+        lastVertex == undefined ||
+        lastVertex.type != 'vertex' ||
+        (lastPointDrawn.coordinates.equal(coordinates) &&
+          lastPointDrawn.type == 'vertex')
+      ) {
         lastVertex = new Point({
           coordinates: coordinates,
           shapeId: this.id,
@@ -186,15 +190,16 @@ export class CubeShape extends RegularShape {
       }
     }
     // if segment length == 0
-    if (app.environment.name == 'Geometrie' && !this.isCircle() && this.points.filter(pt => pt.type != 'arcCenter').length != this.segmentIds.length) {
+    if (
+      app.environment.name == 'Geometrie' &&
+      !this.isCircle() &&
+      this.points.filter((pt) => pt.type != 'arcCenter').length !=
+        this.segmentIds.length
+    ) {
       const coord = this.points[0].coordinates;
       const numberOfSegment = this.segmentIds.length;
-      this.pointIds.forEach(ptId => removeObjectById(
-        ptId
-      ));
-      this.segmentIds.forEach(segId => removeObjectById(
-        segId
-      ));
+      this.pointIds.forEach((ptId) => removeObjectById(ptId));
+      this.segmentIds.forEach((segId) => removeObjectById(segId));
       this.pointIds = [];
       this.segmentIds = [];
       for (let idx = 0; idx < numberOfSegment; idx++) {
@@ -212,7 +217,10 @@ export class CubeShape extends RegularShape {
           shapeId: this.id,
           layer: this.layer,
           idx,
-          vertexIds: [this.pointIds[idx], this.pointIds[(idx + 1) % numberOfSegment]],
+          vertexIds: [
+            this.pointIds[idx],
+            this.pointIds[(idx + 1) % numberOfSegment],
+          ],
         });
       }
     }
@@ -223,10 +231,8 @@ export class CubeShape extends RegularShape {
     data.type = 'CubeShape';
     // data.fillColor = this.fillColor;
     // data.fillOpacity = this.fillOpacity;
-    if (this.fillColor !== '#f46c2e')
-      data.fillColor = this.fillColor;
-    if (this.fillOpacity !== 1)
-      data.fillOpacity = this.fillOpacity;
+    if (this.fillColor !== '#f46c2e') data.fillColor = this.fillColor;
+    if (this.fillOpacity !== 1) data.fillOpacity = this.fillOpacity;
     return data;
   }
 

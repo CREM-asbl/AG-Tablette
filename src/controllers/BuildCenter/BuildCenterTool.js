@@ -31,7 +31,13 @@ export class BuildCenterTool extends Tool {
    * initialiser l'état
    */
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -57,8 +63,14 @@ export class BuildCenterTool extends Tool {
     if (!shape) return;
 
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    if (this.involvedShapes.some(s => s.name.endsWith('StraightLine'))) {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Il n\'y a pas de centre sur les droites et demi-droites' }}));
+    if (this.involvedShapes.some((s) => s.name.endsWith('StraightLine'))) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: {
+            message: "Il n'y a pas de centre sur les droites et demi-droites",
+          },
+        }),
+      );
       return;
     }
     this.executeAction();

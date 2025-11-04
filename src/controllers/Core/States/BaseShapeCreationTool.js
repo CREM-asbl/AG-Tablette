@@ -14,7 +14,7 @@ import { findObjectsByName, removeObjectById } from '../../Core/Tools/general';
 export class BaseShapeCreationTool extends BaseGeometryTool {
   constructor(name, title, familyName, templatesImport) {
     super(name, title, 'geometryCreator');
-    
+
     this.familyName = familyName;
     this.templatesImport = templatesImport;
     this.selectedTemplate = null;
@@ -36,20 +36,20 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   async start() {
     if (!this.validateInput('start')) return;
-    
+
     this.standardStart();
-    
+
     try {
       // Charger dynamiquement le composant shape-selector
       await import('@components/shape-selector');
-      
+
       const elem = document.createElement('shape-selector');
       elem.family = this.familyName;
       elem.templatesNames = this.templatesImport;
       elem.selectedTemplate = app.tool.selectedTemplate;
-      elem.type = "Geometry";
+      elem.type = 'Geometry';
       elem.nextStep = 'drawFirstPoint';
-      
+
       document.querySelector('body').appendChild(elem);
     } catch (error) {
       console.error('Erreur lors du chargement du sélecteur de forme:', error);
@@ -62,18 +62,18 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   async drawFirstPoint() {
     if (!this.validateInput('drawFirstPoint')) return;
-    
+
     app.upperCanvasLayer.removeAllObjects();
-    
+
     try {
       // Charger la définition de la forme sélectionnée
       await this.loadShapeDefinition();
-      
+
       this.resetDrawingState();
       this.safeSetState('drawPoint');
     } catch (error) {
       console.error('Erreur lors du chargement de la définition:', error);
-      this.showErrorNotification('Erreur lors de l\'initialisation');
+      this.showErrorNotification("Erreur lors de l'initialisation");
     }
   }
 
@@ -82,7 +82,9 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    * À surcharger dans les classes filles
    */
   async loadShapeDefinition() {
-    throw new Error('loadShapeDefinition doit être implémentée dans la classe fille');
+    throw new Error(
+      'loadShapeDefinition doit être implémentée dans la classe fille',
+    );
   }
 
   /**
@@ -99,7 +101,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   drawPoint() {
     if (!this.validateInput('drawPoint')) return;
-    
+
     this.removeListeners();
     this.stopAnimation();
 
@@ -115,7 +117,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     this.animate();
 
     // Masquer les contraintes pendant l'animation
-    findObjectsByName('constraints', 'upper').forEach(s => {
+    findObjectsByName('constraints', 'upper').forEach((s) => {
       if (s.geometryObject) {
         s.geometryObject.geometryIsVisible = false;
       }
@@ -134,7 +136,9 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     // Vérifier les contraintes si applicables
     if (this.constraints && this.constraints.type === 'isConstrained') {
       if (!this.constraints.projectionOnConstraints(newCoordinates, true)) {
-        this.showInfoNotification('Veuillez placer le point sur la contrainte.');
+        this.showInfoNotification(
+          'Veuillez placer le point sur la contrainte.',
+        );
         return;
       }
     }
@@ -198,10 +202,12 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   checkPointMagnetism() {
     for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
-      if (SelectManager.areCoordinatesInMagnetismDistance(
-        this.points[i].coordinates, 
-        this.points[this.numberOfPointsDrawn - 1].coordinates
-      )) {
+      if (
+        SelectManager.areCoordinatesInMagnetismDistance(
+          this.points[i].coordinates,
+          this.points[this.numberOfPointsDrawn - 1].coordinates,
+        )
+      ) {
         this.handleMagnetismCollision(i);
         return true;
       }
@@ -245,7 +251,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   completeShape() {
     this.stopAnimation();
-    
+
     this.safeExecuteAction(async () => {
       await this.executeAction();
       this.safeSetState('drawFirstPoint');
@@ -259,7 +265,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     if (!this.validateInput('adjustPoint', { point })) return;
 
     point.adjustedOn = undefined;
-    
+
     if (this.constraints && this.constraints.isFree) {
       this.adjustPointFree(point);
     } else if (this.constraints) {
@@ -274,8 +280,12 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     // Tentative d'ajustement sur un point existant
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
-    
-    const adjustedPoint = SelectManager.selectPoint(point.coordinates, constraints, false);
+
+    const adjustedPoint = SelectManager.selectPoint(
+      point.coordinates,
+      constraints,
+      false,
+    );
     if (adjustedPoint) {
       point.coordinates = new Coordinates(adjustedPoint.coordinates);
       point.adjustedOn = adjustedPoint;
@@ -285,7 +295,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     // Tentative d'ajustement sur la grille
     if (app.gridCanvasLayer) {
       const gridPoint = app.gridCanvasLayer.getClosestGridPoint(
-        point.coordinates.toCanvasCoordinates()
+        point.coordinates.toCanvasCoordinates(),
       );
       if (gridPoint) {
         const gridPointInWorldSpace = gridPoint.fromCanvasCoordinates();
@@ -298,10 +308,15 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     // Tentative d'ajustement sur un segment
     constraints = SelectManager.getEmptySelectionConstraints().segments;
     constraints.canSelect = true;
-    
-    const adjustedSegment = SelectManager.selectSegment(point.coordinates, constraints);
+
+    const adjustedSegment = SelectManager.selectSegment(
+      point.coordinates,
+      constraints,
+    );
     if (adjustedSegment) {
-      point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+      point.coordinates = adjustedSegment.projectionOnSegment(
+        point.coordinates,
+      );
       point.adjustedOn = adjustedSegment;
     }
   }
@@ -310,29 +325,41 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    * Ajustement contraint
    */
   adjustPointConstrained(point) {
-    let adjustedCoordinates = this.constraints.projectionOnConstraints(point.coordinates);
+    let adjustedCoordinates = this.constraints.projectionOnConstraints(
+      point.coordinates,
+    );
 
     // Chercher des intersections avec d'autres segments
     const constraints = SelectManager.getEmptySelectionConstraints().segments;
     constraints.canSelect = true;
-    constraints.numberOfObjects = "allInDistance";
-    
-    const adjustedSegments = SelectManager.selectSegment(adjustedCoordinates, constraints);
-    
+    constraints.numberOfObjects = 'allInDistance';
+
+    const adjustedSegments = SelectManager.selectSegment(
+      adjustedCoordinates,
+      constraints,
+    );
+
     if (adjustedSegments && this.constraints.segments) {
       const adjustedSegment = adjustedSegments
-        .filter(seg => !seg.isParalleleWith(this.constraints.segments[0]))
+        .filter((seg) => !seg.isParalleleWith(this.constraints.segments[0]))
         .sort((seg1, seg2) => {
-          const dist1 = seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates);
-          const dist2 = seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates);
+          const dist1 = seg1
+            .projectionOnSegment(adjustedCoordinates)
+            .dist(adjustedCoordinates);
+          const dist2 = seg2
+            .projectionOnSegment(adjustedCoordinates)
+            .dist(adjustedCoordinates);
           return dist1 - dist2;
         })[0];
-        
+
       if (adjustedSegment) {
-        const intersections = adjustedSegment.intersectionWith(this.constraints.segments[0]);
+        const intersections = adjustedSegment.intersectionWith(
+          this.constraints.segments[0],
+        );
         if (intersections && intersections.length > 0) {
-          adjustedCoordinates = intersections.sort((i1, i2) => 
-            i1.dist(adjustedCoordinates) - i2.dist(adjustedCoordinates)
+          adjustedCoordinates = intersections.sort(
+            (i1, i2) =>
+              i1.dist(adjustedCoordinates) - i2.dist(adjustedCoordinates),
           )[0];
           point.adjustedOn = adjustedSegment;
         }
@@ -346,10 +373,13 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    * Rafraîchissement de l'état supérieur
    */
   refreshStateUpper() {
-    if (app.tool.currentStep === 'animatePoint' && this.numberOfPointsDrawn > 0) {
+    if (
+      app.tool.currentStep === 'animatePoint' &&
+      this.numberOfPointsDrawn > 0
+    ) {
       const lastPoint = this.points[this.numberOfPointsDrawn - 1];
       const newCoordinates = this.getValidMouseCoordinates();
-      
+
       if (newCoordinates && lastPoint) {
         lastPoint.coordinates = newCoordinates;
         this.adjustPoint(lastPoint);
@@ -379,7 +409,9 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    * À implémenter dans les classes filles
    */
   numberOfPointsRequired() {
-    throw new Error('numberOfPointsRequired doit être implémentée dans la classe fille');
+    throw new Error(
+      'numberOfPointsRequired doit être implémentée dans la classe fille',
+    );
   }
 
   /**

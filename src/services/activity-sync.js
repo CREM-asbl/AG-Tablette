@@ -1,9 +1,26 @@
 // Service de synchronisation pour les activités
 // Gère la synchronisation en arrière-plan des fichiers d'activités
 
-import { findAllFiles, findAllThemes, getModulesDocFromTheme, readFileFromServer } from '../firebase/firebase-init.js';
-import { setSyncCompleted, setSyncProgress, syncInProgress } from '../store/syncState.js';
-import { getAllActivities, getSyncMetadata, isRecentSyncAvailable, saveActivity, saveModule, saveSyncMetadata, saveTheme } from '../utils/indexeddb-activities.js';
+import {
+  findAllFiles,
+  findAllThemes,
+  getModulesDocFromTheme,
+  readFileFromServer,
+} from '../firebase/firebase-init.js';
+import {
+  setSyncCompleted,
+  setSyncProgress,
+  syncInProgress,
+} from '../store/syncState.js';
+import {
+  getAllActivities,
+  getSyncMetadata,
+  isRecentSyncAvailable,
+  saveActivity,
+  saveModule,
+  saveSyncMetadata,
+  saveTheme,
+} from '../utils/indexeddb-activities.js';
 
 // Configuration du service
 const CONFIG = {
@@ -13,7 +30,10 @@ const CONFIG = {
   AUTO_SYNC_DELAY: 5000,
   RECONNECT_DELAY: 1000,
   SYNC_COOLDOWN: 24 * 60 * 60 * 1000, // 24 heures entre les synchronisations
-  DEBUG: typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.search.includes('debug=true'))
+  DEBUG:
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.search.includes('debug=true')),
 };
 
 /**
@@ -22,7 +42,6 @@ const CONFIG = {
 const utils = {
   log: (message, ...args) => {
     if (CONFIG.DEBUG) {
-      
     }
   },
 
@@ -39,7 +58,7 @@ const utils = {
    * @param {number} ms Délai en millisecondes
    * @returns {Promise<void>}
    */
-  delay: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
+  delay: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 
   /**
    * Calculer la progression totale incluant fichiers, thèmes et modules
@@ -49,16 +68,23 @@ const utils = {
    * @param {number} totalThemes Nombre total de thèmes
    * @returns {number} Pourcentage global
    */
-  calculateProgress: (filesProcessed, totalFiles, themesProcessed, totalThemes) => {
+  calculateProgress: (
+    filesProcessed,
+    totalFiles,
+    themesProcessed,
+    totalThemes,
+  ) => {
     // Pondération: 70% pour les fichiers, 30% pour les thèmes/modules
     const fileWeight = 0.7;
     const themeWeight = 0.3;
 
-    const fileProgress = totalFiles > 0 ? (filesProcessed / totalFiles) * fileWeight * 100 : 0;
-    const themeProgress = totalThemes > 0 ? (themesProcessed / totalThemes) * themeWeight * 100 : 0;
+    const fileProgress =
+      totalFiles > 0 ? (filesProcessed / totalFiles) * fileWeight * 100 : 0;
+    const themeProgress =
+      totalThemes > 0 ? (themesProcessed / totalThemes) * themeWeight * 100 : 0;
 
     return Math.round(fileProgress + themeProgress);
-  }
+  },
 };
 
 export async function syncActivitiesInBackground(forceSync = false) {
@@ -77,7 +103,9 @@ export async function syncActivitiesInBackground(forceSync = false) {
   if (!forceSync) {
     const recentSyncAvailable = await isRecentSyncAvailable(24); // 24 heures
     if (recentSyncAvailable) {
-      utils.log('Synchronisation récente détectée, synchronisation ignorée. Utilisez forceSync=true pour forcer.');
+      utils.log(
+        'Synchronisation récente détectée, synchronisation ignorée. Utilisez forceSync=true pour forcer.',
+      );
       return;
     }
   }
@@ -87,16 +115,20 @@ export async function syncActivitiesInBackground(forceSync = false) {
     try {
       utils.log('Initialisation du signal à 0%');
       setSyncProgress(0);
-      utils.log('Début de la synchronisation des activités, thèmes et modules...');
+      utils.log(
+        'Début de la synchronisation des activités, thèmes et modules...',
+      );
 
       // Récupérer les données nécessaires
       const [serverFiles, serverThemes] = await Promise.all([
         findAllFiles(),
-        findAllThemes()
+        findAllThemes(),
       ]);
 
       const localActivities = await getAllActivities();
-      const localMap = new Map(localActivities.map(activity => [activity.id, activity]));
+      const localMap = new Map(
+        localActivities.map((activity) => [activity.id, activity]),
+      );
 
       let addedCount = 0;
       let processedFiles = 0;
@@ -113,33 +145,46 @@ export async function syncActivitiesInBackground(forceSync = false) {
           const localVersion = localActivity?.version || 0;
 
           if (!localActivity || serverVersion > localVersion) {
-            utils.log(`Téléchargement ou mise à jour de l'activité: ${serverFile.id}`);
+            utils.log(
+              `Téléchargement ou mise à jour de l'activité: ${serverFile.id}`,
+            );
 
             // Ajouter timeout pour éviter les blocages
             const timeoutPromise = new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Timeout')), CONFIG.TIMEOUT)
+              setTimeout(() => reject(new Error('Timeout')), CONFIG.TIMEOUT),
             );
 
             const activityData = await Promise.race([
               readFileFromServer(serverFile.id),
-              timeoutPromise
+              timeoutPromise,
             ]);
 
             await saveActivity(serverFile.id, activityData, serverVersion);
             addedCount++;
           } else {
-            utils.log(`Activité ${serverFile.id} déjà présente localement (version à jour)`);
+            utils.log(
+              `Activité ${serverFile.id} déjà présente localement (version à jour)`,
+            );
           }
 
           processedFiles++;
-          const progressPercent = utils.calculateProgress(processedFiles, totalFiles, processedThemes, totalThemes);
-          utils.log(`Progression: ${progressPercent}% (${processedFiles}/${totalFiles} fichiers, ${processedThemes}/${totalThemes} thèmes)`);
+          const progressPercent = utils.calculateProgress(
+            processedFiles,
+            totalFiles,
+            processedThemes,
+            totalThemes,
+          );
+          utils.log(
+            `Progression: ${progressPercent}% (${processedFiles}/${totalFiles} fichiers, ${processedThemes}/${totalThemes} thèmes)`,
+          );
 
           // Mise à jour du signal de progression
           setSyncProgress(progressPercent);
-
         } catch (fileError) {
-          utils.warn(`Erreur lors de la synchronisation de ${serverFile.id}:`, fileError);
+          utils.warn(
+            `Erreur lors de la synchronisation de ${serverFile.id}:`,
+            fileError,
+          );
           processedFiles++; // Compter quand même pour continuer la progression
         }
       }
@@ -156,47 +201,71 @@ export async function syncActivitiesInBackground(forceSync = false) {
           }
 
           processedThemes++;
-          const progressPercent = utils.calculateProgress(processedFiles, totalFiles, processedThemes, totalThemes);
+          const progressPercent = utils.calculateProgress(
+            processedFiles,
+            totalFiles,
+            processedThemes,
+            totalThemes,
+          );
           setSyncProgress(progressPercent);
-
         } catch (themeError) {
-          utils.warn(`Erreur lors de la synchronisation du thème ${theme.id}:`, themeError);
+          utils.warn(
+            `Erreur lors de la synchronisation du thème ${theme.id}:`,
+            themeError,
+          );
           processedThemes++; // Compter quand même pour continuer
         }
       }
 
-      utils.log(`Synchronisation terminée: ${addedCount} nouvelles activités, ${serverThemes.length} thèmes, modules synchronisés.`);
+      utils.log(
+        `Synchronisation terminée: ${addedCount} nouvelles activités, ${serverThemes.length} thèmes, modules synchronisés.`,
+      );
 
       // Sauvegarder les métadonnées de synchronisation pour éviter les syncs inutiles
       try {
         await saveSyncMetadata({
           lastSyncDate: Date.now(),
-          serverFiles: serverFiles.map(f => ({ id: f.id, version: f.version || 1 })),
-          serverThemes: serverThemes.map(t => ({ id: t.id, version: t.version || 1 })),
+          serverFiles: serverFiles.map((f) => ({
+            id: f.id,
+            version: f.version || 1,
+          })),
+          serverThemes: serverThemes.map((t) => ({
+            id: t.id,
+            version: t.version || 1,
+          })),
           expiryDate: Date.now() + CONFIG.SYNC_COOLDOWN,
           syncedFilesCount: addedCount,
           totalFilesCount: serverFiles.length,
-          totalThemesCount: serverThemes.length
+          totalThemesCount: serverThemes.length,
         });
         utils.log('Métadonnées de synchronisation sauvegardées avec succès');
       } catch (metadataError) {
-        utils.warn('Erreur lors de la sauvegarde des métadonnées:', metadataError);
+        utils.warn(
+          'Erreur lors de la sauvegarde des métadonnées:',
+          metadataError,
+        );
       }
 
       utils.log('Synchronisation terminée, appel de setSyncCompleted()');
       setSyncCompleted();
 
       return; // Succès, sortir de la boucle de retry
-
     } catch (error) {
       attempt++;
-      utils.error(`Erreur lors de la synchronisation (tentative ${attempt}/${CONFIG.RETRY_ATTEMPTS}):`, error);
+      utils.error(
+        `Erreur lors de la synchronisation (tentative ${attempt}/${CONFIG.RETRY_ATTEMPTS}):`,
+        error,
+      );
 
       if (attempt < CONFIG.RETRY_ATTEMPTS) {
         utils.log(`Nouvelle tentative dans ${CONFIG.RETRY_DELAY}ms...`);
         await utils.delay(CONFIG.RETRY_DELAY);
       } else {
-        utils.error('Échec de la synchronisation après', CONFIG.RETRY_ATTEMPTS, 'tentatives');
+        utils.error(
+          'Échec de la synchronisation après',
+          CONFIG.RETRY_ATTEMPTS,
+          'tentatives',
+        );
         // Réinitialiser l'état en cas d'échec final
         setSyncCompleted();
         throw error;
@@ -233,8 +302,12 @@ export async function smartSync(options = {}) {
       const metadata = await getSyncMetadata();
 
       if (recentSyncAvailable && metadata) {
-        utils.log(`Synchronisation récente trouvée (${new Date(metadata.lastSyncDate).toLocaleString()}), synchronisation ignorée`);
-        utils.log(`Prochaine synchronisation automatique après: ${new Date(metadata.expiryDate).toLocaleString()}`);
+        utils.log(
+          `Synchronisation récente trouvée (${new Date(metadata.lastSyncDate).toLocaleString()}), synchronisation ignorée`,
+        );
+        utils.log(
+          `Prochaine synchronisation automatique après: ${new Date(metadata.expiryDate).toLocaleString()}`,
+        );
         return 'recent';
       }
     }
@@ -242,7 +315,6 @@ export async function smartSync(options = {}) {
     // Lancer la synchronisation complète
     await syncActivitiesInBackground(force);
     return 'completed';
-
   } catch (error) {
     utils.error('Erreur lors de la synchronisation intelligente:', error);
     return 'error';
@@ -267,27 +339,34 @@ export async function getLastSyncInfo() {
       totalThemesCount: metadata.totalThemesCount || 0,
       expiryDate: new Date(metadata.expiryDate),
       isExpired: metadata.expiryDate <= Date.now(),
-      nextSyncDue: metadata.expiryDate <= Date.now()
+      nextSyncDue: metadata.expiryDate <= Date.now(),
     };
   } catch (error) {
-    utils.warn('Erreur lors de la récupération des informations de sync:', error);
+    utils.warn(
+      'Erreur lors de la récupération des informations de sync:',
+      error,
+    );
     return null;
   }
 }
-
 
 export function initActivitySync() {
   utils.log('Initialisation du service de synchronisation...');
 
   // Synchronisation automatique lors de la reconnexion
   window.addEventListener('online', () => {
-    utils.log('Connexion rétablie, lancement de la synchronisation intelligente...');
+    utils.log(
+      'Connexion rétablie, lancement de la synchronisation intelligente...',
+    );
     setTimeout(() => smartSync(), CONFIG.RECONNECT_DELAY);
   });
 
   // Synchronisation au démarrage de l'application (si connecté)
   if (navigator.onLine) {
-    utils.log('Application en ligne, synchronisation intelligente programmée dans', CONFIG.AUTO_SYNC_DELAY + 'ms...');
+    utils.log(
+      'Application en ligne, synchronisation intelligente programmée dans',
+      CONFIG.AUTO_SYNC_DELAY + 'ms...',
+    );
     setTimeout(() => smartSync(), CONFIG.AUTO_SYNC_DELAY);
   } else {
     utils.log('Application hors ligne, synchronisation désactivée');

@@ -7,16 +7,8 @@
         "position": "main",
         "type": "RegularShape",
         "path": "M 196.75311640993573 553.3694438504566 L 370.309186874915 379.8133733854773 L 23.197045944956276 379.8133733854773 L 196.75311640993573 553.3694438504566",
-        "segmentIds": [
-          "b4d888a711",
-          "b4d8a60211",
-          "b4d6d50911"
-        ],
-        "pointIds": [
-          "b4dd5ec812",
-          "b4d8e05a12",
-          "b4d939b012"
-        ],
+        "segmentIds": ["b4d888a711", "b4d8a60211", "b4d6d50911"],
+        "pointIds": ["b4dd5ec812", "b4d8e05a12", "b4d939b012"],
         "_isCenterShown": false,
         "familyName": "tangram",
         "size": 1,
@@ -27,16 +19,8 @@
         "position": "main",
         "type": "RegularShape",
         "path": "M 17.197045944956187 9.701232455518513 L 17.197045944956187 356.8133733854773\nL 190.75311640993564 183.2573029204978\nL 17.197045944956187 9.701232455518513",
-        "segmentIds": [
-          "b4d714c911",
-          "b4d74dba11",
-          "b4dd3e0511"
-        ],
-        "pointIds": [
-          "b4d319b512",
-          "b4dd415912",
-          "b4d97f9012"
-        ],
+        "segmentIds": ["b4d714c911", "b4d74dba11", "b4dd3e0511"],
+        "pointIds": ["b4d319b512", "b4dd415912", "b4d97f9012"],
         "_isCenterShown": false,
         "familyName": "tangram",
         "size": 1,
@@ -47,16 +31,8 @@
         "position": "main",
         "type": "RegularShape",
         "path": "M 109.29765127831087 337.90244312222785 L 282.85372174329024 337.90244312222785\nL 282.85372174329024 164.34637265724848\nL 109.29765127831087 337.90244312222785",
-        "segmentIds": [
-          "b4d438f711",
-          "b4d779cd11",
-          "b4d4e45411"
-        ],
-        "pointIds": [
-          "b4d1075112",
-          "b4d3f2ad12",
-          "b4d341ab12"
-        ],
+        "segmentIds": ["b4d438f711", "b4d779cd11", "b4d4e45411"],
+        "pointIds": ["b4d1075112", "b4d3f2ad12", "b4d341ab12"],
         "_isCenterShown": false,
         "familyName": "tangram",
         "size": 1,
@@ -67,16 +43,8 @@
         "position": "main",
         "type": "RegularShape",
         "path": "M 246.48552462254062 621.4999902324764 L 159.7074893900509 708.2780254649662\nL 333.2635598550304 708.2780254649662\nL 246.48552462254062 621.4999902324764",
-        "segmentIds": [
-          "b4d916df11",
-          "b4d2e5dc11",
-          "b4d4f40d11"
-        ],
-        "pointIds": [
-          "b4d193cc12",
-          "b4dcca0012",
-          "b4dd40ee12"
-        ],
+        "segmentIds": ["b4d916df11", "b4d2e5dc11", "b4d4f40d11"],
+        "pointIds": ["b4d193cc12", "b4dcca0012", "b4dd40ee12"],
         "_isCenterShown": false,
         "familyName": "tangram",
         "size": 1,
@@ -87,16 +55,8 @@
         "position": "main",
         "type": "RegularShape",
         "path": "M 189.63350113421407 808.3520137208031 L 276.4115363667039 895.1300489532925\nL 276.4115363667039 721.5739784883133\nL 189.63350113421407 808.3520137208031",
-        "segmentIds": [
-          "b4d4a2e811",
-          "b4db582a11",
-          "b4dbd40711"
-        ],
-        "pointIds": [
-          "b4d2531312",
-          "b4d3472312",
-          "b4dbe56a12"
-        ],
+        "segmentIds": ["b4d4a2e811", "b4db582a11", "b4dbd40711"],
+        "pointIds": ["b4d2531312", "b4d3472312", "b4dbe56a12"],
         "_isCenterShown": false,
         "familyName": "tangram",
         "size": 1,
@@ -107,18 +67,8 @@
         "position": "main",
         "type": "RegularShape",
         "path": "M 40.803419076612855 917.307605587175 L 127.58145430910253 830.5295703546853\nL 127.58145430910253 656.9734998897061\nL 40.803419076612855 743.7515351221957\nL 40.803419076612855 917.307605587175",
-        "segmentIds": [
-          "b4d6015311",
-          "b4da950e11",
-          "b4dab21a11",
-          "b4d404ea11"
-        ],
-        "pointIds": [
-          "b4d5086112",
-          "b4d8e51a12",
-          "b4dd905c12",
-          "b4d355b812"
-        ],
+        "segmentIds": ["b4d6015311", "b4da950e11", "b4dab21a11", "b4d404ea11"],
+        "pointIds": ["b4d5086112", "b4d8e51a12", "b4dd905c12", "b4d355b812"],
         "_isCenterShown": false,
         "familyName": "tangram",
         "size": 1,
@@ -129,18 +79,8 @@
         "position": "main",
         "type": "RegularShape",
         "path": "M 89.97040553065298 492.15398801194715 L 3.192370298163267 578.9320232444368\nL 89.9704055306528 665.7100584769265\nL 176.74844076314253 578.9320232444369\nL 89.97040553065298 492.15398801194715",
-        "segmentIds": [
-          "b4d420b811",
-          "3b4deecd11",
-          "b4d8f58411",
-          "b4dd3bd311"
-        ],
-        "pointIds": [
-          "b4d2997212",
-          "b4dc32fd12",
-          "b4d2b7de12",
-          "b4d5d39912"
-        ],
+        "segmentIds": ["b4d420b811", "3b4deecd11", "b4d8f58411", "b4dd3bd311"],
+        "pointIds": ["b4d2997212", "b4dc32fd12", "b4d2b7de12", "b4d5d39912"],
         "_isCenterShown": false,
         "familyName": "tangram",
         "size": 1,
@@ -153,230 +93,161 @@
         "shapeId": "df2b4edd10",
         "position": "main",
         "idx": 0,
-        "vertexIds": [
-          "b4dd5ec812",
-          "b4d8e05a12"
-        ]
+        "vertexIds": ["b4dd5ec812", "b4d8e05a12"]
       },
       {
         "id": "b4d8a60211",
         "shapeId": "df2b4edd10",
         "position": "main",
         "idx": 1,
-        "vertexIds": [
-          "b4d8e05a12",
-          "b4d939b012"
-        ]
+        "vertexIds": ["b4d8e05a12", "b4d939b012"]
       },
       {
         "id": "b4d6d50911",
         "shapeId": "df2b4edd10",
         "position": "main",
         "idx": 2,
-        "vertexIds": [
-          "b4d939b012",
-          "b4dd5ec812"
-        ]
+        "vertexIds": ["b4d939b012", "b4dd5ec812"]
       },
       {
         "id": "b4d714c911",
         "shapeId": "df26890410",
         "position": "main",
         "idx": 0,
-        "vertexIds": [
-          "b4d319b512",
-          "b4dd415912"
-        ]
+        "vertexIds": ["b4d319b512", "b4dd415912"]
       },
       {
         "id": "b4d74dba11",
         "shapeId": "df26890410",
         "position": "main",
         "idx": 1,
-        "vertexIds": [
-          "b4dd415912",
-          "b4d97f9012"
-        ]
+        "vertexIds": ["b4dd415912", "b4d97f9012"]
       },
       {
         "id": "b4dd3e0511",
         "shapeId": "df26890410",
         "position": "main",
         "idx": 2,
-        "vertexIds": [
-          "b4d97f9012",
-          "b4d319b512"
-        ]
+        "vertexIds": ["b4d97f9012", "b4d319b512"]
       },
       {
         "id": "b4d438f711",
         "shapeId": "df2e0b9510",
         "position": "main",
         "idx": 0,
-        "vertexIds": [
-          "b4d1075112",
-          "b4d3f2ad12"
-        ]
+        "vertexIds": ["b4d1075112", "b4d3f2ad12"]
       },
       {
         "id": "b4d779cd11",
         "shapeId": "df2e0b9510",
         "position": "main",
         "idx": 1,
-        "vertexIds": [
-          "b4d3f2ad12",
-          "b4d341ab12"
-        ]
+        "vertexIds": ["b4d3f2ad12", "b4d341ab12"]
       },
       {
         "id": "b4d4e45411",
         "shapeId": "df2e0b9510",
         "position": "main",
         "idx": 2,
-        "vertexIds": [
-          "b4d341ab12",
-          "b4d1075112"
-        ]
+        "vertexIds": ["b4d341ab12", "b4d1075112"]
       },
       {
         "id": "b4d916df11",
         "shapeId": "df2e720c10",
         "position": "main",
         "idx": 0,
-        "vertexIds": [
-          "b4d193cc12",
-          "b4dcca0012"
-        ]
+        "vertexIds": ["b4d193cc12", "b4dcca0012"]
       },
       {
         "id": "b4d2e5dc11",
         "shapeId": "df2e720c10",
         "position": "main",
         "idx": 1,
-        "vertexIds": [
-          "b4dcca0012",
-          "b4dd40ee12"
-        ]
+        "vertexIds": ["b4dcca0012", "b4dd40ee12"]
       },
       {
         "id": "b4d4f40d11",
         "shapeId": "df2e720c10",
         "position": "main",
         "idx": 2,
-        "vertexIds": [
-          "b4dd40ee12",
-          "b4d193cc12"
-        ]
+        "vertexIds": ["b4dd40ee12", "b4d193cc12"]
       },
       {
         "id": "b4d4a2e811",
         "shapeId": "df28122e10",
         "position": "main",
         "idx": 0,
-        "vertexIds": [
-          "b4d2531312",
-          "b4d3472312"
-        ]
+        "vertexIds": ["b4d2531312", "b4d3472312"]
       },
       {
         "id": "b4db582a11",
         "shapeId": "df28122e10",
         "position": "main",
         "idx": 1,
-        "vertexIds": [
-          "b4d3472312",
-          "b4dbe56a12"
-        ]
+        "vertexIds": ["b4d3472312", "b4dbe56a12"]
       },
       {
         "id": "b4dbd40711",
         "shapeId": "df28122e10",
         "position": "main",
         "idx": 2,
-        "vertexIds": [
-          "b4dbe56a12",
-          "b4d2531312"
-        ]
+        "vertexIds": ["b4dbe56a12", "b4d2531312"]
       },
       {
         "id": "b4d6015311",
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 0,
-        "vertexIds": [
-          "b4d5086112",
-          "b4d8e51a12"
-        ]
+        "vertexIds": ["b4d5086112", "b4d8e51a12"]
       },
       {
         "id": "b4da950e11",
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 1,
-        "vertexIds": [
-          "b4d8e51a12",
-          "b4dd905c12"
-        ]
+        "vertexIds": ["b4d8e51a12", "b4dd905c12"]
       },
       {
         "id": "b4dab21a11",
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 2,
-        "vertexIds": [
-          "b4dd905c12",
-          "b4d355b812"
-        ]
+        "vertexIds": ["b4dd905c12", "b4d355b812"]
       },
       {
         "id": "b4d404ea11",
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 3,
-        "vertexIds": [
-          "b4d355b812",
-          "b4d5086112"
-        ]
+        "vertexIds": ["b4d355b812", "b4d5086112"]
       },
       {
         "id": "b4d420b811",
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 0,
-        "vertexIds": [
-          "b4d2997212",
-          "b4dc32fd12"
-        ]
+        "vertexIds": ["b4d2997212", "b4dc32fd12"]
       },
       {
         "id": "3b4deecd11",
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 1,
-        "vertexIds": [
-          "b4dc32fd12",
-          "b4d2b7de12"
-        ]
+        "vertexIds": ["b4dc32fd12", "b4d2b7de12"]
       },
       {
         "id": "b4d8f58411",
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 2,
-        "vertexIds": [
-          "b4d2b7de12",
-          "b4d5d39912"
-        ]
+        "vertexIds": ["b4d2b7de12", "b4d5d39912"]
       },
       {
         "id": "b4dd3bd311",
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 3,
-        "vertexIds": [
-          "b4d5d39912",
-          "b4d2997212"
-        ]
+        "vertexIds": ["b4d5d39912", "b4d2997212"]
       }
     ],
     "pointsData": [
@@ -389,10 +260,7 @@
         "shapeId": "df2b4edd10",
         "position": "main",
         "idx": 0,
-        "segmentIds": [
-          "b4d6d50911",
-          "b4d888a711"
-        ],
+        "segmentIds": ["b4d6d50911", "b4d888a711"],
         "type": "vertex"
       },
       {
@@ -404,10 +272,7 @@
         "shapeId": "df2b4edd10",
         "position": "main",
         "idx": 1,
-        "segmentIds": [
-          "b4d888a711",
-          "b4d8a60211"
-        ],
+        "segmentIds": ["b4d888a711", "b4d8a60211"],
         "type": "vertex"
       },
       {
@@ -419,10 +284,7 @@
         "shapeId": "df2b4edd10",
         "position": "main",
         "idx": 2,
-        "segmentIds": [
-          "b4d8a60211",
-          "b4d6d50911"
-        ],
+        "segmentIds": ["b4d8a60211", "b4d6d50911"],
         "type": "vertex"
       },
       {
@@ -434,10 +296,7 @@
         "shapeId": "df26890410",
         "position": "main",
         "idx": 0,
-        "segmentIds": [
-          "b4d714c911",
-          "b4dd3e0511"
-        ],
+        "segmentIds": ["b4d714c911", "b4dd3e0511"],
         "type": "vertex"
       },
       {
@@ -449,10 +308,7 @@
         "shapeId": "df26890410",
         "position": "main",
         "idx": 1,
-        "segmentIds": [
-          "b4d74dba11",
-          "b4d714c911"
-        ],
+        "segmentIds": ["b4d74dba11", "b4d714c911"],
         "type": "vertex"
       },
       {
@@ -464,10 +320,7 @@
         "shapeId": "df26890410",
         "position": "main",
         "idx": 2,
-        "segmentIds": [
-          "b4dd3e0511",
-          "b4d74dba11"
-        ],
+        "segmentIds": ["b4dd3e0511", "b4d74dba11"],
         "type": "vertex"
       },
       {
@@ -479,10 +332,7 @@
         "shapeId": "df2e0b9510",
         "position": "main",
         "idx": 0,
-        "segmentIds": [
-          "b4d438f711",
-          "b4d4e45411"
-        ],
+        "segmentIds": ["b4d438f711", "b4d4e45411"],
         "type": "vertex"
       },
       {
@@ -494,10 +344,7 @@
         "shapeId": "df2e0b9510",
         "position": "main",
         "idx": 1,
-        "segmentIds": [
-          "b4d779cd11",
-          "b4d438f711"
-        ],
+        "segmentIds": ["b4d779cd11", "b4d438f711"],
         "type": "vertex"
       },
       {
@@ -509,10 +356,7 @@
         "shapeId": "df2e0b9510",
         "position": "main",
         "idx": 2,
-        "segmentIds": [
-          "b4d4e45411",
-          "b4d779cd11"
-        ],
+        "segmentIds": ["b4d4e45411", "b4d779cd11"],
         "type": "vertex"
       },
       {
@@ -524,10 +368,7 @@
         "shapeId": "df2e720c10",
         "position": "main",
         "idx": 0,
-        "segmentIds": [
-          "b4d916df11",
-          "b4d4f40d11"
-        ],
+        "segmentIds": ["b4d916df11", "b4d4f40d11"],
         "type": "vertex"
       },
       {
@@ -539,10 +380,7 @@
         "shapeId": "df2e720c10",
         "position": "main",
         "idx": 1,
-        "segmentIds": [
-          "b4d2e5dc11",
-          "b4d916df11"
-        ],
+        "segmentIds": ["b4d2e5dc11", "b4d916df11"],
         "type": "vertex"
       },
       {
@@ -554,10 +392,7 @@
         "shapeId": "df2e720c10",
         "position": "main",
         "idx": 2,
-        "segmentIds": [
-          "b4d4f40d11",
-          "b4d2e5dc11"
-        ],
+        "segmentIds": ["b4d4f40d11", "b4d2e5dc11"],
         "type": "vertex"
       },
       {
@@ -569,10 +404,7 @@
         "shapeId": "df28122e10",
         "position": "main",
         "idx": 0,
-        "segmentIds": [
-          "b4d4a2e811",
-          "b4dbd40711"
-        ],
+        "segmentIds": ["b4d4a2e811", "b4dbd40711"],
         "type": "vertex"
       },
       {
@@ -584,10 +416,7 @@
         "shapeId": "df28122e10",
         "position": "main",
         "idx": 1,
-        "segmentIds": [
-          "b4db582a11",
-          "b4d4a2e811"
-        ],
+        "segmentIds": ["b4db582a11", "b4d4a2e811"],
         "type": "vertex"
       },
       {
@@ -599,10 +428,7 @@
         "shapeId": "df28122e10",
         "position": "main",
         "idx": 2,
-        "segmentIds": [
-          "b4dbd40711",
-          "b4db582a11"
-        ],
+        "segmentIds": ["b4dbd40711", "b4db582a11"],
         "type": "vertex"
       },
       {
@@ -614,10 +440,7 @@
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 0,
-        "segmentIds": [
-          "b4d6015311",
-          "b4d404ea11"
-        ],
+        "segmentIds": ["b4d6015311", "b4d404ea11"],
         "type": "vertex"
       },
       {
@@ -629,10 +452,7 @@
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 1,
-        "segmentIds": [
-          "b4da950e11",
-          "b4d6015311"
-        ],
+        "segmentIds": ["b4da950e11", "b4d6015311"],
         "type": "vertex"
       },
       {
@@ -644,10 +464,7 @@
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 2,
-        "segmentIds": [
-          "b4dab21a11",
-          "b4da950e11"
-        ],
+        "segmentIds": ["b4dab21a11", "b4da950e11"],
         "type": "vertex"
       },
       {
@@ -659,10 +476,7 @@
         "shapeId": "df247d1410",
         "position": "main",
         "idx": 3,
-        "segmentIds": [
-          "b4d404ea11",
-          "b4dab21a11"
-        ],
+        "segmentIds": ["b4d404ea11", "b4dab21a11"],
         "type": "vertex"
       },
       {
@@ -674,10 +488,7 @@
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 0,
-        "segmentIds": [
-          "b4d420b811",
-          "b4dd3bd311"
-        ],
+        "segmentIds": ["b4d420b811", "b4dd3bd311"],
         "type": "vertex"
       },
       {
@@ -689,10 +500,7 @@
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 1,
-        "segmentIds": [
-          "3b4deecd11",
-          "b4d420b811"
-        ],
+        "segmentIds": ["3b4deecd11", "b4d420b811"],
         "type": "vertex"
       },
       {
@@ -704,10 +512,7 @@
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 2,
-        "segmentIds": [
-          "b4d8f58411",
-          "3b4deecd11"
-        ],
+        "segmentIds": ["b4d8f58411", "3b4deecd11"],
         "type": "vertex"
       },
       {
@@ -719,10 +524,7 @@
         "shapeId": "df2396eb10",
         "position": "main",
         "idx": 3,
-        "segmentIds": [
-          "b4dd3bd311",
-          "b4d8f58411"
-        ],
+        "segmentIds": ["b4dd3bd311", "b4d8f58411"],
         "type": "vertex"
       }
     ]

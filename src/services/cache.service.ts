@@ -5,8 +5,8 @@ const DB_CONFIG = {
   name: 'agTabletteDB',
   version: 1,
   stores: {
-    activities: 'activities'
-  }
+    activities: 'activities',
+  },
 } as const;
 
 /**
@@ -71,12 +71,18 @@ export class CacheService {
       const request = window.indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
 
       request.onerror = () => {
-        if ((window as any).dev_mode) console.log('[CACHE] Erreur ouverture DB:', request.error);
-        reject(new CacheUnavailableError(`Impossible d'ouvrir la base de données: ${request.error?.message}`));
+        if ((window as any).dev_mode)
+          console.log('[CACHE] Erreur ouverture DB:', request.error);
+        reject(
+          new CacheUnavailableError(
+            `Impossible d'ouvrir la base de données: ${request.error?.message}`,
+          ),
+        );
       };
 
       request.onsuccess = () => {
-        if ((window as any).dev_mode) console.log('[CACHE] DB ouverte avec succès');
+        if ((window as any).dev_mode)
+          console.log('[CACHE] DB ouverte avec succès');
         resolve(request.result);
       };
 
@@ -98,7 +104,10 @@ export class CacheService {
     try {
       const db = await this._ouvrirDB();
 
-      const transaction = db.transaction([DB_CONFIG.stores.activities], 'readwrite');
+      const transaction = db.transaction(
+        [DB_CONFIG.stores.activities],
+        'readwrite',
+      );
       const store = transaction.objectStore(DB_CONFIG.stores.activities);
 
       await new Promise<void>((resolve, reject) => {
@@ -109,13 +118,12 @@ export class CacheService {
 
       db.close();
 
-      
-
       // Dispatch événement pour notifier les autres composants
-      window.dispatchEvent(new CustomEvent('cache-cleared', {
-        detail: { timestamp: new Date() }
-      }));
-
+      window.dispatchEvent(
+        new CustomEvent('cache-cleared', {
+          detail: { timestamp: new Date() },
+        }),
+      );
     } catch (error) {
       console.error('[CACHE] Erreur lors du vidage du cache:', error);
 
@@ -123,7 +131,9 @@ export class CacheService {
         throw error;
       }
 
-      throw new CacheClearError(`Impossible de vider le cache: ${(error as Error).message}`);
+      throw new CacheClearError(
+        `Impossible de vider le cache: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -141,7 +151,10 @@ export class CacheService {
       const db = await this._ouvrirDB();
 
       // Compter les éléments dans le store
-      const transaction = db.transaction([DB_CONFIG.stores.activities], 'readonly');
+      const transaction = db.transaction(
+        [DB_CONFIG.stores.activities],
+        'readonly',
+      );
       const store = transaction.objectStore(DB_CONFIG.stores.activities);
 
       const count = await new Promise<number>((resolve, reject) => {
@@ -152,19 +165,19 @@ export class CacheService {
 
       db.close();
 
-      if ((window as any).dev_mode) console.log('[CACHE] Cache disponible, éléments:', count);
+      if ((window as any).dev_mode)
+        console.log('[CACHE] Cache disponible, éléments:', count);
 
       return {
         available: true,
         storeCount: count,
-        dbName: DB_CONFIG.name
+        dbName: DB_CONFIG.name,
       };
-
     } catch (error) {
       console.warn('[CACHE] Cache non disponible:', (error as Error).message);
       return {
         available: false,
-        reason: (error as Error).message
+        reason: (error as Error).message,
       };
     }
   }
@@ -180,7 +193,7 @@ export class CacheService {
       if (!disponibilite.available) {
         return {
           disponible: false,
-          raison: disponibilite.reason
+          raison: disponibilite.reason,
         };
       }
 
@@ -189,14 +202,16 @@ export class CacheService {
         nombreElements: disponibilite.storeCount,
         nomDB: disponibilite.dbName,
         version: DB_CONFIG.version,
-        derniereVerification: new Date()
+        derniereVerification: new Date(),
       };
-
     } catch (error) {
-      console.error('[CACHE] Erreur lors de l\'obtention des statistiques:', error);
+      console.error(
+        "[CACHE] Erreur lors de l'obtention des statistiques:",
+        error,
+      );
       return {
         disponible: false,
-        raison: `Erreur technique: ${(error as Error).message}`
+        raison: `Erreur technique: ${(error as Error).message}`,
       };
     }
   }

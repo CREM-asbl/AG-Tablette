@@ -8,6 +8,8 @@ export default [
   {
     ignores: [
       'dist/**',
+      '.astro/**',
+      '.firebase/**',
       'playwright-report/**',
       'test-results/**',
       'node_modules/**',
@@ -45,7 +47,7 @@ export default [
       'no-console': 'off',
       'no-debugger': 'warn',
       'prefer-const': 'warn',
-      'eqeqeq': ['warn', 'smart'],
+      'eqeqeq': ['error', 'smart'],
       // Ajout pour décorateurs TypeScript
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
@@ -72,7 +74,7 @@ export default [
       'no-console': 'off',
       'no-debugger': 'warn',
       'prefer-const': 'warn',
-      'eqeqeq': ['warn', 'smart'],
+      'eqeqeq': ['error', 'smart'],
     },
   },
 ];

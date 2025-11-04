@@ -1,8 +1,15 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
-import { getModulesDocFromTheme, getThemeDocFromThemeName } from '../../firebase/firebase-init';
-import { cachedSequences, selectedNotion, toggleNotion } from '../../store/notions';
+import {
+  getModulesDocFromTheme,
+  getThemeDocFromThemeName,
+} from '../../firebase/firebase-init';
+import {
+  cachedSequences,
+  selectedNotion,
+  toggleNotion,
+} from '../../store/notions';
 import './module-elem';
 
 class ThemeElem extends SignalWatcher(LitElement) {
@@ -76,7 +83,7 @@ class ThemeElem extends SignalWatcher(LitElement) {
       border-radius: 3px;
       margin: 8px 0;
     }
-  `
+  `;
 
   connectedCallback() {
     super.connectedCallback();
@@ -90,16 +97,28 @@ class ThemeElem extends SignalWatcher(LitElement) {
     const isSelected = selectedNotion.get() === this.title;
     return html`
       <details name="summary" ?open=${isSelected}>
-        <summary name="summary" @click="${this.summaryClick}">${this.title}</summary>
+        <summary name="summary" @click="${this.summaryClick}">
+          ${this.title}
+        </summary>
         <div class="modules-container">
           ${!this.loaded ? html`<progress></progress>` : html``}
-          ${this.modules.length === 0 && this.loaded ? html`<div style="padding:12px;color:#888;font-size:0.95em;">Aucun module disponible</div>` : html``}
-          ${this.modules.filter(info => info?.hidden != true).map(info => html`
-            <module-elem
-              title="${info.id}"
-              .fileNames="${info.files ? info.files.map(file => file.id) : []}">
-            </module-elem>`
-    )}
+          ${this.modules.length === 0 && this.loaded
+            ? html`<div style="padding:12px;color:#888;font-size:0.95em;">
+                Aucun module disponible
+              </div>`
+            : html``}
+          ${this.modules
+            .filter((info) => info?.hidden != true)
+            .map(
+              (info) =>
+                html` <module-elem
+                  title="${info.id}"
+                  .fileNames="${info.files
+                    ? info.files.map((file) => file.id)
+                    : []}"
+                >
+                </module-elem>`,
+            )}
         </div>
       </details>
     `;
@@ -110,7 +129,7 @@ class ThemeElem extends SignalWatcher(LitElement) {
     if (this.isOpen) {
       this.loadModules();
     }
-    if (typeof this.moduleNames === "string") {
+    if (typeof this.moduleNames === 'string') {
       this.moduleNamesList = this.moduleNames.split(',');
     }
   }
@@ -149,21 +168,28 @@ class ThemeElem extends SignalWatcher(LitElement) {
 
     try {
       // Vérifier d'abord si des modules pour ce thème sont déjà en cache mémoire
-      let cachedModulesForTheme = cachedSequences.get() &&
-        cachedSequences.get().find(cache => cache.theme === this.title);
+      let cachedModulesForTheme =
+        cachedSequences.get() &&
+        cachedSequences.get().find((cache) => cache.theme === this.title);
 
       // Fallback : si pas de modules en mémoire, tenter de récupérer depuis IndexedDB
       if (!cachedModulesForTheme) {
-        const { getAllModules } = await import('../../utils/indexeddb-activities.js');
+        const { getAllModules } = await import(
+          '../../utils/indexeddb-activities.js'
+        );
         const allModules = await getAllModules();
-        const filtered = allModules.filter(m => m.data.theme === this.title);
+        const filtered = allModules.filter((m) => m.data.theme === this.title);
         if (filtered.length > 0) {
-          cachedModulesForTheme = { theme: this.title, modules: filtered.map(m => ({ id: m.id, ...m.data })) };
+          cachedModulesForTheme = {
+            theme: this.title,
+            modules: filtered.map((m) => ({ id: m.id, ...m.data })),
+          };
           // Mettre à jour le cache mémoire
-          const currentCache = Array.isArray(cachedSequences.get()) ? [...cachedSequences.get()] : [];
+          const currentCache = Array.isArray(cachedSequences.get())
+            ? [...cachedSequences.get()]
+            : [];
           currentCache.push(cachedModulesForTheme);
           cachedSequences.set(currentCache);
-          
         }
       }
 
@@ -186,20 +212,31 @@ class ThemeElem extends SignalWatcher(LitElement) {
 
       // Mise à jour du cache des séquences en mémoire
       if (modulesDoc && modulesDoc.length > 0) {
-        const currentCache = Array.isArray(cachedSequences.get()) ? [...cachedSequences.get()] : [];
-        const existingIndex = currentCache.findIndex(cache => cache.theme === this.title);
+        const currentCache = Array.isArray(cachedSequences.get())
+          ? [...cachedSequences.get()]
+          : [];
+        const existingIndex = currentCache.findIndex(
+          (cache) => cache.theme === this.title,
+        );
         if (existingIndex >= 0) {
-          currentCache[existingIndex] = { theme: this.title, modules: modulesDoc };
+          currentCache[existingIndex] = {
+            theme: this.title,
+            modules: modulesDoc,
+          };
         } else {
           currentCache.push({ theme: this.title, modules: modulesDoc });
         }
         cachedSequences.set(currentCache);
-        
       }
 
       this.loaded = true;
     } catch (error) {
-      console.error('Erreur lors du chargement des modules pour le thème', this.title, ':', error);
+      console.error(
+        'Erreur lors du chargement des modules pour le thème',
+        this.title,
+        ':',
+        error,
+      );
       this.modules = [];
       this.loaded = true;
     }

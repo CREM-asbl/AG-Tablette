@@ -5,23 +5,7 @@
 
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-// Mock des signaux et fonctions
-vi.mock('../../src/store/syncState.js', () => ({
-  syncProgress: { value: 100 },
-  syncInProgress: { value: false },
-  syncVisible: { value: false },
-  getSyncState: vi.fn(() => ({
-    progress: 100,
-    inProgress: false,
-    visible: false
-  })),
-  setSyncProgress: vi.fn(),
-  setSyncCompleted: vi.fn(),
-  showSyncIndicator: vi.fn(),
-  hideSyncIndicator: vi.fn(),
-  resetSyncState: vi.fn()
-}));
-
+// Importer le vrai module (pas de mock)
 import {
   getSyncState,
   hideSyncIndicator,
@@ -31,24 +15,17 @@ import {
   showSyncIndicator,
   syncInProgress,
   syncProgress,
-  syncVisible
+  syncVisible,
 } from '../../src/store/syncState.js';
 
 describe('Store de synchronisation', () => {
-
   beforeEach(() => {
-    // Réinitialiser l'état avant chaque test de manière sûre
-    try {
-      syncProgress.value = 100;
-      syncInProgress.value = false;
-      syncVisible.value = false;
-    } catch (error) {
-      // Ignorer les erreurs de réinitialisation dans les tests
-    }
+    // Réinitialiser l'état avant chaque test
+    resetSyncState();
 
     // Mock console pour éviter le spam dans les tests
-    vi.spyOn(console, 'log').mockImplementation(() => { });
-    vi.spyOn(console, 'warn').mockImplementation(() => { });
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => { });
   });
 

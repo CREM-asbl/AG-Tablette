@@ -51,9 +51,8 @@ export class Notification extends LitElement {
 
     this.timeoutId = null;
 
-    this.backgroundColor = document.documentElement.style.getPropertyValue(
-      '--theme-color-soft',
-    );
+    this.backgroundColor =
+      document.documentElement.style.getPropertyValue('--theme-color-soft');
     this.fontColor = '#000000';
 
     window.addEventListener('show-notif', (e) => {

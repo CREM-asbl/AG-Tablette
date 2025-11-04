@@ -21,9 +21,11 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   async loadShapeDefinition() {
     const triangleDef = await import(`./trianglesDef.js`);
     this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
-    
+
     if (!this.triangleDef) {
-      throw new Error(`Définition non trouvée pour ${app.tool.selectedTemplate.name}`);
+      throw new Error(
+        `Définition non trouvée pour ${app.tool.selectedTemplate.name}`,
+      );
     }
   }
 
@@ -39,7 +41,10 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
    */
   getConstraints(pointNumber) {
     if (this.triangleDef && this.triangleDef.constraints) {
-      this.constraints = this.triangleDef.constraints[pointNumber](this.points, this.segments);
+      this.constraints = this.triangleDef.constraints[pointNumber](
+        this.points,
+        this.segments,
+      );
     } else {
       this.constraints = { isFree: true };
     }
@@ -58,7 +63,10 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
    * Mise à jour de l'aperçu pendant le dessin
    */
   refreshShapePreview() {
-    if (this.numberOfPointsDrawn === this.numberOfPointsRequired() && this.numberOfPointsDrawn < 3) {
+    if (
+      this.numberOfPointsDrawn === this.numberOfPointsRequired() &&
+      this.numberOfPointsDrawn < 3
+    ) {
       this.finishShape();
     }
   }
@@ -80,10 +88,18 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
 
     // Construire le chemin SVG
     const path = [
-      'M', this.points[0].coordinates.x, this.points[0].coordinates.y,
-      'L', this.points[1].coordinates.x, this.points[1].coordinates.y,
-      'L', this.points[2].coordinates.x, this.points[2].coordinates.y,
-      'L', this.points[0].coordinates.x, this.points[0].coordinates.y
+      'M',
+      this.points[0].coordinates.x,
+      this.points[0].coordinates.y,
+      'L',
+      this.points[1].coordinates.x,
+      this.points[1].coordinates.y,
+      'L',
+      this.points[2].coordinates.x,
+      this.points[2].coordinates.y,
+      'L',
+      this.points[0].coordinates.x,
+      this.points[0].coordinates.y,
     ].join(' ');
 
     // Créer la forme

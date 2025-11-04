@@ -18,14 +18,18 @@ export class HideTool extends Tool {
     const toolName = this.title;
     return html`
       <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.
-      </p>
+      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
     `;
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -36,9 +40,7 @@ export class HideTool extends Tool {
     app.workspace.selectionConstraints.eventType = 'click';
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.points.canSelect = true;
-    app.workspace.selectionConstraints.points.types = [
-      'divisionPoint',
-    ];
+    app.workspace.selectionConstraints.points.types = ['divisionPoint'];
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -68,22 +70,30 @@ export class HideTool extends Tool {
 
   _executeAction() {
     if (this.mode == 'shape') {
-      const workingShapes = this.involvedShapes.map((s) => findObjectById(addInfoToId(s.id, 'main')));
+      const workingShapes = this.involvedShapes.map((s) =>
+        findObjectById(addInfoToId(s.id, 'main')),
+      );
       workingShapes.forEach((s) => {
         s.geometryObject.geometryIsHidden = true;
       });
-      app.mainCanvasLayer.shapes.forEach(s => {
+      app.mainCanvasLayer.shapes.forEach((s) => {
         if (s instanceof SinglePointShape) {
-          const child = findObjectById(s.geometryObject.geometryPointOnTheFlyChildId);
+          const child = findObjectById(
+            s.geometryObject.geometryPointOnTheFlyChildId,
+          );
           if (child)
-            s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
+            s.geometryObject.geometryIsHidden =
+              child.geometryObject.geometryIsHidden;
         }
       });
-      app.mainCanvasLayer.shapes.forEach(s => {
+      app.mainCanvasLayer.shapes.forEach((s) => {
         if (s.geometryObject.geometryIsConstaintDraw) {
-          const child = findObjectById(s.geometryObject.geometryChildShapeIds[0]);
+          const child = findObjectById(
+            s.geometryObject.geometryChildShapeIds[0],
+          );
           if (child)
-            s.geometryObject.geometryIsHidden = child.geometryObject.geometryIsHidden;
+            s.geometryObject.geometryIsHidden =
+              child.geometryObject.geometryIsHidden;
         }
       });
     } else if (this.mode == 'divisionPoint') {

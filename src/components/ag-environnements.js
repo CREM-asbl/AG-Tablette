@@ -50,11 +50,12 @@ class AgEnvironnements extends LitElement {
       }
 
       #Tangram {
-        background: #006CAA;
+        background: #006caa;
       }
 
-      #Gandeurs, #Tangram {
-        grid-template-rows: "1fr auto";
+      #Gandeurs,
+      #Tangram {
+        grid-template-rows: '1fr auto';
       }
 
       #Cubes {
@@ -65,8 +66,9 @@ class AgEnvironnements extends LitElement {
         background: #888;
       }
 
-      #Cubes, #Geometrie {
-        grid-template-rows: "auto 1fr";
+      #Cubes,
+      #Geometrie {
+        grid-template-rows: 'auto 1fr';
       }
 
       .rotate {
@@ -83,8 +85,8 @@ class AgEnvironnements extends LitElement {
         height: 26vmin;
         transform: rotate(45deg);
 
-        filter: drop-shadow( 0px 0px 2px rgba(0, 0, 0));
-        -webkit-filter: drop-shadow( 0px 0px 2px rgba(0, 0, 0));
+        filter: drop-shadow(0px 0px 2px rgba(0, 0, 0));
+        -webkit-filter: drop-shadow(0px 0px 2px rgba(0, 0, 0));
       }
 
       #logo {
@@ -96,29 +98,57 @@ class AgEnvironnements extends LitElement {
 
   render() {
     return html`
-      <div id="Grandeurs" name="Grandeurs" class="envTile" @click="${() => this.handleClick('Grandeurs')}" alt="logo Grandeurs">
-      <img src="/images/Environnements/logo_grandeurs_96x96.svg" alt="logo grandeurs"/>
-      <div class="envText" name="Grandeurs">
-          Grandeurs
-        </div>
+      <div
+        id="Grandeurs"
+        name="Grandeurs"
+        class="envTile"
+        @click="${() => this.handleClick('Grandeurs')}"
+        alt="logo Grandeurs"
+      >
+        <img
+          src="/images/Environnements/logo_grandeurs_96x96.svg"
+          alt="logo grandeurs"
+        />
+        <div class="envText" name="Grandeurs">Grandeurs</div>
       </div>
-      <div id="Tangram" name="Tangram" class="envTile" @click="${() => this.handleClick('Tangram')}" alt="logo Tangram">
-      <img src="/images/Environnements/logo_tangram_96x96.svg" alt="logo tangram"/>
-      <div class="envText" name="Tangram">
-          Tangram
-        </div>
+      <div
+        id="Tangram"
+        name="Tangram"
+        class="envTile"
+        @click="${() => this.handleClick('Tangram')}"
+        alt="logo Tangram"
+      >
+        <img
+          src="/images/Environnements/logo_tangram_96x96.svg"
+          alt="logo tangram"
+        />
+        <div class="envText" name="Tangram">Tangram</div>
       </div>
-      <div id="Cubes" name="Cubes" class="envTile" @click="${() => this.handleClick('Cubes')}" alt="logo Cubes">
-        <div class="envText" name="Cubes">
-          Cubes
-        </div>
-        <img src="/images/Environnements/logo_cubes_96x96.svg" alt="logo cubes"/>
+      <div
+        id="Cubes"
+        name="Cubes"
+        class="envTile"
+        @click="${() => this.handleClick('Cubes')}"
+        alt="logo Cubes"
+      >
+        <div class="envText" name="Cubes">Cubes</div>
+        <img
+          src="/images/Environnements/logo_cubes_96x96.svg"
+          alt="logo cubes"
+        />
       </div>
-      <div id="Geometrie" name="Geometrie" class="envTile" @click="${() => this.handleClick('Geometrie')}" alt="logo Géométrie">
-        <div class="envText" name="Geometrie">
-          Géométrie
-        </div>
-        <img src="/images/Environnements/logo_geometrie_96x96.svg" alt="logo géométrie"/>
+      <div
+        id="Geometrie"
+        name="Geometrie"
+        class="envTile"
+        @click="${() => this.handleClick('Geometrie')}"
+        alt="logo Géométrie"
+      >
+        <div class="envText" name="Geometrie">Géométrie</div>
+        <img
+          src="/images/Environnements/logo_geometrie_96x96.svg"
+          alt="logo géométrie"
+        />
       </div>
       <div class="logo-wrapper">
         <img
@@ -132,7 +162,7 @@ class AgEnvironnements extends LitElement {
   }
 
   async handleClick(e) {
-    await loadEnvironnement(e)
+    await loadEnvironnement(e);
   }
 }
 customElements.define('ag-environnements', AgEnvironnements);

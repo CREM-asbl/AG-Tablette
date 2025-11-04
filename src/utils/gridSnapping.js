@@ -9,19 +9,26 @@ export function snapCoordinatesToGrid(coordinates) {
   }
 
   if (!app || !app.settings) {
-    console.warn('snapCoordinatesToGrid: Application ou paramètres non disponibles');
+    console.warn(
+      'snapCoordinatesToGrid: Application ou paramètres non disponibles',
+    );
     return new Coordinates(coordinates);
   }
 
   if (app.settings.gridShown && app.gridCanvasLayer) {
     try {
       // Convertir les coordonnées en espace canvas pour getClosestGridPoint
-      const coordinatesInCanvasSpace = new Coordinates(coordinates).toCanvasCoordinates();
-      const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(coordinatesInCanvasSpace);
-      
+      const coordinatesInCanvasSpace = new Coordinates(
+        coordinates,
+      ).toCanvasCoordinates();
+      const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(
+        coordinatesInCanvasSpace,
+      );
+
       if (gridPointInCanvasSpace) {
         // Reconvertir le point de grille trouvé en espace monde
-        const gridPointInWorldSpace = gridPointInCanvasSpace.fromCanvasCoordinates();
+        const gridPointInWorldSpace =
+          gridPointInCanvasSpace.fromCanvasCoordinates();
         return new Coordinates(gridPointInWorldSpace);
       }
     } catch (error) {
@@ -29,6 +36,6 @@ export function snapCoordinatesToGrid(coordinates) {
       // Retourner les coordonnées originales en cas d'erreur
     }
   }
-  
+
   return new Coordinates(coordinates);
 }

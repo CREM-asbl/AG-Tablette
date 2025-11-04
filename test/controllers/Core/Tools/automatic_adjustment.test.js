@@ -60,7 +60,8 @@ vi.mock('../../../../src/controllers/Core/Managers/SelectManager', () => ({
   SelectManager: {
     getEmptySelectionConstraints: mockGetEmptySelectionConstraints,
     selectPoint: mockSelectPoint,
-  }
+  },
+  initSelectManager: vi.fn(),
 }));
 
 // Mock app service using hoisted functions

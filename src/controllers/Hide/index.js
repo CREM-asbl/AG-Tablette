@@ -1,4 +1,4 @@
-import { HideTool } from "./HideTool";
+import { HideTool } from './HideTool';
 
 export default {
   tool: new HideTool(),

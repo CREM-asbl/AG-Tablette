@@ -13,7 +13,7 @@ export const ValidationTypes = {
   FORMAT: 'format',
   CUSTOM: 'custom',
   ARRAY: 'array',
-  OBJECT: 'object'
+  OBJECT: 'object',
 };
 
 /**
@@ -26,7 +26,7 @@ const defaultMessages = {
   format: 'Format incorrect',
   custom: 'Validation personnalisée échouée',
   array: 'Doit être un tableau',
-  object: 'Doit être un objet'
+  object: 'Doit être un objet',
 };
 
 /**
@@ -48,7 +48,7 @@ export class ValidationError extends Error {
       type: this.type,
       message: this.message,
       value: this.value,
-      timestamp: this.timestamp
+      timestamp: this.timestamp,
     };
   }
 }
@@ -73,7 +73,7 @@ export class ValidationResult {
       field,
       message,
       value,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
@@ -86,21 +86,21 @@ export class ValidationResult {
   }
 
   getErrorsForField(field) {
-    return this.errors.filter(error => error.field === field);
+    return this.errors.filter((error) => error.field === field);
   }
 
   getAllMessages() {
     return [
-      ...this.errors.map(e => e.message),
-      ...this.warnings.map(w => w.message)
+      ...this.errors.map((e) => e.message),
+      ...this.warnings.map((w) => w.message),
     ];
   }
 
   toJSON() {
     return {
       isValid: this.isValid,
-      errors: this.errors.map(e => e.toJSON()),
-      warnings: this.warnings
+      errors: this.errors.map((e) => e.toJSON()),
+      warnings: this.warnings,
     };
   }
 }
@@ -113,15 +113,16 @@ export const baseValidators = {
    * Valider qu'une valeur est requise
    */
   required: (value, options = {}) => {
-    const isEmpty = value === null || 
-                   value === undefined || 
-                   value === '' || 
-                   (Array.isArray(value) && value.length === 0) ||
-                   (typeof value === 'object' && Object.keys(value).length === 0);
-    
+    const isEmpty =
+      value === null ||
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && value.length === 0) ||
+      (typeof value === 'object' && Object.keys(value).length === 0);
+
     return {
       isValid: !isEmpty,
-      message: options.message || defaultMessages.required
+      message: options.message || defaultMessages.required,
     };
   },
 
@@ -146,16 +147,18 @@ export const baseValidators = {
         isValid = Array.isArray(value);
         break;
       case 'object':
-        isValid = typeof value === 'object' && value !== null && !Array.isArray(value);
+        isValid =
+          typeof value === 'object' && value !== null && !Array.isArray(value);
         break;
       case 'function':
         isValid = typeof value === 'function';
         break;
       case 'coordinate':
-        isValid = typeof value === 'object' && 
-                 value !== null && 
-                 typeof value.x === 'number' && 
-                 typeof value.y === 'number';
+        isValid =
+          typeof value === 'object' &&
+          value !== null &&
+          typeof value.x === 'number' &&
+          typeof value.y === 'number';
         break;
       default:
         isValid = typeof value === expectedType;
@@ -163,7 +166,8 @@ export const baseValidators = {
 
     return {
       isValid,
-      message: options.message || `Attendu: ${expectedType}, reçu: ${typeof value}`
+      message:
+        options.message || `Attendu: ${expectedType}, reçu: ${typeof value}`,
     };
   },
 
@@ -177,7 +181,7 @@ export const baseValidators = {
     if (typeof value !== 'number') {
       return {
         isValid: false,
-        message: 'La valeur doit être un nombre pour la validation de plage'
+        message: 'La valeur doit être un nombre pour la validation de plage',
       };
     }
 
@@ -190,7 +194,9 @@ export const baseValidators = {
 
     return {
       isValid,
-      message: options.message || `Valeur doit être entre ${min || '-∞'} et ${max || '+∞'}`
+      message:
+        options.message ||
+        `Valeur doit être entre ${min || '-∞'} et ${max || '+∞'}`,
     };
   },
 
@@ -199,11 +205,11 @@ export const baseValidators = {
    */
   format: (value, options = {}) => {
     const { pattern, flags = '' } = options;
-    
+
     if (typeof value !== 'string') {
       return {
         isValid: false,
-        message: 'La valeur doit être une chaîne pour la validation de format'
+        message: 'La valeur doit être une chaîne pour la validation de format',
       };
     }
 
@@ -212,7 +218,7 @@ export const baseValidators = {
 
     return {
       isValid,
-      message: options.message || defaultMessages.format
+      message: options.message || defaultMessages.format,
     };
   },
 
@@ -221,30 +227,30 @@ export const baseValidators = {
    */
   custom: (value, options = {}) => {
     const { validator } = options;
-    
+
     if (typeof validator !== 'function') {
       throw new Error('Validator doit être une fonction');
     }
 
     try {
       const result = validator(value);
-      
+
       // Support pour retour boolean ou objet
       if (typeof result === 'boolean') {
         return {
           isValid: result,
-          message: options.message || defaultMessages.custom
+          message: options.message || defaultMessages.custom,
         };
       }
-      
+
       return result;
     } catch (error) {
       return {
         isValid: false,
-        message: `Erreur de validation: ${error.message}`
+        message: `Erreur de validation: ${error.message}`,
       };
     }
-  }
+  },
 };
 
 /**
@@ -255,18 +261,24 @@ export const geometryValidators = {
    * Valider une coordonnée
    */
   coordinate: (value, options = {}) => {
-    const typeResult = baseValidators.type(value, { expectedType: 'coordinate' });
+    const typeResult = baseValidators.type(value, {
+      expectedType: 'coordinate',
+    });
     if (!typeResult.isValid) {
       return typeResult;
     }
 
     const { bounds } = options;
     if (bounds) {
-      if (value.x < bounds.minX || value.x > bounds.maxX ||
-          value.y < bounds.minY || value.y > bounds.maxY) {
+      if (
+        value.x < bounds.minX ||
+        value.x > bounds.maxX ||
+        value.y < bounds.minY ||
+        value.y > bounds.maxY
+      ) {
         return {
           isValid: false,
-          message: 'Coordonnée hors des limites'
+          message: 'Coordonnée hors des limites',
         };
       }
     }
@@ -281,7 +293,7 @@ export const geometryValidators = {
     if (!value || typeof value !== 'object') {
       return {
         isValid: false,
-        message: 'Point invalide'
+        message: 'Point invalide',
       };
     }
 
@@ -295,7 +307,7 @@ export const geometryValidators = {
     if (options.requireId && !value.id) {
       return {
         isValid: false,
-        message: 'Point doit avoir un ID'
+        message: 'Point doit avoir un ID',
       };
     }
 
@@ -309,7 +321,7 @@ export const geometryValidators = {
     if (!value || typeof value !== 'object') {
       return {
         isValid: false,
-        message: 'Forme invalide'
+        message: 'Forme invalide',
       };
     }
 
@@ -317,14 +329,14 @@ export const geometryValidators = {
     if (!value.id) {
       return {
         isValid: false,
-        message: 'Forme doit avoir un ID'
+        message: 'Forme doit avoir un ID',
       };
     }
 
     if (!value.type) {
       return {
         isValid: false,
-        message: 'Forme doit avoir un type'
+        message: 'Forme doit avoir un type',
       };
     }
 
@@ -334,13 +346,13 @@ export const geometryValidators = {
       if (minPoints && value.points.length < minPoints) {
         return {
           isValid: false,
-          message: `Forme nécessite au moins ${minPoints} points`
+          message: `Forme nécessite au moins ${minPoints} points`,
         };
       }
       if (maxPoints && value.points.length > maxPoints) {
         return {
           isValid: false,
-          message: `Forme ne peut avoir plus de ${maxPoints} points`
+          message: `Forme ne peut avoir plus de ${maxPoints} points`,
         };
       }
 
@@ -350,7 +362,7 @@ export const geometryValidators = {
         if (!pointResult.isValid) {
           return {
             isValid: false,
-            message: `Point ${i} invalide: ${pointResult.message}`
+            message: `Point ${i} invalide: ${pointResult.message}`,
           };
         }
       }
@@ -366,7 +378,7 @@ export const geometryValidators = {
     if (typeof value !== 'string') {
       return {
         isValid: false,
-        message: 'Couleur doit être une chaîne'
+        message: 'Couleur doit être une chaîne',
       };
     }
 
@@ -374,17 +386,18 @@ export const geometryValidators = {
     const hexPattern = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
     const rgbPattern = /^rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)$/;
     const rgbaPattern = /^rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)$/;
-    
-    const isValid = hexPattern.test(value) || 
-                   rgbPattern.test(value) || 
-                   rgbaPattern.test(value) ||
-                   CSS.supports('color', value);
+
+    const isValid =
+      hexPattern.test(value) ||
+      rgbPattern.test(value) ||
+      rgbaPattern.test(value) ||
+      CSS.supports('color', value);
 
     return {
       isValid,
-      message: 'Format de couleur invalide'
+      message: 'Format de couleur invalide',
     };
-  }
+  },
 };
 
 /**
@@ -429,7 +442,7 @@ export class Validator {
 
     for (const rule of rules) {
       const { type, options = {}, message } = rule;
-      
+
       let validator;
       if (baseValidators[type]) {
         validator = baseValidators[type];
@@ -438,22 +451,31 @@ export class Validator {
       } else if (this.rules.has(type)) {
         validator = this.rules.get(type);
       } else {
-        result.addError(fieldName, 'unknown', `Règle de validation inconnue: ${type}`);
+        result.addError(
+          fieldName,
+          'unknown',
+          `Règle de validation inconnue: ${type}`,
+        );
         continue;
       }
 
       try {
         const validationResult = validator(value, { ...options, message });
-        
+
         if (!validationResult.isValid) {
           result.addError(fieldName, type, validationResult.message, value);
         }
-        
+
         if (validationResult.warning) {
           result.addWarning(fieldName, validationResult.warning, value);
         }
       } catch (error) {
-        result.addError(fieldName, type, `Erreur de validation: ${error.message}`, value);
+        result.addError(
+          fieldName,
+          type,
+          `Erreur de validation: ${error.message}`,
+          value,
+        );
       }
     }
 
@@ -468,7 +490,7 @@ export class Validator {
    */
   validateSchema(data, schema) {
     const result = new ValidationResult();
-    
+
     // Récupérer le schéma
     let schemaDefinition;
     if (typeof schema === 'string') {
@@ -485,11 +507,11 @@ export class Validator {
     for (const [fieldName, fieldRules] of Object.entries(schemaDefinition)) {
       const fieldValue = this.getNestedValue(data, fieldName);
       const fieldResult = this.validate(fieldValue, fieldRules, fieldName);
-      
+
       // Fusionner les résultats
       result.errors.push(...fieldResult.errors);
       result.warnings.push(...fieldResult.warnings);
-      
+
       if (fieldResult.hasErrors()) {
         result.isValid = false;
       }
@@ -533,7 +555,9 @@ export class Validator {
     return {
       customRules: this.rules.size,
       schemas: this.schemas.size,
-      availableValidators: Object.keys(baseValidators).concat(Object.keys(geometryValidators))
+      availableValidators: Object.keys(baseValidators).concat(
+        Object.keys(geometryValidators),
+      ),
     };
   }
 }
@@ -548,61 +572,55 @@ export const validator = new Validator();
  */
 export const predefinedSchemas = {
   point: {
-    'x': [
+    x: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'number' } }
+      { type: 'type', options: { expectedType: 'number' } },
     ],
-    'y': [
+    y: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'number' } }
+      { type: 'type', options: { expectedType: 'number' } },
     ],
-    'id': [
-      { type: 'type', options: { expectedType: 'string' } }
-    ]
+    id: [{ type: 'type', options: { expectedType: 'string' } }],
   },
 
   shape: {
-    'id': [
+    id: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'string' } }
+      { type: 'type', options: { expectedType: 'string' } },
     ],
-    'type': [
+    type: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'string' } }
+      { type: 'type', options: { expectedType: 'string' } },
     ],
-    'points': [
+    points: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'array' } }
+      { type: 'type', options: { expectedType: 'array' } },
     ],
-    'color': [
-      { type: 'color' }
-    ]
+    color: [{ type: 'color' }],
   },
 
   toolConfig: {
-    'name': [
+    name: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'string' } }
+      { type: 'type', options: { expectedType: 'string' } },
     ],
-    'family': [
+    family: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'string' } }
+      { type: 'type', options: { expectedType: 'string' } },
     ],
-    'options': [
-      { type: 'type', options: { expectedType: 'object' } }
-    ]
+    options: [{ type: 'type', options: { expectedType: 'object' } }],
   },
 
   environment: {
-    'name': [
+    name: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'string' } }
+      { type: 'type', options: { expectedType: 'string' } },
     ],
-    'modules': [
+    modules: [
       { type: 'required' },
-      { type: 'type', options: { expectedType: 'array' } }
-    ]
-  }
+      { type: 'type', options: { expectedType: 'array' } },
+    ],
+  },
 };
 
 // Enregistrer les schémas prédéfinis
@@ -643,7 +661,7 @@ export const validationUtils = {
   createEnumValidator: (allowedValues) => {
     return (value) => ({
       isValid: allowedValues.includes(value),
-      message: `Valeur doit être l'une de: ${allowedValues.join(', ')}`
+      message: `Valeur doit être l'une de: ${allowedValues.join(', ')}`,
     });
-  }
+  },
 };

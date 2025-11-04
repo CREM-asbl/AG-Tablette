@@ -15,9 +15,7 @@ export const EquilateralTriangle = {
 
     const length = points[0].coordinates.dist(points[1].coordinates);
 
-    const startAngle = points[0].coordinates.angleWith(
-      points[1].coordinates,
-    );
+    const startAngle = points[0].coordinates.angleWith(points[1].coordinates);
 
     const dx = length * Math.cos(startAngle - externalAngle);
     const dy = length * Math.sin(startAngle - externalAngle);
@@ -45,8 +43,8 @@ export const EquilateralTriangle = {
         }),
       );
     }
-  }
-}
+  },
+};
 
 export const RightAngleIsoscelesTriangle = {
   numberOfPointsToRequired: 3,
@@ -54,12 +52,8 @@ export const RightAngleIsoscelesTriangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      const angle = points[0].coordinates.angleWith(
-        points[1].coordinates,
-      );
-      const length = points[0].coordinates.dist(
-        points[1].coordinates,
-      );
+      const angle = points[0].coordinates.angleWith(points[1].coordinates);
+      const length = points[0].coordinates.dist(points[1].coordinates);
       const perpendicularAngle = angle + Math.PI / 2;
       const constraintsPoints = [
         points[1].coordinates.add(
@@ -76,10 +70,10 @@ export const RightAngleIsoscelesTriangle = {
         ),
       ];
       return new GeometryConstraint('isConstrained', [], constraintsPoints);
-    }
+    },
   ],
   finishShape: () => {},
-}
+};
 
 export const RightAngleTriangle = {
   numberOfPointsToRequired: 3,
@@ -87,9 +81,7 @@ export const RightAngleTriangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      const angle = points[0].coordinates.angleWith(
-        points[1].coordinates,
-      );
+      const angle = points[0].coordinates.angleWith(points[1].coordinates);
       const perpendicularAngle = angle + Math.PI / 2;
       const lines = [
         [
@@ -101,10 +93,10 @@ export const RightAngleTriangle = {
         ],
       ];
       return new GeometryConstraint('isConstrained', lines);
-    }
+    },
   ],
   finishShape: () => {},
-}
+};
 
 export const IsoscelesTriangle = {
   numberOfPointsToRequired: 3,
@@ -112,12 +104,8 @@ export const IsoscelesTriangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      const angle = points[0].coordinates.angleWith(
-        points[1].coordinates,
-      );
-      const middle = points[0].coordinates.middleWith(
-        points[1].coordinates,
-      );
+      const angle = points[0].coordinates.angleWith(points[1].coordinates);
+      const middle = points[0].coordinates.middleWith(points[1].coordinates);
       const perpendicularAngle = angle + Math.PI / 2;
       const lines = [
         [
@@ -129,10 +117,10 @@ export const IsoscelesTriangle = {
         ],
       ];
       return new GeometryConstraint('isConstrained', lines);
-    }
+    },
   ],
   finishShape: () => {},
-}
+};
 
 export const IrregularTriangle = {
   numberOfPointsToRequired: 3,
@@ -142,4 +130,4 @@ export const IrregularTriangle = {
     () => new GeometryConstraint('isFree'),
   ],
   finishShape: () => {},
-}
+};

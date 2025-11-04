@@ -25,5 +25,5 @@ export default {
   extensions: ['.agg'],
   themeColor: '#57D99B',
   themeColorSoft: '#C4F1D9',
-  textColor: '#000'
+  textColor: '#000',
 };

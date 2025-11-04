@@ -3,7 +3,12 @@ import '@components/popups/template-popup';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { getLastSyncInfo, smartSync } from '../../services/activity-sync.js';
-import { CacheClearError, CacheError, CacheService, CacheUnavailableError } from '../../services/cache.service';
+import {
+  CacheClearError,
+  CacheError,
+  CacheService,
+  CacheUnavailableError,
+} from '../../services/cache.service';
 import { cachedThemes } from '../../store/notions';
 import { syncInProgress, syncProgress } from '../../store/syncState.js';
 import { getAllActivities } from '../../utils/indexeddb-activities.js';
@@ -13,7 +18,10 @@ import { debounce } from '../../utils/signal-observer.js';
  * Types d'erreurs pour la synchronisation
  */
 class SyncError extends Error {
-  constructor(message: string, public type: string = 'SYNC_ERROR') {
+  constructor(
+    message: string,
+    public type: string = 'SYNC_ERROR',
+  ) {
     super(message);
     this.name = 'SyncError';
   }
@@ -26,7 +34,7 @@ class NetworkError extends SyncError {
 }
 
 class AuthError extends SyncError {
-  constructor(message: string = 'Erreur d\'authentification') {
+  constructor(message: string = "Erreur d'authentification") {
     super(message, 'AUTH_ERROR');
   }
 }
@@ -52,25 +60,29 @@ class SyncSettingsPopup extends LitElement {
     try {
       const [syncInfo, localActivities] = await Promise.all([
         getLastSyncInfo(),
-        getAllActivities()
+        getAllActivities(),
       ]);
 
       this.lastSyncInfo = syncInfo;
       this.localActivitiesCount = localActivities.length;
 
       if ((window as any).dev_mode) {
-    
       }
     } catch (error) {
-      console.warn('Erreur lors du chargement des informations de sync:', error);
+      console.warn(
+        'Erreur lors du chargement des informations de sync:',
+        error,
+      );
     }
   }
 
   close() {
-    this.dispatchEvent(new CustomEvent('closed', {
-      bubbles: true,
-      composed: true
-    }));
+    this.dispatchEvent(
+      new CustomEvent('closed', {
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   static styles = css`
@@ -81,7 +93,7 @@ class SyncSettingsPopup extends LitElement {
       width: 100%;
       max-width: 500px;
       padding: 16px;
-        color: var(--theme-text-color, #222);
+      color: var(--theme-text-color, #222);
     }
 
     .section {
@@ -89,7 +101,7 @@ class SyncSettingsPopup extends LitElement {
       border-radius: 14px;
       padding: 22px 20px 18px 20px;
       border: 1.5px solid var(--theme-color, #b2e6b2);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
       margin-bottom: 18px;
     }
 
@@ -115,7 +127,7 @@ class SyncSettingsPopup extends LitElement {
 
     .detail-item {
       padding: 8px 12px;
-      background: var(--theme-color-soft, rgba(255,255,255,0.05));
+      background: var(--theme-color-soft, rgba(255, 255, 255, 0.05));
       border-radius: 6px;
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
@@ -137,7 +149,7 @@ class SyncSettingsPopup extends LitElement {
       align-items: center;
       gap: 8px;
       padding: 12px;
-      background: var(--theme-color-soft, rgba(255,255,255,0.05));
+      background: var(--theme-color-soft, rgba(255, 255, 255, 0.05));
       border-radius: 8px;
       margin-bottom: 16px;
       color: var(--theme-text-color, #222);
@@ -168,24 +180,29 @@ class SyncSettingsPopup extends LitElement {
     }
 
     .status-dot.success {
-      background: #4CAF50;
+      background: #4caf50;
       box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
     }
 
     .status-dot.warning {
-      background: #FF9800;
+      background: #ff9800;
       box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
       animation: pulse 2s infinite;
     }
 
     .status-dot.error {
-      background: #F44336;
+      background: #f44336;
       box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
     }
 
     .actions-grid {
@@ -196,7 +213,7 @@ class SyncSettingsPopup extends LitElement {
       box-shadow: none;
     }
 
-   .primary-action {
+    .primary-action {
       grid-column: 1 / -1;
     }
 
@@ -205,20 +222,22 @@ class SyncSettingsPopup extends LitElement {
       min-height: 48px;
       font-weight: 600;
       border-radius: 8px;
-      background: var(--theme-color, #4CAF50);
+      background: var(--theme-color, #4caf50);
       color: #fff;
       border: none;
-      box-shadow: 0 2px 8px rgba(44,62,80,0.10);
-      transition: box-shadow 0.2s, background 0.2s;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.1);
+      transition:
+        box-shadow 0.2s,
+        background 0.2s;
     }
     .primary-action color-button:hover {
       background: var(--theme-color-dark, #388e3c);
-      box-shadow: 0 4px 16px rgba(44,62,80,0.16);
+      box-shadow: 0 4px 16px rgba(44, 62, 80, 0.16);
     }
 
     /* Amélioration de l'accessibilité - Focus visible */
     color-button:focus {
-      outline: 2px solid var(--theme-color, #4CAF50);
+      outline: 2px solid var(--theme-color, #4caf50);
       outline-offset: 2px;
     }
 
@@ -301,21 +320,32 @@ class SyncSettingsPopup extends LitElement {
 
     .loading-indicator {
       height: 4px;
-      background: linear-gradient(90deg,
-        var(--theme-color, #4CAF50) 0%,
+      background: linear-gradient(
+        90deg,
+        var(--theme-color, #4caf50) 0%,
         rgba(76, 175, 80, 0.3) 50%,
-        var(--theme-color, #4CAF50) 100%);
+        var(--theme-color, #4caf50) 100%
+      );
       border-radius: 2px;
       animation: progress 2s infinite;
       margin: 8px 0;
     }
 
     @keyframes progress {
-      0% { opacity: 0.6; transform: scaleX(0.8); }
-      50% { opacity: 1; transform: scaleX(1); }
-      100% { opacity: 0.6; transform: scaleX(0.8); }
+      0% {
+        opacity: 0.6;
+        transform: scaleX(0.8);
+      }
+      50% {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+      100% {
+        opacity: 0.6;
+        transform: scaleX(0.8);
+      }
     }
-  `
+  `;
 
   async forceSync() {
     try {
@@ -323,29 +353,34 @@ class SyncSettingsPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
-  
-
       const result = await smartSync({ force: true });
 
       if (result === 'completed') {
         this.successMessage = '🔄 Synchronisation forcée terminée avec succès';
         await this.loadSyncInfo();
-  
       } else if (result === 'recent') {
-        this.successMessage = '✅ Synchronisation déjà récente, aucune action nécessaire';
-
+        this.successMessage =
+          '✅ Synchronisation déjà récente, aucune action nécessaire';
       } else {
         this.errorMessage = 'Erreur lors de la synchronisation forcée';
       }
     } catch (error) {
       console.error('[SYNC] Erreur synchronisation:', error);
 
-      if (error.message?.includes('network') || error.message?.includes('fetch')) {
-        this.errorMessage = '🌐 Problème de connexion réseau. Vérifiez votre connexion internet.';
-      } else if (error.message?.includes('auth') || error.message?.includes('401')) {
-        this.errorMessage = '🔒 Erreur d\'authentification. Reconnectez-vous.';
+      if (
+        error.message?.includes('network') ||
+        error.message?.includes('fetch')
+      ) {
+        this.errorMessage =
+          '🌐 Problème de connexion réseau. Vérifiez votre connexion internet.';
+      } else if (
+        error.message?.includes('auth') ||
+        error.message?.includes('401')
+      ) {
+        this.errorMessage = "🔒 Erreur d'authentification. Reconnectez-vous.";
       } else if (error.message?.includes('timeout')) {
-        this.errorMessage = '⏱️ Délai d\'attente dépassé. Réessayez dans quelques instants.';
+        this.errorMessage =
+          "⏱️ Délai d'attente dépassé. Réessayez dans quelques instants.";
       } else {
         this.errorMessage = `⚠️ Erreur technique: ${error.message}`;
       }
@@ -372,8 +407,6 @@ class SyncSettingsPopup extends LitElement {
       this.errorMessage = '';
       this.successMessage = '';
 
-  
-
       const statistiques = await CacheService.obtenirStatistiques();
       if (!statistiques.disponible) {
         this.errorMessage = `💾 Cache non disponible: ${statistiques.raison}`;
@@ -389,16 +422,15 @@ class SyncSettingsPopup extends LitElement {
       cachedThemes.set([]);
 
       this.successMessage = `🗑️ Cache vidé avec succès (${statistiques.nombreElements} éléments supprimés)`;
-
-
-
     } catch (error) {
       console.error('Erreur lors du vidage du cache:', error);
 
       if (error instanceof CacheUnavailableError) {
-        this.errorMessage = '💾 Cache non accessible. Vérifiez le support IndexedDB de votre navigateur.';
+        this.errorMessage =
+          '💾 Cache non accessible. Vérifiez le support IndexedDB de votre navigateur.';
       } else if (error instanceof CacheClearError) {
-        this.errorMessage = '🚫 Impossible de vider le cache. Réessayez ou redémarrez l\'application.';
+        this.errorMessage =
+          "🚫 Impossible de vider le cache. Réessayez ou redémarrez l'application.";
       } else if (error instanceof CacheError) {
         this.errorMessage = `💾 Erreur cache: ${error.message}`;
       } else {
@@ -412,67 +444,95 @@ class SyncSettingsPopup extends LitElement {
       <template-popup>
         <h2 slot="title">⚙️ Paramètres de synchronisation</h2>
         <div slot="body" class="popup-content">
-
           <!-- Section Statut de synchronisation -->
           <div class="section">
             <h3 class="section-title">📊 Statut de synchronisation</h3>
 
-            <div class="status-indicator ${syncInProgress.value
-        ? 'progress'
-        : this.lastSyncInfo && this.localActivitiesCount < this.lastSyncInfo.totalFilesCount
-          ? 'warning'
-          : 'success'
-      }">
-               <span>
+            <div
+              class="status-indicator ${syncInProgress.value
+                ? 'progress'
+                : this.lastSyncInfo &&
+                    this.localActivitiesCount <
+                      this.lastSyncInfo.totalFilesCount
+                  ? 'warning'
+                  : 'success'}"
+            >
+              <span>
                 ${syncInProgress.value
-        ? `🔄 Synchronisation en cours (${Math.min(syncProgress.value ?? 0, 100)}%)`
-        : this.lastSyncInfo && this.localActivitiesCount < this.lastSyncInfo.totalFilesCount
-          ? `⚠️ Synchronisation partielle (${this.localActivitiesCount}/${this.lastSyncInfo.totalFilesCount})`
-          : '✅ Synchronisation complète'
-      }
+                  ? `🔄 Synchronisation en cours (${Math.min(syncProgress.value ?? 0, 100)}%)`
+                  : this.lastSyncInfo &&
+                      this.localActivitiesCount <
+                        this.lastSyncInfo.totalFilesCount
+                    ? `⚠️ Synchronisation partielle (${this.localActivitiesCount}/${this.lastSyncInfo.totalFilesCount})`
+                    : '✅ Synchronisation complète'}
               </span>
             </div>
 
-            ${this.lastSyncInfo ? html`
-              <div class="sync-details">
-                <div class="detail-item">
-                  <div class="detail-label">Dernière synchronisation</div>
-                  <div class="detail-value">${this.lastSyncInfo.lastSyncDate.toLocaleDateString()} à ${this.lastSyncInfo.lastSyncDate.toLocaleTimeString()}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Statut</div>
-                  <div class="detail-value">${this.lastSyncInfo.nextSyncDue ? '⚠️ Sync recommandée' : '✅ À jour'}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Activités en local</div>
-                  <div class="detail-value">${this.localActivitiesCount} / ${this.lastSyncInfo.totalFilesCount} disponibles</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Dernière session</div>
-                  <div class="detail-value">${this.lastSyncInfo.syncedFilesCount} ${this.lastSyncInfo.syncedFilesCount === 1 ? 'mise à jour' : 'mises à jour'}</div>
-                </div>
-                <div class="detail-item">
-                  <div class="detail-label">Thèmes disponibles</div>
-                  <div class="detail-value">${this.lastSyncInfo.totalThemesCount} thèmes</div>
-                </div>
-              </div>
-            ` : html`
-              <div class="message warning-message">
-                <span>⚠️</span>
-                <span>Aucune synchronisation détectée</span>
-              </div>
-            `}
+            ${this.lastSyncInfo
+              ? html`
+                  <div class="sync-details">
+                    <div class="detail-item">
+                      <div class="detail-label">Dernière synchronisation</div>
+                      <div class="detail-value">
+                        ${this.lastSyncInfo.lastSyncDate.toLocaleDateString()} à
+                        ${this.lastSyncInfo.lastSyncDate.toLocaleTimeString()}
+                      </div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">Statut</div>
+                      <div class="detail-value">
+                        ${this.lastSyncInfo.nextSyncDue
+                          ? '⚠️ Sync recommandée'
+                          : '✅ À jour'}
+                      </div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">Activités en local</div>
+                      <div class="detail-value">
+                        ${this.localActivitiesCount} /
+                        ${this.lastSyncInfo.totalFilesCount} disponibles
+                      </div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">Dernière session</div>
+                      <div class="detail-value">
+                        ${this.lastSyncInfo.syncedFilesCount}
+                        ${this.lastSyncInfo.syncedFilesCount === 1
+                          ? 'mise à jour'
+                          : 'mises à jour'}
+                      </div>
+                    </div>
+                    <div class="detail-item">
+                      <div class="detail-label">Thèmes disponibles</div>
+                      <div class="detail-value">
+                        ${this.lastSyncInfo.totalThemesCount} thèmes
+                      </div>
+                    </div>
+                  </div>
+                `
+              : html`
+                  <div class="message warning-message">
+                    <span>⚠️</span>
+                    <span>Aucune synchronisation détectée</span>
+                  </div>
+                `}
 
             <div class="primary-action">
               <color-button
                 @click="${this.debouncedForceSync}"
                 ?disabled="${this.isSyncing || syncInProgress.value}"
-                aria-label="${this.lastSyncInfo?.nextSyncDue ? 'Synchroniser les données maintenant' : 'Forcer une nouvelle synchronisation'}"
+                aria-label="${this.lastSyncInfo?.nextSyncDue
+                  ? 'Synchroniser les données maintenant'
+                  : 'Forcer une nouvelle synchronisation'}"
                 role="button"
                 tabindex="0"
               >
-                <span aria-hidden="true">${this.lastSyncInfo?.nextSyncDue ? '🔄' : '🔧'}</span>
-                ${this.lastSyncInfo?.nextSyncDue ? 'Synchroniser maintenant' : 'Forcer la synchronisation'}
+                <span aria-hidden="true"
+                  >${this.lastSyncInfo?.nextSyncDue ? '🔄' : '🔧'}</span
+                >
+                ${this.lastSyncInfo?.nextSyncDue
+                  ? 'Synchroniser maintenant'
+                  : 'Forcer la synchronisation'}
               </color-button>
             </div>
 
@@ -483,9 +543,12 @@ class SyncSettingsPopup extends LitElement {
           <div class="section">
             <h3 class="section-title">💾 Gestion du cache local</h3>
 
-            <p style="font-size: 0.9em; color: var(--theme-value-color, #1a3a1a); margin-bottom: 16px;">
+            <p
+              style="font-size: 0.9em; color: var(--theme-value-color, #1a3a1a); margin-bottom: 16px;"
+            >
               Le cache local améliore les performances en stockant les données.
-              Videz-le si vous rencontrez des problèmes ou pour libérer de l'espace.
+              Videz-le si vous rencontrez des problèmes ou pour libérer de
+              l'espace.
             </p>
 
             <div class="actions-grid">
@@ -509,51 +572,63 @@ class SyncSettingsPopup extends LitElement {
           </div>
 
           <!-- Messages d'état -->
-          ${this.errorMessage ? html`
-            <div class="message error-message">
-              <span>⚠️</span>
-              <span>${this.errorMessage}</span>
-            </div>
-          ` : ''}
-
-          ${this.successMessage ? html`
-            <div class="message success-message">
-              <span>${this.successMessage}</span>
-            </div>
-          ` : ''}
+          ${this.errorMessage
+            ? html`
+                <div class="message error-message">
+                  <span>⚠️</span>
+                  <span>${this.errorMessage}</span>
+                </div>
+              `
+            : ''}
+          ${this.successMessage
+            ? html`
+                <div class="message success-message">
+                  <span>${this.successMessage}</span>
+                </div>
+              `
+            : ''}
         </div>
       </template-popup>
 
       <!-- Dialog de confirmation pour vider le cache -->
-      ${this.showClearCacheConfirmation ? html`
-        <div class="confirmation-overlay" @click="${this.cancelClearCache}">
-          <div class="confirmation-dialog" @click="${(e: Event) => e.stopPropagation()}">
-            <h3>🗑️ Vider le cache local</h3>
-            <p>Cette action supprimera toutes les données mises en cache localement. Vous devrez les retélécharger lors de votre prochaine utilisation.</p>
-            <p><strong>Êtes-vous sûr de vouloir continuer ?</strong></p>
-            <div class="confirmation-actions">
-              <color-button
-                @click="${this.cancelClearCache}"
-                style="background: #6c757d;"
-                aria-label="Annuler le vidage du cache"
-                role="button"
-                tabindex="0"
+      ${this.showClearCacheConfirmation
+        ? html`
+            <div class="confirmation-overlay" @click="${this.cancelClearCache}">
+              <div
+                class="confirmation-dialog"
+                @click="${(e: Event) => e.stopPropagation()}"
               >
-                <span aria-hidden="true">❌</span> Annuler
-              </color-button>
-              <color-button
-                @click="${this.confirmClearCache}"
-                style="background: #dc3545;"
-                aria-label="Confirmer le vidage du cache local"
-                role="button"
-                tabindex="0"
-              >
-                <span aria-hidden="true">🗑️</span> Vider le cache
-              </color-button>
+                <h3>🗑️ Vider le cache local</h3>
+                <p>
+                  Cette action supprimera toutes les données mises en cache
+                  localement. Vous devrez les retélécharger lors de votre
+                  prochaine utilisation.
+                </p>
+                <p><strong>Êtes-vous sûr de vouloir continuer ?</strong></p>
+                <div class="confirmation-actions">
+                  <color-button
+                    @click="${this.cancelClearCache}"
+                    style="background: #6c757d;"
+                    aria-label="Annuler le vidage du cache"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <span aria-hidden="true">❌</span> Annuler
+                  </color-button>
+                  <color-button
+                    @click="${this.confirmClearCache}"
+                    style="background: #dc3545;"
+                    aria-label="Confirmer le vidage du cache local"
+                    role="button"
+                    tabindex="0"
+                  >
+                    <span aria-hidden="true">🗑️</span> Vider le cache
+                  </color-button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      ` : ''}
+          `
+        : ''}
     `;
   }
 }

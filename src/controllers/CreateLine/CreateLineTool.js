@@ -57,8 +57,8 @@ export class CreateLineTool extends Tool {
     elem.family = 'Lignes';
     elem.templatesNames = lines;
     elem.selectedTemplate = app.tool.selectedTemplate;
-    elem.type = "Geometry"
-    elem.nextStep = 'drawFirstPoint'
+    elem.type = 'Geometry';
+    elem.nextStep = 'drawFirstPoint';
     document.querySelector('body').appendChild(elem);
   }
 
@@ -75,20 +75,34 @@ export class CreateLineTool extends Tool {
       !app.tool.selectedTemplate.name.startsWith('Perpendicular')
     ) {
       app.upperCanvasLayer.removeAllObjects();
-      setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } }), 50);
+      setTimeout(
+        () =>
+          setState({
+            tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+          }),
+        50,
+      );
     } else {
-      setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'selectReference' } }), 50);
+      setTimeout(
+        () =>
+          setState({
+            tool: {
+              ...app.tool,
+              name: this.name,
+              currentStep: 'selectReference',
+            },
+          }),
+        50,
+      );
     }
   }
 
   selectReference() {
     app.upperCanvasLayer.removeAllObjects();
 
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.click_all_segments;
-    this.objectSelectedId = app.addListener(
-      'objectSelected',
-      this.handler,
-    );
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_segments;
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
   drawPoint() {
@@ -120,8 +134,7 @@ export class CreateLineTool extends Tool {
   objectSelected(segment) {
     if (app.tool.currentStep != 'selectReference') return;
 
-    if (segment.isArc())
-      return;
+    if (segment.isArc()) return;
 
     this.geometryParentObjectId = segment.id;
 
@@ -132,7 +145,9 @@ export class CreateLineTool extends Tool {
       strokeWidth: 2,
     });
 
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } })
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+    });
   }
 
   canvasMouseDown() {
@@ -140,8 +155,15 @@ export class CreateLineTool extends Tool {
       app.workspace.lastKnownMouseCoordinates,
     );
 
-    if (this.constraints.type == 'isConstrained' && !this.constraints.projectionOnConstraints(newCoordinates, true)) {
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point sur la contrainte.' } }))
+    if (
+      this.constraints.type == 'isConstrained' &&
+      !this.constraints.projectionOnConstraints(newCoordinates, true)
+    ) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Veuillez placer le point sur la contrainte.' },
+        }),
+      );
       return;
     }
 
@@ -236,12 +258,20 @@ export class CreateLineTool extends Tool {
           seg.shapeId = shape.id;
         });
       }
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+      });
     }
   }
 
   canvasMouseUp() {
-    if (this.numberOfPointsDrawn == 2 && SelectManager.areCoordinatesInMagnetismDistance(this.points[0].coordinates, this.points[1].coordinates)) {
+    if (
+      this.numberOfPointsDrawn == 2 &&
+      SelectManager.areCoordinatesInMagnetismDistance(
+        this.points[0].coordinates,
+        this.points[1].coordinates,
+      )
+    ) {
       const firstPointCoordinates = this.points[0].coordinates;
       this.numberOfPointsDrawn = 1;
       app.upperCanvasLayer.removeAllObjects();
@@ -252,8 +282,14 @@ export class CreateLineTool extends Tool {
         size: 2,
       });
       this.segments = [];
-      window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Veuillez placer le point autre part.' },
+        }),
+      );
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      });
       return;
     }
 
@@ -261,10 +297,14 @@ export class CreateLineTool extends Tool {
       this.stopAnimation();
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+      });
     } else {
       this.stopAnimation();
-      setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' } });
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      });
     }
   }
 
@@ -274,14 +314,20 @@ export class CreateLineTool extends Tool {
       let constraints = SelectManager.getEmptySelectionConstraints().points;
       constraints.canSelect = true;
       let adjustedPoint;
-      if (adjustedPoint = SelectManager.selectPoint(
-        point.coordinates,
-        constraints,
-        false,
-      )) {
+      if (
+        (adjustedPoint = SelectManager.selectPoint(
+          point.coordinates,
+          constraints,
+          false,
+        ))
+      ) {
         point.coordinates = new Coordinates(adjustedPoint.coordinates);
         point.adjustedOn = adjustedPoint;
-      } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates())) {
+      } else if (
+        (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
+          point.coordinates.toCanvasCoordinates(),
+        ))
+      ) {
         const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
         point.coordinates = new Coordinates(adjustedPointInWorldSpace);
         point.adjustedOn = adjustedPointInWorldSpace;
@@ -293,7 +339,9 @@ export class CreateLineTool extends Tool {
           constraints,
         );
         if (adjustedSegment) {
-          point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+          point.coordinates = adjustedSegment.projectionOnSegment(
+            point.coordinates,
+          );
           point.adjustedOn = adjustedSegment;
         }
       }
@@ -304,19 +352,33 @@ export class CreateLineTool extends Tool {
 
       const constraints = SelectManager.getEmptySelectionConstraints().segments;
       constraints.canSelect = true;
-      constraints.numberOfObjects = "allInDistance";
+      constraints.numberOfObjects = 'allInDistance';
       const adjustedSegments = SelectManager.selectSegment(
         adjustedCoordinates,
         constraints,
       );
       if (adjustedSegments) {
-        const adjustedSegment = adjustedSegments.filter(seg => !seg.isParalleleWith(this.constraints.segments[0])).sort((seg1, seg2) =>
-          seg1.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) > seg2.projectionOnSegment(adjustedCoordinates).dist(adjustedCoordinates) ? 1 : -1
-        )[0];
-        if (adjustedSegment) {
-          adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
-            intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1
+        const adjustedSegment = adjustedSegments
+          .filter((seg) => !seg.isParalleleWith(this.constraints.segments[0]))
+          .sort((seg1, seg2) =>
+            seg1
+              .projectionOnSegment(adjustedCoordinates)
+              .dist(adjustedCoordinates) >
+            seg2
+              .projectionOnSegment(adjustedCoordinates)
+              .dist(adjustedCoordinates)
+              ? 1
+              : -1,
           )[0];
+        if (adjustedSegment) {
+          adjustedCoordinates = adjustedSegment
+            .intersectionWith(this.constraints.segments[0])
+            .sort((intersection1, intersection2) =>
+              intersection1.dist(adjustedCoordinates) >
+              intersection2.dist(adjustedCoordinates)
+                ? 1
+                : -1,
+            )[0];
           point.adjustedOn = adjustedSegment;
         }
       }
@@ -343,20 +405,19 @@ export class CreateLineTool extends Tool {
 
   numberOfPointsRequired() {
     const pointsRequired = {
-      'Segment': 2,
-      'ParalleleSegment': 2,
-      'PerpendicularSegment': 2,
-      'SemiStraightLine': 2,
-      'ParalleleSemiStraightLine': 2,
-      'PerpendicularSemiStraightLine': 2,
-      'StraightLine': 2,
-      'ParalleleStraightLine': 1,
-      'PerpendicularStraightLine': 1,
-      'Strip': 3,
-      'Vector': 2,
+      Segment: 2,
+      ParalleleSegment: 2,
+      PerpendicularSegment: 2,
+      SemiStraightLine: 2,
+      ParalleleSemiStraightLine: 2,
+      PerpendicularSemiStraightLine: 2,
+      StraightLine: 2,
+      ParalleleStraightLine: 1,
+      PerpendicularStraightLine: 1,
+      Strip: 3,
+      Vector: 2,
     };
     return pointsRequired[app.tool.selectedTemplate.name];
-
   }
 
   finishShape() {
@@ -369,10 +430,12 @@ export class CreateLineTool extends Tool {
     } else if (app.tool.selectedTemplate.name == 'PerpendicularStraightLine') {
       const referenceSegment = findObjectById(this.geometryParentObjectId);
       const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
-      newCoordinates = this.points[0].coordinates.add(new Coordinates({
-        x: 100 * Math.cos(angle),
-        y: 100 * Math.sin(angle),
-      }));
+      newCoordinates = this.points[0].coordinates.add(
+        new Coordinates({
+          x: 100 * Math.cos(angle),
+          y: 100 * Math.sin(angle),
+        }),
+      );
     } else if (app.tool.selectedTemplate.name == 'Strip') {
       const referenceSegment = this.segments[0];
       newCoordinates = this.points[2].coordinates
@@ -402,23 +465,21 @@ export class CreateLineTool extends Tool {
       this.constraints = new GeometryConstraint('isFree');
     } else if (pointNb == 1) {
       if (app.tool.selectedTemplate.name.startsWith('Parallele')) {
-        const referenceSegment = findObjectById(
-          this.geometryParentObjectId
-        );
+        const referenceSegment = findObjectById(this.geometryParentObjectId);
         const secondCoordinates = this.points[0].coordinates
           .substract(referenceSegment.vertexes[0].coordinates)
           .add(referenceSegment.vertexes[1].coordinates);
         const lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
       } else if (app.tool.selectedTemplate.name.startsWith('Perpendicular')) {
-        const referenceSegment = findObjectById(
-          this.geometryParentObjectId
-        );
+        const referenceSegment = findObjectById(this.geometryParentObjectId);
         const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
-        const secondCoordinates = this.points[0].coordinates.add(new Coordinates({
-          x: 100 * Math.cos(angle),
-          y: 100 * Math.sin(angle),
-        }));
+        const secondCoordinates = this.points[0].coordinates.add(
+          new Coordinates({
+            x: 100 * Math.cos(angle),
+            y: 100 * Math.sin(angle),
+          }),
+        );
         const lines = [[this.points[0].coordinates, secondCoordinates]];
         this.constraints = new GeometryConstraint('isConstrained', lines);
       } else {
@@ -483,8 +544,10 @@ export class CreateLineTool extends Tool {
         app.tool.selectedTemplate.name == 'PerpendicularStraightLine'
       ) {
         shape.segments[0].isInfinite = true;
-        if (app.tool.selectedTemplate.name == 'ParalleleStraightLine' ||
-          app.tool.selectedTemplate.name == 'PerpendicularStraightLine') {
+        if (
+          app.tool.selectedTemplate.name == 'ParalleleStraightLine' ||
+          app.tool.selectedTemplate.name == 'PerpendicularStraightLine'
+        ) {
           shape.points[1].visible = false;
         }
       } else if (
@@ -502,7 +565,8 @@ export class CreateLineTool extends Tool {
     }
 
     if (this.geometryParentObjectId) {
-      shape.geometryObject.geometryParentObjectId1 = this.geometryParentObjectId;
+      shape.geometryObject.geometryParentObjectId1 =
+        this.geometryParentObjectId;
       const reference = findObjectById(this.geometryParentObjectId);
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
     }

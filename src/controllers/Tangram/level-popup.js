@@ -4,7 +4,7 @@ import { css, html, LitElement } from 'lit';
 
 class LevelPopup extends LitElement {
   static properties = {
-    level: { type: Number }
+    level: { type: Number },
   };
 
   constructor() {
@@ -15,16 +15,16 @@ class LevelPopup extends LitElement {
   static styles = [
     TemplatePopup.template_popup_styles(),
     css`
-        .choice {
-          display: flex;
-          align-items: center;
-          width: 100%;
-        }
-        input[type='radio'] {
-          display: inline;
-        }
-      `,
-  ]
+      .choice {
+        display: flex;
+        align-items: center;
+        width: 100%;
+      }
+      input[type='radio'] {
+        display: inline;
+      }
+    `,
+  ];
 
   render() {
     return html`
@@ -81,7 +81,12 @@ class LevelPopup extends LitElement {
             />
             <label for="level5">5 Echelle différente avec lignes</label>
           </div>
-          <div class="choice" @click="${() => { this.level = 6 }}">
+          <div
+            class="choice"
+            @click="${() => {
+              this.level = 6;
+            }}"
+          >
             <input
               type="radio"
               id="level6"

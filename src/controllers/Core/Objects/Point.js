@@ -38,10 +38,8 @@ export class Point {
     geometryIsVisible = true,
     geometryIsHidden = false,
   }) {
-    if (id == undefined)
-      id = uniqId(layer, 'point');
-    else
-      id = addInfoToId(id, layer, 'point');
+    if (id == undefined) id = uniqId(layer, 'point');
+    else id = addInfoToId(id, layer, 'point');
     this.id = id;
     this.layer = layer;
     this.canvasLayer.points.push(this);
@@ -50,8 +48,8 @@ export class Point {
       this.coordinates = new Coordinates(coordinates);
     else
       this.coordinates = new Coordinates({
-        x: 0,//parseFloat(x),
-        y: 0,//parseFloat(y),
+        x: 0, //parseFloat(x),
+        y: 0, //parseFloat(y),
       });
 
     this.shapeId = shapeId;
@@ -78,9 +76,7 @@ export class Point {
   }
 
   get shape() {
-    const shape = this.canvasLayer.shapes.find(
-      (s) => s.id === this.shapeId,
-    );
+    const shape = this.canvasLayer.shapes.find((s) => s.id === this.shapeId);
     return shape;
   }
 
@@ -155,7 +151,9 @@ export class Point {
       constraints.isConstructed = true;
     } else if (this.shape.geometryObject.geometryTransformationName != null) {
       constraints.isConstructed = true;
-    } else if (this.shape.geometryObject.geometryDuplicateParentShapeId != null) {
+    } else if (
+      this.shape.geometryObject.geometryDuplicateParentShapeId != null
+    ) {
       constraints.isConstructed = true;
     } else if (this.shape.familyName == 'copy') {
       constraints.isConstructed = true;
@@ -167,7 +165,7 @@ export class Point {
           constraints.isConstructed = true;
         }
       } else if (this.shape.familyName == 'Irregular') {
-        if (this.shape.points.some(pt => pt.type == 'arcCenter')) {
+        if (this.shape.points.some((pt) => pt.type == 'arcCenter')) {
           constraints.isBlocked = true;
         } else {
           constraints.isFree = true;
@@ -192,14 +190,16 @@ export class Point {
 
           const firstSeg = this.shape.segments[0];
           const middleOfSegment = firstSeg.middle;
-          constraints.lines = [{
-            segment: new Segment({
-              layer: 'invisible',
-              createFromNothing: true,
-              vertexCoordinates: [this.coordinates, middleOfSegment],
-            }),
-            isInfinite: true,
-          }];
+          constraints.lines = [
+            {
+              segment: new Segment({
+                layer: 'invisible',
+                createFromNothing: true,
+                vertexCoordinates: [this.coordinates, middleOfSegment],
+              }),
+              isInfinite: true,
+            },
+          ];
         }
       } else if (this.shape.name == 'RightAngleIsoscelesTriangle') {
         if (this.idx < 2) {
@@ -211,12 +211,20 @@ export class Point {
           const angle = firstSeg.getAngleWithHorizontal();
           const perpendicularAngle = angle + Math.PI / 2;
           const firstPoint = new Coordinates({
-            x: firstSeg.vertexes[1].x + Math.cos(perpendicularAngle) * segmentLength,
-            y: firstSeg.vertexes[1].y + Math.sin(perpendicularAngle) * segmentLength,
+            x:
+              firstSeg.vertexes[1].x +
+              Math.cos(perpendicularAngle) * segmentLength,
+            y:
+              firstSeg.vertexes[1].y +
+              Math.sin(perpendicularAngle) * segmentLength,
           });
           const secondPoint = new Coordinates({
-            x: firstSeg.vertexes[1].x - Math.cos(perpendicularAngle) * segmentLength,
-            y: firstSeg.vertexes[1].y - Math.sin(perpendicularAngle) * segmentLength,
+            x:
+              firstSeg.vertexes[1].x -
+              Math.cos(perpendicularAngle) * segmentLength,
+            y:
+              firstSeg.vertexes[1].y -
+              Math.sin(perpendicularAngle) * segmentLength,
           });
           constraints.points.push(firstPoint);
           constraints.points.push(secondPoint);
@@ -249,7 +257,8 @@ export class Point {
               arcCenterCoordinates: this.shape.vertexes[1].coordinates,
             }),
           };
-          constraintLine.segment.vertexIds[1] = constraintLine.segment.vertexIds[0];
+          constraintLine.segment.vertexIds[1] =
+            constraintLine.segment.vertexIds[0];
           constraints.lines = [constraintLine];
         } else {
           constraints.isConstructed = true;
@@ -284,14 +293,19 @@ export class Point {
           constraints.isFree = true;
         } else {
           constraints.isConstrained = true;
-          constraints.lines = [{
-            segment: new Segment({
-              layer: 'invisible',
-              createFromNothing: true,
-              vertexCoordinates: [this.shape.vertexes[2].coordinates, this.shape.vertexes[3].coordinates],
-            }),
-            isInfinite: true,
-          }];
+          constraints.lines = [
+            {
+              segment: new Segment({
+                layer: 'invisible',
+                createFromNothing: true,
+                vertexCoordinates: [
+                  this.shape.vertexes[2].coordinates,
+                  this.shape.vertexes[3].coordinates,
+                ],
+              }),
+              isInfinite: true,
+            },
+          ];
         }
       } else if (this.shape.name == 'Circle') {
         constraints.isFree = true;
@@ -302,14 +316,16 @@ export class Point {
           constraints.isFree = true;
         } else {
           constraints.isConstrained = true;
-          constraints.lines = [{
-            segment: new Segment({
-              layer: 'invisible',
-              createFromNothing: true,
-              vertexCoordinates: [this.coordinates, this.coordinates],
-              arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
-            }),
-          }];
+          constraints.lines = [
+            {
+              segment: new Segment({
+                layer: 'invisible',
+                createFromNothing: true,
+                vertexCoordinates: [this.coordinates, this.coordinates],
+                arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
+              }),
+            },
+          ];
         }
       } else if (this.shape.name == 'CircleArc') {
         if (this.type == 'arcCenter') {
@@ -318,16 +334,21 @@ export class Point {
           constraints.isFree = true;
         } else {
           constraints.isConstrained = true;
-          constraints.lines = [{
-            segment: new Segment({
-              layer: 'invisible',
-              createFromNothing: true,
-              vertexCoordinates: [this.coordinates, this.coordinates],
-              arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
-            }),
-          }];
+          constraints.lines = [
+            {
+              segment: new Segment({
+                layer: 'invisible',
+                createFromNothing: true,
+                vertexCoordinates: [this.coordinates, this.coordinates],
+                arcCenterCoordinates: this.segments[0].arcCenter.coordinates,
+              }),
+            },
+          ];
         }
-      } else if (this.shape.name == '30degreesArc' || this.shape.name == '45degreesArc') {
+      } else if (
+        this.shape.name == '30degreesArc' ||
+        this.shape.name == '45degreesArc'
+      ) {
         if (this.type == 'arcCenter') {
           constraints.isFree = true;
         } else if (this.idx == 0) {
@@ -342,16 +363,23 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          const reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
+          const reference = findObjectById(
+            this.shape.geometryObject.geometryParentObjectId1,
+          );
           const referenceAngle = reference.getAngleWithHorizontal();
           const constraintLine = {
             segment: new Segment({
               layer: 'invisible',
               createFromNothing: true,
-              vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
-                x: 100 * Math.cos(referenceAngle),
-                y: 100 * Math.sin(referenceAngle),
-              }))],
+              vertexCoordinates: [
+                this.shape.vertexes[0],
+                this.shape.vertexes[0].coordinates.add(
+                  new Coordinates({
+                    x: 100 * Math.cos(referenceAngle),
+                    y: 100 * Math.sin(referenceAngle),
+                  }),
+                ),
+              ],
             }),
             isInfinite: true,
           };
@@ -362,16 +390,24 @@ export class Point {
           this.idx == 1
         ) {
           constraints.isConstrained = true;
-          const reference = findObjectById(this.shape.geometryObject.geometryParentObjectId1);
-          const referenceAngle = reference.getAngleWithHorizontal() + Math.PI / 2;
+          const reference = findObjectById(
+            this.shape.geometryObject.geometryParentObjectId1,
+          );
+          const referenceAngle =
+            reference.getAngleWithHorizontal() + Math.PI / 2;
           const constraintLine = {
             segment: new Segment({
               layer: 'invisible',
               createFromNothing: true,
-              vertexCoordinates: [this.shape.vertexes[0], this.shape.vertexes[0].coordinates.add(new Coordinates({
-                x: 100 * Math.cos(referenceAngle),
-                y: 100 * Math.sin(referenceAngle),
-              }))],
+              vertexCoordinates: [
+                this.shape.vertexes[0],
+                this.shape.vertexes[0].coordinates.add(
+                  new Coordinates({
+                    x: 100 * Math.cos(referenceAngle),
+                    y: 100 * Math.sin(referenceAngle),
+                  }),
+                ),
+              ],
             }),
             isInfinite: true,
           };
@@ -392,7 +428,10 @@ export class Point {
       } else if (this.shape.familyName == 'Point') {
         if (this.shape.name == 'Point') {
           constraints.isFree = true;
-        } else if (this.shape.name == 'PointOnLine' || this.shape.name == 'PointOnShape') {
+        } else if (
+          this.shape.name == 'PointOnLine' ||
+          this.shape.name == 'PointOnShape'
+        ) {
           constraints.isConstrained = true;
         } else {
           constraints.isConstructed = true;
@@ -411,11 +450,9 @@ export class Point {
       } else if (constraints.isConstrained) {
         constraints.isConstrained = false;
         constraints.isBlocked = true;
-        constraints.lines.push(
-          {
-            segment: reference,
-          },
-        );
+        constraints.lines.push({
+          segment: reference,
+        });
       }
     }
     this.transformConstraints = constraints;
@@ -472,22 +509,14 @@ export class Point {
       segmentIds: [...this.segmentIds],
     };
 
-    if (this.type != undefined)
-      data.type = this.type;
-    if (this.name != undefined)
-      data.name = this.name;
-    if (this.ratio != undefined)
-      data.ratio = this.ratio;
-    if (this.visible !== true)
-      data.visible = this.visible;
-    if (this.color !== '#000')
-      data.color = this.color;
-    if (this.size !== 1)
-      data.size = this.size;
-    if (this.reference !== null)
-      data.reference = this.reference;
-    if (this.endpointIds.length !== 0)
-      data.endpointIds = [...this.endpointIds];
+    if (this.type != undefined) data.type = this.type;
+    if (this.name != undefined) data.name = this.name;
+    if (this.ratio != undefined) data.ratio = this.ratio;
+    if (this.visible !== true) data.visible = this.visible;
+    if (this.color !== '#000') data.color = this.color;
+    if (this.size !== 1) data.size = this.size;
+    if (this.reference !== null) data.reference = this.reference;
+    if (this.endpointIds.length !== 0) data.endpointIds = [...this.endpointIds];
     if (this.geometryIsVisible !== true)
       data.geometryIsVisible = this.geometryIsVisible;
     if (this.geometryIsHidden !== false)
@@ -496,7 +525,7 @@ export class Point {
   }
 
   static loadFromData(data) {
-    if (!data.position) data.position = 'main'
+    if (!data.position) data.position = 'main';
     const point = new Point({ layer: data.position });
     Object.assign(point, data);
     point.coordinates = new Coordinates(point.coordinates);

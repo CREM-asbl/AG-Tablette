@@ -57,7 +57,6 @@ export class HistoryManager {
       delete settingsForApp.gridSize;
       delete settingsForApp.isVisible;
 
-
       tangram = {
         ...app.defaultState.tangram,
       };
@@ -81,7 +80,8 @@ export class HistoryManager {
       // The key in historical data might be 'isVisible' (new) or 'gridShown' (old).
       if (typeof historicalSettings.isVisible !== 'undefined') {
         gridStore.setIsVisible(historicalSettings.isVisible);
-      } else if (typeof historicalSettings.gridShown !== 'undefined') { // Check for old key
+      } else if (typeof historicalSettings.gridShown !== 'undefined') {
+        // Check for old key
         gridStore.setIsVisible(historicalSettings.gridShown);
       }
       // If neither isVisible nor gridShown is present, setGridType would have set a default visibility.
@@ -106,7 +106,12 @@ export class HistoryManager {
       }
     }
 
-    setState({ tool: null, history: { ...app.history, index }, settings: settingsForApp, tangram });
+    setState({
+      tool: null,
+      history: { ...app.history, index },
+      settings: settingsForApp,
+      tangram,
+    });
     FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Annuler' } });
   }
 
@@ -140,7 +145,8 @@ export class HistoryManager {
     // isVisible should be set after setGridType. Check for new and old keys.
     if (typeof historicalSettings.isVisible !== 'undefined') {
       gridStore.setIsVisible(historicalSettings.isVisible);
-    } else if (typeof historicalSettings.gridShown !== 'undefined') { // Check for old key
+    } else if (typeof historicalSettings.gridShown !== 'undefined') {
+      // Check for old key
       gridStore.setIsVisible(historicalSettings.gridShown);
     }
     // If neither is present, setGridType handles default visibility.
@@ -163,7 +169,12 @@ export class HistoryManager {
         };
       }
     }
-    setState({ tool: null, history: { ...app.history, index }, settings: settingsForApp, tangram });
+    setState({
+      tool: null,
+      history: { ...app.history, index },
+      settings: settingsForApp,
+      tangram,
+    });
     FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Refaire' } });
   }
 
@@ -198,8 +209,8 @@ export class HistoryManager {
     // Defensively remove any old grid-related keys that might still linger in the
     // app.settings copy. This ensures they don't conflict with gridStore's state.
     delete settingsForHistory.gridShown; // Old key for visibility
-    delete settingsForHistory.gridType;  // Old key for grid type
-    delete settingsForHistory.gridSize;  // Old key for grid size
+    delete settingsForHistory.gridType; // Old key for grid type
+    delete settingsForHistory.gridSize; // Old key for grid size
     delete settingsForHistory.isVisible; // Just in case new key was wrongly in app.settings
 
     // Now, add the authoritative grid state from gridStore to settingsForHistory.
@@ -243,29 +254,54 @@ export class HistoryManager {
   }
 
   static reduceSizeOfSingleObjectType(objectType, steps, index) {
-    if (!steps[index] || !steps[index].objects || !steps[index].objects[objectType + 'Data']) return;
-    if (!steps[index - 1] || !steps[index - 1].objects || !steps[index - 1].objects[objectType + 'Data']) return;
+    if (
+      !steps[index] ||
+      !steps[index].objects ||
+      !steps[index].objects[objectType + 'Data']
+    )
+      return;
+    if (
+      !steps[index - 1] ||
+      !steps[index - 1].objects ||
+      !steps[index - 1].objects[objectType + 'Data']
+    )
+      return;
 
     for (const indexOfObject in steps[index].objects[objectType + 'Data']) {
-      const objectData = steps[index].objects[objectType + 'Data'][indexOfObject];
+      const objectData =
+        steps[index].objects[objectType + 'Data'][indexOfObject];
       let indexOfReference = index - 1;
-      let previousObjectData = steps[index - 1].objects[objectType + 'Data'].find(sData => sData.id == objectData.id);
+      let previousObjectData = steps[index - 1].objects[
+        objectType + 'Data'
+      ].find((sData) => sData.id == objectData.id);
       if (previousObjectData) {
         if (previousObjectData.indexOfReference) {
           indexOfReference = previousObjectData.indexOfReference;
-          if (!steps[indexOfReference] || !steps[indexOfReference].objects || !steps[indexOfReference].objects[objectType + 'Data']) continue;
-          previousObjectData = steps[indexOfReference].objects[objectType + 'Data'].find(sData => sData.id == objectData.id);
+          if (
+            !steps[indexOfReference] ||
+            !steps[indexOfReference].objects ||
+            !steps[indexOfReference].objects[objectType + 'Data']
+          )
+            continue;
+          previousObjectData = steps[indexOfReference].objects[
+            objectType + 'Data'
+          ].find((sData) => sData.id == objectData.id);
         }
-        if (previousObjectData && HistoryManager.isObjectEqual(objectData, previousObjectData)) {
-          steps[index].objects[objectType + 'Data'][indexOfObject] = { id: objectData.id, indexOfReference };
+        if (
+          previousObjectData &&
+          HistoryManager.isObjectEqual(objectData, previousObjectData)
+        ) {
+          steps[index].objects[objectType + 'Data'][indexOfObject] = {
+            id: objectData.id,
+            indexOfReference,
+          };
         }
       }
     }
   }
 
   static reduceSize(steps, index) {
-    if (index == 0)
-      return;
+    if (index == 0) return;
     HistoryManager.reduceSizeOfSingleObjectType('shapes', steps, index);
     HistoryManager.reduceSizeOfSingleObjectType('segments', steps, index);
     HistoryManager.reduceSizeOfSingleObjectType('points', steps, index);

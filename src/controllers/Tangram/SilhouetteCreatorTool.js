@@ -9,22 +9,23 @@ const hasOverlapedShape = (shapes) => {
     shapes.some((s) => {
       if (s.id == shape.id) return false;
       else return s.overlapsWith(shape);
-    }));
-}
+    }),
+  );
+};
 
 /**
  * Créer une silhouette
  */
 export class SilhouetteCreatorTool extends LitElement {
-
   async connectedCallback() {
     super.connectedCallback();
-    const currentTools = tools.get()
-    currentTools.find(tool => tool.name == 'translate').isDisable = false;
-    currentTools.find(tool => tool.name == 'color').isDisable = true;
+    const currentTools = tools.get();
+    currentTools.find((tool) => tool.name == 'translate').isDisable = false;
+    currentTools.find((tool) => tool.name == 'color').isDisable = true;
     tools.set([...currentTools]);
     app.isUserWarnedAboutOverlap = false;
-    app.workspace.selectionConstraints = app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
 
     await TangramManager.initShapes(true);
 
@@ -42,7 +43,10 @@ export class SilhouetteCreatorTool extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    window.removeEventListener('actions-executed', this.verifyOverlappingShapes);
+    window.removeEventListener(
+      'actions-executed',
+      this.verifyOverlappingShapes,
+    );
     window.removeEventListener('create-silhouette', this.createSilhouette);
   }
 
@@ -52,8 +56,10 @@ export class SilhouetteCreatorTool extends LitElement {
   }
 
   verifyOverlappingShapes() {
-    let overlap = false
-    app.mainCanvasLayer.shapes.forEach((s) => { s.isOverlappingAnotherInTangram = false });
+    let overlap = false;
+    app.mainCanvasLayer.shapes.forEach((s) => {
+      s.isOverlappingAnotherInTangram = false;
+    });
     app.mainCanvasLayer.shapes.forEach((s, idx, shapes) => {
       const index = app.mainCanvasLayer.shapes.findIndex((s2) => {
         if (s.id == s2.id) return false;
@@ -61,7 +67,7 @@ export class SilhouetteCreatorTool extends LitElement {
         return false;
       });
       if (index != -1) {
-        overlap = true
+        overlap = true;
         s.isOverlappingAnotherInTangram = true;
         shapes[index].isOverlappingAnotherInTangram = true;
       }

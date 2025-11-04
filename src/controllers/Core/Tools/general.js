@@ -1,9 +1,16 @@
 //ce fichier est un peu trop fourre-tout
 //par exemple: faudrait séparer les fonctions sur le couleurs dans un autre fichier
 
-import { app } from "../App";
+import { app } from '../App';
 
-const layerOrder = ['upper', 'main', 'tangram', 'grid', 'background', 'invisible'];
+const layerOrder = [
+  'upper',
+  'main',
+  'tangram',
+  'grid',
+  'background',
+  'invisible',
+];
 const objectTypeOrder = ['shape', 'segment', 'point'];
 /**
  * Calcule la moyene de x couleurs.
@@ -195,25 +202,38 @@ export function RGBFromColor(color) {
 
 export function rgb2hex(rgb) {
   rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-  return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
+  return '#' + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]);
 }
 
 export function hex(x) {
-  const hexDigits = new Array
-    ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f");
-  return isNaN(x) ? "00" : hexDigits[(x - x % 16) / 16] + hexDigits[x % 16];
+  const hexDigits = new Array(
+    '0',
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+  );
+  return isNaN(x) ? '00' : hexDigits[(x - (x % 16)) / 16] + hexDigits[x % 16];
 }
 
 // je trouve cette fonction pas très utile et je me demande comment
 // le changement de layer est tenu en compte
 export function addInfoToId(id, layer, objectType = undefined) {
-  if (!id)
-    return;
+  if (!id) return;
   let objectTypeId = id[9];
-  if (id.length == 10)
-    id = id.substring(0, 8)
-  else
-    id = id.substring(id.length - 8, id.length);
+  if (id.length == 10) id = id.substring(0, 8);
+  else id = id.substring(id.length - 8, id.length);
   const layerId = layerOrder.indexOf(layer);
   if (objectType) {
     objectTypeId = objectTypeOrder.indexOf(objectType);
@@ -229,7 +249,9 @@ export function addInfoToId(id, layer, objectType = undefined) {
 export function uniqId(layer, objectType) {
   const timestamp = new Date().getTime() % 65536;
   const randInt = Math.floor(Math.random() * 65536);
-  let result = timestamp.toString(16).padStart(4, '0') + randInt.toString(16).padStart(4, '0');
+  let result =
+    timestamp.toString(16).padStart(4, '0') +
+    randInt.toString(16).padStart(4, '0');
   if (objectType != undefined && layer != undefined) {
     result = addInfoToId(result, layer, objectType);
   }
@@ -237,41 +259,41 @@ export function uniqId(layer, objectType) {
 }
 
 export function findObjectById(id) {
-  if (!id)
-    return;
+  if (!id) return;
   const layer = layerOrder[id[8]];
   const objectType = objectTypeOrder[id[9]];
-  const object = app[layer + 'CanvasLayer'][objectType + 's'].find((obj) => obj.id == id);
+  const object = app[layer + 'CanvasLayer'][objectType + 's'].find(
+    (obj) => obj.id == id,
+  );
   return object;
 }
 
 export function findIndexById(id) {
-  if (!id)
-    return -1;
+  if (!id) return -1;
   const layer = layerOrder[id[8]];
   const objectType = objectTypeOrder[id[9]];
-  const index = app[layer + 'CanvasLayer'][objectType + 's'].findIndex((obj) => obj.id == id);
+  const index = app[layer + 'CanvasLayer'][objectType + 's'].findIndex(
+    (obj) => obj.id == id,
+  );
   return index;
 }
 
 export function findObjectsByName(name, layer, objectType = 'shape') {
-  const objects = app[layer + 'CanvasLayer'][objectType + 's'].filter((obj) => obj.name == name);;
+  const objects = app[layer + 'CanvasLayer'][objectType + 's'].filter(
+    (obj) => obj.name == name,
+  );
   return objects;
 }
 
 export function removeObjectById(id) {
-  if (!id)
-    return -1;
+  if (!id) return -1;
   const objectType = objectTypeOrder[id[9]];
   const index = findIndexById(id, objectType);
-  if (index == -1)
-    return;
+  if (index == -1) return;
   const layer = layerOrder[id[8]];
   const object = app[layer + 'CanvasLayer'][objectType + 's'][index];
   if (objectType == 'shape') {
-    object.segments.forEach((seg) =>
-      removeObjectById(seg.id),
-    );
+    object.segments.forEach((seg) => removeObjectById(seg.id));
     object.points.forEach((pt) => removeObjectById(pt.id));
   }
   app[layer + 'CanvasLayer'][objectType + 's'].splice(index, 1);
@@ -326,16 +348,17 @@ export function goToHomePage() {
       const url = new URL(window.location);
       url.search = ''; // Supprimer tous les paramètres de requête
       window.history.pushState({}, '', url.toString());
-
-      
     } else {
       // Fallback : rechargement traditionnel si l'app n'est pas disponible
-      window.location = window.location.href.split("?")[0];
+      window.location = window.location.href.split('?')[0];
     }
   } catch (error) {
-    console.warn('[NAVIGATION] Erreur lors de la navigation optimisée, utilisation du fallback:', error);
+    console.warn(
+      '[NAVIGATION] Erreur lors de la navigation optimisée, utilisation du fallback:',
+      error,
+    );
     // Fallback en cas d'erreur
-    window.location = window.location.href.split("?")[0];
+    window.location = window.location.href.split('?')[0];
   }
 }
 

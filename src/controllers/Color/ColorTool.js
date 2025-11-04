@@ -32,7 +32,13 @@ export class ColorTool extends Tool {
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -114,23 +120,24 @@ export class ColorTool extends Tool {
         ) {
           mustChangeOpacity = true;
         }
-        involvedShapes.forEach(s => {
+        involvedShapes.forEach((s) => {
           if (s instanceof LineShape && !s.segments[0].isArc()) {
             s.strokeColor = app.settings.shapesDrawColor;
           } else {
-            if (mustChangeOpacity)
-              s.fillOpacity = 0.7;
+            if (mustChangeOpacity) s.fillOpacity = 0.7;
             s.fillColor = app.settings.shapesDrawColor;
           }
         });
       } else if (this.object instanceof Segment) {
         this.object.color = app.settings.shapesDrawColor;
       } else {
-        this.object.forEach(obj => obj.color = app.settings.shapesDrawColor);
+        this.object.forEach(
+          (obj) => (obj.color = app.settings.shapesDrawColor),
+        );
       }
     } else if (this.clickType == 'long') {
       const involvedShapes = ShapeManager.getAllBindedShapes(this.object);
-      involvedShapes.forEach(s => {
+      involvedShapes.forEach((s) => {
         s.strokeColor = app.settings.shapesDrawColor;
       });
     }

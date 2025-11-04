@@ -14,7 +14,6 @@ export class Tool {
     this.title = title;
     this.type = type;
 
-
     window.addEventListener('refreshStateUpper', () => {
       if (this.name == app.tool?.name) this.refreshStateUpper();
     });
@@ -27,7 +26,7 @@ export class Tool {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  refreshStateUpper() { }
+  refreshStateUpper() {}
 
   /**
    * Exécuter les actions liée à l'état.
@@ -35,7 +34,9 @@ export class Tool {
   executeAction() {
     this._executeAction();
     window.dispatchEvent(new CustomEvent('refresh'));
-    window.dispatchEvent(new CustomEvent('actions-executed', { detail: { name: this.title } }));
+    window.dispatchEvent(
+      new CustomEvent('actions-executed', { detail: { name: this.title } }),
+    );
   }
 
   /**
@@ -58,7 +59,9 @@ export class Tool {
    */
   animate() {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
-    this.requestAnimFrameId = window.requestAnimationFrame(() => this.animate());
+    this.requestAnimFrameId = window.requestAnimationFrame(() =>
+      this.animate(),
+    );
   }
 
   stopAnimation() {
@@ -78,13 +81,21 @@ export class Tool {
 
   eventHandler(event) {
     if (event.type == 'tool-updated') {
-      if (!app.tool) { this.end(); }
-      else if (app.tool.name == this.name) { this[app.tool.currentStep](); }
-      else if (app.tool.currentStep == 'start') { this.end(); }
+      if (!app.tool) {
+        this.end();
+      } else if (app.tool.name == this.name) {
+        this[app.tool.currentStep]();
+      } else if (app.tool.currentStep == 'start') {
+        this.end();
+      }
     } else {
       if (event.type == 'objectSelected') {
         this.objectSelected(event.detail.object);
-      } else if (['canvasTouchStart', 'canvasTouchMove', 'canvasTouchEnd'].includes(event.type)) {
+      } else if (
+        ['canvasTouchStart', 'canvasTouchMove', 'canvasTouchEnd'].includes(
+          event.type,
+        )
+      ) {
         this[event.type](event.detail.touches);
       } else if (event.type == 'canvasMouseWheel') {
         this[event.type](event.detail.deltaY);

@@ -1,7 +1,6 @@
-import { CharacteristicElements } from "../CharacteristicElements";
+import { CharacteristicElements } from '../CharacteristicElements';
 
 export class GeometryObject {
-
   constructor({
     geometryChildShapeIds = [],
     geometryConstructionSpec = {},
@@ -31,10 +30,16 @@ export class GeometryObject {
     this.geometryConstructionSpec = { ...geometryConstructionSpec };
     this.geometryParentObjectId1 = geometryParentObjectId1;
     this.geometryParentObjectId2 = geometryParentObjectId2;
-    this.geometryTransformationChildShapeIds = [...geometryTransformationChildShapeIds];
-    this.geometryTransformationParentShapeId = geometryTransformationParentShapeId;
+    this.geometryTransformationChildShapeIds = [
+      ...geometryTransformationChildShapeIds,
+    ];
+    this.geometryTransformationParentShapeId =
+      geometryTransformationParentShapeId;
     if (geometryTransformationCharacteristicElements)
-      this.geometryTransformationCharacteristicElements = new CharacteristicElements(geometryTransformationCharacteristicElements);
+      this.geometryTransformationCharacteristicElements =
+        new CharacteristicElements(
+          geometryTransformationCharacteristicElements,
+        );
     this.geometryTransformationName = geometryTransformationName;
     this.geometryDuplicateChildShapeIds = [...geometryDuplicateChildShapeIds];
     this.geometryDuplicateParentShapeId = geometryDuplicateParentShapeId;
@@ -61,11 +66,16 @@ export class GeometryObject {
     if (this.geometryParentObjectId2 !== null)
       data.geometryParentObjectId2 = this.geometryParentObjectId2;
     if (this.geometryTransformationChildShapeIds.length !== 0)
-      data.geometryTransformationChildShapeIds = [...this.geometryTransformationChildShapeIds];
+      data.geometryTransformationChildShapeIds = [
+        ...this.geometryTransformationChildShapeIds,
+      ];
     if (this.geometryTransformationParentShapeId !== null)
-      data.geometryTransformationParentShapeId = this.geometryTransformationParentShapeId;
+      data.geometryTransformationParentShapeId =
+        this.geometryTransformationParentShapeId;
     if (this.geometryTransformationCharacteristicElements !== null)
-      data.geometryTransformationCharacteristicElements = { ...this.geometryTransformationCharacteristicElements };
+      data.geometryTransformationCharacteristicElements = {
+        ...this.geometryTransformationCharacteristicElements,
+      };
     if (this.geometryTransformationName !== null)
       data.geometryTransformationName = this.geometryTransformationName;
     if (this.geometryIsVisible !== true)
@@ -77,21 +87,30 @@ export class GeometryObject {
     if (this.geometryIsVisibleByChoice !== true)
       data.geometryIsVisibleByChoice = this.geometryIsVisibleByChoice;
     if (this.geometryDuplicateChildShapeIds.length !== 0)
-      data.geometryDuplicateChildShapeIds = [...this.geometryDuplicateChildShapeIds];
+      data.geometryDuplicateChildShapeIds = [
+        ...this.geometryDuplicateChildShapeIds,
+      ];
     if (this.geometryDuplicateParentShapeId !== null)
       data.geometryDuplicateParentShapeId = this.geometryDuplicateParentShapeId;
-    if (this.geometryDuplicateInfos.rotationAngle !== null && this.geometryDuplicateInfos.parentFirstPointCoordinates !== null)
+    if (
+      this.geometryDuplicateInfos.rotationAngle !== null &&
+      this.geometryDuplicateInfos.parentFirstPointCoordinates !== null
+    )
       data.geometryDuplicateInfos = { ...this.geometryDuplicateInfos };
     if (this.geometryIsConstaintDraw !== false)
       data.geometryIsConstaintDraw = this.geometryIsConstaintDraw;
     if (this.geometryPointOnTheFlyChildId !== null)
       data.geometryPointOnTheFlyChildId = this.geometryPointOnTheFlyChildId;
     if (this.geometryMultipliedParentShapeId !== null)
-      data.geometryMultipliedParentShapeId = this.geometryMultipliedParentShapeId;
+      data.geometryMultipliedParentShapeId =
+        this.geometryMultipliedParentShapeId;
     if (this.geometryMultipliedChildShapeIds.length !== 0)
-      data.geometryMultipliedChildShapeIds = [...this.geometryMultipliedChildShapeIds];
+      data.geometryMultipliedChildShapeIds = [
+        ...this.geometryMultipliedChildShapeIds,
+      ];
     if (this.geometryIsCharacteristicElements)
-      data.geometryIsCharacteristicElements = this.geometryIsCharacteristicElements;
+      data.geometryIsCharacteristicElements =
+        this.geometryIsCharacteristicElements;
     return data;
   }
 

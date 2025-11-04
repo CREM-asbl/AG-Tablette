@@ -79,7 +79,9 @@ class FileElem extends SignalWatcher(LitElement) {
   async connectedCallback() {
     super.connectedCallback();
     if (this.environment) {
-      const envModule = await import(`../../controllers/Core/Environments/${this.environment}.js`);
+      const envModule = await import(
+        `../../controllers/Core/Environments/${this.environment}.js`
+      );
       this.envThemeColor = envModule.default.themeColor;
       this.requestUpdate();
     }
@@ -88,8 +90,16 @@ class FileElem extends SignalWatcher(LitElement) {
   handleClick() {
     // Vérifier si l'environnement du fichier est différent de l'environnement actuel
     // Si oui, afficher un message de confirmation avant d'ouvrir le fichier
-    if (this.environment && app.environment && app.environment.name !== this.environment) {
-      if (confirm(`Ce fichier appartient à l'environnement "${this.environment}" qui est différent de l'environnement actuel "${app.environment.name}". Voulez-vous changer d'environnement et ouvrir ce fichier ?`)) {
+    if (
+      this.environment &&
+      app.environment &&
+      app.environment.name !== this.environment
+    ) {
+      if (
+        confirm(
+          `Ce fichier appartient à l'environnement "${this.environment}" qui est différent de l'environnement actuel "${app.environment.name}". Voulez-vous changer d'environnement et ouvrir ce fichier ?`,
+        )
+      ) {
         this.openFile();
       }
     } else {
@@ -98,21 +108,33 @@ class FileElem extends SignalWatcher(LitElement) {
   }
 
   openFile() {
-    
-    this.dispatchEvent(new CustomEvent('close-popup', { bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent('close-popup', { bubbles: true, composed: true }),
+    );
     openFileFromServer(this.title);
   }
 
   render() {
-    const envIcon = this.environment ? `/images/Environnements/logo_${this.environment.toLowerCase()}_96x96.svg` : '';
+    const envIcon = this.environment
+      ? `/images/Environnements/logo_${this.environment.toLowerCase()}_96x96.svg`
+      : '';
 
     return html`
       <div class="file-card" @click="${this.handleClick}">
-        ${this.environment ? html`
-          <div class="environment-tag" style="background-color: ${this.envThemeColor || 'var(--theme-color)'}">
-            <img class="environment-icon" src="${envIcon}" alt="${this.environment}"/>
-            ${this.environment}
-          </div>` : ''}
+        ${this.environment
+          ? html` <div
+              class="environment-tag"
+              style="background-color: ${this.envThemeColor ||
+              'var(--theme-color)'}"
+            >
+              <img
+                class="environment-icon"
+                src="${envIcon}"
+                alt="${this.environment}"
+              />
+              ${this.environment}
+            </div>`
+          : ''}
         <div class="file-content">
           <div class="file-name">${this.title}</div>
         </div>

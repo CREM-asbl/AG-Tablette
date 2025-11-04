@@ -11,7 +11,7 @@ let currentState = { ...initialState };
 const listeners = new Set();
 
 const notifyListeners = () => {
-  listeners.forEach(listener => listener(currentState));
+  listeners.forEach((listener) => listener(currentState));
 };
 
 export const gridStore = {
@@ -66,5 +66,5 @@ export const gridStore = {
   _resetState: () => {
     currentState = { ...initialState };
     notifyListeners(); // Notifie également lors du reset pour la cohérence des tests/UI
-  }
+  },
 };

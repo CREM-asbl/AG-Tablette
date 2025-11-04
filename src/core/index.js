@@ -7,23 +7,23 @@
 export {
   baseValidators,
   geometryValidators,
-  predefinedSchemas, ValidationError,
+  predefinedSchemas,
+  ValidationError,
   ValidationResult,
-  ValidationTypes, validationUtils, validator,
-  Validator
+  ValidationTypes,
+  validationUtils,
+  validator,
+  Validator,
 } from './ValidationSystem.js';
 
 export {
   performanceMonitor,
   smartCache,
-  SmartCache
+  SmartCache,
 } from './PerformanceSystem.js';
 
 // Imports pour utilisation interne
-import {
-  performanceMonitor,
-  smartCache
-} from './PerformanceSystem.js';
+import { performanceMonitor, smartCache } from './PerformanceSystem.js';
 import { validator } from './ValidationSystem.js';
 
 // État global avec signaux Lit (remplace StateManager)
@@ -54,7 +54,7 @@ export const eventUtils = {
       detail,
       bubbles: options.bubbles ?? true,
       cancelable: options.cancelable ?? true,
-      ...options
+      ...options,
     });
 
     const target = options.target || window;
@@ -74,9 +74,9 @@ export const eventUtils = {
     const target = options.target || window;
     const wrappedHandler = options.once
       ? (event) => {
-        handler(event);
-        target.removeEventListener(type, wrappedHandler);
-      }
+          handler(event);
+          target.removeEventListener(type, wrappedHandler);
+        }
       : handler;
 
     target.addEventListener(type, wrappedHandler, options);
@@ -118,7 +118,10 @@ export const eventUtils = {
       if (schema && event.detail) {
         const result = validator.validateSchema(event.detail, schema);
         if (!result.isValid) {
-          console.warn('Données d\'événement invalides:', result.getAllMessages());
+          console.warn(
+            "Données d'événement invalides:",
+            result.getAllMessages(),
+          );
           return;
         }
       }
@@ -141,7 +144,7 @@ export const eventUtils = {
         handler(event);
       }
     };
-  }
+  },
 };
 
 /**
@@ -155,11 +158,14 @@ export const moduleUtils = {
    */
   loadModule: async (modulePath) => {
     try {
-      console.log(modulePath)
+      console.log(modulePath);
       const module = await import(/* @vite-ignore */ modulePath);
       return module;
     } catch (error) {
-      console.error(`Erreur lors du chargement du module ${modulePath}:`, error);
+      console.error(
+        `Erreur lors du chargement du module ${modulePath}:`,
+        error,
+      );
       throw error;
     }
   },
@@ -171,14 +177,14 @@ export const moduleUtils = {
    */
   loadModules: async (modulePaths) => {
     const results = await Promise.allSettled(
-      modulePaths.map(path => moduleUtils.loadModule(path))
+      modulePaths.map((path) => moduleUtils.loadModule(path)),
     );
 
     return results.map((result, index) => ({
       path: modulePaths[index],
       success: result.status === 'fulfilled',
       module: result.status === 'fulfilled' ? result.value : null,
-      error: result.status === 'rejected' ? result.reason : null
+      error: result.status === 'rejected' ? result.reason : null,
     }));
   },
 
@@ -205,7 +211,10 @@ export const moduleUtils = {
 
       return instance;
     } catch (error) {
-      console.error(`Erreur lors de la création de l'outil ${toolName}:`, error);
+      console.error(
+        `Erreur lors de la création de l'outil ${toolName}:`,
+        error,
+      );
       throw error;
     }
   },
@@ -223,11 +232,11 @@ export const moduleUtils = {
         title: tool.title,
         type: tool.type,
         description: tool.description,
-        isVisible: true
+        isVisible: true,
       };
     }
     return null;
-  }
+  },
 };
 
 /**
@@ -249,13 +258,15 @@ export class SimplifiedArchitecture {
     }
 
     try {
-      console.log('🚀 Initialisation de l\'architecture simplifiée AG-Tablette...');
+      console.log(
+        "🚀 Initialisation de l'architecture simplifiée AG-Tablette...",
+      );
 
       const config = {
         enablePerformanceMonitoring: true,
         enableValidation: true,
         debugMode: false,
-        ...options
+        ...options,
       };
 
       // Activer le monitoring de performance si demandé
@@ -273,9 +284,8 @@ export class SimplifiedArchitecture {
 
       // Émettre événement d'initialisation avec events natifs
       eventUtils.emit('architecture:initialized', { config });
-
     } catch (error) {
-      console.error('❌ Erreur lors de l\'initialisation:', error);
+      console.error("❌ Erreur lors de l'initialisation:", error);
       throw error;
     }
   }
@@ -301,9 +311,11 @@ export class SimplifiedArchitecture {
   getStatus() {
     return {
       initialized: this.initialized,
-      performance: performanceMonitor.enabled ? performanceMonitor.getReport() : null,
+      performance: performanceMonitor.enabled
+        ? performanceMonitor.getReport()
+        : null,
       cache: smartCache.getStats(),
-      validation: validator.getStats()
+      validation: validator.getStats(),
     };
   }
 
@@ -353,7 +365,7 @@ export const architectureUtils = {
   restart: async (options = {}) => {
     architecture.cleanup();
     await architecture.initialize(options);
-  }
+  },
 };
 
 // Auto-initialisation en développement

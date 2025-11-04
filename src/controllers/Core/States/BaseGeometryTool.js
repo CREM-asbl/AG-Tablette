@@ -9,14 +9,14 @@ import { Tool } from './Tool';
 export class BaseGeometryTool extends Tool {
   constructor(name, title, type = 'geometryCreator') {
     super(name, title, type);
-    
+
     // État commun pour tous les outils géométriques
     this.currentStep = null;
     this.points = [];
     this.segments = [];
     this.numberOfPointsDrawn = 0;
     this.constraints = null;
-    
+
     // Bind des méthodes pour éviter les problèmes de contexte
     this.handler = this.handler.bind(this);
     this.validateInput = this.validateInput.bind(this);
@@ -35,7 +35,10 @@ export class BaseGeometryTool extends Tool {
       return false;
     }
 
-    if (data.coordinates && (!data.coordinates.x === undefined || !data.coordinates.y === undefined)) {
+    if (
+      data.coordinates &&
+      (!data.coordinates.x === undefined || !data.coordinates.y === undefined)
+    ) {
       console.error(`${method}: Coordonnées invalides`);
       this.showErrorNotification('Erreur: Coordonnées invalides');
       return false;
@@ -49,9 +52,11 @@ export class BaseGeometryTool extends Tool {
    * @param {string} message - Message à afficher
    */
   showErrorNotification(message) {
-    window.dispatchEvent(new CustomEvent('show-notif', { 
-      detail: { message, type: 'error' } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: { message, type: 'error' },
+      }),
+    );
   }
 
   /**
@@ -59,9 +64,11 @@ export class BaseGeometryTool extends Tool {
    * @param {string} message - Message à afficher
    */
   showInfoNotification(message) {
-    window.dispatchEvent(new CustomEvent('show-notif', { 
-      detail: { message, type: 'info' } 
-    }));
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: { message, type: 'info' },
+      }),
+    );
   }
 
   /**
@@ -83,17 +90,17 @@ export class BaseGeometryTool extends Tool {
    */
   safeSetState(newStep, additionalData = {}) {
     try {
-      setState({ 
-        tool: { 
-          ...app.tool, 
-          name: this.name, 
+      setState({
+        tool: {
+          ...app.tool,
+          name: this.name,
           currentStep: newStep,
-          ...additionalData
-        } 
+          ...additionalData,
+        },
       });
     } catch (error) {
-      console.error('Erreur lors du changement d\'état:', error);
-      this.showErrorNotification('Erreur lors du changement d\'état');
+      console.error("Erreur lors du changement d'état:", error);
+      this.showErrorNotification("Erreur lors du changement d'état");
     }
   }
 
@@ -104,7 +111,7 @@ export class BaseGeometryTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
-    
+
     // Réinitialiser les propriétés communes
     this.currentStep = null;
     this.points = [];
@@ -118,7 +125,7 @@ export class BaseGeometryTool extends Tool {
    */
   standardStart() {
     if (!this.validateInput('start')) return;
-    
+
     this.cleanupTool();
     this.currentStep = 'initialized';
   }
@@ -140,8 +147,10 @@ export class BaseGeometryTool extends Tool {
       await action();
     } catch (error) {
       console.error(`Erreur lors de l'exécution de ${actionName}:`, error);
-      this.showErrorNotification(`Erreur lors de ${actionName}: ${error.message}`);
-      
+      this.showErrorNotification(
+        `Erreur lors de ${actionName}: ${error.message}`,
+      );
+
       // Retour à un état sûr
       this.safeSetState('error');
     }

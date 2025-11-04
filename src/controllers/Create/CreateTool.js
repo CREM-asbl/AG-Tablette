@@ -63,7 +63,10 @@ export class CreateTool extends Tool {
   listen() {
     // Vérifier que l'outil actif est bien 'create'
     if (app.tool.name !== 'create') {
-      console.warn('CreateTool.listen() appelé mais l\'outil actif n\'est pas create:', app.tool.name);
+      console.warn(
+        "CreateTool.listen() appelé mais l'outil actif n'est pas create:",
+        app.tool.name,
+      );
       return;
     }
 
@@ -110,15 +113,17 @@ export class CreateTool extends Tool {
     const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
     if (shapeTemplates.length == 1) {
       const selectedTemplate = shapeTemplates[0];
-      setState({ tool: { ...app.tool, currentStep: 'listen', selectedTemplate } });
+      setState({
+        tool: { ...app.tool, currentStep: 'listen', selectedTemplate },
+      });
     } else if (!this.shapesList) {
       import('../../components/shape-selector');
       const elem = document.createElement('shape-selector');
       elem.family = app.tool.selectedFamily;
       elem.templatesNames = getFamily(app.tool.selectedFamily).shapeTemplates;
       elem.selectedTemplate = app.tool.selectedTemplate;
-      elem.type = "Create"
-      elem.nextStep = 'listen'
+      elem.type = 'Create';
+      elem.nextStep = 'listen';
       document.querySelector('body').appendChild(elem);
     }
   }

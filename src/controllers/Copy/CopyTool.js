@@ -62,7 +62,13 @@ export class CopyTool extends Tool {
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -74,9 +80,15 @@ export class CopyTool extends Tool {
     const constraints = SelectManager.getEmptySelectionConstraints();
     constraints.eventType = 'mousedown';
     constraints.shapes.canSelect = true;
-    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
+    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(
+      (s) => s instanceof SinglePointShape,
+    );
     constraints.segments.canSelect = true;
-    constraints.segments.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof LineShape).map(s => { return { shapeId: s.id } });
+    constraints.segments.blacklist = app.mainCanvasLayer.shapes
+      .filter((s) => s instanceof LineShape)
+      .map((s) => {
+        return { shapeId: s.id };
+      });
     constraints.priority = ['points', 'shapes', 'segments'];
     app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -111,9 +123,11 @@ export class CopyTool extends Tool {
         path: object.getSVGPath('no scale', true),
         id: undefined,
         segmentsColor: [object.color],
-        pointsColor: object.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-          return pt.color;
-        }),
+        pointsColor: object.points
+          .filter((pt) => pt.type != 'divisionPoint')
+          .map((pt) => {
+            return pt.color;
+          }),
         geometryObject: new GeometryObject({}),
       });
       this.selectedShape = newShape;
@@ -128,7 +142,14 @@ export class CopyTool extends Tool {
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
         if (currentShape.name == 'Vector') {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs ne peuvent pas être copiés, mais peuvent être multipliés.' } }));
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message:
+                  'Les vecteurs ne peuvent pas être copiés, mais peuvent être multipliés.',
+              },
+            }),
+          );
           return;
         }
       }
@@ -149,11 +170,15 @@ export class CopyTool extends Tool {
           segmentsColor: s.segments.map((seg) => {
             return seg.color;
           }),
-          pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-            return pt.color;
-          }),
+          pointsColor: s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .map((pt) => {
+              return pt.color;
+            }),
         });
-        newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
+        newShape.vertexes.forEach(
+          (vx, idx) => (vx.visible = s.vertexes[idx].visible),
+        );
         newShape.translate(this.translateOffset);
         return newShape;
       });
@@ -178,37 +203,39 @@ export class CopyTool extends Tool {
   refreshStateUpper() {
     if (app.tool.currentStep == 'move') {
       this.shapeMoved++;
-      if (this.shapeMoved <= 10)
-        return;
-      const mainShape = findObjectById(addInfoToId(this.selectedShape.id, 'upper'));
+      if (this.shapeMoved <= 10) return;
+      const mainShape = findObjectById(
+        addInfoToId(this.selectedShape.id, 'upper'),
+      );
       const translation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates,
       );
 
       this.shapesToMove.forEach((s) => {
         if (this.lastAdjusment) {
-          s.translate(Coordinates.nullCoordinates.substract(this.lastAdjusment.translation));
-          s.rotate(this.lastAdjusment.rotationAngle * -1, this.lastAdjusment.centerCoord);
+          s.translate(
+            Coordinates.nullCoordinates.substract(
+              this.lastAdjusment.translation,
+            ),
+          );
+          s.rotate(
+            this.lastAdjusment.rotationAngle * -1,
+            this.lastAdjusment.centerCoord,
+          );
         }
         s.translate(translation);
       });
 
-      const adjustment = getShapeAdjustment(
-        this.shapesToMove,
-        mainShape,
-      );
+      const adjustment = getShapeAdjustment(this.shapesToMove, mainShape);
       this.lastAdjusment = {
         ...adjustment,
         centerCoord: new Coordinates(mainShape.centerCoordinates),
       };
       this.shapesToMove.forEach((s) => {
-        s.rotate(
-          adjustment.rotationAngle,
-          this.lastAdjusment.centerCoord,
-        );
+        s.rotate(adjustment.rotationAngle, this.lastAdjusment.centerCoord);
         s.translate(adjustment.translation);
       });
-      this.shapesToMove.forEach(s => {
+      this.shapesToMove.forEach((s) => {
         computeAllShapeTransform(s, 'upper', false);
       });
 
@@ -234,9 +261,11 @@ export class CopyTool extends Tool {
         path: this.involvedSegment.getSVGPath('no scale', true),
         id: undefined,
         segmentsColor: [this.involvedSegment.color],
-        pointsColor: this.involvedSegment.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-          return pt.color;
-        }),
+        pointsColor: this.involvedSegment.points
+          .filter((pt) => pt.type != 'divisionPoint')
+          .map((pt) => {
+            return pt.color;
+          }),
         geometryObject: new GeometryObject({}),
       });
 
@@ -256,11 +285,15 @@ export class CopyTool extends Tool {
           segmentsColor: s.segments.map((seg) => {
             return seg.color;
           }),
-          pointsColor: s.points.filter(pt => pt.type != 'divisionPoint').map((pt) => {
-            return pt.color;
-          }),
+          pointsColor: s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .map((pt) => {
+              return pt.color;
+            }),
         });
-        newShape.vertexes.forEach((vx, idx) => vx.visible = s.vertexes[idx].visible);
+        newShape.vertexes.forEach(
+          (vx, idx) => (vx.visible = s.vertexes[idx].visible),
+        );
         if (newShape.name.startsWith('Parallele'))
           newShape.name = newShape.name.slice('Parallele'.length);
         if (newShape.name.startsWith('Perpendicular'))

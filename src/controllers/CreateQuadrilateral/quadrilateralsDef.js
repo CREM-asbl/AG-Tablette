@@ -21,7 +21,7 @@ const finishShapeEnd = (points, segments, numberOfPointsRequired) => {
         }),
       );
   }
-}
+};
 
 export const Square = {
   numberOfPointsRequired: 2,
@@ -34,9 +34,7 @@ export const Square = {
 
     const length = points[0].coordinates.dist(points[1].coordinates);
 
-    const startAngle = points[0].coordinates.angleWith(
-      points[1].coordinates,
-    );
+    const startAngle = points[0].coordinates.angleWith(points[1].coordinates);
 
     for (let i = 0; i < 2; i++) {
       const dx = length * Math.cos(startAngle - externalAngle * (i + 1));
@@ -56,8 +54,8 @@ export const Square = {
       }
     }
     finishShapeEnd(points, segments, Square.numberOfPointsRequired);
-  }
-}
+  },
+};
 
 export const Rectangle = {
   numberOfPointsRequired: 3,
@@ -65,9 +63,7 @@ export const Rectangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      const angle = points[0].coordinates.angleWith(
-        points[1].coordinates,
-      );
+      const angle = points[0].coordinates.angleWith(points[1].coordinates);
       const perpendicularAngle = angle + Math.PI / 2;
       const lines = [
         [
@@ -79,7 +75,7 @@ export const Rectangle = {
         ],
       ];
       return new GeometryConstraint('isConstrained', lines);
-    }
+    },
   ],
   finishShape: (points, segments) => {
     const newCoordinates = points[2].coordinates
@@ -96,8 +92,8 @@ export const Rectangle = {
       points[3].coordinates = newCoordinates;
     }
     finishShapeEnd(points, segments, Rectangle.numberOfPointsRequired);
-  }
-}
+  },
+};
 
 export const Losange = {
   numberOfPointsRequired: 3,
@@ -106,14 +102,10 @@ export const Losange = {
     () => new GeometryConstraint('isFree'),
     (points) => {
       const lines = [
-        [
-          points[0].coordinates,
-          points[0].coordinates,
-          points[1].coordinates,
-        ],
+        [points[0].coordinates, points[0].coordinates, points[1].coordinates],
       ];
       return new GeometryConstraint('isConstrained', lines);
-    }
+    },
   ],
   finishShape: (points, segments) => {
     const diagonnalCenter = points[0].coordinates.middleWith(
@@ -133,8 +125,8 @@ export const Losange = {
       points[3].coordinates = newCoordinates;
     }
     finishShapeEnd(points, segments, Losange.numberOfPointsRequired);
-  }
-}
+  },
+};
 
 export const Parallelogram = {
   numberOfPointsRequired: 3,
@@ -158,8 +150,8 @@ export const Parallelogram = {
       points[3].coordinates = newCoordinates;
     }
     finishShapeEnd(points, segments, Parallelogram.numberOfPointsRequired);
-  }
-}
+  },
+};
 
 export const RightAngleTrapeze = {
   numberOfPointsRequired: 4,
@@ -167,9 +159,7 @@ export const RightAngleTrapeze = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
     (points) => {
-      const angle = points[0].coordinates.angleWith(
-        points[1].coordinates,
-      );
+      const angle = points[0].coordinates.angleWith(points[1].coordinates);
       const perpendicularAngle = angle + Math.PI / 2;
       const lines = [
         [
@@ -183,9 +173,7 @@ export const RightAngleTrapeze = {
       return new GeometryConstraint('isConstrained', lines);
     },
     (points) => {
-      const angle = points[1].coordinates.angleWith(
-        points[2].coordinates,
-      );
+      const angle = points[1].coordinates.angleWith(points[2].coordinates);
       const perpendicularAngle = angle + Math.PI / 2;
       const lines = [
         [
@@ -197,10 +185,10 @@ export const RightAngleTrapeze = {
         ],
       ];
       return new GeometryConstraint('isConstrained', lines);
-    }
+    },
   ],
-  finishShape: () => {}
-}
+  finishShape: () => {},
+};
 
 export const IsoscelesTrapeze = {
   numberOfPointsRequired: 3,
@@ -210,9 +198,7 @@ export const IsoscelesTrapeze = {
     () => new GeometryConstraint('isFree'),
   ],
   finishShape: (points, segments) => {
-    const projection = segments[0].projectionOnSegment(
-      points[2].coordinates,
-    );
+    const projection = segments[0].projectionOnSegment(points[2].coordinates);
     const middleOfSegment = segments[0].middle;
     const newCoordinates = points[2].coordinates
       .substract(projection.multiply(2))
@@ -228,8 +214,8 @@ export const IsoscelesTrapeze = {
       points[3].coordinates = newCoordinates;
     }
     finishShapeEnd(points, segments, IsoscelesTrapeze.numberOfPointsRequired);
-  }
-}
+  },
+};
 
 export const Trapeze = {
   numberOfPointsRequired: 4,
@@ -247,10 +233,10 @@ export const Trapeze = {
         ],
       ];
       return new GeometryConstraint('isConstrained', lines);
-    }
+    },
   ],
-  finishShape: () => {}
-}
+  finishShape: () => {},
+};
 
 export const IrregularQuadrilateral = {
   numberOfPointsRequired: 4,
@@ -260,5 +246,5 @@ export const IrregularQuadrilateral = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
   ],
-  finishShape: () => {}
-}
+  finishShape: () => {},
+};

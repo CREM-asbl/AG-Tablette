@@ -16,7 +16,7 @@ const TEMPORARY_SETTINGS_PROPERTIES = [
   'shapesDrawColor',
   'shapeOpacity',
   'scalarNumerator',
-  'scalarDenominator'
+  'scalarDenominator',
 ];
 
 /**
@@ -28,7 +28,7 @@ const cleanTemporarySettings = (settings) => {
   if (!settings) return settings;
 
   const cleanedSettings = { ...settings };
-  TEMPORARY_SETTINGS_PROPERTIES.forEach(prop => {
+  TEMPORARY_SETTINGS_PROPERTIES.forEach((prop) => {
     delete cleanedSettings[prop];
   });
 
@@ -45,7 +45,7 @@ const cleanTemporarySettings = (settings) => {
 const configureSaveOptions = (environment, tangram, fileName) => {
   const baseOptions = {
     suggestedName: fileName || 'sans-titre',
-    types: []
+    types: [],
   };
 
   // Pour Tangram, gérer les options spéciales
@@ -78,7 +78,7 @@ const configureSaveOptions = (environment, tangram, fileName) => {
     {
       description: 'Image vectorielle (*.svg)',
       accept: { 'image/svg+xml': ['.svg'] },
-    }
+    },
   );
 
   return baseOptions;
@@ -92,7 +92,9 @@ const configureSaveOptions = (environment, tangram, fileName) => {
  */
 const prepareTangramData = (app, saveData, toolsVisibility) => {
   // Désactiver l'outil de translation pour Tangram
-  const translateTool = toolsVisibility.find(tool => tool.name === 'translate');
+  const translateTool = toolsVisibility.find(
+    (tool) => tool.name === 'translate',
+  );
   if (translateTool) {
     translateTool.isVisible = false;
   }
@@ -110,18 +112,28 @@ const prepareTangramData = (app, saveData, toolsVisibility) => {
  */
 const validateAppState = (app) => {
   if (!app.environment) {
-    console.error("L'environnement n'est pas chargé, la sauvegarde est annulée.");
-    window.dispatchEvent(new CustomEvent('show-notif', {
-      detail: { message: "Erreur : L'environnement n'est pas prêt." }
-    }));
+    console.error(
+      "L'environnement n'est pas chargé, la sauvegarde est annulée.",
+    );
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: { message: "Erreur : L'environnement n'est pas prêt." },
+      }),
+    );
     return false;
   }
 
   if (app.environment.kit && !kit.get()) {
-    console.error("Le kit de formes requis n'est pas chargé, la sauvegarde est annulée.");
-    window.dispatchEvent(new CustomEvent('show-notif', {
-      detail: { message: "Erreur : Le kit de formes requis n'est pas chargé." }
-    }));
+    console.error(
+      "Le kit de formes requis n'est pas chargé, la sauvegarde est annulée.",
+    );
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: {
+          message: "Erreur : Le kit de formes requis n'est pas chargé.",
+        },
+      }),
+    );
     return false;
   }
 
@@ -137,9 +149,9 @@ const prepareFamiliesVisibility = (app) => {
   if (!app.environment.kit) return [];
 
   const currentKit = kit.get();
-  return currentKit.families.map(family => ({
+  return currentKit.families.map((family) => ({
     name: family.name,
-    isVisible: family.isVisible
+    isVisible: family.isVisible,
   }));
 };
 
@@ -151,7 +163,7 @@ const prepareFamiliesVisibility = (app) => {
 const applyPermanentHide = (workspaceData, permanentHide) => {
   if (!permanentHide) return;
 
-  workspaceData.objects.shapesData.forEach(sData => {
+  workspaceData.objects.shapesData.forEach((sData) => {
     if (sData.geometryObject?.geometryIsHidden) {
       sData.geometryObject.geometryIsPermanentHidden = true;
     }
@@ -166,7 +178,11 @@ const applyPermanentHide = (workspaceData, permanentHide) => {
  * @param {boolean} permanentHide - Indique si les objets cachés doivent le rester de façon permanente.
  * @returns {object | null} - L'objet contenant les données de sauvegarde, ou null si des données essentielles manquent.
  */
-const prepareSaveData = (app, workspace, { saveHistory, permanentHide, saveSettings }) => {
+const prepareSaveData = (
+  app,
+  workspace,
+  { saveHistory, permanentHide, saveSettings },
+) => {
   // Nettoyer l'historique complet
   FullHistoryManager.cleanHisto();
 
@@ -177,7 +193,9 @@ const prepareSaveData = (app, workspace, { saveHistory, permanentHide, saveSetti
 
   // Préparation des données de base
   const workspaceData = { ...workspace.data };
-  const settings = saveSettings ? cleanTemporarySettings({ ...app.settings }) : undefined;
+  const settings = saveSettings
+    ? cleanTemporarySettings({ ...app.settings })
+    : undefined;
 
   // Ajout des paramètres de grille si disponibles
   if (typeof gridStore !== 'undefined') {
@@ -195,9 +213,9 @@ const prepareSaveData = (app, workspace, { saveHistory, permanentHide, saveSetti
   const fullHistory = saveHistory ? { ...app.fullHistory } : undefined;
 
   // Préparation de la visibilité des outils
-  const toolsVisibility = tools.get().map(tool => ({
+  const toolsVisibility = tools.get().map((tool) => ({
     name: tool.name,
-    isVisible: tool.isVisible
+    isVisible: tool.isVisible,
   }));
 
   // Préparation de la visibilité des familles
@@ -262,7 +280,10 @@ const downloadFileFallback = (filename, dataUrl) => {
  */
 const saveStateToFile = (handle, saveData, environment) => {
   const jsonData = JSON.stringify(saveData);
-  const mimeType = environment.name === 'Tangram' ? 'application/agmobile' : 'application/json';
+  const mimeType =
+    environment.name === 'Tangram'
+      ? 'application/agmobile'
+      : 'application/json';
   const file = new Blob([jsonData], { type: mimeType });
 
   if (hasNativeFS) {
@@ -285,7 +306,10 @@ const saveStateToFile = (handle, saveData, environment) => {
 const saveToJson = async (saveData, options, environment, handle = null) => {
   try {
     const jsonData = JSON.stringify(saveData, null, 2);
-    const mimeType = environment.name === 'Tangram' ? 'application/agmobile' : 'application/json';
+    const mimeType =
+      environment.name === 'Tangram'
+        ? 'application/agmobile'
+        : 'application/json';
     const extension = environment.extensions[0]; // Utiliser la première extension de l'environnement
 
     // Mettre à jour le nom du fichier avec la bonne extension
@@ -299,10 +323,12 @@ const saveToJson = async (saveData, options, environment, handle = null) => {
       // Si pas de handle fourni, on demande à l'utilisateur
       handle = await window.showSaveFilePicker({
         suggestedName: fileName,
-        types: [{
-          description: `État de l'application (*${extension})`,
-          accept: { [mimeType]: [extension] },
-        }],
+        types: [
+          {
+            description: `État de l'application (*${extension})`,
+            accept: { [mimeType]: [extension] },
+          },
+        ],
       });
     }
 
@@ -319,7 +345,7 @@ const saveToJson = async (saveData, options, environment, handle = null) => {
     return true;
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log('Sauvegarde JSON annulée par l\'utilisateur.');
+      console.log("Sauvegarde JSON annulée par l'utilisateur.");
       return false;
     }
     console.error('Erreur lors de la sauvegarde JSON:', error);
@@ -337,7 +363,12 @@ const saveToJson = async (saveData, options, environment, handle = null) => {
  */
 const saveToPng = async (app, saveData, options, handle = null) => {
   try {
-    const { invisibleCanvasLayer, gridCanvasLayer, tangramCanvasLayer, mainCanvasLayer } = app;
+    const {
+      invisibleCanvasLayer,
+      gridCanvasLayer,
+      tangramCanvasLayer,
+      mainCanvasLayer,
+    } = app;
     const ctx = invisibleCanvasLayer.ctx;
     const { canvas } = ctx;
     const { width, height } = canvas;
@@ -346,17 +377,20 @@ const saveToPng = async (app, saveData, options, handle = null) => {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, width, height);
 
-    if (gridCanvasLayer) ctx.drawImage(gridCanvasLayer.canvas, 0, 0, width, height);
+    if (gridCanvasLayer)
+      ctx.drawImage(gridCanvasLayer.canvas, 0, 0, width, height);
     if (tangramCanvasLayer) {
       if (app.tangram.level > 2 && app.tangram.level < 5) {
-        ctx.fillStyle = "#ff000020";
+        ctx.fillStyle = '#ff000020';
         ctx.fillRect(width / 2, 0, width, height);
       }
       ctx.drawImage(tangramCanvasLayer.canvas, width / 2, 0, width / 2, height);
     }
     ctx.drawImage(mainCanvasLayer.canvas, 0, 0, width, height);
 
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    const blob = await new Promise((resolve) =>
+      canvas.toBlob(resolve, 'image/png'),
+    );
 
     if (hasNativeFS && !handle) {
       // Si pas de handle fourni, on demande à l'utilisateur
@@ -379,7 +413,7 @@ const saveToPng = async (app, saveData, options, handle = null) => {
     return true;
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log('Sauvegarde PNG annulée par l\'utilisateur.');
+      console.log("Sauvegarde PNG annulée par l'utilisateur.");
       return false;
     }
     console.error('Erreur lors de la sauvegarde PNG:', error);
@@ -397,13 +431,21 @@ const saveToPng = async (app, saveData, options, handle = null) => {
  */
 const saveToSvg = async (app, saveData, options, handle = null) => {
   try {
-    const { invisibleCanvasLayer, gridCanvasLayer, tangramCanvasLayer, mainCanvasLayer } = app;
+    const {
+      invisibleCanvasLayer,
+      gridCanvasLayer,
+      tangramCanvasLayer,
+      mainCanvasLayer,
+    } = app;
     const ctx = invisibleCanvasLayer.ctx;
     const { canvas } = ctx;
     const { width, height } = canvas;
 
     // Créer un élément SVG
-    const svgElement = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const svgElement = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'svg',
+    );
     svgElement.setAttribute('width', width);
     svgElement.setAttribute('height', height);
     svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
@@ -417,7 +459,10 @@ const saveToSvg = async (app, saveData, options, handle = null) => {
 
     // Convertir le canvas en image SVG (simplifié)
     const imageData = canvas.toDataURL('image/png');
-    const image = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+    const image = document.createElementNS(
+      'http://www.w3.org/2000/svg',
+      'image',
+    );
     image.setAttribute('x', '0');
     image.setAttribute('y', '0');
     image.setAttribute('width', width);
@@ -448,7 +493,7 @@ const saveToSvg = async (app, saveData, options, handle = null) => {
     return true;
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log('Sauvegarde SVG annulée par l\'utilisateur.');
+      console.log("Sauvegarde SVG annulée par l'utilisateur.");
       return false;
     }
     console.error('Erreur lors de la sauvegarde SVG:', error);
@@ -487,15 +532,19 @@ const processSaveDirect = async (handle, app, detail, fileType) => {
     }
 
     if (success) {
-      window.dispatchEvent(new CustomEvent('show-notif', {
-        detail: { message: `Sauvegardé vers ${handle.name}.` }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: `Sauvegardé vers ${handle.name}.` },
+        }),
+      );
     }
   } catch (error) {
     console.error('Erreur lors de la sauvegarde directe:', error);
-    window.dispatchEvent(new CustomEvent('show-notif', {
-      detail: { message: `Erreur lors de la sauvegarde: ${error.message}` }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: { message: `Erreur lors de la sauvegarde: ${error.message}` },
+      }),
+    );
   }
 };
 
@@ -521,7 +570,12 @@ const processSave = async (handle, app, detail) => {
       default: {
         const saveData = prepareSaveData(app, app.workspace, detail);
         if (saveData) {
-          success = await saveToJson(saveData, options, app.environment, handle);
+          success = await saveToJson(
+            saveData,
+            options,
+            app.environment,
+            handle,
+          );
         } else {
           return;
         }
@@ -530,15 +584,19 @@ const processSave = async (handle, app, detail) => {
     }
 
     if (success) {
-      window.dispatchEvent(new CustomEvent('show-notif', {
-        detail: { message: `Sauvegardé vers ${handle.name}.` }
-      }));
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: `Sauvegardé vers ${handle.name}.` },
+        }),
+      );
     }
   } catch (error) {
     console.error('Erreur lors du traitement de la sauvegarde:', error);
-    window.dispatchEvent(new CustomEvent('show-notif', {
-      detail: { message: `Erreur lors de la sauvegarde: ${error.message}` }
-    }));
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: { message: `Erreur lors de la sauvegarde: ${error.message}` },
+      }),
+    );
   }
 };
 
@@ -555,15 +613,26 @@ const processSave = async (handle, app, detail) => {
 export const saveFile = async (app, options = {}) => {
   try {
     // Validation spécifique à Tangram
-    if (app.environment.name === 'Tangram' && app.workspace.data.backObjects.shapesData.length === 0) {
-      window.dispatchEvent(new CustomEvent('show-notif', {
-        detail: { message: 'Le puzzle est vide, il n\'y a rien à sauvegarder.' }
-      }));
+    if (
+      app.environment.name === 'Tangram' &&
+      app.workspace.data.backObjects.shapesData.length === 0
+    ) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: {
+            message: "Le puzzle est vide, il n'y a rien à sauvegarder.",
+          },
+        }),
+      );
       return;
     }
 
     // Configuration des options selon l'environnement
-    const saveOptions = configureSaveOptions(app.environment, app.tangram, options.fileName);
+    const saveOptions = configureSaveOptions(
+      app.environment,
+      app.tangram,
+      options.fileName,
+    );
 
     // Si des options spécifiques sont fournies, on les utilise directement
     if (options.fileType && options.fileName) {
@@ -571,7 +640,7 @@ export const saveFile = async (app, options = {}) => {
       const detail = {
         saveHistory: options.saveHistory || false,
         permanentHide: options.permanentHide || false,
-        saveSettings: options.saveSettings || true
+        saveSettings: options.saveSettings || true,
       };
       await processSaveDirect(handle, app, detail, options.fileType);
       return;
@@ -593,13 +662,17 @@ export const saveFile = async (app, options = {}) => {
           handle = await window.showSaveFilePicker(saveOptionsNative);
         } catch (error) {
           if (error.name === 'AbortError') {
-            console.log('Sauvegarde annulée par l\'utilisateur.');
+            console.log("Sauvegarde annulée par l'utilisateur.");
             return;
           }
           console.error('Erreur lors de la sauvegarde du fichier :', error);
-          window.dispatchEvent(new CustomEvent('show-notif', {
-            detail: { message: 'Une erreur est survenue lors de la sauvegarde.' }
-          }));
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message: 'Une erreur est survenue lors de la sauvegarde.',
+              },
+            }),
+          );
           return;
         }
       } else {
@@ -611,10 +684,12 @@ export const saveFile = async (app, options = {}) => {
       }
     });
   } catch (error) {
-    console.error('Erreur lors de l\'initialisation de la sauvegarde:', error);
-    window.dispatchEvent(new CustomEvent('show-notif', {
-      detail: { message: `Erreur lors de la sauvegarde: ${error.message}` }
-    }));
+    console.error("Erreur lors de l'initialisation de la sauvegarde:", error);
+    window.dispatchEvent(
+      new CustomEvent('show-notif', {
+        detail: { message: `Erreur lors de la sauvegarde: ${error.message}` },
+      }),
+    );
   }
 };
 
@@ -628,4 +703,3 @@ export const initSaveFileEventListener = (app) => {
 
 // Export des fonctions utilitaires pour les tests
 export { configureSaveOptions, prepareSaveData, validateAppState };
-

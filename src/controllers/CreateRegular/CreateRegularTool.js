@@ -7,7 +7,11 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { createElem, findObjectById, removeObjectById } from '../Core/Tools/general';
+import {
+  createElem,
+  findObjectById,
+  removeObjectById,
+} from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 
 /**
@@ -139,7 +143,12 @@ export class CreateRegularTool extends Tool {
       setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
     } else {
       this.stopAnimation();
-      if (SelectManager.areCoordinatesInMagnetismDistance(this.firstPoint.coordinates, this.secondPoint.coordinates)) {
+      if (
+        SelectManager.areCoordinatesInMagnetismDistance(
+          this.firstPoint.coordinates,
+          this.secondPoint.coordinates,
+        )
+      ) {
         const firstPointCoordinates = this.firstPoint.coordinates;
         app.upperCanvasLayer.removeAllObjects();
         this.firstPoint = new Point({
@@ -148,8 +157,18 @@ export class CreateRegularTool extends Tool {
           color: app.settings.temporaryDrawColor,
           size: 2,
         });
-        window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Veuillez placer le point autre part.' } }));
-        setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawSecondPoint' } });
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Veuillez placer le point autre part.' },
+          }),
+        );
+        setState({
+          tool: {
+            ...app.tool,
+            name: this.name,
+            currentStep: 'drawSecondPoint',
+          },
+        });
         return;
       }
       this.adjustPoint(this.secondPoint);
@@ -165,14 +184,20 @@ export class CreateRegularTool extends Tool {
     let constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
     let adjustedPoint;
-    if (adjustedPoint = SelectManager.selectPoint(
-      point.coordinates,
-      constraints,
-      false,
-    )) {
+    if (
+      (adjustedPoint = SelectManager.selectPoint(
+        point.coordinates,
+        constraints,
+        false,
+      ))
+    ) {
       point.coordinates = new Coordinates(adjustedPoint.coordinates);
       point.adjustedOn = adjustedPoint;
-    } else if (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(point.coordinates.toCanvasCoordinates())) {
+    } else if (
+      (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
+        point.coordinates.toCanvasCoordinates(),
+      ))
+    ) {
       const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
       point.coordinates = new Coordinates(adjustedPointInWorldSpace);
       point.adjustedOn = adjustedPointInWorldSpace;
@@ -184,7 +209,9 @@ export class CreateRegularTool extends Tool {
         constraints,
       );
       if (adjustedSegment) {
-        point.coordinates = adjustedSegment.projectionOnSegment(point.coordinates);
+        point.coordinates = adjustedSegment.projectionOnSegment(
+          point.coordinates,
+        );
         point.adjustedOn = adjustedSegment;
       }
     }
@@ -207,8 +234,7 @@ export class CreateRegularTool extends Tool {
         this.secondPoint.coordinates,
       );
 
-      if (this.shapeDrawnId)
-        removeObjectById(this.shapeDrawnId);
+      if (this.shapeDrawnId) removeObjectById(this.shapeDrawnId);
 
       const shape = new RegularShape({
         path: path,
@@ -217,10 +243,10 @@ export class CreateRegularTool extends Tool {
         fillOpacity: 0,
       });
       this.shapeDrawnId = shape.id;
-      shape.vertexes.forEach(vx => {
+      shape.vertexes.forEach((vx) => {
         vx.color = app.settings.temporaryDrawColor;
         vx.size = 2;
-      })
+      });
     }
   }
 

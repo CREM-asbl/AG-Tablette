@@ -1,5 +1,9 @@
 import { app } from '../../App';
-import { getComplementaryColor, mod, removeObjectById } from '../../Tools/general';
+import {
+  getComplementaryColor,
+  mod,
+  removeObjectById,
+} from '../../Tools/general';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
 import { Point } from '../Point';
@@ -102,24 +106,28 @@ export class SinglePointShape extends Shape {
       const point = this.points.find((pt) => pt.type == 'shapeCenter');
       if (app.environment.name == 'Geometrie' && point.layer == 'main') {
         const shapesToDelete = [];
-        this.geometryObject.geometryChildShapeIds.forEach(sId => {
+        this.geometryObject.geometryChildShapeIds.forEach((sId) => {
           const s = findObjectById(sId);
-          if (s && s.points.some(pt => pt.reference == point.id)) {
+          if (s && s.points.some((pt) => pt.reference == point.id)) {
             shapesToDelete.push(s);
           }
         });
         shapesToDelete.forEach((s) => {
-          if (app.environment.name == 'Geometrie')
-            deleteChildren(s);
+          if (app.environment.name == 'Geometrie') deleteChildren(s);
           removeObjectById(s.id);
         });
         for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
           const s = app.mainCanvasLayer.shapes[i];
-          s.points.filter(pt => pt.type != 'divisionPoint').forEach(pt => {
-            if (pt.reference && !findObjectById(pt.reference))
-              pt.reference = null;
-          });
-          if (s.geometryObject.geometryPointOnTheFlyChildId && !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)) {
+          s.points
+            .filter((pt) => pt.type != 'divisionPoint')
+            .forEach((pt) => {
+              if (pt.reference && !findObjectById(pt.reference))
+                pt.reference = null;
+            });
+          if (
+            s.geometryObject.geometryPointOnTheFlyChildId &&
+            !findObjectById(s.geometryObject.geometryPointOnTheFlyChildId)
+          ) {
             deleteChildren(s);
             i--;
           }
@@ -286,12 +294,10 @@ export class SinglePointShape extends Shape {
   setCtxForDrawing(ctx, scaling) {
     ctx.strokeStyle = this.strokeColor;
     ctx.fillStyle = this.fillColor;
-    if (this.isOverlappingAnotherInTangram)
-      ctx.fillStyle = '#F00';
+    if (this.isOverlappingAnotherInTangram) ctx.fillStyle = '#F00';
     ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
-    if (scaling == 'no scale')
-      ctx.lineWidth = this.strokeWidth;
+    if (scaling == 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */
@@ -345,9 +351,11 @@ export class SinglePointShape extends Shape {
         shape.isCoordinatesInPath(s1_segment.vertexes[0].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.vertexes[1].coordinates) &&
         shape.isCoordinatesInPath(s1_segment.middle) &&
-        !(shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
-        shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
-        shape.isCoordinatesOnBorder(s1_segment.middle))
+        !(
+          shape.isCoordinatesOnBorder(s1_segment.vertexes[0].coordinates) &&
+          shape.isCoordinatesOnBorder(s1_segment.vertexes[1].coordinates) &&
+          shape.isCoordinatesOnBorder(s1_segment.middle)
+        )
       ) {
         console.info('shape inside another');
         return true;
@@ -378,8 +386,7 @@ export class SinglePointShape extends Shape {
     this.segments.forEach((seg) => {
       if (seg.arcCenter) seg.counterclockwise = !seg.counterclockwise;
     });
-    if (this.isBiface)
-      this.fillColor = getComplementaryColor(this.fillColor);
+    if (this.isBiface) this.fillColor = getComplementaryColor(this.fillColor);
     this.isReversed = !this.isReversed;
   }
 
@@ -426,11 +433,15 @@ export class SinglePointShape extends Shape {
    * convertit la shape en commande de path svg
    */
   getSVGPath(scaling = 'scale') {
-    let pointsCoordinates = this.points.map(pt => pt.coordinates);
+    let pointsCoordinates = this.points.map((pt) => pt.coordinates);
     if (scaling == 'scale') {
-      pointsCoordinates = pointsCoordinates.map(coord => coord.toCanvasCoordinates());
+      pointsCoordinates = pointsCoordinates.map((coord) =>
+        coord.toCanvasCoordinates(),
+      );
     }
-    const path = pointsCoordinates.map(coord => `M ${coord.x} ${coord.y}`).join(' ');
+    const path = pointsCoordinates
+      .map((coord) => `M ${coord.x} ${coord.y}`)
+      .join(' ');
     return path;
   }
 
@@ -438,12 +449,11 @@ export class SinglePointShape extends Shape {
    * convertit la shape en balise path de svg
    */
   toSVG() {
-    if (this.geometryObject &&
-      (
-        this.geometryObject.geometryIsVisible === false ||
+    if (
+      this.geometryObject &&
+      (this.geometryObject.geometryIsVisible === false ||
         this.geometryObject.geometryIsHidden === true ||
-        this.geometryObject.geometryIsConstaintDraw === true
-      )
+        this.geometryObject.geometryIsConstaintDraw === true)
     ) {
       return '';
     }
@@ -467,12 +477,9 @@ export class SinglePointShape extends Shape {
 
     const pointToDraw = [];
     if (app.settings.areShapesPointed && this.name != 'silhouette') {
-      if (this.isSegment())
-      pointToDraw.push(this.segments[0].vertexes[0]);
+      if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
-        this.segments.forEach(
-          (seg) => (pointToDraw.push(seg.vertexes[1])),
-        );
+        this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));
     }
 
     this.segments.forEach((seg) => {
@@ -483,11 +490,12 @@ export class SinglePointShape extends Shape {
     });
     if (this.isCenterShown) pointToDraw.push(this.center);
 
-    const point_tags = pointToDraw.filter(pt => {
-      pt.visible &&
-      pt.geometryIsVisible &&
-      !pt.geometryIsHidden
-    }).map(pt => pt.svg).join('\n');
+    const point_tags = pointToDraw
+      .filter((pt) => {
+        pt.visible && pt.geometryIsVisible && !pt.geometryIsHidden;
+      })
+      .map((pt) => pt.svg)
+      .join('\n');
 
     const comment =
       '<!-- ' + this.name.replace('é', 'e').replace('è', 'e') + ' -->\n';
@@ -512,17 +520,13 @@ export class SinglePointShape extends Shape {
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
-          removeObjectById(
-            this.segments[nextIdx].arcCenterId
-          );
+          removeObjectById(this.segments[nextIdx].arcCenterId);
           idx = this.pointIds.findIndex(
             (id) => id == this.segments[nextIdx].arcCenterId,
           );
           this.pointIds.splice(idx, 1);
         }
-        removeObjectById(
-          this.segmentIds[nextIdx]
-        );
+        removeObjectById(this.segmentIds[nextIdx]);
         this.segmentIds.splice(nextIdx, 1);
         i--; // try to merge this new segment again!
       }

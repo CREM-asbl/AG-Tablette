@@ -7,9 +7,15 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
-import { compareIdBetweenLayers, duplicateShape } from '../Core/Tools/shapesTools';
+import {
+  compareIdBetweenLayers,
+  duplicateShape,
+} from '../Core/Tools/shapesTools';
 import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
-import { computeAllShapeTransform, computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import {
+  computeAllShapeTransform,
+  computeConstructionSpec,
+} from '../GeometryTools/recomputeShape';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -45,16 +51,22 @@ export class RotateTool extends Tool {
       <h3>${toolName}</h3>
       <p>
         Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une figure, puis glissez votre doigt sans relacher la figure pour
-        la faire tourner. La figure tourne autour de son centre, qui est affiché
-        lors de la rotation. Faites tournez votre doigt autour de ce centre pour
-        faire tourner la figure.
+        Touchez une figure, puis glissez votre doigt sans relacher la figure
+        pour la faire tourner. La figure tourne autour de son centre, qui est
+        affiché lors de la rotation. Faites tournez votre doigt autour de ce
+        centre pour faire tourner la figure.
       </p>
     `;
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -65,7 +77,8 @@ export class RotateTool extends Tool {
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
-    app.workspace.selectionConstraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(s => s instanceof SinglePointShape);
+    app.workspace.selectionConstraints.shapes.blacklist =
+      app.mainCanvasLayer.shapes.filter((s) => s instanceof SinglePointShape);
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
 
@@ -96,26 +109,40 @@ export class RotateTool extends Tool {
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
         if (currentShape.geometryObject?.geometryTransformationName != null) {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les images issues de transfomation ne peuvent pas être tournées.' } }));
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message:
+                  'Les images issues de transfomation ne peuvent pas être tournées.',
+              },
+            }),
+          );
           return;
         }
         if (currentShape.familyName == 'multipliedVector') {
-          window.dispatchEvent(new CustomEvent('show-notif', { detail: { message: 'Les vecteurs multipliés ne peuvent pas être tournés, mais peuvent l\'être via leur parent.' } }));
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message:
+                  "Les vecteurs multipliés ne peuvent pas être tournés, mais peuvent l'être via leur parent.",
+              },
+            }),
+          );
           return;
         }
       }
       const shapesToAdd = [];
-      this.involvedShapes.forEach(s => {
-        s.geometryObject?.geometryMultipliedChildShapeIds.forEach(sId => {
+      this.involvedShapes.forEach((s) => {
+        s.geometryObject?.geometryMultipliedChildShapeIds.forEach((sId) => {
           shapesToAdd.push(findObjectById(sId));
-        })
+        });
       });
       this.involvedShapes.push(...shapesToAdd);
     }
 
     this.shapesToCopy = [...this.involvedShapes];
-    this.shapesToCopy.forEach(s => {
-      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false)
+    this.shapesToCopy.forEach((s) => {
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false);
     });
 
     this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
@@ -131,10 +158,12 @@ export class RotateTool extends Tool {
       (s1, s2) =>
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
-    this.drawingShapes = this.shapesToCopy.map(
-      (s) => duplicateShape(s)
+    this.drawingShapes = this.shapesToCopy.map((s) => duplicateShape(s));
+    this.shapesToMove = this.drawingShapes.filter((s) =>
+      this.involvedShapes.find((inShape) =>
+        compareIdBetweenLayers(inShape.id, s.id),
+      ),
     );
-    this.shapesToMove = this.drawingShapes.filter(s => this.involvedShapes.find(inShape => compareIdBetweenLayers(inShape.id, s.id)));
 
     if (app.environment.name != 'Cubes')
       new Point({
@@ -143,15 +172,15 @@ export class RotateTool extends Tool {
         color: this.centerDrawColor,
       });
 
-    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map(
-      (s) => s.id,
-    );
+    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map((s) => s.id);
 
-    app.upperCanvasLayer.shapes.forEach(s => {
-      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-        const duplicateChild = findObjectById(duplicateChildId);
-        computeConstructionSpec(duplicateChild);
-      });
+    app.upperCanvasLayer.shapes.forEach((s) => {
+      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
+        (duplicateChildId) => {
+          const duplicateChild = findObjectById(duplicateChildId);
+          computeConstructionSpec(duplicateChild);
+        },
+      );
     });
 
     setState({ tool: { ...app.tool, currentStep: 'rotate' } });
@@ -190,26 +219,33 @@ export class RotateTool extends Tool {
       this.shapesToMove,
       this.selectedShape,
     );
-    app.mainCanvasLayer.editingShapeIds.filter(editingShapeId => this.shapesToMove.some(shapeToMove => shapeToMove.id == addInfoToId(editingShapeId, 'upper'))).forEach((sId, idxS) => {
-      const s = findObjectById(sId);
-      s.points.forEach((pt, idxPt) => {
-        pt.coordinates = new Coordinates(this.shapesToMove[idxS].points[idxPt].coordinates);
-        if (this.pointOnLineRatio)
-          pt.ratio = this.pointOnLineRatio;
-      });
-
-      s.rotate(
-        adjustment.rotationAngle,
-        centerCoordinates,
-      );
-      s.translate(adjustment.translation);
-    });
-    if (app.environment.name == 'Geometrie') {
-      app.mainCanvasLayer.shapes.forEach(s => {
-        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(duplicateChildId => {
-          const duplicateChild = findObjectById(duplicateChildId);
-          computeConstructionSpec(duplicateChild);
+    app.mainCanvasLayer.editingShapeIds
+      .filter((editingShapeId) =>
+        this.shapesToMove.some(
+          (shapeToMove) =>
+            shapeToMove.id == addInfoToId(editingShapeId, 'upper'),
+        ),
+      )
+      .forEach((sId, idxS) => {
+        const s = findObjectById(sId);
+        s.points.forEach((pt, idxPt) => {
+          pt.coordinates = new Coordinates(
+            this.shapesToMove[idxS].points[idxPt].coordinates,
+          );
+          if (this.pointOnLineRatio) pt.ratio = this.pointOnLineRatio;
         });
+
+        s.rotate(adjustment.rotationAngle, centerCoordinates);
+        s.translate(adjustment.translation);
+      });
+    if (app.environment.name == 'Geometrie') {
+      app.mainCanvasLayer.shapes.forEach((s) => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
+          (duplicateChildId) => {
+            const duplicateChild = findObjectById(duplicateChildId);
+            computeConstructionSpec(duplicateChild);
+          },
+        );
       });
       app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
         const s = findObjectById(sId);

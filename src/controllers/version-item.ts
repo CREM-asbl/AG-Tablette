@@ -5,22 +5,22 @@ import { app } from './Core/App';
 @customElement('version-item')
 class VersionItem extends LitElement {
   static styles = css`
-      :host {
-        display: flex;
-        align-items: center;
-        height: 20px;
-      }
-      img {
-        height: 100%;
-        margin: 4px;
-      }
-      div {
-        margin-left: 4px;
-        text-align: right;
-        font-size: 0.8rem;
-        color: darkslategray;
-      }
-    `
+    :host {
+      display: flex;
+      align-items: center;
+      height: 20px;
+    }
+    img {
+      height: 100%;
+      margin: 4px;
+    }
+    div {
+      margin-left: 4px;
+      text-align: right;
+      font-size: 0.8rem;
+      color: darkslategray;
+    }
+  `;
 
   render() {
     return html`

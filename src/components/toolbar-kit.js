@@ -8,7 +8,7 @@ class ToolbarKit extends LitElement {
     kit: { type: Object },
     selectedFamily: { type: String },
     helpSelected: { type: Boolean },
-  }
+  };
 
   constructor() {
     super();
@@ -19,8 +19,11 @@ class ToolbarKit extends LitElement {
 
   shouldUpdate(changedProperties) {
     // Optimiser les rendus en ne mettant à jour que si les propriétés pertinentes changent
-    if (changedProperties.has('kit') || changedProperties.has('selectedFamily') ||
-      changedProperties.has('helpSelected')) {
+    if (
+      changedProperties.has('kit') ||
+      changedProperties.has('selectedFamily') ||
+      changedProperties.has('helpSelected')
+    ) {
       return true;
     }
     return super.shouldUpdate(changedProperties);
@@ -29,7 +32,8 @@ class ToolbarKit extends LitElement {
   // Memoize les familles filtrées pour éviter les calculs inutiles
   _getFilteredFamilies() {
     if (this._lastKit !== this.kit || !this._filteredFamilies.length) {
-      this._filteredFamilies = this.kit?.families?.filter(family => family.isVisible) || [];
+      this._filteredFamilies =
+        this.kit?.families?.filter((family) => family.isVisible) || [];
       this._lastKit = this.kit;
     }
     return this._filteredFamilies;
@@ -41,15 +45,18 @@ class ToolbarKit extends LitElement {
     const families = this._getFilteredFamilies();
     if (!families.length) return null;
 
-    const familyNames = families.map(family => family.name);
+    const familyNames = families.map((family) => family.name);
 
     return html`
       <template-toolbar>
         <h2 slot="title">${this.kit.name}</h2>
         <div slot="body">
-          ${familyNames.map((familyName) => html`
+          ${familyNames.map(
+            (familyName) => html`
               <icon-button
-                name="${this.kit.families.find(family => family.name == familyName).shapeTemplates[0].name}"
+                name="${this.kit.families.find(
+                  (family) => family.name == familyName,
+                ).shapeTemplates[0].name}"
                 type="Create"
                 title="${familyName}"
                 ?active="${familyName === this.selectedFamily}"
@@ -57,7 +64,8 @@ class ToolbarKit extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>
-            `)}
+            `,
+          )}
         </div>
       </template-toolbar>
     `;
@@ -73,7 +81,9 @@ class ToolbarKit extends LitElement {
     });
 
     if (this.helpSelected) {
-      window.dispatchEvent(new CustomEvent('helpToolChosen', { detail: { toolname: 'create' } }));
+      window.dispatchEvent(
+        new CustomEvent('helpToolChosen', { detail: { toolname: 'create' } }),
+      );
       setState({ helpSelected: false });
     } else if (!app.fullHistory.isRunning) {
       setState({

@@ -3,7 +3,6 @@ import { css, html, LitElement } from 'lit';
 import { app, changes, setState } from '../Core/App';
 
 class ZoomMenu extends SignalWatcher(LitElement) {
-
   static get properties() {
     return {
       zoomLevel: { type: Number },
@@ -12,61 +11,73 @@ class ZoomMenu extends SignalWatcher(LitElement) {
   }
 
   static styles = css`
-      :host {
-        display: grid;
-        grid-template: auto / auto 1fr auto;
-        justify-items: center;
-        position: absolute;
-        top: 5px;
-        padding: 10px;
-        font-size: 28px;
-        border-radius: 5px;
-        border: 2px solid gray;
-        background-color: rgba(0, 0, 0, 0.15);
-        width: auto;
-        max-width: calc(100% - 230px);
-        overflow-y: auto;
-        max-height: 30%;
-        left: ${app.settings.mainMenuWidth + 5}px;
-      }
+    :host {
+      display: grid;
+      grid-template: auto / auto 1fr auto;
+      justify-items: center;
+      position: absolute;
+      top: 5px;
+      padding: 10px;
+      font-size: 28px;
+      border-radius: 5px;
+      border: 2px solid gray;
+      background-color: rgba(0, 0, 0, 0.15);
+      width: auto;
+      max-width: calc(100% - 230px);
+      overflow-y: auto;
+      max-height: 30%;
+      left: ${app.settings.mainMenuWidth + 5}px;
+    }
 
-      div > * {
-        cursor: pointer;
-        text-align: center;
-      }
+    div > * {
+      cursor: pointer;
+      text-align: center;
+    }
 
-      input, .info {
-        grid-area: auto / span 3;
-      }
+    input,
+    .info {
+      grid-area: auto / span 3;
+    }
 
-      .info {
-        cursor: initial;
-        font-size: .8rem;
-      }
-    `;
+    .info {
+      cursor: initial;
+      font-size: 0.8rem;
+    }
+  `;
 
   render() {
-    changes.get()
+    changes.get();
     this.updateProperties();
     return html`
-        <div><span @click="${() => this.showResult(this.position - 1)}">-</span></div>
-        <div><span @click="${() => this.showResult(50)}">100%</span></div>
-        <div><span @click="${() => this.showResult(this.position + 1)}">+</span></div>
-        <input type="range" min="0" max="100" .value="${this.position}"
-         id="myRange" @change="${e => this.showResult(e.target.value)}"
-         @input="${e => this.showResult(e.target.value, false)}" aria-label="Zoom">
-         <div class="info">Zoom: ${(this.zoomLevel * 100).toFixed(2)}%</div>
+      <div>
+        <span @click="${() => this.showResult(this.position - 1)}">-</span>
+      </div>
+      <div><span @click="${() => this.showResult(50)}">100%</span></div>
+      <div>
+        <span @click="${() => this.showResult(this.position + 1)}">+</span>
+      </div>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        .value="${this.position}"
+        id="myRange"
+        @change="${(e) => this.showResult(e.target.value)}"
+        @input="${(e) => this.showResult(e.target.value, false)}"
+        aria-label="Zoom"
+      />
+      <div class="info">Zoom: ${(this.zoomLevel * 100).toFixed(2)}%</div>
     `;
   }
 
   updateProperties() {
     this.zoomLevel = app.tool?.zoomLevel || app.workspace.zoomLevel;
     this.position = this.getPositionFromZoom(app.workspace.zoomLevel);
-  };
+  }
 
   close() {
     this.remove();
-  };
+  }
 
   getZoomFromPosition(position) {
     // position will be between 0 and 100
@@ -111,7 +122,7 @@ class ZoomMenu extends SignalWatcher(LitElement) {
         ...app.tool,
         currentStep: step,
         zoomLevel: zoom,
-      }
+      },
     });
   }
 }

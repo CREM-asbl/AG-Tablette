@@ -51,13 +51,13 @@ class ScalarPopup extends LitElement {
         }
 
         hr {
-          height:4px;
-          width:20%;
-          border-width:0;
-          text-align:left;
-          margin:3px auto 3px;
-          color:black;
-          background-color:black;
+          height: 4px;
+          width: 20%;
+          border-width: 0;
+          text-align: left;
+          margin: 3px auto 3px;
+          color: black;
+          background-color: black;
         }
       `,
     ];
@@ -71,25 +71,29 @@ class ScalarPopup extends LitElement {
           <label for="settings_divide_number_of_parts">Multiplier par</label>
           <select @change="${this.changeNumerator}">
             ${range(1, 9).map(
-      (x) =>
-        html`<option value="${x}" ?selected="${this.numerator == x}">
+              (x) =>
+                html`<option value="${x}" ?selected="${this.numerator == x}">
                   ${x}
                 </option>`,
-    )}
+            )}
           </select>
-          <hr>
+          <hr />
           <select @change="${this.changeDenominator}">
             ${range(1, 9).map(
-      (x) =>
-        html`<option value="${x}" ?selected="${this.denominator == x}">
+              (x) =>
+                html`<option value="${x}" ?selected="${this.denominator == x}">
                   ${x}
                 </option>`,
-    )}
+            )}
           </select>
         </div>
 
         <div slot="footer">
-          <color-button @click="${() => window.dispatchEvent(new CustomEvent('close-popup'))}" innerText="Ok"></color-button>
+          <color-button
+            @click="${() =>
+              window.dispatchEvent(new CustomEvent('close-popup'))}"
+            innerText="Ok"
+          ></color-button>
         </div>
       </template-popup>
     `;
@@ -97,19 +101,29 @@ class ScalarPopup extends LitElement {
 
   changeNumerator(event) {
     setState({
-      settings: { ...app.settings, scalarNumerator: parseInt(event.target.value) },
+      settings: {
+        ...app.settings,
+        scalarNumerator: parseInt(event.target.value),
+      },
     });
   }
 
   changeDenominator(event) {
     setState({
-      settings: { ...app.settings, scalarDenominator: parseInt(event.target.value) },
+      settings: {
+        ...app.settings,
+        scalarDenominator: parseInt(event.target.value),
+      },
     });
   }
 
   submit() {
     setState({
-      tool: { ...app.tool, name: 'scalarMultiplication', currentStep: 'selectObject' },
+      tool: {
+        ...app.tool,
+        name: 'scalarMultiplication',
+        currentStep: 'selectObject',
+      },
     });
   }
 

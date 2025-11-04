@@ -33,7 +33,6 @@ export class Silhouette {
     this.shapes.forEach((s) => s.scale(scale));
   }
 
-
   saveToObject() {
     const save = {
       shapesData: app.tangramCanvasLayer.shapes.map((s) => {
@@ -53,7 +52,10 @@ export class Silhouette {
 
   get silouhetteMax() {
     const bounds = this.bounds;
-    return new Coordinates({ x: bounds.maxX, y: (bounds.maxY + bounds.minY) / 2 })
+    return new Coordinates({
+      x: bounds.maxX,
+      y: (bounds.maxY + bounds.minY) / 2,
+    });
   }
 
   get minX() {
@@ -74,13 +76,16 @@ export class Silhouette {
 
   get center() {
     return {
-      x: (this.bounds.maxX + this.bounds.minX) * app.workspace.zoomLevel / 2,
-      y: (this.bounds.maxY + this.bounds.minY) * app.workspace.zoomLevel / 2
+      x: ((this.bounds.maxX + this.bounds.minX) * app.workspace.zoomLevel) / 2,
+      y: ((this.bounds.maxY + this.bounds.minY) * app.workspace.zoomLevel) / 2,
     };
   }
 
-  get largeur() { return Math.ceil(this.maxX - this.minX) }
+  get largeur() {
+    return Math.ceil(this.maxX - this.minX);
+  }
 
-  get hauteur() { return Math.ceil(this.maxY - this.minY) }
-
+  get hauteur() {
+    return Math.ceil(this.maxY - this.minY);
+  }
 }

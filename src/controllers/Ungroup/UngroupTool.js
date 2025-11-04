@@ -31,7 +31,13 @@ export class UngroupTool extends Tool {
   }
 
   start() {
-    setTimeout(() => setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } }), 50);
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        }),
+      50,
+    );
   }
 
   listen() {
@@ -49,7 +55,13 @@ export class UngroupTool extends Tool {
           strokeColor: currentGroup.color,
           strokeWidth: 3,
           divisionPointInfos: s.divisionPoints.map((dp) => {
-            return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, id: dp.id, color: dp.color };
+            return {
+              coordinates: dp.coordinates,
+              ratio: dp.ratio,
+              segmentIdx: dp.segments[0].idx,
+              id: dp.id,
+              color: dp.color,
+            };
           }),
           segmentsColor: s.segments.map((seg) => {
             return seg.color;
