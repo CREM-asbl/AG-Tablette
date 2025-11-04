@@ -16,6 +16,10 @@ export class Bounds {
   }
 
   static getOuterBounds(...bounds) {
+    bounds = bounds.filter(b => b instanceof Bounds);
+    if (bounds.length === 0) {
+      return new Bounds(0, 0, 0, 0);
+    }
     let minX = bounds[0].minX,
       minY = bounds[0].minY,
       maxX = bounds[0].maxX,
