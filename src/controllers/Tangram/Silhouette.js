@@ -9,20 +9,48 @@ export class Silhouette {
    * @param {RegularShape[]} shapes les shapes représentant la silhouette
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
+    console.log('Silhouette constructor: creating with', shapes.length, 'shapes, loadFromSave:', loadFromSave);
+    console.log('Silhouette constructor: canvas already has', app.tangramCanvasLayer.shapes.length, 'shapes');
+
+    // Filter out duplicate shapes based on path to avoid duplication
+    const uniqueShapes = [];
+    const seenPaths = new Set();
+    for (const shape of shapes) {
+      const path = loadFromSave ? shape.path : shape.getSVGPath(false);
+      if (!seenPaths.has(path)) {
+        seenPaths.add(path);
+        uniqueShapes.push(shape);
+      }
+    }
+    console.log('Silhouette constructor: filtered to', uniqueShapes.length, 'unique shapes');
+
     this.level = level;
-    this.shapes = shapes.map((shape) => {
-      const shapeCopy = new RegularShape({
-        ...shape,
-        path: loadFromSave ? shape.path : shape.getSVGPath(false),
+    this.shapes = uniqueShapes.map((shape) => {
+      // Always use path for silhouette shapes to ensure proper segment creation
+      const path = loadFromSave ? shape.path : shape.getSVGPath(false);
+
+      if (!path) {
+        console.warn('Silhouette: Shape has no path', shape);
+      }
+
+      const shapeData = {
+        // Preserve style properties from original shape
+        fillColor: shape.fillColor,
+        strokeWidth: shape.strokeWidth,
+        // Override silhouette-specific properties
+        path: path,
         layer: 'tangram',
         name: 'silhouette',
-        strokeColor: level % 2 != 0 ? '#fff' : '#000',
+        strokeColor: level % 2 !== 0 ? '#fff' : '#000',
         fillOpacity: 1,
         isPointed: false,
         size: level < 5 ? 1 : 0.6,
-      });
+      };
+
+      const shapeCopy = new RegularShape(shapeData);
       return shapeCopy;
     });
+    console.log('Silhouette constructor: created', this.shapes.length, 'shapes');
   }
 
   translate(translation) {
@@ -34,20 +62,47 @@ export class Silhouette {
   }
 
   saveToObject() {
+    // Only save shapes that belong to this silhouette instance
+    const silhouetteShapeIds = new Set(this.shapes.map(s => s.id));
+    console.log('Silhouette saveToObject: silhouetteShapeIds', [...silhouetteShapeIds]);
+    console.log('Silhouette saveToObject: canvas shapes', app.tangramCanvasLayer.shapes.map(s => ({ id: s.id, name: s.name })));
+
     const save = {
-      shapesData: app.tangramCanvasLayer.shapes.map((s) => {
-        const shapeData = s.saveData();
-        shapeData.segmentIds = undefined;
-        shapeData.pointIds = undefined;
-        return shapeData;
-      }),
+      shapesData: app.tangramCanvasLayer.shapes
+        .filter((s) => silhouetteShapeIds.has(s.id))
+        .map((s) => {
+          const shapeData = s.saveData();
+          // Keep segmentIds and pointIds for proper loading
+          // shapeData.segmentIds = undefined;
+          // shapeData.pointIds = undefined;
+          return shapeData;
+        }),
     };
+    console.log('Silhouette saveToObject: saving shapesData length', save.shapesData.length);
     return save;
   }
 
   get bounds() {
-    const bounds = Bounds.getOuterBounds(...this.shapes.map((s) => s.bounds));
-    return bounds;
+    if (this.shapes.length === 0) {
+      return new Bounds(0, 0, 0, 0);
+    }
+
+    const shapeBounds = this.shapes.map((s) => {
+      if (!s.segments || s.segments.length === 0) {
+        return null;
+      }
+      const b = s.bounds;
+      if (!(b instanceof Bounds) ||
+        isNaN(b.minX) || isNaN(b.minY) || isNaN(b.maxX) || isNaN(b.maxY)) {
+        return null;
+      }
+      return b;
+    }).filter(b => b !== null);
+
+    if (shapeBounds.length === 0) {
+      return new Bounds(0, 0, 0, 0);
+    }
+    return Bounds.getOuterBounds(...shapeBounds);
   }
 
   get silouhetteMax() {
@@ -98,16 +153,21 @@ export class Silhouette {
       if (this.level > 4) {
         this.scale(0.6);
       }
+
+      // Store initial center after scaling
+      const initialCenterY = this.center.y;
+
       // Repositionner à gauche (compensation du décalage)
       this.translate({
         x: -this.bounds.minX,
         y: 0,
       });
-      // Centrer verticalement dans la zone tangram
-      const centerY = (app.canvasHeight / 2) / app.workspace.zoomLevel;
+
+      // Centrer verticalement dans le canvas
+      const targetCenterY = (app.canvasHeight / 2);
       this.translate({
         x: 0,
-        y: centerY - this.center.y,
+        y: targetCenterY - initialCenterY
       });
       const tangramCanvasLayerWidth = app.canvasWidth / 2;
       if (this.largeur > tangramCanvasLayerWidth) {
@@ -123,6 +183,7 @@ export class Silhouette {
         this.translate({ x: diff / app.workspace.zoomLevel, y: 0 });
       }
     }
+    app.tangramCanvasLayer.clear();
     app.tangramCanvasLayer.draw();
   }
 }

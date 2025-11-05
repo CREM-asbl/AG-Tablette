@@ -80,6 +80,9 @@ export class SolutionCheckerTool extends LitElement {
         app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`;
       }
 
+      // Ensure canvas is clean before creating silhouette
+      app.tangramCanvasLayer.removeAllObjects();
+
       const silhouette = new Silhouette(backObjects.shapesData, true, level);
       silhouette.positionInTangramCanvas(data.fileExtension);
     }
