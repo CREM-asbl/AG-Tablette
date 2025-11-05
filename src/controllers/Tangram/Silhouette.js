@@ -9,8 +9,15 @@ export class Silhouette {
    * @param {RegularShape[]} shapes les shapes représentant la silhouette
    */
   constructor(shapes = [], loadFromSave = false, level = 1) {
-    console.log('Silhouette constructor: creating with', shapes.length, 'shapes, loadFromSave:', loadFromSave);
-    console.log('Silhouette constructor: canvas already has', app.tangramCanvasLayer.shapes.length, 'shapes');
+    // Validation des paramètres d'entrée
+    if (!Array.isArray(shapes)) {
+      console.error('Silhouette constructor: shapes must be an array');
+      shapes = [];
+    }
+    if (!Number.isInteger(level) || level < 1) {
+      console.error('Silhouette constructor: level must be a positive integer');
+      level = 1;
+    }
 
     // Filter out duplicate shapes based on path to avoid duplication
     const uniqueShapes = [];
@@ -22,7 +29,6 @@ export class Silhouette {
         uniqueShapes.push(shape);
       }
     }
-    console.log('Silhouette constructor: filtered to', uniqueShapes.length, 'unique shapes');
 
     this.level = level;
     this.shapes = uniqueShapes.map((shape) => {
@@ -50,7 +56,6 @@ export class Silhouette {
       const shapeCopy = new RegularShape(shapeData);
       return shapeCopy;
     });
-    console.log('Silhouette constructor: created', this.shapes.length, 'shapes');
   }
 
   translate(translation) {
@@ -64,21 +69,15 @@ export class Silhouette {
   saveToObject() {
     // Only save shapes that belong to this silhouette instance
     const silhouetteShapeIds = new Set(this.shapes.map(s => s.id));
-    console.log('Silhouette saveToObject: silhouetteShapeIds', [...silhouetteShapeIds]);
-    console.log('Silhouette saveToObject: canvas shapes', app.tangramCanvasLayer.shapes.map(s => ({ id: s.id, name: s.name })));
 
     const save = {
       shapesData: app.tangramCanvasLayer.shapes
         .filter((s) => silhouetteShapeIds.has(s.id))
         .map((s) => {
           const shapeData = s.saveData();
-          // Keep segmentIds and pointIds for proper loading
-          // shapeData.segmentIds = undefined;
-          // shapeData.pointIds = undefined;
           return shapeData;
         }),
     };
-    console.log('Silhouette saveToObject: saving shapesData length', save.shapesData.length);
     return save;
   }
 
@@ -100,12 +99,13 @@ export class Silhouette {
     }).filter(b => b !== null);
 
     if (shapeBounds.length === 0) {
+      console.error('Silhouette bounds: no valid shapes found');
       return new Bounds(0, 0, 0, 0);
     }
     return Bounds.getOuterBounds(...shapeBounds);
   }
 
-  get silouhetteMax() {
+  get silhouetteMax() {
     const bounds = this.bounds;
     return new Coordinates({
       x: bounds.maxX,
@@ -149,6 +149,9 @@ export class Silhouette {
   * @param {string} fileExtension - Extension du fichier ('agt', 'ags', etc.)
   */
   positionInTangramCanvas(fileExtension = '') {
+    // Appliquer le scaling pour niveaux > 4 si pas 'agt'
+    // Centrer verticalement et ajuster horizontalement selon la largeur
+    // Ajuster le zoom si nécessaire pour la largeur
     if (fileExtension !== 'agt') {
       if (this.level > 4) {
         this.scale(0.6);

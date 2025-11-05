@@ -5,17 +5,12 @@ import { CharacteristicElements } from './CharacteristicElements';
 import { Coordinates } from './Coordinates';
 import { ShapeGroup } from './ShapeGroup';
 
-// Constantes pour la gestion des événements et timeouts
-const TANGRAM_CONSTANTS = {
-  READY_TIMEOUT: 5000, // Timeout pour l'attente de tangram-canvas-ready (ms)
-  REFRESH_DELAY: 10, // Délai pour les événements de rafraîchissement (ms)
-};
+// Note: Tangram backObjects loading moved to SolutionCheckerTool
+// to prevent premature silhouette display before level selection
 
 /**
  * Représente un projet, qui peut être sauvegardé/restauré. Un utilisateur peut
  * travailler sur plusieurs projets en même temps.
- *
- * Gère le chargement asynchrone des silhouettes Tangram via les backObjects.
  */
 export class Workspace {
   constructor() {
@@ -60,8 +55,7 @@ export class Workspace {
      */
     this.translateOffset = Coordinates.nullCoordinates;
 
-    // Flag pour éviter la duplication des événements de rafraîchissement
-    this._refreshScheduled = false;
+
   }
 
   initGeometrie() {
@@ -129,10 +123,8 @@ export class Workspace {
 
     if (scale != 1) this.setZoomLevel(scale);
 
-    // Charger les objets de fond (silhouettes) pour Tangram
-    if (app.environment?.name === 'Tangram' && wsdata.backObjects) {
-      this._loadTangramBackObjects(wsdata.backObjects);
-    }
+    // Note: backObjects loading for Tangram is handled by SolutionCheckerTool
+    // after level selection to prevent premature silhouette display
 
     if (!wsdata.shapeGroups) wsdata.shapeGroups = [];
 
@@ -171,121 +163,11 @@ export class Workspace {
     );
     this.setZoomLevel(wsdata.zoomLevel * scale || scale, false);
 
-    // Déclencher les événements de rafraîchissement pour Tangram
-    if (app.environment.name === 'Tangram' && wsdata.backObjects) {
-      this._scheduleRefreshEvents();
-    }
+    // Note: Refresh events for Tangram are handled by SolutionCheckerTool
+    // after silhouette positioning
   }
 
-  /**
-   * Charge les objets de fond (silhouettes) dans le tangramCanvasLayer de façon asynchrone
-   * @param {Object} backObjects - Les données des objets de fond à charger
-   * @private
-   */
-  async _loadTangramBackObjects(backObjects) {
-    if (!backObjects) {
-      console.warn('Workspace: Aucun backObjects à charger');
-      return;
-    }
-
-    const loadBackObjectsImmediately = async () => {
-      try {
-        if (
-          app.tangramCanvasLayer &&
-          typeof app.tangramCanvasLayer.loadFromData === 'function'
-        ) {
-          await app.tangramCanvasLayer.loadFromData(backObjects);
-          app.tangramCanvasLayer.draw();
-          console.log('Workspace: backObjects chargés immédiatement');
-        } else {
-          throw new Error('tangramCanvasLayer non disponible ou invalide');
-        }
-      } catch (error) {
-        console.error(
-          'Workspace: Erreur lors du chargement immédiat des backObjects:',
-          error,
-        );
-      }
-    };
-
-    const loadBackObjectsAfterEvent = () => {
-      let timeoutId;
-
-      const handler = async () => {
-        clearTimeout(timeoutId);
-        try {
-          if (
-            app.tangramCanvasLayer &&
-            typeof app.tangramCanvasLayer.loadFromData === 'function'
-          ) {
-            await app.tangramCanvasLayer.loadFromData(backObjects);
-            app.tangramCanvasLayer.draw();
-            console.log(
-              'Workspace: backObjects chargés après événement tangram-canvas-ready',
-            );
-          } else {
-            throw new Error(
-              "tangramCanvasLayer toujours non disponible après l'événement",
-            );
-          }
-        } catch (error) {
-          console.error(
-            'Workspace: Erreur lors du chargement des backObjects après événement:',
-            error,
-          );
-        } finally {
-          window.removeEventListener('tangram-canvas-ready', handler);
-        }
-      };
-
-      // Timeout de sécurité pour éviter l'attente infinie
-      timeoutId = setTimeout(() => {
-        window.removeEventListener('tangram-canvas-ready', handler);
-        console.error(
-          "Workspace: Timeout lors de l'attente de tangram-canvas-ready",
-        );
-      }, TANGRAM_CONSTANTS.READY_TIMEOUT);
-
-      window.addEventListener('tangram-canvas-ready', handler);
-    };
-
-    // Essayer le chargement immédiat, sinon attendre l'événement
-    if (app.tangramCanvasLayer) {
-      loadBackObjectsImmediately();
-    } else {
-      loadBackObjectsAfterEvent();
-    }
-  }
-
-  /**
-   * Planifie les événements de rafraîchissement de façon optimisée
-   * @private
-   */
-  _scheduleRefreshEvents() {
-    // Utiliser requestAnimationFrame pour optimiser les performances
-    // et éviter les redraws multiples pendant le même cycle
-    if (this._refreshScheduled) {
-      return; // Éviter la duplication d'événements
-    }
-
-    this._refreshScheduled = true;
-
-    requestAnimationFrame(() => {
-      try {
-        // Envoyer les événements en une seule fois
-        window.dispatchEvent(new CustomEvent('refresh'));
-        window.dispatchEvent(new CustomEvent('refreshUpper'));
-        console.log('Workspace: Événements de rafraîchissement envoyés');
-      } catch (error) {
-        console.error(
-          'Workspace: Erreur lors des événements de rafraîchissement:',
-          error,
-        );
-      } finally {
-        this._refreshScheduled = false;
-      }
-    });
-  }
+  
 
   get data() {
     const wsdata = {};
