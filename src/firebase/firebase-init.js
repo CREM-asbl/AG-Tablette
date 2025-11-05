@@ -62,10 +62,7 @@ export async function openFileFromServer(activityName) {
       throw new Error(`Fichier non trouvé: ${activityName}`);
     }
   } catch (error) {
-    console.error(
-      "Erreur lors de l'ouverture du fichier depuis le serveur:",
-      error,
-    );
+
     window.dispatchEvent(
       new CustomEvent('show-notif', {
         detail: { message: `Erreur lors du chargement: ${error.message}` },
@@ -89,10 +86,7 @@ async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
       if (attempt === maxAttempts) throw error;
 
       const delay = baseDelay * Math.pow(2, attempt - 1);
-      console.warn(
-        `Tentative ${attempt} échouée, retry dans ${delay}ms:`,
-        error.message,
-      );
+
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
@@ -109,24 +103,19 @@ export async function readFileFromServer(filename) {
     try {
       const localActivity = await getActivity(filename);
       if (localActivity) {
-        console.log(
-          `Fichier ${filename} récupéré depuis IndexedDB (hors ligne)`,
-        );
+
         // Notification supprimée pour transparence utilisateur
         return localActivity.data;
       }
     } catch (indexedDBError) {
-      console.warn(
-        'Erreur IndexedDB, tentative de récupération en ligne:',
-        indexedDBError,
-      );
+
     }
 
     // Vérifier le cache mémoire
     const cacheKey = `file_${filename}`;
     const cachedData = fileCache.get(cacheKey);
     if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
-      console.log(`Fichier ${filename} récupéré depuis le cache mémoire`);
+
       return cachedData.data;
     }
 
@@ -155,11 +144,9 @@ export async function readFileFromServer(filename) {
     try {
       const version = jsonData.version || 1;
       await saveActivity(filename, jsonData, version);
-      console.log(
-        `Fichier ${filename} sauvegardé dans IndexedDB (version ${version})`,
-      );
+
     } catch (saveError) {
-      console.warn('Erreur lors de la sauvegarde IndexedDB:', saveError);
+
     }
 
     // Mettre en cache le contenu JSON plutôt que la réponse
@@ -170,22 +157,17 @@ export async function readFileFromServer(filename) {
 
     return jsonData;
   } catch (error) {
-    console.error(
-      'Erreur lors de la lecture du fichier depuis le serveur:',
-      error,
-    );
+
 
     // En cas d'erreur réseau, tenter une dernière fois IndexedDB
     try {
       const fallbackActivity = await getActivity(filename);
       if (fallbackActivity) {
-        console.log(
-          `Fallback: fichier ${filename} récupéré depuis IndexedDB après erreur réseau`,
-        );
+
         return fallbackActivity.data;
       }
     } catch (fallbackError) {
-      console.error('Aucune version locale disponible:', fallbackError);
+
     }
 
     throw error;
@@ -206,7 +188,7 @@ export async function getFileDocFromFilename(id) {
       cachedMetadata &&
       Date.now() - cachedMetadata.timestamp < CACHE_DURATION
     ) {
-      console.log(`Métadonnées ${id} récupérées depuis le cache`);
+
       return cachedMetadata.data;
     }
 
@@ -235,7 +217,7 @@ export async function getFileDocFromFilename(id) {
 
     return result;
   } catch (error) {
-    console.error('Erreur lors de la récupération du document:', error);
+
     return null;
   }
 }
@@ -245,16 +227,16 @@ export async function findAllThemes() {
   try {
     const localThemes = await getAllThemes();
     if (localThemes && localThemes.length > 0) {
-      console.log('Thèmes récupérés depuis IndexedDB');
+
       return localThemes.map((t) => ({ id: t.id, ...t.data }));
     }
   } catch (err) {
-    console.warn('Erreur IndexedDB pour les thèmes:', err);
+
   }
 
   // Vérifier si on est en ligne avant d'essayer le serveur
   if (!navigator.onLine) {
-    console.log('Mode hors ligne - aucun thème disponible dans IndexedDB');
+
     return [];
   }
 
@@ -277,20 +259,14 @@ export async function findAllThemes() {
       for (const theme of themesWithId) {
         await saveTheme(theme.id, theme);
       }
-      console.log('Thèmes sauvegardés dans IndexedDB pour usage hors ligne');
+
     } catch (saveError) {
-      console.warn(
-        'Erreur lors de la sauvegarde des thèmes dans IndexedDB:',
-        saveError,
-      );
+
     }
 
     return themesWithId;
   } catch (error) {
-    console.error(
-      'Erreur lors de la récupération des thèmes depuis le serveur:',
-      error,
-    );
+
     return [];
   }
 }
@@ -315,7 +291,7 @@ export function getModuleDocFromModuleName(moduleName) {
 // Fonction de diagnostic pour vérifier la collection modules
 export async function debugFirebaseModules() {
   try {
-    console.log('[DEBUG] 🔍 Diagnostic de la collection modules Firebase...');
+
 
     // Tester les permissions de lecture
     try {
@@ -325,22 +301,15 @@ export async function debugFirebaseModules() {
           where('__name__', '!=', 'impossible_doc_name'),
         ),
       );
-      console.log(
-        '[DEBUG] ✅ Permissions de lecture OK pour la collection modules',
-      );
+
     } catch (permError) {
-      console.error(
-        '[DEBUG] ❌ Problème de permissions pour la collection modules:',
-        permError,
-      );
+
       return [];
     }
 
     // Récupérer TOUS les modules sans filtre
     const allModulesSnapshot = await getDocs(collection(db, 'modules'));
-    console.log(
-      `[DEBUG] 📊 Total modules dans Firebase: ${allModulesSnapshot.size}`,
-    );
+
 
     if (allModulesSnapshot.size > 0) {
       const modulesList = [];
@@ -370,31 +339,22 @@ export async function debugFirebaseModules() {
         modulesByTheme[themeKey].push(module);
       });
 
-      console.log(
-        '[DEBUG] 📈 Répartition des modules par thème:',
-        Object.keys(modulesByTheme).map(
-          (key) => `${key}: ${modulesByTheme[key].length} modules`,
-        ),
-      );
+
       return modulesList;
     } else {
-      console.log('[DEBUG] ❌ Aucun module trouvé dans la collection Firebase');
+
 
       // Vérifier si la collection existe
       try {
         const collectionRef = collection(db, 'modules');
-        console.log(
-          '[DEBUG] 📝 Référence collection modules:',
-          collectionRef.path,
-        );
+
       } catch (collError) {
-        console.error('[DEBUG] ❌ Erreur référence collection:', collError);
+
       }
 
       return [];
     }
   } catch (error) {
-    console.error('[DEBUG] ❌ Erreur lors du diagnostic Firebase:', error);
     return [];
   }
 }
@@ -408,7 +368,7 @@ function cleanDataForSerialization(obj) {
     // Utiliser JSON.parse(JSON.stringify()) pour supprimer les propriétés non sérialisables
     return JSON.parse(JSON.stringify(obj));
   } catch (error) {
-    console.warn('Erreur lors du nettoyage des données:', error);
+
     // En cas d'erreur, retourner un objet basique avec seulement les propriétés importantes
     return {
       id: obj.id,
@@ -422,18 +382,16 @@ function cleanDataForSerialization(obj) {
 export async function getModulesDocFromTheme(themeDoc) {
   const themeId = typeof themeDoc === 'string' ? themeDoc : themeDoc.id;
 
-  console.log(`[DEBUG] Recherche de modules pour le thème: ${themeId}`);
+
 
   // Essayer d'abord IndexedDB
   try {
     const localModules = await getAllModules();
-    console.log(
-      `[DEBUG] Modules totaux dans IndexedDB: ${localModules.length}`,
-    );
+
 
     if (localModules.length > 0) {
       // Debug de la structure des modules
-      console.log(`[DEBUG] Structure du premier module:`, localModules[0]);
+
 
       // Corriger l'accès aux données selon la structure réelle
       const filtered = localModules.filter((m) => {
@@ -454,40 +412,29 @@ export async function getModulesDocFromTheme(themeDoc) {
           }
         }
 
-        console.log(
-          `[DEBUG] Module ${m.id}: theme=${moduleTheme}, cherché=${themeId}`,
-        );
+
         return moduleTheme === themeId;
       });
 
       if (filtered.length > 0) {
-        console.log(
-          `Modules récupérés depuis IndexedDB pour le thème ${themeId}:`,
-          filtered.length,
-        );
+
         return filtered.map((m) => ({ id: m.id, ...m.data }));
       } else {
-        console.log(
-          `[DEBUG] Aucun module trouvé dans IndexedDB pour le thème ${themeId}`,
-        );
+
       }
     }
   } catch (err) {
-    console.warn('Erreur IndexedDB pour les modules:', err);
+
   }
 
   // Vérifier si on est en ligne avant d'essayer le serveur
   if (!navigator.onLine) {
-    console.log(
-      `Mode hors ligne - aucun module disponible dans IndexedDB pour le thème ${themeId}`,
-    );
+
     return [];
   }
 
   try {
-    console.log(
-      `[DEBUG] Tentative de récupération depuis Firebase pour le thème: ${themeId}`,
-    );
+
 
     // Créer une référence au document thème pour la comparaison
     const themeRef = doc(db, 'themes', themeId);
@@ -517,9 +464,7 @@ export async function getModulesDocFromTheme(themeDoc) {
       moduleDocsWithId.push(moduleData);
     });
 
-    console.log(
-      `[DEBUG] ${moduleDocsWithId.length} modules récupérés depuis Firebase pour le thème ${themeId}`,
-    );
+
 
     // Sauvegarder dans IndexedDB pour les prochaines fois - seulement si on a des modules
     if (moduleDocsWithId.length > 0) {
@@ -533,27 +478,17 @@ export async function getModulesDocFromTheme(themeDoc) {
           });
           await saveModule(module.id, cleanedModule);
         }
-        console.log(
-          `Modules sauvegardés dans IndexedDB pour le thème: ${themeId}`,
-        );
+
       } catch (saveError) {
-        console.warn(
-          'Erreur lors de la sauvegarde des modules dans IndexedDB:',
-          saveError,
-        );
+
       }
     } else {
-      console.log(
-        `[DEBUG] Aucun module à sauvegarder pour le thème ${themeId}`,
-      );
+
     }
 
     return moduleDocsWithId;
   } catch (error) {
-    console.error(
-      `Erreur lors de la récupération des modules depuis le serveur pour le thème ${themeId}:`,
-      error,
-    );
+
     return [];
   }
 }
@@ -590,7 +525,7 @@ export async function downloadFileZip(zipname, files) {
           data: new Uint8Array(fileData),
         };
       } catch (error) {
-        console.error(`Erreur pour le fichier ${fileId}:`, error);
+
         return null;
       }
     });
@@ -635,7 +570,7 @@ export async function downloadFileZip(zipname, files) {
       });
     });
   } catch (error) {
-    console.error('Erreur lors de la création du fichier ZIP:', error);
+
     throw error;
   }
 }

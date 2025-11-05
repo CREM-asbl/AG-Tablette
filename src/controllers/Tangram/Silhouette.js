@@ -94,28 +94,28 @@ export class Silhouette {
   * @param {string} fileExtension - Extension du fichier ('agt', 'ags', etc.)
   */
   positionInTangramCanvas(fileExtension = '') {
-  if (fileExtension !== 'agt') {
-  if (this.level > 4) {
-  this.scale(0.6);
-  }
-  // Repositionner à gauche (compensation du décalage)
-  this.translate({
-  x: -this.bounds.minX,
-    y: 0,
-  });
-  // Centrer verticalement dans la zone tangram
-  const centerY = (app.canvasHeight / 2) / app.workspace.zoomLevel;
-  this.translate({
-  x: 0,
-  y: centerY - this.center.y,
-  });
-  const tangramCanvasLayerWidth = app.canvasWidth / 2;
-  if (this.largeur > tangramCanvasLayerWidth) {
-  // Décaler légèrement et ajuster le zoom
-    this.translate({ x: 16 / app.workspace.zoomLevel, y: 0 });
-      app.workspace.setZoomLevel(
-        app.workspace.zoomLevel *
-            (app.canvasWidth / (2 * (this.largeur + 32))),
+    if (fileExtension !== 'agt') {
+      if (this.level > 4) {
+        this.scale(0.6);
+      }
+      // Repositionner à gauche (compensation du décalage)
+      this.translate({
+        x: -this.bounds.minX,
+        y: 0,
+      });
+      // Centrer verticalement dans la zone tangram
+      const centerY = (app.canvasHeight / 2) / app.workspace.zoomLevel;
+      this.translate({
+        x: 0,
+        y: centerY - this.center.y,
+      });
+      const tangramCanvasLayerWidth = app.canvasWidth / 2;
+      if (this.largeur > tangramCanvasLayerWidth) {
+        // Décaler légèrement et ajuster le zoom
+        this.translate({ x: 16 / app.workspace.zoomLevel, y: 0 });
+        app.workspace.setZoomLevel(
+          app.workspace.zoomLevel *
+          (app.canvasWidth / (2 * (this.largeur + 32))),
         );
       } else {
         // Centrer horizontalement dans la zone tangram

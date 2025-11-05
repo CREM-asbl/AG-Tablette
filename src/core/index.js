@@ -158,7 +158,6 @@ export const moduleUtils = {
    */
   loadModule: async (modulePath) => {
     try {
-      console.log(modulePath);
       const module = await import(/* @vite-ignore */ modulePath);
       return module;
     } catch (error) {
@@ -258,10 +257,6 @@ export class SimplifiedArchitecture {
     }
 
     try {
-      console.log(
-        "🚀 Initialisation de l'architecture simplifiée AG-Tablette...",
-      );
-
       const config = {
         enablePerformanceMonitoring: true,
         enableValidation: true,
@@ -280,7 +275,6 @@ export class SimplifiedArchitecture {
       }
 
       this.initialized = true;
-      console.log('✅ Architecture simplifiée initialisée');
 
       // Émettre événement d'initialisation avec events natifs
       eventUtils.emit('architecture:initialized', { config });
@@ -297,9 +291,6 @@ export class SimplifiedArchitecture {
     // Logger tous les événements personnalisés en mode debug
     const originalDispatchEvent = window.dispatchEvent;
     window.dispatchEvent = function (event) {
-      if (event instanceof CustomEvent) {
-        console.log(`[Event] ${event.type}`, event.detail);
-      }
       return originalDispatchEvent.call(this, event);
     };
   }
@@ -330,7 +321,6 @@ export class SimplifiedArchitecture {
     this.initialized = false;
 
     eventUtils.emit('architecture:cleanup');
-    console.log('🧹 Architecture nettoyée');
   }
 }
 
