@@ -51,17 +51,17 @@ export class RegularShape extends Shape {
   /* #################################################################### */
 
   get segments() {
-    const segments = this.segmentIds.map((segId) =>
-      this.canvasLayer.segments.find((seg) => seg.id === segId),
-    );
+    const segments = this.segmentIds
+      .map((segId) => this.canvasLayer.segments.find((seg) => seg.id === segId))
+      .filter((seg) => seg !== undefined);
     return segments;
   }
 
   get points() {
     // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
-    const points = this.pointIds.map((ptId) =>
-      this.canvasLayer.points.find((pt) => pt.id === ptId),
-    );
+    const points = this.pointIds
+      .map((ptId) => this.canvasLayer.points.find((pt) => pt.id === ptId))
+      .filter((pt) => pt !== undefined);
     return points;
   }
 
