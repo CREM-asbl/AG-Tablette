@@ -55,7 +55,11 @@ export class Workspace {
      */
     this.translateOffset = Coordinates.nullCoordinates;
 
-
+    // Initialiser les éléments caractéristiques pour Géométrie
+    this.translationLastCharacteristicElements = [];
+    this.orthogonalSymetryLastCharacteristicElements = [];
+    this.centralSymetryLastCharacteristicElements = [];
+    this.rotationLastCharacteristicElements = [];
   }
 
   initGeometrie() {
@@ -97,9 +101,9 @@ export class Workspace {
 
     const scale = wsdata.canvasSize
       ? Math.min(
-          app.canvasWidth / wsdata.canvasSize.width,
-          app.canvasHeight / wsdata.canvasSize.height,
-        )
+        app.canvasWidth / wsdata.canvasSize.width,
+        app.canvasHeight / wsdata.canvasSize.height,
+      )
       : 1;
 
     // Chargement des objets principaux avec validation
@@ -167,7 +171,7 @@ export class Workspace {
     // after silhouette positioning
   }
 
-  
+
 
   get data() {
     const wsdata = {};

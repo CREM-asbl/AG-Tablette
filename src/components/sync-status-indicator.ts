@@ -156,7 +156,7 @@ export class SyncStatusIndicator extends LitElement {
 
     this.lastInProgress = inProgress;
     this.lastProgress = percent;
-    this.debouncedUpdate();
+    // Removed debouncedUpdate() to avoid inefficient updates
   };
 
   private handleSyncCompleted = (event: CustomEvent) => {
@@ -167,14 +167,13 @@ export class SyncStatusIndicator extends LitElement {
     } else {
       this.queueHide();
     }
-
-    this.debouncedUpdate();
+    // Removed debouncedUpdate() to avoid inefficient updates
   };
 
   private handleIndicatorHidden = () => {
     this.clearHideTimer();
     this.lastVisible = false;
-    this.debouncedUpdate();
+    // Removed debouncedUpdate() to avoid inefficient updates
   };
 
   updated(changedProperties) {
@@ -200,6 +199,7 @@ export class SyncStatusIndicator extends LitElement {
     this.lastInProgress = currentInProgress;
     this.lastProgress = currentProgress;
     this.lastVisible = currentVisible;
+    // Removed debouncedUpdate() to avoid inefficient updates
   }
 
   private show() {
@@ -208,7 +208,7 @@ export class SyncStatusIndicator extends LitElement {
       this.animatingIn = true;
       setTimeout(() => {
         this.animatingIn = false;
-        this.requestUpdate();
+        // Removed requestUpdate() as @state() change triggers update
       }, 400); // durée de l'animation d'entrée
     }
   }
@@ -218,7 +218,7 @@ export class SyncStatusIndicator extends LitElement {
     this.hideTimer = window.setTimeout(() => {
       hideSyncIndicator(); // Utilise la fonction du store
       this.hideTimer = null;
-      this.requestUpdate();
+      // Removed requestUpdate() as state changes trigger update
     }, this.hideDelay); // délai configurable
   }
 
