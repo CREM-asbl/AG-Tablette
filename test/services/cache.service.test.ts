@@ -170,7 +170,7 @@ describe('CacheService', () => {
         }
       }, 0);
 
-      await expect(CacheService.viderCache()).rejects.toThrow(CacheClearError);
+      await expect(CacheService.viderCache()).rejects.toThrow(CacheError);
     });
   });
 

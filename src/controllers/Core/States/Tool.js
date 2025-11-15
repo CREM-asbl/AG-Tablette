@@ -15,7 +15,7 @@ export class Tool {
     this.type = type;
 
     window.addEventListener('refreshStateUpper', () => {
-      if (this.name == app.tool?.name) this.refreshStateUpper();
+      if (this.name === app.tool?.name) this.refreshStateUpper();
     });
 
     this.handler = (event) => this.eventHandler(event);
@@ -26,7 +26,7 @@ export class Tool {
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  refreshStateUpper() {}
+  refreshStateUpper() { }
 
   /**
    * Exécuter les actions liée à l'état.
@@ -80,16 +80,16 @@ export class Tool {
   }
 
   eventHandler(event) {
-    if (event.type == 'tool-updated') {
+    if (event.type === 'tool-updated') {
       if (!app.tool) {
         this.end();
-      } else if (app.tool.name == this.name) {
+      } else if (app.tool.name === this.name) {
         this[app.tool.currentStep]();
-      } else if (app.tool.currentStep == 'start') {
+      } else if (app.tool.currentStep === 'start') {
         this.end();
       }
     } else {
-      if (event.type == 'objectSelected') {
+      if (event.type === 'objectSelected') {
         this.objectSelected(event.detail.object);
       } else if (
         ['canvasTouchStart', 'canvasTouchMove', 'canvasTouchEnd'].includes(
@@ -97,7 +97,7 @@ export class Tool {
         )
       ) {
         this[event.type](event.detail.touches);
-      } else if (event.type == 'canvasMouseWheel') {
+      } else if (event.type === 'canvasMouseWheel') {
         this[event.type](event.detail.deltaY);
       } else {
         this[event.type]();

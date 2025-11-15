@@ -42,7 +42,7 @@ export const Square = {
       const newCoordinates = points[i + 1].coordinates.add(
         new Coordinates({ x: dx, y: dy }),
       );
-      if (points.length == i + 2) {
+      if (points.length === i + 2) {
         points[i + 2] = new Point({
           layer: 'upper',
           coordinates: newCoordinates,
@@ -81,7 +81,7 @@ export const Rectangle = {
     const newCoordinates = points[2].coordinates
       .substract(points[1].coordinates)
       .add(points[0].coordinates);
-    if (points.length == 3) {
+    if (points.length === 3) {
       points[3] = new Point({
         layer: 'upper',
         coordinates: newCoordinates,
@@ -114,7 +114,7 @@ export const Losange = {
     const newCoordinates = diagonnalCenter
       .multiply(2)
       .substract(points[1].coordinates);
-    if (points.length == 3) {
+    if (points.length === 3) {
       points[3] = new Point({
         layer: 'upper',
         coordinates: newCoordinates,
@@ -139,7 +139,7 @@ export const Parallelogram = {
     const newCoordinates = points[2].coordinates
       .substract(points[1].coordinates)
       .add(points[0].coordinates);
-    if (points.length == 3) {
+    if (points.length === 3) {
       points[3] = new Point({
         layer: 'upper',
         coordinates: newCoordinates,
@@ -187,7 +187,7 @@ export const RightAngleTrapeze = {
       return new GeometryConstraint('isConstrained', lines);
     },
   ],
-  finishShape: () => {},
+  finishShape: () => { },
 };
 
 export const IsoscelesTrapeze = {
@@ -203,7 +203,7 @@ export const IsoscelesTrapeze = {
     const newCoordinates = points[2].coordinates
       .substract(projection.multiply(2))
       .add(middleOfSegment.multiply(2));
-    if (points.length == 3) {
+    if (points.length === 3) {
       points[3] = new Point({
         layer: 'upper',
         coordinates: newCoordinates,
@@ -235,7 +235,7 @@ export const Trapeze = {
       return new GeometryConstraint('isConstrained', lines);
     },
   ],
-  finishShape: () => {},
+  finishShape: () => { },
 };
 
 export const IrregularQuadrilateral = {
@@ -246,5 +246,5 @@ export const IrregularQuadrilateral = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
   ],
-  finishShape: () => {},
+  finishShape: () => { },
 };

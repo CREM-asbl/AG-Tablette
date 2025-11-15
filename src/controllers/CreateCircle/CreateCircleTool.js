@@ -119,7 +119,7 @@ export class CreateCircleTool extends Tool {
     );
 
     if (
-      this.constraints.type == 'isConstrained' &&
+      this.constraints.type === 'isConstrained' &&
       !this.constraints.projectionOnConstraints(newCoordinates, true)
     ) {
       window.dispatchEvent(
@@ -130,7 +130,7 @@ export class CreateCircleTool extends Tool {
       return;
     }
 
-    if (app.tool.currentStep == 'drawPoint') {
+    if (app.tool.currentStep === 'drawPoint') {
       this.points[this.numberOfPointsDrawn] = new Point({
         layer: 'upper',
         coordinates: newCoordinates,
@@ -153,7 +153,7 @@ export class CreateCircleTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
-        } else if (app.tool.selectedTemplate.name == 'CirclePart') {
+        } else if (app.tool.selectedTemplate.name === 'CirclePart') {
           const seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[0].id, this.points[1].id],
@@ -166,7 +166,7 @@ export class CreateCircleTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
-        } else if (app.tool.selectedTemplate.name == '30degreesArc') {
+        } else if (app.tool.selectedTemplate.name === '30degreesArc') {
           const angle =
             this.points[0].coordinates.angleWith(this.points[1].coordinates) +
             Math.PI / 6;
@@ -196,7 +196,7 @@ export class CreateCircleTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
-        } else if (app.tool.selectedTemplate.name == '45degreesArc') {
+        } else if (app.tool.selectedTemplate.name === '45degreesArc') {
           const angle =
             this.points[0].coordinates.angleWith(this.points[1].coordinates) +
             Math.PI / 4;
@@ -227,10 +227,10 @@ export class CreateCircleTool extends Tool {
             fillOpacity: 0,
           });
         }
-      } else if (this.numberOfPointsDrawn == 3) {
+      } else if (this.numberOfPointsDrawn === 3) {
         if (
-          app.tool.selectedTemplate.name == 'CirclePart' ||
-          app.tool.selectedTemplate.name == 'CircleArc'
+          app.tool.selectedTemplate.name === 'CirclePart' ||
+          app.tool.selectedTemplate.name === 'CircleArc'
         ) {
           let seg = new Segment({
             layer: 'upper',
@@ -249,7 +249,7 @@ export class CreateCircleTool extends Tool {
           });
           this.segments.push(seg);
         }
-        if (app.tool.selectedTemplate.name == 'CirclePart') {
+        if (app.tool.selectedTemplate.name === 'CirclePart') {
           const seg = new Segment({
             layer: 'upper',
             vertexIds: [this.points[2].id, this.points[0].id],
@@ -272,7 +272,7 @@ export class CreateCircleTool extends Tool {
 
   canvasMouseUp() {
     if (
-      this.numberOfPointsDrawn == 2 &&
+      this.numberOfPointsDrawn === 2 &&
       SelectManager.areCoordinatesInMagnetismDistance(
         this.points[0].coordinates,
         this.points[1].coordinates,
@@ -299,10 +299,10 @@ export class CreateCircleTool extends Tool {
       return;
     }
 
-    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
       if (
-        app.tool.selectedTemplate.name == 'CirclePart' ||
-        app.tool.selectedTemplate.name == 'CircleArc'
+        app.tool.selectedTemplate.name === 'CirclePart' ||
+        app.tool.selectedTemplate.name === 'CircleArc'
       ) {
         this.stopAnimation();
         setState({
@@ -404,9 +404,9 @@ export class CreateCircleTool extends Tool {
             seg1
               .projectionOnSegment(adjustedCoordinates)
               .dist(adjustedCoordinates) >
-            seg2
-              .projectionOnSegment(adjustedCoordinates)
-              .dist(adjustedCoordinates)
+              seg2
+                .projectionOnSegment(adjustedCoordinates)
+                .dist(adjustedCoordinates)
               ? 1
               : -1,
           )[0];
@@ -415,7 +415,7 @@ export class CreateCircleTool extends Tool {
             .intersectionWith(this.constraints.segments[0])
             .sort((intersection1, intersection2) =>
               intersection1.dist(adjustedCoordinates) >
-              intersection2.dist(adjustedCoordinates)
+                intersection2.dist(adjustedCoordinates)
                 ? 1
                 : -1,
             )[0];
@@ -439,14 +439,14 @@ export class CreateCircleTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'animatePoint') {
+    if (app.tool.currentStep === 'animatePoint') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
-        app.tool.selectedTemplate.name == '30degreesArc' &&
-        this.numberOfPointsDrawn == 2
+        app.tool.selectedTemplate.name === '30degreesArc' &&
+        this.numberOfPointsDrawn === 2
       ) {
         const angle =
           this.points[0].coordinates.angleWith(this.points[1].coordinates) +
@@ -461,8 +461,8 @@ export class CreateCircleTool extends Tool {
         this.points[this.numberOfPointsDrawn].coordinates =
           thirdPointCoordinates;
       } else if (
-        app.tool.selectedTemplate.name == '45degreesArc' &&
-        this.numberOfPointsDrawn == 2
+        app.tool.selectedTemplate.name === '45degreesArc' &&
+        this.numberOfPointsDrawn === 2
       ) {
         const angle =
           this.points[0].coordinates.angleWith(this.points[1].coordinates) +
@@ -482,25 +482,25 @@ export class CreateCircleTool extends Tool {
 
   numberOfPointsRequired() {
     let numberOfPointsRequired = 0;
-    if (app.tool.selectedTemplate.name == 'Circle') numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == 'CirclePart')
+    if (app.tool.selectedTemplate.name === 'Circle') numberOfPointsRequired = 2;
+    else if (app.tool.selectedTemplate.name === 'CirclePart')
       numberOfPointsRequired = 3;
-    else if (app.tool.selectedTemplate.name == 'CircleArc')
+    else if (app.tool.selectedTemplate.name === 'CircleArc')
       numberOfPointsRequired = 3;
-    else if (app.tool.selectedTemplate.name == '30degreesArc')
+    else if (app.tool.selectedTemplate.name === '30degreesArc')
       numberOfPointsRequired = 2;
-    else if (app.tool.selectedTemplate.name == '45degreesArc')
+    else if (app.tool.selectedTemplate.name === '45degreesArc')
       numberOfPointsRequired = 2;
     return numberOfPointsRequired;
   }
 
   getConstraints(pointNb) {
-    if (pointNb == 0) {
+    if (pointNb === 0) {
       this.constraints = new GeometryConstraint('isFree');
-    } else if (pointNb == 1) {
+    } else if (pointNb === 1) {
       this.constraints = new GeometryConstraint('isFree');
-    } else if (pointNb == 2) {
-      if (app.tool.selectedTemplate.name == 'CirclePart') {
+    } else if (pointNb === 2) {
+      if (app.tool.selectedTemplate.name === 'CirclePart') {
         const lines = [
           [
             this.points[1].coordinates,
@@ -509,7 +509,7 @@ export class CreateCircleTool extends Tool {
           ],
         ];
         this.constraints = new GeometryConstraint('isConstrained', lines);
-      } else if (app.tool.selectedTemplate.name == 'CircleArc') {
+      } else if (app.tool.selectedTemplate.name === 'CircleArc') {
         const lines = [
           [
             this.points[1].coordinates,
@@ -523,7 +523,7 @@ export class CreateCircleTool extends Tool {
   }
 
   _executeAction() {
-    if (app.tool.selectedTemplate.name == 'CirclePart') {
+    if (app.tool.selectedTemplate.name === 'CirclePart') {
       this.points.push(
         new Point({
           layer: 'upper',
@@ -545,7 +545,7 @@ export class CreateCircleTool extends Tool {
     const segments = [];
 
     let idx = 0;
-    if (app.tool.selectedTemplate.name == 'Circle') {
+    if (app.tool.selectedTemplate.name === 'Circle') {
       points[0].type = 'arcCenter';
       points[1].idx = 0;
       [points[0], points[1]] = [points[1], points[0]];
@@ -556,7 +556,7 @@ export class CreateCircleTool extends Tool {
         arcCenterId: points[1].id,
       });
       segments.push(seg);
-    } else if (app.tool.selectedTemplate.name == 'CirclePart') {
+    } else if (app.tool.selectedTemplate.name === 'CirclePart') {
       points[0].type = 'vertex';
       points[0].idx = 0;
       points[1].type = 'vertex';
@@ -585,7 +585,7 @@ export class CreateCircleTool extends Tool {
         vertexIds: [points[2].id, points[0].id],
       });
       segments.push(seg);
-    } else if (app.tool.selectedTemplate.name == 'CircleArc') {
+    } else if (app.tool.selectedTemplate.name === 'CircleArc') {
       [points[0], points[1], points[2]] = [points[1], points[2], points[0]];
       points[0].type = 'vertex';
       points[0].idx = 0;
@@ -618,7 +618,7 @@ export class CreateCircleTool extends Tool {
     }
 
     let constructor = RegularShape;
-    if (app.tool.selectedTemplate.name == 'CircleArc') constructor = LineShape;
+    if (app.tool.selectedTemplate.name === 'CircleArc') constructor = LineShape;
     else if (app.tool.selectedTemplate.name.endsWith('degreesArc'))
       constructor = ArrowLineShape;
 
@@ -642,14 +642,14 @@ export class CreateCircleTool extends Tool {
     });
 
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
-    if (shape.name == 'CirclePart') {
+    if (shape.name === 'CirclePart') {
       linkNewlyCreatedPoint(shape, shape.segments[1].arcCenter);
       linkNewlyCreatedPoint(shape, shape.vertexes[1]);
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);
-    } else if (shape.name == 'CircleArc') {
+    } else if (shape.name === 'CircleArc') {
       linkNewlyCreatedPoint(shape, shape.segments[0].arcCenter);
       linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    } else if (shape.name == 'Circle') {
+    } else if (shape.name === 'Circle') {
       linkNewlyCreatedPoint(shape, shape.segments[0].arcCenter);
     } else {
       linkNewlyCreatedPoint(shape, shape.segments[0].arcCenter);

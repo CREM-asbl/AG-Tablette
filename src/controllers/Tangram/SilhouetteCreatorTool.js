@@ -7,7 +7,7 @@ import { TangramManager } from './TangramManager';
 const hasOverlapedShape = (shapes) => {
   return shapes.some((shape) =>
     shapes.some((s) => {
-      if (s.id == shape.id) return false;
+      if (s.id === shape.id) return false;
       else return s.overlapsWith(shape);
     }),
   );
@@ -20,8 +20,8 @@ export class SilhouetteCreatorTool extends LitElement {
   async connectedCallback() {
     super.connectedCallback();
     const currentTools = tools.get();
-    currentTools.find((tool) => tool.name == 'translate').isDisable = false;
-    currentTools.find((tool) => tool.name == 'color').isDisable = true;
+    currentTools.find((tool) => tool.name === 'translate').isDisable = false;
+    currentTools.find((tool) => tool.name === 'color').isDisable = true;
     tools.set([...currentTools]);
     app.isUserWarnedAboutOverlap = false;
     app.workspace.selectionConstraints =
@@ -62,11 +62,11 @@ export class SilhouetteCreatorTool extends LitElement {
     });
     app.mainCanvasLayer.shapes.forEach((s, idx, shapes) => {
       const index = app.mainCanvasLayer.shapes.findIndex((s2) => {
-        if (s.id == s2.id) return false;
+        if (s.id === s2.id) return false;
         if (s.overlapsWith(s2)) return true;
         return false;
       });
-      if (index != -1) {
+      if (index !== -1) {
         overlap = true;
         s.isOverlappingAnotherInTangram = true;
         shapes[index].isOverlappingAnotherInTangram = true;

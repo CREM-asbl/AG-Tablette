@@ -43,9 +43,9 @@ class AGMenu extends SignalWatcher(LitElement) {
   render() {
     return html`
       <h3>
-        ${this.tool?.title != undefined
-          ? 'mode: ' + this.tool.title
-          : 'Sélectionnez une fonctionnalité'}
+        ${this.tool?.title != null
+        ? 'mode: ' + this.tool.title
+        : 'Sélectionnez une fonctionnalité'}
       </h3>
       <template-toolbar>
         <div slot="body">${this._renderActionButtons()}</div>

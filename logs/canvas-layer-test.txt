@@ -1,0 +1,502 @@
+
+> test
+> vitest run test/components/canvas-layer.test.js
+
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/gunbl/Dev/ag-tablette[39m
+
+stderr | test/components/canvas-layer.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [31mÔØ»[39m test/components/canvas-layer.test.js [2m([22m[2m45 tests[22m[2m | [22m[31m29 failed[39m[2m)[22m[32m 116[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mloadFromData robustness[2m > [22mshould not throw when called with null and should clear/redraw[32m 6[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mloadFromData robustness[2m > [22mshould not throw when called with undefined[32m 1[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mloadFromData robustness[2m > [22mshould accept partial data objects (e.g., only shapesData array)[32m 1[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mshould return undefined if grid is not visible[32m 2[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mshould return undefined if grid type is "none"[32m 1[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mshould return undefined if checkingCoordinates is undefined[32m 1[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mSquare Grid[2m > [22mshould find the closest point on a square grid[32m 1[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mSquare Grid[2m > [22mshould find the exact point if on a grid intersection[39m[32m 11[2mms[22m[39m
+[31m     ÔåÆ expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mVertical Lines Grid[2m > [22mshould find the closest point on a vertical line, aligning Y with input[32m 2[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mVertical Lines Grid[2m > [22mshould find the exact point if X is on a grid line, Y aligns with input[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mVertical Lines Grid[2m > [22mshould handle points between two vertical lines[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mVertical Lines Grid[2m > [22mshould handle points outside canvas width but within calculatedSize margin[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected 793.8 to be close to 831.49, received difference is 37.690000000000055, but expected 0.005[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mHorizontal Lines Grid[2m > [22mshould find the closest point on a horizontal line, aligning X with input[32m 1[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mHorizontal Lines Grid[2m > [22mshould find the exact point if Y is on a grid line, X aligns with input[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mHorizontal Lines Grid[2m > [22mshould handle points between two horizontal lines[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mHorizontal Lines Grid[2m > [22mshould handle points outside canvas height but within calculatedSize margin[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected 604.8 to be close to 604.72, received difference is 0.07999999999992724, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mVertical Triangle Grid[2m > [22mshould find the closest vertex in a vertical triangle grid[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected 32.73576026305177 to be close to 37.795, received difference is 5.0592397369482285, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mVertical Triangle Grid[2m > [22mshould correctly snap to vertices when between multiple choices[39m[32m 1[2mms[22m[39m
+[31m     ÔåÆ expected 32.73576026305177 to be close to +0, received difference is 32.73576026305177, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mHorizontal Triangle Grid[2m > [22mshould find the closest vertex in a horizontal triangle grid[39m[32m 1[2mms[22m[39m
+[31m     ÔåÆ expected 18.9 to be close to +0, received difference is 18.9, but expected 0.005[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mgetClosestGridPoint[2m > [22mHorizontal Triangle Grid[2m > [22mshould correctly snap to vertices when between multiple choices[39m[32m 1[2mms[22m[39m
+[31m     ÔåÆ expected 18.9 to be close to +0, received difference is 18.9, but expected 0.005[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mshould not draw if grid is not visible[32m 1[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mSquare Grid Drawing[2m > [22mshould set fillStyle to #888888[39m[32m 3[2mms[22m[39m
+[31m     ÔåÆ expected '' to be '#888888' // Object.is equality[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mSquare Grid Drawing[2m > [22mshould draw correct number of points for a 1cm grid on 800x600 canvas, zoom 1[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 352 times, but got 0 times[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mSquare Grid Drawing[2m > [22mshould draw points at correct coordinates and radius (1cm grid, zoom 1)[39m[32m 4[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mSquare Grid Drawing[2m > [22mshould draw points correctly with zoomLevel = 2 (1cm grid)[39m[32m 4[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 88 times, but got 0 times[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mSquare Grid Drawing[2m > [22mshould not draw if calculatedSize is 0 (e.g., gridSize = 0)[32m 2[2mms[22m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mSquare Grid Drawing[2m > [22mshould not draw if calculatedSize is negative (e.g., gridSize = -1 and zoomFactor > 0)[32m 2[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Lines Grid Drawing[2m > [22mshould set fillStyle to #888888[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected '' to be '#888888' // Object.is equality[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Lines Grid Drawing[2m > [22mshould draw correct number of points for a 1cm vertical-lines grid on 800x600 canvas, zoom 1[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 16 times, but got 0 times[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Lines Grid Drawing[2m > [22mshould draw points at correct coordinates and radius (1cm vertical-lines, zoom 1)[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Lines Grid Drawing[2m > [22mshould draw points correctly with zoomLevel = 2 (1cm vertical-lines)[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 8 times, but got 0 times[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Lines Grid Drawing[2m > [22mshould not draw if calculatedSize is 0[32m 1[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Lines Grid Drawing[2m > [22mshould set fillStyle to #888888[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected '' to be '#888888' // Object.is equality[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Lines Grid Drawing[2m > [22mshould draw correct number of points for a 1cm horizontal-lines grid on 800x600 canvas, zoom 1[39m[32m 4[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 22 times, but got 0 times[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Lines Grid Drawing[2m > [22mshould draw points at correct coordinates and radius (1cm horizontal-lines, zoom 1)[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Lines Grid Drawing[2m > [22mshould draw points correctly with zoomLevel = 2 (1cm horizontal-lines)[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 11 times, but got 0 times[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Lines Grid Drawing[2m > [22mshould not draw if calculatedSize is 0[32m 2[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Triangle Grid Drawing[2m > [22mshould set fillStyle to #888888[39m[32m 3[2mms[22m[39m
+[31m     ÔåÆ expected '' to be '#888888' // Object.is equality[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Triangle Grid Drawing[2m > [22mshould draw points for a 1cm vertical-triangle grid on 800x600 canvas, zoom 1[39m[32m 4[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 440 times, but got 0 times[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Triangle Grid Drawing[2m > [22mshould draw first few points at correct coordinates (1cm vertical-triangle, zoom 1)[39m[32m 3[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mVertical Triangle Grid Drawing[2m > [22mshould not draw if calculatedSize or triangleHeight is 0 or less[32m 2[2mms[22m[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Triangle Grid Drawing[2m > [22mshould set fillStyle to #888888[39m[32m 10[2mms[22m[39m
+[31m     ÔåÆ expected '' to be '#888888' // Object.is equality[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Triangle Grid Drawing[2m > [22mshould draw points for a 1cm horizontal-triangle grid on 800x600 canvas, zoom 1[39m[32m 4[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called 429 times, but got 0 times[39m
+[31m   [31m├ù[31m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Triangle Grid Drawing[2m > [22mshould attempt to draw first few points (beginPath calls) at correct coordinates (1cm horizontal-triangle, zoom 1)[39m[32m 2[2mms[22m[39m
+[31m     ÔåÆ expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ][90m
+
+Number of calls: [1m0[22m
+[31m[39m
+   [32mÔ£ô[39m CanvasLayer[2m > [22mdrawGridPoints[2m > [22mHorizontal Triangle Grid Drawing[2m > [22mshould not draw if calculatedSize or triangleWidth is 0 or less[32m 2[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 29 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Square Grid > should find the exact point if on a grid intersection
+AssertionError: expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:199:27
+    197|         const closest = canvasLayerElement.getClosestGridPoint(checkinÔÇª
+    198|         expect(closest.x).toBeCloseTo(37.795);
+    199|         expect(closest.y).toBeCloseTo(37.795 * 2);
+       |                           ^
+    200|       });
+    201|     });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Vertical Lines Grid > should find the exact point if X is on a grid line, Y aligns with input
+AssertionError: expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:225:27
+    223|         const checkingPixelCoords = new Coordinates({ x: 37.795 * 2, yÔÇª
+    224|         const closest = canvasLayerElement.getClosestGridPoint(checkinÔÇª
+    225|         expect(closest.x).toBeCloseTo(37.795 * 2);
+       |                           ^
+    226|         expect(closest.y).toBe(150);
+    227|       });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Vertical Lines Grid > should handle points between two vertical lines
+AssertionError: expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:232:28
+    230|         const checkingCloserToSecond = new Coordinates({ x: 60, y: 200ÔÇª
+    231|         const closest2 = canvasLayerElement.getClosestGridPoint(checkiÔÇª
+    232|         expect(closest2.x).toBeCloseTo(37.795 * 2);
+       |                            ^
+    233|         expect(closest2.y).toBe(200);
+    234| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Vertical Lines Grid > should handle points outside canvas width but within calculatedSize margin
+AssertionError: expected 793.8 to be close to 831.49, received difference is 37.690000000000055, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:244:27
+    242|         const checkingPixelCoords = new Coordinates({ x: 810, y: 50 });
+    243|         const closest = canvasLayerElement.getClosestGridPoint(checkinÔÇª
+    244|         expect(closest.x).toBeCloseTo(22 * 37.795);
+       |                           ^
+    245|         expect(closest.y).toBe(50);
+    246|       });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Horizontal Lines Grid > should find the exact point if Y is on a grid line, X aligns with input
+AssertionError: expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:272:27
+    270|         const closest = canvasLayerElement.getClosestGridPoint(checkinÔÇª
+    271|         expect(closest.x).toBe(150);
+    272|         expect(closest.y).toBeCloseTo(37.795 * 2);
+       |                           ^
+    273|       });
+    274| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Horizontal Lines Grid > should handle points between two horizontal lines
+AssertionError: expected 75.6 to be close to 75.59, received difference is 0.009999999999990905, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:279:28
+    277|         const closest2 = canvasLayerElement.getClosestGridPoint(checkiÔÇª
+    278|         expect(closest2.x).toBe(200);
+    279|         expect(closest2.y).toBeCloseTo(37.795 * 2);
+       |                            ^
+    280| 
+    281|         const checkingCloserToFirst = new Coordinates({ x: 200, y: 50 ÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Horizontal Lines Grid > should handle points outside canvas height but within calculatedSize margin
+AssertionError: expected 604.8 to be close to 604.72, received difference is 0.07999999999992724, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:291:27
+    289|         const closest = canvasLayerElement.getClosestGridPoint(checkinÔÇª
+    290|         expect(closest.x).toBe(50);
+    291|         expect(closest.y).toBeCloseTo(16 * 37.795);
+       |                           ^
+    292|       });
+    293|     });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[7/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Vertical Triangle Grid > should find the closest vertex in a vertical triangle grid
+AssertionError: expected 32.73576026305177 to be close to 37.795, received difference is 5.0592397369482285, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:317:27
+    315|         checkingPixelCoords = new Coordinates({ x: side - 5, y: 5 });
+    316|         closest = canvasLayerElement.getClosestGridPoint(checkingPixelÔÇª
+    317|         expect(closest.x).toBeCloseTo(side);
+       |                           ^
+    318|         expect(closest.y).toBeCloseTo(0);
+    319| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[8/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Vertical Triangle Grid > should correctly snap to vertices when between multiple choices
+AssertionError: expected 32.73576026305177 to be close to +0, received difference is 32.73576026305177, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:337:27
+    335|         let checkingPixelCoords = new Coordinates({ x: side / 2 - 1, yÔÇª
+    336|         let closest = canvasLayerElement.getClosestGridPoint(checkingPÔÇª
+    337|         expect(closest.x).toBeCloseTo(0);
+       |                           ^
+    338|         expect(closest.y).toBeCloseTo(0);
+    339| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[9/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Horizontal Triangle Grid > should find the closest vertex in a horizontal triangle grid
+AssertionError: expected 18.9 to be close to +0, received difference is 18.9, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:374:27
+    372|         checkingPixelCoords = new Coordinates({ x: 5, y: side - 5 });
+    373|         closest = canvasLayerElement.getClosestGridPoint(checkingPixelÔÇª
+    374|         expect(closest.x).toBeCloseTo(0);
+       |                           ^
+    375|         expect(closest.y).toBeCloseTo(side);
+    376| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[10/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > getClosestGridPoint > Horizontal Triangle Grid > should correctly snap to vertices when between multiple choices
+AssertionError: expected 18.9 to be close to +0, received difference is 18.9, but expected 0.005
+ ÔØ» test/components/canvas-layer.test.js:399:27
+    397|         checkingPixelCoords = new Coordinates({ x: horizontalStep / 4,ÔÇª
+    398|         closest = canvasLayerElement.getClosestGridPoint(checkingPixelÔÇª
+    399|         expect(closest.x).toBeCloseTo(0);
+       |                           ^
+    400|         expect(closest.y).toBeCloseTo(side);
+    401| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[11/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Square Grid Drawing > should set fillStyle to #888888
+AssertionError: expected '' to be '#888888' // Object.is equality
+
+- Expected
++ Received
+
+- #888888
+
+ ÔØ» test/components/canvas-layer.test.js:451:50
+    449|       it('should set fillStyle to #888888', () => {
+    450|         canvasLayerElement.drawGridPoints();
+    451|         expect(canvasLayerElement.ctx.fillStyle).toBe('#888888'); // MÔÇª
+       |                                                  ^
+    452|       });
+    453| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[12/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Square Grid Drawing > should draw correct number of points for a 1cm grid on 800x600 canvas, zoom 1
+AssertionError: expected "spy" to be called 352 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:464:50
+    462|         const totalPoints = expectedXPoints * expectedYPoints;
+    463| 
+    464|         expect(canvasLayerElement.ctx.beginPath).toHaveBeenCalledTimesÔÇª
+       |                                                  ^
+    465|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledTimes(totalÔÇª
+    466|         expect(canvasLayerElement.ctx.fill).toHaveBeenCalledTimes(totaÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[13/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Square Grid Drawing > should draw points at correct coordinates and radius (1cm grid, zoom 1)
+AssertionError: expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ]
+
+Number of calls: 0
+
+ ÔØ» test/components/canvas-layer.test.js:478:44
+    476| 
+    477|         // Check first point (0,0)
+    478|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledWith(0, 0, ÔÇª
+       |                                            ^
+    479| 
+    480|         // Check a mid point
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[14/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Square Grid Drawing > should draw points correctly with zoomLevel = 2 (1cm grid)
+AssertionError: expected "spy" to be called 88 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:510:44
+    508|         const totalPoints = expectedXPoints * expectedYPoints;
+    509| 
+    510|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledTimes(totalÔÇª
+       |                                            ^
+    511|         expect(canvasLayerElement.ctx.fill).toHaveBeenCalledTimes(totaÔÇª
+    512| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[15/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Vertical Lines Grid Drawing > should set fillStyle to #888888
+AssertionError: expected '' to be '#888888' // Object.is equality
+
+- Expected
++ Received
+
+- #888888
+
+ ÔØ» test/components/canvas-layer.test.js:554:50
+    552|       it('should set fillStyle to #888888', () => {
+    553|         canvasLayerElement.drawGridPoints();
+    554|         expect(canvasLayerElement.ctx.fillStyle).toBe('#888888'); // MÔÇª
+       |                                                  ^
+    555|       });
+    556| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[16/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Vertical Lines Grid Drawing > should draw correct number of points for a 1cm vertical-lines grid on 800x600 canvas, zoom 1
+AssertionError: expected "spy" to be called 16 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:567:50
+    565|         const totalPoints = expectedYPoints;
+    566| 
+    567|         expect(canvasLayerElement.ctx.beginPath).toHaveBeenCalledTimesÔÇª
+       |                                                  ^
+    568|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledTimes(totalÔÇª
+    569|         expect(canvasLayerElement.ctx.fill).toHaveBeenCalledTimes(totaÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[17/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Vertical Lines Grid Drawing > should draw points at correct coordinates and radius (1cm vertical-lines, zoom 1)
+AssertionError: expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ]
+
+Number of calls: 0
+
+ ÔØ» test/components/canvas-layer.test.js:581:44
+    579| 
+    580|         // Check first point (startX, 0)
+    581|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledWith(startXÔÇª
+       |                                            ^
+    582| 
+    583|         // Check a mid point (startX, calculatedSize)
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[18/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Vertical Lines Grid Drawing > should draw points correctly with zoomLevel = 2 (1cm vertical-lines)
+AssertionError: expected "spy" to be called 8 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:608:44
+    606|         const totalPoints = expectedYPoints;
+    607| 
+    608|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledTimes(totalÔÇª
+       |                                            ^
+    609|         expect(canvasLayerElement.ctx.fill).toHaveBeenCalledTimes(totaÔÇª
+    610| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[19/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Horizontal Lines Grid Drawing > should set fillStyle to #888888
+AssertionError: expected '' to be '#888888' // Object.is equality
+
+- Expected
++ Received
+
+- #888888
+
+ ÔØ» test/components/canvas-layer.test.js:642:50
+    640|       it('should set fillStyle to #888888', () => {
+    641|         canvasLayerElement.drawGridPoints();
+    642|         expect(canvasLayerElement.ctx.fillStyle).toBe('#888888'); // MÔÇª
+       |                                                  ^
+    643|       });
+    644| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[20/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Horizontal Lines Grid Drawing > should draw correct number of points for a 1cm horizontal-lines grid on 800x600 canvas, zoom 1
+AssertionError: expected "spy" to be called 22 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:655:50
+    653|         const totalPoints = expectedXPoints;
+    654| 
+    655|         expect(canvasLayerElement.ctx.beginPath).toHaveBeenCalledTimesÔÇª
+       |                                                  ^
+    656|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledTimes(totalÔÇª
+    657|         expect(canvasLayerElement.ctx.fill).toHaveBeenCalledTimes(totaÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[21/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Horizontal Lines Grid Drawing > should draw points at correct coordinates and radius (1cm horizontal-lines, zoom 1)
+AssertionError: expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ]
+
+Number of calls: 0
+
+ ÔØ» test/components/canvas-layer.test.js:669:44
+    667| 
+    668|         // Check first point (0, startY)
+    669|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledWith(0, staÔÇª
+       |                                            ^
+    670| 
+    671|         // Check a mid point (calculatedSize, startY)
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[22/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Horizontal Lines Grid Drawing > should draw points correctly with zoomLevel = 2 (1cm horizontal-lines)
+AssertionError: expected "spy" to be called 11 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:696:44
+    694|         const totalPoints = expectedXPoints;
+    695| 
+    696|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledTimes(totalÔÇª
+       |                                            ^
+    697|         expect(canvasLayerElement.ctx.fill).toHaveBeenCalledTimes(totaÔÇª
+    698| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[23/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Vertical Triangle Grid Drawing > should set fillStyle to #888888
+AssertionError: expected '' to be '#888888' // Object.is equality
+
+- Expected
++ Received
+
+- #888888
+
+ ÔØ» test/components/canvas-layer.test.js:729:50
+    727|       it('should set fillStyle to #888888', () => {
+    728|         canvasLayerElement.drawGridPoints();
+    729|         expect(canvasLayerElement.ctx.fillStyle).toBe('#888888'); // MÔÇª
+       |                                                  ^
+    730|       });
+    731| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[24/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Vertical Triangle Grid Drawing > should draw points for a 1cm vertical-triangle grid on 800x600 canvas, zoom 1
+AssertionError: expected "spy" to be called 440 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:761:50
+    759| 
+    760|         // Based on the loop structure, let's count beginPath calls.
+    761|         expect(canvasLayerElement.ctx.beginPath).toHaveBeenCalledTimesÔÇª
+       |                                                  ^
+    762| 
+    763|         // If arc and fill were present, we would test them like this:
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[25/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Vertical Triangle Grid Drawing > should draw first few points at correct coordinates (1cm vertical-triangle, zoom 1)
+AssertionError: expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ]
+
+Number of calls: 0
+
+ ÔØ» test/components/canvas-layer.test.js:788:44
+    786| 
+    787|         // First row (row 0, y=0, offsetX=0)
+    788|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledWith(0, 0, ÔÇª
+       |                                            ^
+    789|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledWith(calculÔÇª
+    790| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[26/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Horizontal Triangle Grid Drawing > should set fillStyle to #888888
+AssertionError: expected '' to be '#888888' // Object.is equality
+
+- Expected
++ Received
+
+- #888888
+
+ ÔØ» test/components/canvas-layer.test.js:832:50
+    830|       it('should set fillStyle to #888888', () => {
+    831|         canvasLayerElement.drawGridPoints();
+    832|         expect(canvasLayerElement.ctx.fillStyle).toBe('#888888'); // MÔÇª
+       |                                                  ^
+    833|       });
+    834| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[27/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Horizontal Triangle Grid Drawing > should draw points for a 1cm horizontal-triangle grid on 800x600 canvas, zoom 1
+AssertionError: expected "spy" to be called 429 times, but got 0 times
+ ÔØ» test/components/canvas-layer.test.js:860:50
+    858|         }
+    859| 
+    860|         expect(canvasLayerElement.ctx.beginPath).toHaveBeenCalledTimesÔÇª
+       |                                                  ^
+    861|         // As with vertical-triangle, arc() and fill() are presumed miÔÇª
+    862|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledTimes(expecÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[28/29]ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js > CanvasLayer > drawGridPoints > Horizontal Triangle Grid Drawing > should attempt to draw first few points (beginPath calls) at correct coordinates (1cm horizontal-triangle, zoom 1)
+AssertionError: expected "spy" to be called with arguments: [ +0, +0, 2, +0, 6.283185307179586 ]
+
+Number of calls: 0
+
+ ÔØ» test/components/canvas-layer.test.js:876:44
+    874| 
+    875|         // Check first column (col 0, x=0, offsetY=0)
+    876|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledWith(0, 0, ÔÇª
+       |                                            ^
+    877|         expect(canvasLayerElement.ctx.arc).toHaveBeenCalledWith(0, calÔÇª
+    878| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[29/29]ÔÄ»
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m29 failed[39m[22m[2m | [22m[1m[32m16 passed[39m[22m[90m (45)[39m
+[2m   Start at [22m 10:09:19
+[2m   Duration [22m 2.48s[2m (transform 301ms, setup 55ms, collect 402ms, tests 116ms, environment 1.39s, prepare 164ms)[22m
+

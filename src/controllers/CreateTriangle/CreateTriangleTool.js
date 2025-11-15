@@ -81,7 +81,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     );
 
     if (
-      this.constraints.type == 'isConstrained' &&
+      this.constraints.type === 'isConstrained' &&
       !this.constraints.projectionOnConstraints(newCoordinates, true)
     ) {
       window.dispatchEvent(
@@ -109,7 +109,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       });
       this.segments.push(seg);
     }
-    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
       if (this.numberOfPointsDrawn < 3) this.finishShape();
       const seg = new Segment({
         layer: 'upper',
@@ -150,7 +150,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
         )
       ) {
         const firstPointCoordinates = this.points[0].coordinates;
-        if (this.numberOfPointsDrawn == 2) {
+        if (this.numberOfPointsDrawn === 2) {
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 1;
           this.points = [
@@ -162,7 +162,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
             }),
           ];
           this.segments = [];
-        } else if (this.numberOfPointsDrawn == 3) {
+        } else if (this.numberOfPointsDrawn === 3) {
           const secondPointCoordinates = this.points[1].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 2;
@@ -206,7 +206,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       }
     }
 
-    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
@@ -276,9 +276,9 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
             seg1
               .projectionOnSegment(adjustedCoordinates)
               .dist(adjustedCoordinates) >
-            seg2
-              .projectionOnSegment(adjustedCoordinates)
-              .dist(adjustedCoordinates)
+              seg2
+                .projectionOnSegment(adjustedCoordinates)
+                .dist(adjustedCoordinates)
               ? 1
               : -1,
           )[0];
@@ -287,7 +287,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
             .intersectionWith(this.constraints.segments[0])
             .sort((intersection1, intersection2) =>
               intersection1.dist(adjustedCoordinates) >
-              intersection2.dist(adjustedCoordinates)
+                intersection2.dist(adjustedCoordinates)
                 ? 1
                 : -1,
             )[0];
@@ -311,13 +311,13 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'animatePoint') {
+    if (app.tool.currentStep === 'animatePoint') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
-        this.numberOfPointsDrawn == this.numberOfPointsRequired() &&
+        this.numberOfPointsDrawn === this.numberOfPointsRequired() &&
         this.numberOfPointsDrawn < 3
       ) {
         this.finishShape();
@@ -350,9 +350,9 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
 
   _executeAction() {
     let familyName = '3-corner-shape';
-    if (app.tool.selectedTemplate.name == 'EquilateralTriangle') {
+    if (app.tool.selectedTemplate.name === 'EquilateralTriangle') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTemplate.name == 'IrregularTriangle') {
+    } else if (app.tool.selectedTemplate.name === 'IrregularTriangle') {
       familyName = 'Irregular';
     }
 
@@ -380,9 +380,9 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
     if (
-      shape.name == 'RightAngleTriangle' ||
-      shape.name == 'IsoscelesTriangle' ||
-      shape.name == 'IrregularTriangle'
+      shape.name === 'RightAngleTriangle' ||
+      shape.name === 'IsoscelesTriangle' ||
+      shape.name === 'IrregularTriangle'
     ) {
       shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);

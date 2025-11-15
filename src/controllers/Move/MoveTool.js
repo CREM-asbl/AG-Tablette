@@ -94,15 +94,15 @@ export class MoveTool extends Tool {
    * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
    */
   objectSelected(shape) {
-    if (app.tool.currentStep != 'listen') return;
+    if (app.tool.currentStep !== 'listen') return;
     if (!shape) return;
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
-        if (currentShape.geometryObject.geometryTransformationName != null) {
+        if (currentShape.geometryObject.geometryTransformationName !== null) {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
@@ -151,7 +151,7 @@ export class MoveTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (app.tool.currentStep != 'move') return;
+    if (app.tool.currentStep !== 'move') return;
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
@@ -160,10 +160,10 @@ export class MoveTool extends Tool {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (app.tool.currentStep == 'move') {
+    if (app.tool.currentStep === 'move') {
       if (
-        this.shapesToMove.length == 1 &&
-        this.shapesToMove[0].name == 'PointOnLine'
+        this.shapesToMove.length === 1 &&
+        this.shapesToMove[0].name === 'PointOnLine'
       ) {
         const s = this.shapesToMove[0];
         const point = s.points[0];
@@ -263,7 +263,7 @@ export class MoveTool extends Tool {
       });
     });
 
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       app.mainCanvasLayer.shapes.forEach((s) => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
           (duplicateChildId) => {

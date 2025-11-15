@@ -52,9 +52,10 @@ export function scalePathString(pathString, scaleFactor) {
 export function migrateShapeScale(workspaceData, scaleFactor) {
   if (!workspaceData || !workspaceData.objects) return;
 
-  console.log(
-    `Migration d'échelle avec facteur ${scaleFactor} pour compatibilité avec les anciennes versions`,
-  );
+  if (import.meta.env.DEV)
+    console.log(
+      `Migration d'échelle avec facteur ${scaleFactor} pour compatibilité avec les anciennes versions`,
+    );
 
   // Mettre à jour les formes
   if (workspaceData.objects.shapesData) {
@@ -144,9 +145,10 @@ export function applyMigrations(saveObject) {
     const NEW_PIXELS_PER_CM = 37.8;
     const SCALE_FACTOR = NEW_PIXELS_PER_CM / OLD_PIXELS_PER_CM; // ≈ 0.756
 
-    console.log(
-      `Migration détectée pour ${saveObject.envName} v${saveObject.appVersion} - Application du facteur d'échelle ${SCALE_FACTOR}`,
-    );
+    if (import.meta.env.DEV)
+      console.log(
+        `Migration détectée pour ${saveObject.envName} v${saveObject.appVersion} - Application du facteur d'échelle ${SCALE_FACTOR}`,
+      );
 
     migrateShapeScale(
       saveObject.workspaceData || saveObject.wsdata,

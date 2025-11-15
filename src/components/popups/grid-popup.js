@@ -103,16 +103,16 @@ class GridPopup extends LitElement {
             >
               <option
                 value="0.333333333333333"
-                ?selected="${this.gridSize == 0.333333333333333}"
+                ?selected="${this.gridSize === 0.333333333333333}"
               >
                 1/3
               </option>
-              <option value="0.5" ?selected="${this.gridSize == 0.5}">
+              <option value="0.5" ?selected="${this.gridSize === 0.5}">
                 1/2
               </option>
-              <option value="1" ?selected="${this.gridSize == 1}">1</option>
-              <option value="2" ?selected="${this.gridSize == 2}">2</option>
-              <option value="3" ?selected="${this.gridSize == 3}">3</option>
+              <option value="1" ?selected="${this.gridSize === 1}">1</option>
+              <option value="2" ?selected="${this.gridSize === 2}">2</option>
+              <option value="3" ?selected="${this.gridSize === 3}">3</option>
             </select>
           </div>
         </div>
@@ -120,7 +120,7 @@ class GridPopup extends LitElement {
         <div slot="footer">
           <color-button
             @click="${() =>
-              window.dispatchEvent(new CustomEvent('close-popup'))}"
+        window.dispatchEvent(new CustomEvent('close-popup'))}"
             innerText="Ok"
           ></color-button>
         </div>
@@ -190,11 +190,11 @@ class GridPopup extends LitElement {
       default:
         console.error(
           'Grid popup: paramètre inconnu: ' +
-            event.target.name +
-            ' ' +
-            event.target.value +
-            ' ' +
-            event.target.checked,
+          event.target.name +
+          ' ' +
+          event.target.value +
+          ' ' +
+          event.target.checked,
         );
     }
   }

@@ -56,7 +56,7 @@ export class SolutionCheckerTool extends LitElement {
   async initData(data) {
     const level =
       data.tangramLevelSelected || (await SolutionCheckerTool.selectLevel());
-    if (data.fileExtension == 'ags') await TangramManager.initShapes();
+    if (data.fileExtension === 'ags') await TangramManager.initShapes();
 
     // Chercher les backObjects dans différents emplacements possibles
     const backObjects =
@@ -75,7 +75,7 @@ export class SolutionCheckerTool extends LitElement {
     if (backObjects) {
       isSilhouetteShown = true;
 
-      if (level == 3 || level == 4) {
+      if (level === 3 || level === 4) {
         app.workspace.limited = true;
         app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`;
       }
@@ -87,14 +87,14 @@ export class SolutionCheckerTool extends LitElement {
       silhouette.positionInTangramCanvas(data.fileExtension);
     }
     const currentTools = tools.get();
-    currentTools.find((tool) => tool.name == 'translate').isDisable = true;
-    currentTools.find((tool) => tool.name == 'color').isDisable = false;
+    currentTools.find((tool) => tool.name === 'translate').isDisable = true;
+    currentTools.find((tool) => tool.name === 'color').isDisable = false;
     tools.set([...currentTools]);
     setState({
       tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
     });
 
-    if (app.history.startSituation == null) {
+    if (app.history.startSituation === null) {
       setState({
         history: {
           ...app.defaultState.history,
@@ -156,16 +156,16 @@ export class SolutionCheckerTool extends LitElement {
     if (this.stateMenu)
       this.stateMenu.check = app.tangram.currentStep === 'check';
 
-    if (event.type == 'tool-updated') {
-      if (app.tool?.name == this.name) {
+    if (event.type === 'tool-updated') {
+      if (app.tool?.name === this.name) {
         this[app.tool.currentStep]();
-      } else if (app.tool?.currentStep == 'start') {
+      } else if (app.tool?.currentStep === 'start') {
         if (
-          app.tool.name != 'rotate' &&
-          app.tool.name != 'rotate45' &&
-          app.tool.name != 'move' &&
-          app.tool.name != 'solveChecker' &&
-          app.tool.name != 'verifySolution'
+          app.tool.name !== 'rotate' &&
+          app.tool.name !== 'rotate45' &&
+          app.tool.name !== 'move' &&
+          app.tool.name !== 'solveChecker' &&
+          app.tool.name !== 'verifySolution'
         ) {
           setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
         }
@@ -173,29 +173,29 @@ export class SolutionCheckerTool extends LitElement {
     }
 
     if (
-      event.type == 'tangram-changed' &&
+      event.type === 'tangram-changed' &&
       ['check', 'uncheck'].includes(app.tangram.currentStep) &&
       !app.fullHistory.isRunning
     ) {
       this[app.tangram.currentStep]();
     }
 
-    if (event.type == 'objectSelected')
+    if (event.type === 'objectSelected')
       this.objectSelected(event.detail.object);
   }
 
   objectSelected(object) {
     const solutionShapes = app.mainCanvasLayer.shapes.filter(
-      (shape) => shape.name == 'tangramChecker',
+      (shape) => shape.name === 'tangramChecker',
     );
-    const index = solutionShapes.findIndex((s) => object.id == s.id);
-    if (index == -1)
+    const index = solutionShapes.findIndex((s) => object.id === s.id);
+    if (index === -1)
       setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
   }
 
   eraseSolution() {
     app.mainCanvasLayer.shapes = app.mainCanvasLayer.shapes.filter(
-      (shape) => shape.name != 'tangramChecker',
+      (shape) => shape.name !== 'tangramChecker',
     );
     window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -260,7 +260,7 @@ export class SolutionCheckerTool extends LitElement {
 
     const cutSegments = oldSegments.flatMap((segment, idx, segments) => {
       const vertexesInside = segments
-        .filter((seg, i) => i != idx)
+        .filter((seg, i) => i !== idx)
         .flatMap((seg) =>
           seg.vertexes.filter(
             (vertex) =>
@@ -274,7 +274,7 @@ export class SolutionCheckerTool extends LitElement {
           (vertex, idx, vertexes) =>
             vertexes.findIndex((v) =>
               v.coordinates.equal(vertex.coordinates),
-            ) == idx,
+            ) === idx,
         );
       if (vertexesInside.length) return segment.divideWith(vertexesInside);
       else return segment;
@@ -287,7 +287,7 @@ export class SolutionCheckerTool extends LitElement {
       const segs = segments
         .map((segment) => (segment.equal(seg) ? segment : undefined))
         .filter(Boolean);
-      if (segs.length == 1) newSegments.push(seg);
+      if (segs.length === 1) newSegments.push(seg);
       else segs.forEach((seg) => (seg.used = true));
     });
     app.invisibleCanvasLayer.shapes = [];
@@ -300,7 +300,7 @@ export class SolutionCheckerTool extends LitElement {
     const numberOfSegments = segmentsList.length;
     let numberOfPathCreated = 0;
 
-    while (segmentUsed != numberOfSegments) {
+    while (segmentUsed !== numberOfSegments) {
       const startCoordinates = segmentsList[0].vertexes[0].coordinates;
       paths.push([]);
       paths[numberOfPathCreated].push(
@@ -320,7 +320,7 @@ export class SolutionCheckerTool extends LitElement {
             seg.contains(this.lastUsedCoordinates, false) ? idx : undefined,
           )
           .filter((seg) => Number.isInteger(seg));
-        if (potentialSegmentIdx.length == 0) {
+        if (potentialSegmentIdx.length === 0) {
           console.info('shape cannot be closed (dead end)');
           return null;
         }

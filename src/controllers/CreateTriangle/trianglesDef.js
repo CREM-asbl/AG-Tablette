@@ -24,7 +24,7 @@ export const EquilateralTriangle = {
       new Coordinates({ x: dx, y: dy }),
     );
 
-    if (points.length == 2) {
+    if (points.length === 2) {
       points[2] = new Point({
         layer: 'upper',
         coordinates: newCoordinates,
@@ -35,7 +35,7 @@ export const EquilateralTriangle = {
       points[2].coordinates = newCoordinates;
     }
 
-    if (segments.length == 1) {
+    if (segments.length === 1) {
       segments.push(
         new Segment({
           layer: 'upper',
@@ -72,7 +72,7 @@ export const RightAngleIsoscelesTriangle = {
       return new GeometryConstraint('isConstrained', [], constraintsPoints);
     },
   ],
-  finishShape: () => {},
+  finishShape: () => { },
 };
 
 export const RightAngleTriangle = {
@@ -95,7 +95,7 @@ export const RightAngleTriangle = {
       return new GeometryConstraint('isConstrained', lines);
     },
   ],
-  finishShape: () => {},
+  finishShape: () => { },
 };
 
 export const IsoscelesTriangle = {
@@ -119,7 +119,7 @@ export const IsoscelesTriangle = {
       return new GeometryConstraint('isConstrained', lines);
     },
   ],
-  finishShape: () => {},
+  finishShape: () => { },
 };
 
 export const IrregularTriangle = {
@@ -129,5 +129,5 @@ export const IrregularTriangle = {
     () => new GeometryConstraint('isFree'),
     () => new GeometryConstraint('isFree'),
   ],
-  finishShape: () => {},
+  finishShape: () => { },
 };

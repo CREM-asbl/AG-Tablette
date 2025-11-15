@@ -71,27 +71,27 @@ class ScalarPopup extends LitElement {
           <label for="settings_divide_number_of_parts">Multiplier par</label>
           <select @change="${this.changeNumerator}">
             ${range(1, 9).map(
-              (x) =>
-                html`<option value="${x}" ?selected="${this.numerator == x}">
+      (x) =>
+        html`<option value="${x}" ?selected="${this.numerator === x}">
                   ${x}
                 </option>`,
-            )}
+    )}
           </select>
           <hr />
           <select @change="${this.changeDenominator}">
             ${range(1, 9).map(
-              (x) =>
-                html`<option value="${x}" ?selected="${this.denominator == x}">
+      (x) =>
+        html`<option value="${x}" ?selected="${this.denominator === x}">
                   ${x}
                 </option>`,
-            )}
+    )}
           </select>
         </div>
 
         <div slot="footer">
           <color-button
             @click="${() =>
-              window.dispatchEvent(new CustomEvent('close-popup'))}"
+        window.dispatchEvent(new CustomEvent('close-popup'))}"
             innerText="Ok"
           ></color-button>
         </div>

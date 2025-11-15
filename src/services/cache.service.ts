@@ -71,7 +71,7 @@ export class CacheService {
       const request = window.indexedDB.open(DB_CONFIG.name, DB_CONFIG.version);
 
       request.onerror = () => {
-        if ((window as any).dev_mode)
+        if (import.meta.env.DEV)
           console.log('[CACHE] Erreur ouverture DB:', request.error);
         reject(
           new CacheUnavailableError(
@@ -81,7 +81,7 @@ export class CacheService {
       };
 
       request.onsuccess = () => {
-        if ((window as any).dev_mode)
+        if (import.meta.env.DEV)
           console.log('[CACHE] DB ouverte avec succès');
         resolve(request.result);
       };
@@ -165,7 +165,7 @@ export class CacheService {
 
       db.close();
 
-      if ((window as any).dev_mode)
+      if (import.meta.env.DEV)
         console.log('[CACHE] Cache disponible, éléments:', count);
 
       return {

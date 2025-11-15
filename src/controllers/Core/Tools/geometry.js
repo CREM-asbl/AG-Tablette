@@ -50,7 +50,7 @@ export function isPointInPolygon(polygon, point) {
       }
     }
   }
-  if (crossings % 2 == 1) {
+  if (crossings % 2 === 1) {
     return true;
   }
   return false;
@@ -77,7 +77,7 @@ export function collinear(pt1, pt2, pt3) {
 export function positiveAngle(angle) {
   let val = angle % (2 * Math.PI); //angle dans l'intervalle ]2*Math.PI, 2*Math.PI[
   if (val < 0) val += 2 * Math.PI;
-  return val == 0 ? 0 : val; // éviter de retourner -0.
+  return val === 0 ? 0 : val; // éviter de retourner -0.
 }
 
 /**

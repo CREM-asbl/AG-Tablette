@@ -27,8 +27,8 @@ export class ShapeManager {
     let shapesMoved = 0;
     const newIndexes = new Array(indexes.length);
     for (let i = max; i >= 0; i--) {
-      const idx = indexes.findIndex((idx) => idx == i);
-      if (idx != -1) {
+      const idx = indexes.findIndex((idx) => idx === i);
+      if (idx !== -1) {
         const shape = app.workspace.shapes[i];
         app.workspace.shapes.splice(i, 1);
         app.workspace.shapes.splice(max - shapesMoved, 0, shape);
@@ -46,8 +46,8 @@ export class ShapeManager {
   static moveShapesBackToTheirPlace(indexes) {
     const max = app.workspace.shapes.length - 1;
     for (let i = 0; i < max; i++) {
-      const idx = indexes.findIndex((idx) => idx == i);
-      if (idx != -1) {
+      const idx = indexes.findIndex((idx) => idx === i);
+      if (idx !== -1) {
         const shape = app.workspace.shapes[i];
         app.workspace.shapes.splice(i, 1);
         app.workspace.shapes.splice(indexes[idx], 0, shape);
@@ -72,7 +72,7 @@ export class ShapeManager {
    * @return {int}       l'index de cette figure dans le tableau des figures
    */
   static getShapeIndex(shape) {
-    return app.mainCanvasLayer.shapes.findIndex((s) => s.id == shape.id);
+    return app.mainCanvasLayer.shapes.findIndex((s) => s.id === shape.id);
   }
 
   /**
@@ -81,7 +81,7 @@ export class ShapeManager {
    * @return {Shape}         l'objet figure, ou null si la figure n'existe pas
    */
   static getShapeById(id) {
-    const shape = app.mainCanvasLayer.shapes.find((s) => s.id == id);
+    const shape = app.mainCanvasLayer.shapes.find((s) => s.id === id);
     return shape ? shape : null;
   }
 
@@ -150,7 +150,7 @@ export class ShapeManager {
     }
 
     if (!includeReceivedShape) {
-      shapes = shapes.filter((s) => s.id != shape.id);
+      shapes = shapes.filter((s) => s.id !== shape.id);
     }
     return shapes;
   }
@@ -161,9 +161,9 @@ export class ShapeManager {
     const getParents = (currentShape) => {
       const parents = [];
       currentShape.points
-        .filter((pt) => pt.type != 'divisionPoint')
+        .filter((pt) => pt.type !== 'divisionPoint')
         .forEach((vx) => {
-          if (vx.reference != null) {
+          if (vx.reference !== null && vx.reference !== undefined) {
             parents.push(findObjectById(vx.reference).shape);
           }
         });
@@ -186,7 +186,7 @@ export class ShapeManager {
     const getChildren = (currentShape) => {
       const children = currentShape.geometryObject.geometryChildShapeIds
         .map((sId) => findObjectById(sId))
-        .filter((child) => child.name != 'PointOnIntersection'); //&& child.name != 'cut');
+        .filter((child) => child.name !== 'PointOnIntersection'); //&& child.name != 'cut');
       return children;
     };
 
@@ -195,8 +195,8 @@ export class ShapeManager {
       const children = getChildren(shape);
       [...parents, ...children].forEach((s) => {
         if (
-          allLinkedShapes.every((linkedShape) => linkedShape.id != s.id) &&
-          currentShapeArray.every((linkedShape) => linkedShape.id != s.id)
+          allLinkedShapes.every((linkedShape) => linkedShape.id !== s.id) &&
+          currentShapeArray.every((linkedShape) => linkedShape.id !== s.id)
         ) {
           currentShapeArray.push(s);
           getParentAndChildren(s, currentShapeArray);
@@ -211,8 +211,8 @@ export class ShapeManager {
         const group = GroupManager.getShapeGroup(s);
         if (!group) return;
         if (
-          allGroups.every((groupFound) => groupFound.id != group.id) &&
-          currentGroupArray.every((groupFound) => groupFound.id != group.id)
+          allGroups.every((groupFound) => groupFound.id !== group.id) &&
+          currentGroupArray.every((groupFound) => groupFound.id !== group.id)
         ) {
           currentGroupArray.push(group);
         }
@@ -220,14 +220,14 @@ export class ShapeManager {
     };
     const iterateWithGroups = (workingShapes, workingGroups) => {
       getGroups(workingShapes, workingGroups);
-      if (workingGroups.length == 0) return;
+      if (workingGroups.length === 0) return;
 
       const newLinkedShapes = [];
       workingGroups.forEach((group) => {
         group.shapesIds.forEach((id) => {
           const shape = findObjectById(id);
           if (
-            allLinkedShapes.every((linkedShape) => linkedShape.id != shape.id)
+            allLinkedShapes.every((linkedShape) => linkedShape.id !== shape.id)
           ) {
             newLinkedShapes.push(shape);
           }
@@ -252,7 +252,7 @@ export class ShapeManager {
    */
   static deleteShape(shape) {
     const shapeIndex = ShapeManager.getShapeIndex(shape);
-    if (shapeIndex == -1) {
+    if (shapeIndex === -1) {
       console.error("Workspace.deleteShape: couldn't delete the shape");
       return;
     }

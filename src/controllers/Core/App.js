@@ -3,8 +3,8 @@ import { resetToolsVisibility, tools } from '@store/tools';
 import { resetKitVisibility } from '../../store/kit';
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
-import { uniqId } from './Tools/general';
 import { Workspace } from './Objects/Workspace';
+import { uniqId } from './Tools/general';
 
 export const changes = signal({});
 
@@ -237,12 +237,12 @@ export const setState = (update) => {
   }
 
   if ('tool' in update) {
-    const toolInfo = tools.get().find((tool) => tool.name == app.tool?.name);
+    const toolInfo = tools.get().find((tool) => tool.name === app.tool?.name);
     if (toolInfo) {
       app.tool.title = toolInfo.title;
       app.tool.type = toolInfo.type;
     }
-    if (!app.tool || app.tool.currentStep == 'start') {
+    if (!app.tool || app.tool.currentStep === 'start') {
       window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
     }
     window.dispatchEvent(new CustomEvent('tool-updated', { detail: app }));

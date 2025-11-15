@@ -72,7 +72,7 @@ export class GroupTool extends Tool {
 
     app.mainCanvasLayer.shapes.map((s) => {
       const currentGroup = GroupManager.getShapeGroup(s);
-      if (currentGroup != null) {
+      if (currentGroup !== null) {
         new s.constructor({
           ...s,
           layer: 'upper',
@@ -123,7 +123,7 @@ export class GroupTool extends Tool {
   }
 
   objectSelected(shape) {
-    if (app.tool.currentStep == 'listen') {
+    if (app.tool.currentStep === 'listen') {
       const userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
@@ -152,9 +152,9 @@ export class GroupTool extends Tool {
         });
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
-    } else if (app.tool.currentStep == 'selectSecondShape') {
+    } else if (app.tool.currentStep === 'selectSecondShape') {
       const userGroup = GroupManager.getShapeGroup(shape);
-      if (shape.id == this.firstShapeId) {
+      if (shape.id === this.firstShapeId) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
             detail: { message: 'La figure choisie fait déjà partie du groupe' },
@@ -180,7 +180,7 @@ export class GroupTool extends Tool {
         //La figure fait partie d'un autre groupe, on fusionne
         let index1 = GroupManager.getGroupIndex(this.group),
           index2 = GroupManager.getGroupIndex(this.secondGroup);
-        if (index1 == index2) {
+        if (index1 === index2) {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
@@ -208,10 +208,10 @@ export class GroupTool extends Tool {
   }
 
   _executeAction() {
-    if (this.mode == 'new') {
+    if (this.mode === 'new') {
       this.group = new ShapeGroup(this.firstShapeId, this.secondShapeId);
       GroupManager.addGroup(this.group);
-    } else if (this.mode == 'add') {
+    } else if (this.mode === 'add') {
       this.group.addShape(this.firstShapeId);
     } else {
       // merge
@@ -224,7 +224,7 @@ export class GroupTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     app.mainCanvasLayer.shapes.map((s) => {
       const currentGroup = GroupManager.getShapeGroup(s);
-      if (currentGroup != null) {
+      if (currentGroup !== null) {
         new s.constructor({
           ...s,
           layer: 'upper',

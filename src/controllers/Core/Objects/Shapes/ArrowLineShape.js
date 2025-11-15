@@ -39,7 +39,7 @@ export class ArrowLineShape extends LineShape {
     ctx.fillStyle = this.fillColor;
     ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
-    if (scaling == 'no scale') ctx.lineWidth = this.strokeWidth;
+    if (scaling === 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */
@@ -64,7 +64,7 @@ export class ArrowLineShape extends LineShape {
         let arcCenterCoordinates = this.segments[0].arcCenter.coordinates;
         let firstVertex = this.vertexes[0].coordinates;
         let secondVertex = this.vertexes[1].coordinates;
-        if (scaling == 'scale') {
+        if (scaling === 'scale') {
           arcCenterCoordinates = arcCenterCoordinates.toCanvasCoordinates();
           firstVertex = firstVertex.toCanvasCoordinates();
           secondVertex = secondVertex.toCanvasCoordinates();
@@ -105,7 +105,7 @@ export class ArrowLineShape extends LineShape {
           y: 20 * Math.sin(arrowAngle - 0.35),
         }),
       );
-      if (scaling == 'scale') {
+      if (scaling === 'scale') {
         arrowEndCoordinates = arrowEndCoordinates.toCanvasCoordinates();
         firstTriangleCoord = firstTriangleCoord.toCanvasCoordinates();
         secondTriangleCoord = secondTriangleCoord.toCanvasCoordinates();
@@ -146,7 +146,7 @@ export class ArrowLineShape extends LineShape {
     path_tag += '/>\n';
 
     const pointToDraw = [];
-    if (app.settings.areShapesPointed && this.name != 'silhouette') {
+    if (app.settings.areShapesPointed && this.name !== 'silhouette') {
       if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));
@@ -176,23 +176,23 @@ export class ArrowLineShape extends LineShape {
   cleanSameDirectionSegment() {
     for (let i = 0; i < this.segments.length; i++) {
       const nextIdx = mod(i + 1, this.segmentIds.length);
-      if (nextIdx == i) break;
+      if (nextIdx === i) break;
       if (
         this.segments[i].hasSameDirection(this.segments[nextIdx], 1, 0, false)
       ) {
         const middlePointId = this.segments[i].vertexIds[1];
-        const ptIdx = this.pointIds.findIndex((ptId) => ptId == middlePointId);
+        const ptIdx = this.pointIds.findIndex((ptId) => ptId === middlePointId);
         this.pointIds.splice(ptIdx, 1);
         removeObjectById(middlePointId);
         this.segments[i].vertexIds[1] = this.segments[nextIdx].vertexIds[1];
         let idx = this.segments[i].vertexes[1].segmentIds.findIndex(
-          (id) => id == this.segmentIds[nextIdx],
+          (id) => id === this.segmentIds[nextIdx],
         );
         this.segments[i].vertexes[1].segmentIds[idx] = this.segments[i].id;
         if (this.segments[nextIdx].arcCenterId) {
           removeObjectById(this.segments[nextIdx].arcCenterId);
           idx = this.pointIds.findIndex(
-            (id) => id == this.segments[nextIdx].arcCenterId,
+            (id) => id === this.segments[nextIdx].arcCenterId,
           );
           this.pointIds.splice(idx, 1);
         }

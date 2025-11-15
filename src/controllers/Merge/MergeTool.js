@@ -94,7 +94,7 @@ export class MergeTool extends Tool {
     if (!shape) return;
 
     let mustExecuteAction = false;
-    if (app.tool.currentStep == 'listen') {
+    if (app.tool.currentStep === 'listen') {
       this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
       if (this.involvedShapes.length > 1) {
         this.path = this.getPathFromGroup();
@@ -124,8 +124,8 @@ export class MergeTool extends Tool {
         });
         setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
-    } else if (app.tool.currentStep == 'selectSecondShape') {
-      if (this.firstShapeId == shape.id) {
+    } else if (app.tool.currentStep === 'selectSecondShape') {
+      if (this.firstShapeId === shape.id) {
         // deselect firstShape
         this.firstShapeId = null;
         setState({ tool: { ...app.tool, currentStep: 'listen' } });
@@ -189,7 +189,7 @@ export class MergeTool extends Tool {
   }
 
   _executeAction() {
-    if (this.mode == 'twoShapes') {
+    if (this.mode === 'twoShapes') {
       const shape1 = ShapeManager.getShapeById(this.firstShapeId),
         shape2 = ShapeManager.getShapeById(this.secondShapeId);
 
@@ -227,7 +227,7 @@ export class MergeTool extends Tool {
     if (
       shapes.some((shape) =>
         shapes.some((s) => {
-          if (s.id == shape.id) return false;
+          if (s.id === shape.id) return false;
           else return s.overlapsWith(shape);
         }),
       )
@@ -257,7 +257,7 @@ export class MergeTool extends Tool {
     const cutSegments = oldSegments
       .map((segment, idx, segments) => {
         const pointsInside = segments
-          .filter((seg, i) => i != idx)
+          .filter((seg, i) => i !== idx)
           .map((seg) =>
             seg.points.filter((pt1) =>
               segment.divisionPoints.some((pt2) =>
@@ -286,7 +286,7 @@ export class MergeTool extends Tool {
       const segs = segments
         .map((segment) => (segment.equal(seg) ? segment : undefined))
         .filter(Boolean);
-      if (segs.length == 1) newSegments.push(seg);
+      if (segs.length === 1) newSegments.push(seg);
       else segs.forEach((seg) => (seg.used = true));
     });
 
@@ -345,7 +345,7 @@ export class MergeTool extends Tool {
         if (
           Math.abs(
             firstSegment.getAngleWithHorizontal() -
-              secondSegment.getAngleWithHorizontal(),
+            secondSegment.getAngleWithHorizontal(),
           ) > 0.01
         ) {
           secondSegment.reverse();
@@ -446,7 +446,7 @@ export class MergeTool extends Tool {
         secondSegment.vertexes[1],
       ].forEach((pt2) => {
         if (pt1.coordinates.equal(pt2.coordinates)) {
-          if (firstCommonCoordinates == null) {
+          if (firstCommonCoordinates === null) {
             firstCommonCoordinates = pt1.coordinates;
           } else {
             secondCommonCoordinates = pt1.coordinates;
@@ -454,7 +454,7 @@ export class MergeTool extends Tool {
         }
       });
     });
-    if (firstCommonCoordinates != null && secondCommonCoordinates != null)
+    if (firstCommonCoordinates !== null && secondCommonCoordinates !== null)
       return [firstCommonCoordinates, secondCommonCoordinates];
     else return null;
   }
@@ -482,8 +482,8 @@ export class MergeTool extends Tool {
           seg.contains(this.lastUsedCoordinates, false) ? idx : undefined,
         )
         .filter((seg) => Number.isInteger(seg));
-      if (potentialSegmentIdx.length != 1) {
-        if (potentialSegmentIdx.length == 0)
+      if (potentialSegmentIdx.length !== 1) {
+        if (potentialSegmentIdx.length === 0)
           console.info('shape cannot be closed (dead end)');
         else
           console.info(
@@ -504,7 +504,7 @@ export class MergeTool extends Tool {
       segmentUsed++;
     }
 
-    if (segmentUsed != numberOfSegments) {
+    if (segmentUsed !== numberOfSegments) {
       // si tous les segments n'ont pas été utilisés, la figure créée est creuse
       console.info('shape is dig (not all segments have been used)');
       return null;

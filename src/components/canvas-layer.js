@@ -265,7 +265,7 @@ class CanvasLayer extends LitElement {
       (id1) => segmentIds2.findIndex((id2) => id2 === id1) !== -1,
     );
     const commonSegments = commonSegmentIds.map((id) =>
-      this.segments.find((seg) => seg.id == id),
+      this.segments.find((seg) => seg.id === id),
     );
     commonSegments.sort((seg1, seg2) => seg2.idx - seg1.idx);
     return commonSegments[0];
@@ -512,9 +512,9 @@ class CanvasLayer extends LitElement {
       if (
         app.workspace.lastKnownMouseClickTime &&
         app.workspace.lastKnownMouseClickTime >
-          event.timeStamp - GRID_CONSTANTS.DOUBLE_CLICK_THRESHOLD &&
+        event.timeStamp - GRID_CONSTANTS.DOUBLE_CLICK_THRESHOLD &&
         app.workspace.lastKnownMouseClickCoordinates.dist(mousePos) <
-          GRID_CONSTANTS.MOVEMENT_THRESHOLD_MOUSE
+        GRID_CONSTANTS.MOVEMENT_THRESHOLD_MOUSE
       ) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
@@ -941,7 +941,7 @@ class CanvasLayer extends LitElement {
         const offsetX = row % 2 === 0 ? 0 : baseGridStep / 2;
         const startX =
           Math.floor((worldVisibleLeft - offsetX) / baseGridStep) *
-            baseGridStep +
+          baseGridStep +
           offsetX;
 
         for (
@@ -965,7 +965,7 @@ class CanvasLayer extends LitElement {
         const offsetY = col % 2 === 0 ? 0 : baseGridStep / 2;
         const startY =
           Math.floor((worldVisibleTop - offsetY) / baseGridStep) *
-            baseGridStep +
+          baseGridStep +
           offsetY;
 
         for (

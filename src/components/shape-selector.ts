@@ -48,8 +48,8 @@ export class ShapeSelector extends LitElement {
         <h2>${this.selectedTemplate?.title || this.family}</h2>
         <flex-grid>
           ${this.templatesNames.map(
-            (template) =>
-              html` <icon-button
+      (template) =>
+        html` <icon-button
                 name="${template.name}"
                 type="${this.type}"
                 title="${template.title}"
@@ -57,7 +57,7 @@ export class ShapeSelector extends LitElement {
                 @click="${this._clickHandle}"
               >
               </icon-button>`,
-          )}
+    )}
         </flex-grid>
       </div>
     `;
@@ -89,7 +89,7 @@ export class ShapeSelector extends LitElement {
       if (
         !actions.includes(app.tool?.name) ||
         !this.selectedTemplate ||
-        this.selectedTemplate != app.tool.selectedTemplate
+        this.selectedTemplate !== app.tool.selectedTemplate
       )
         this.remove();
     });

@@ -63,7 +63,7 @@ export class Workspace {
   }
 
   initGeometrie() {
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       this.orthogonalSymetryLastCharacteristicElements = [];
       this.centralSymetryLastCharacteristicElements = [];
       this.translationLastCharacteristicElements = [];
@@ -125,7 +125,7 @@ export class Workspace {
       );
     }
 
-    if (scale != 1) this.setZoomLevel(scale);
+    if (scale !== 1) this.setZoomLevel(scale);
 
     // Note: backObjects loading for Tangram is handled by SolutionCheckerTool
     // after level selection to prevent premature silhouette display
@@ -150,7 +150,7 @@ export class Workspace {
     }
 
     if (
-      app.environment.name == 'Geometrie' &&
+      app.environment.name === 'Geometrie' &&
       wsdata.translationLastCharacteristicElements
     ) {
       this.translationLastCharacteristicElements =
@@ -181,7 +181,7 @@ export class Workspace {
     wsdata.objects = app.mainCanvasLayer.saveData();
     if (app.tangramCanvasLayer) {
       let mustEraseShapes = false;
-      if (app.tangramCanvasLayer.shapes.length == 0) {
+      if (app.tangramCanvasLayer.shapes.length === 0) {
         window.dispatchEvent(new CustomEvent('create-silhouette'));
         mustEraseShapes = true;
       }
@@ -190,20 +190,20 @@ export class Workspace {
         app.tangramCanvasLayer.removeAllObjects();
       }
     }
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       wsdata.translationLastCharacteristicElements =
         this.translationLastCharacteristicElements.map((element) =>
           element.saveData(),
         );
     }
-    if (this.shapeGroups.length != 0) {
+    if (this.shapeGroups.length !== 0) {
       wsdata.shapeGroups = this.shapeGroups.map((group) => {
         return group.saveToObject();
       });
     }
 
-    if (this.zoomLevel != 1) wsdata.zoomLevel = this.zoomLevel;
-    if (this.translateOffset.x != 0 || this.translateOffset.y != 0) {
+    if (this.zoomLevel !== 1) wsdata.zoomLevel = this.zoomLevel;
+    if (this.translateOffset.x !== 0 || this.translateOffset.y !== 0) {
       wsdata.translateOffset = this.translateOffset;
     }
 

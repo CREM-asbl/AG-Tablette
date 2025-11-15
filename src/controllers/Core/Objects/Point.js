@@ -38,7 +38,7 @@ export class Point {
     geometryIsVisible = true,
     geometryIsHidden = false,
   }) {
-    if (id == undefined) id = uniqId(layer, 'point');
+    if (id === undefined) id = uniqId(layer, 'point');
     else id = addInfoToId(id, layer, 'point');
     this.id = id;
     this.layer = layer;
@@ -147,30 +147,30 @@ export class Point {
       const reference = findObjectById(this.reference);
       reference.computeTransformConstraint();
       constraints = reference.transformConstraints;
-    } else if (this.type == 'divisionPoint' || this.type == 'shapeCenter') {
+    } else if (this.type === 'divisionPoint' || this.type === 'shapeCenter') {
       constraints.isConstructed = true;
-    } else if (this.shape.geometryObject.geometryTransformationName != null) {
+    } else if (this.shape.geometryObject.geometryTransformationName !== null) {
       constraints.isConstructed = true;
     } else if (
-      this.shape.geometryObject.geometryDuplicateParentShapeId != null
+      this.shape.geometryObject.geometryDuplicateParentShapeId !== null
     ) {
       constraints.isConstructed = true;
-    } else if (this.shape.familyName == 'copy') {
+    } else if (this.shape.familyName === 'copy') {
       constraints.isConstructed = true;
     } else {
-      if (this.shape.familyName == 'Regular') {
+      if (this.shape.familyName === 'Regular') {
         if (this.idx < 2) {
           constraints.isFree = true;
         } else {
           constraints.isConstructed = true;
         }
-      } else if (this.shape.familyName == 'Irregular') {
-        if (this.shape.points.some((pt) => pt.type == 'arcCenter')) {
+      } else if (this.shape.familyName === 'Irregular') {
+        if (this.shape.points.some((pt) => pt.type === 'arcCenter')) {
           constraints.isBlocked = true;
         } else {
           constraints.isFree = true;
         }
-      } else if (this.shape.name == 'RightAngleTriangle') {
+      } else if (this.shape.name === 'RightAngleTriangle') {
         if (this.idx < 2) {
           constraints.isFree = true;
         } else {
@@ -182,7 +182,7 @@ export class Point {
             },
           ];
         }
-      } else if (this.shape.name == 'IsoscelesTriangle') {
+      } else if (this.shape.name === 'IsoscelesTriangle') {
         if (this.idx < 2) {
           constraints.isFree = true;
         } else {
@@ -201,7 +201,7 @@ export class Point {
             },
           ];
         }
-      } else if (this.shape.name == 'RightAngleIsoscelesTriangle') {
+      } else if (this.shape.name === 'RightAngleIsoscelesTriangle') {
         if (this.idx < 2) {
           constraints.isFree = true;
         } else {
@@ -229,10 +229,10 @@ export class Point {
           constraints.points.push(firstPoint);
           constraints.points.push(secondPoint);
         }
-      } else if (this.shape.name == 'Rectangle') {
+      } else if (this.shape.name === 'Rectangle') {
         if (this.idx < 2) {
           constraints.isFree = true;
-        } else if (this.idx == 2) {
+        } else if (this.idx === 2) {
           constraints.isConstrained = true;
 
           constraints.lines = [
@@ -244,10 +244,10 @@ export class Point {
         } else {
           constraints.isConstructed = true;
         }
-      } else if (this.shape.name == 'Losange') {
+      } else if (this.shape.name === 'Losange') {
         if (this.idx < 2) {
           constraints.isFree = true;
-        } else if (this.idx == 2) {
+        } else if (this.idx === 2) {
           constraints.isConstrained = true;
           const constraintLine = {
             segment: new Segment({
@@ -263,13 +263,13 @@ export class Point {
         } else {
           constraints.isConstructed = true;
         }
-      } else if (this.shape.name == 'Parallelogram') {
+      } else if (this.shape.name === 'Parallelogram') {
         if (this.idx < 3) {
           constraints.isFree = true;
         } else {
           constraints.isConstructed = true;
         }
-      } else if (this.shape.name == 'RightAngleTrapeze') {
+      } else if (this.shape.name === 'RightAngleTrapeze') {
         if (this.idx < 2) {
           constraints.isFree = true;
         } else {
@@ -282,13 +282,13 @@ export class Point {
             },
           ];
         }
-      } else if (this.shape.name == 'IsoscelesTrapeze') {
+      } else if (this.shape.name === 'IsoscelesTrapeze') {
         if (this.idx < 3) {
           constraints.isFree = true;
         } else {
-          constraints.isConstructed = true;
+          constraints.isConstrained = true;
         }
-      } else if (this.shape.name == 'Trapeze') {
+      } else if (this.shape.name === 'Trapeze') {
         if (this.idx < 3) {
           constraints.isFree = true;
         } else {
@@ -307,10 +307,10 @@ export class Point {
             },
           ];
         }
-      } else if (this.shape.name == 'Circle') {
+      } else if (this.shape.name === 'Circle') {
         constraints.isFree = true;
-      } else if (this.shape.name == 'CirclePart') {
-        if (this.type == 'arcCenter') {
+      } else if (this.shape.name === 'CirclePart') {
+        if (this.type === 'arcCenter') {
           constraints.isFree = true;
         } else if (this.idx <= 1) {
           constraints.isFree = true;
@@ -327,10 +327,10 @@ export class Point {
             },
           ];
         }
-      } else if (this.shape.name == 'CircleArc') {
-        if (this.type == 'arcCenter') {
+      } else if (this.shape.name === 'CircleArc') {
+        if (this.type === 'arcCenter') {
           constraints.isFree = true;
-        } else if (this.idx == 0) {
+        } else if (this.idx === 0) {
           constraints.isFree = true;
         } else {
           constraints.isConstrained = true;
@@ -346,21 +346,21 @@ export class Point {
           ];
         }
       } else if (
-        this.shape.name == '30degreesArc' ||
-        this.shape.name == '45degreesArc'
+        this.shape.name === '30degreesArc' ||
+        this.shape.name === '45degreesArc'
       ) {
-        if (this.type == 'arcCenter') {
+        if (this.type === 'arcCenter') {
           constraints.isFree = true;
-        } else if (this.idx == 0) {
+        } else if (this.idx === 0) {
           constraints.isFree = true;
         } else {
           constraints.isBlocked = true;
         }
-      } else if (this.shape.familyName == 'Line') {
+      } else if (this.shape.familyName === 'Line') {
         if (
-          (this.shape.name == 'ParalleleSegment' ||
-            this.shape.name == 'ParalleleSemiStraightLine') &&
-          this.idx == 1
+          (this.shape.name === 'ParalleleSegment' ||
+            this.shape.name === 'ParalleleSemiStraightLine') &&
+          this.idx === 1
         ) {
           constraints.isConstrained = true;
           const reference = findObjectById(
@@ -385,9 +385,9 @@ export class Point {
           };
           constraints.lines = [constraintLine];
         } else if (
-          (this.shape.name == 'PerpendicularSegment' ||
-            this.shape.name == 'PerpendicularSemiStraightLine') &&
-          this.idx == 1
+          (this.shape.name === 'PerpendicularSegment' ||
+            this.shape.name === 'PerpendicularSemiStraightLine') &&
+          this.idx === 1
         ) {
           constraints.isConstrained = true;
           const reference = findObjectById(
@@ -412,25 +412,25 @@ export class Point {
             isInfinite: true,
           };
           constraints.lines = [constraintLine];
-        } else if (this.idx == 0) {
+        } else if (this.idx === 0) {
           constraints.isFree = true;
         } else if (
-          (this.shape.name == 'Segment' ||
-            this.shape.name == 'SemiStraightLine' ||
-            this.shape.name == 'StraightLine' ||
-            this.shape.name == 'Vector') &&
-          this.idx == 1
+          (this.shape.name === 'Segment' ||
+            this.shape.name === 'SemiStraightLine' ||
+            this.shape.name === 'StraightLine' ||
+            this.shape.name === 'Vector') &&
+          this.idx === 1
         ) {
           constraints.isFree = true;
-        } else if (this.idx == 1) {
+        } else if (this.idx === 1) {
           constraints.isConstructed = true;
         }
-      } else if (this.shape.familyName == 'Point') {
-        if (this.shape.name == 'Point') {
+      } else if (this.shape.familyName === 'Point') {
+        if (this.shape.name === 'Point') {
           constraints.isFree = true;
         } else if (
-          this.shape.name == 'PointOnLine' ||
-          this.shape.name == 'PointOnShape'
+          this.shape.name === 'PointOnLine' ||
+          this.shape.name === 'PointOnShape'
         ) {
           constraints.isConstrained = true;
         } else {
@@ -509,9 +509,9 @@ export class Point {
       segmentIds: [...this.segmentIds],
     };
 
-    if (this.type != undefined) data.type = this.type;
-    if (this.name != undefined) data.name = this.name;
-    if (this.ratio != undefined) data.ratio = this.ratio;
+    if (this.type !== undefined) data.type = this.type;
+    if (this.name !== undefined) data.name = this.name;
+    if (this.ratio !== undefined) data.ratio = this.ratio;
     if (this.visible !== true) data.visible = this.visible;
     if (this.color !== '#000') data.color = this.color;
     if (this.size !== 1) data.size = this.size;
@@ -531,7 +531,7 @@ export class Point {
     point.coordinates = new Coordinates(point.coordinates);
     point.segmentIds = [...data.segmentIds];
     if (data.endpointIds) point.endpointIds = [...data.endpointIds];
-    if (app.environment.name == 'Tangram') {
+    if (app.environment.name === 'Tangram') {
       point.startTangramCoordinates = new Coordinates(point.coordinates);
     }
   }

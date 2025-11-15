@@ -13,24 +13,24 @@ export function getAllLinkedShapesInGeometry(
   involvedShapes,
   includeDuplicate = true,
 ) {
-  if (app.environment.name != 'Geometrie') return;
+  if (app.environment.name !== 'Geometrie') return;
   shape.geometryObject.geometryChildShapeIds.forEach((ref) => {
     const s = findObjectById(ref);
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach((sId) => {
     const s = findObjectById(sId);
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   });
   shape.geometryObject.geometryDuplicateChildShapeIds.forEach((sId) => {
     const s = findObjectById(sId);
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
@@ -39,14 +39,14 @@ export function getAllLinkedShapesInGeometry(
     const s = findObjectById(
       shape.geometryObject.geometryTransformationParentShapeId,
     );
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
   }
   shape.geometryObject.geometryMultipliedChildShapeIds.forEach((sId) => {
     const s = findObjectById(sId);
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
       involvedShapes.push(s);
       getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
     }
@@ -56,7 +56,7 @@ export function getAllLinkedShapesInGeometry(
   if (characteristicElements) {
     characteristicElements.elements.forEach((element) => {
       const s = element.shape;
-      if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+      if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
         involvedShapes.push(s);
         getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
       }
@@ -74,7 +74,7 @@ export function getAllLinkedShapesInGeometry(
   //   } else {
   //     s = findObjectById(sId).shape;
   //   }
-  //   if (!involvedShapes.find(involvedShape => involvedShape.id == s.id)) {
+  //   if (!involvedShapes.find(involvedShape => involvedShape.id === s.id)) {
   //     involvedShapes.push(s);
   //     getAllLinkedShapesInGeometry(s, involvedShapes, includeDuplicate);
   //   }
@@ -87,13 +87,13 @@ export function getAllLinkedShapesInGeometry(
     // s = seg.shape;
     // else
     //   s = findObjectById(shape.geometryObject.geometryParentObjectId1);
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id))
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id))
       involvedShapes.push(s);
   }
   if (shape.geometryObject.geometryParentObjectId2) {
     const seg = findObjectById(shape.geometryObject.geometryParentObjectId2);
     const s = seg.shape;
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id))
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id))
       involvedShapes.push(s);
   }
 }
@@ -101,14 +101,14 @@ export function getAllLinkedShapesInGeometry(
 export function getAllChildrenInGeometry(shape, involvedShapes) {
   shape.geometryObject.geometryTransformationChildShapeIds.forEach((sId) => {
     const s = findObjectById(sId);
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
       involvedShapes.push(s);
       getAllChildrenInGeometry(s, involvedShapes);
     }
   });
   shape.geometryObject.geometryChildShapeIds.forEach((sId) => {
     const s = findObjectById(sId);
-    if (!involvedShapes.find((involvedShape) => involvedShape.id == s.id)) {
+    if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {
       involvedShapes.push(s);
       getAllChildrenInGeometry(s, involvedShapes);
     }
@@ -116,37 +116,37 @@ export function getAllChildrenInGeometry(shape, involvedShapes) {
 }
 
 function addShapeToChildren(parent, child) {
-  if (parent.id == child.id) return;
-  if (parent.geometryObject.geometryChildShapeIds.indexOf(child.id) != -1)
+  if (parent.id === child.id) return;
+  if (parent.geometryObject.geometryChildShapeIds.indexOf(child.id) !== -1)
     return;
   parent.geometryObject.geometryChildShapeIds.push(child.id);
 }
 
 export function linkNewlyCreatedPoint(shape, point) {
   let ref = point.adjustedOn;
-  if (ref?.type == 'grid') return;
+  if (ref?.type === 'grid') return;
   while (ref && ref instanceof Point && ref.reference)
     ref = findObjectById(ref.reference);
   if (
-    (point.idx == 1 &&
-      (shape.name == 'CircleArc' ||
+    (point.idx === 1 &&
+      (shape.name === 'CircleArc' ||
         shape.name.startsWith('Parallele') ||
         shape.name.startsWith('Perpendicular'))) ||
-    (point.idx == 2 &&
-      (shape.name == 'Rectangle' ||
-        shape.name == 'Losange' ||
-        shape.name == 'RightAngleTriangle' ||
-        shape.name == 'RightAngleTrapeze' ||
-        shape.name == 'IsoscelesTriangle' ||
-        shape.name == 'CirclePart')) ||
-    (point.idx == 3 &&
-      (shape.name == 'Trapeze' || shape.name == 'RightAngleTrapeze'))
+    (point.idx === 2 &&
+      (shape.name === 'Rectangle' ||
+        shape.name === 'Losange' ||
+        shape.name === 'RightAngleTriangle' ||
+        shape.name === 'RightAngleTrapeze' ||
+        shape.name === 'IsoscelesTriangle' ||
+        shape.name === 'CirclePart')) ||
+    (point.idx === 3 &&
+      (shape.name === 'Trapeze' || shape.name === 'RightAngleTrapeze'))
   ) {
     let constraintShape;
     if (
-      shape.name == 'Rectangle' ||
-      shape.name == 'RightAngleTriangle' ||
-      (shape.name == 'RightAngleTrapeze' && point.idx == 2)
+      shape.name === 'Rectangle' ||
+      shape.name === 'RightAngleTriangle' ||
+      (shape.name === 'RightAngleTrapeze' && point.idx === 2)
     ) {
       const referenceSegment = shape.segments[0];
       const angle = referenceSegment.getAngleWithHorizontal() + Math.PI / 2;
@@ -189,11 +189,11 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.segments[0].isInfinite = true;
       constraintShape.vertexes[0].visible = false;
       constraintShape.vertexes[1].visible = false;
-    } else if (shape.name == 'Losange') {
+    } else if (shape.name === 'Losange') {
       const referenceSegment = shape.segments[0];
       const oppositeCoordinates = referenceSegment.vertexes[1].coordinates
-          .multiply(2)
-          .substract(referenceSegment.vertexes[0].coordinates),
+        .multiply(2)
+        .substract(referenceSegment.vertexes[0].coordinates),
         radius = referenceSegment.vertexes[0].coordinates.dist(
           referenceSegment.vertexes[1].coordinates,
         );
@@ -242,11 +242,11 @@ export function linkNewlyCreatedPoint(shape, point) {
 
       constraintShape.vertexes[0].visible = false;
       constraintShape.segments[0].arcCenter.visible = false;
-    } else if (shape.name == 'CircleArc') {
+    } else if (shape.name === 'CircleArc') {
       const referenceSegment = shape.segments[0];
       const oppositeCoordinates = referenceSegment.arcCenter.coordinates
-          .multiply(2)
-          .substract(referenceSegment.vertexes[0].coordinates),
+        .multiply(2)
+        .substract(referenceSegment.vertexes[0].coordinates),
         radius = referenceSegment.vertexes[0].coordinates.dist(
           referenceSegment.arcCenter.coordinates,
         );
@@ -296,11 +296,11 @@ export function linkNewlyCreatedPoint(shape, point) {
 
       constraintShape.vertexes[0].visible = false;
       constraintShape.segments[0].arcCenter.visible = false;
-    } else if (shape.name == 'CirclePart') {
+    } else if (shape.name === 'CirclePart') {
       const referenceSegment = shape.segments[1];
       const oppositeCoordinates = referenceSegment.arcCenter.coordinates
-          .multiply(2)
-          .substract(referenceSegment.vertexes[0].coordinates),
+        .multiply(2)
+        .substract(referenceSegment.vertexes[0].coordinates),
         radius = referenceSegment.vertexes[0].coordinates.dist(
           referenceSegment.arcCenter.coordinates,
         );
@@ -349,7 +349,7 @@ export function linkNewlyCreatedPoint(shape, point) {
 
       constraintShape.vertexes[0].visible = false;
       constraintShape.segments[0].arcCenter.visible = false;
-    } else if (shape.name == 'Trapeze' || shape.name == 'RightAngleTrapeze') {
+    } else if (shape.name === 'Trapeze' || shape.name === 'RightAngleTrapeze') {
       const referenceSegment = shape.segments[0];
       const angle = referenceSegment.getAngleWithHorizontal();
       const newCoordinates = shape.vertexes[2].coordinates.add(
@@ -391,7 +391,7 @@ export function linkNewlyCreatedPoint(shape, point) {
       constraintShape.segments[0].isInfinite = true;
       constraintShape.vertexes[0].visible = false;
       constraintShape.vertexes[1].visible = false;
-    } else if (shape.name == 'IsoscelesTriangle') {
+    } else if (shape.name === 'IsoscelesTriangle') {
       const referenceSegment = shape.segments[0];
       const referenceSegmentMiddle = referenceSegment.addPoint(
         referenceSegment.middle,
@@ -555,12 +555,12 @@ export function linkNewlyCreatedPoint(shape, point) {
     addShapeToChildren(newSinglePointShape, shape);
     point.reference = newSinglePointShape.vertexes[0].id;
   } else if (ref && ref instanceof Point) {
-    if (ref.type == 'divisionPoint') {
+    if (ref.type === 'divisionPoint') {
       ref.endpointIds?.forEach((endPointId) => {
         const endPoint = findObjectById(endPointId);
         const endPointShape = endPoint.shape;
         if (
-          endPointShape.name == 'PointOnLine' ||
+          endPointShape.name === 'PointOnLine' ||
           endPointShape.name.startsWith('PointOnIntersection')
         )
           addShapeToChildren(endPointShape, shape);

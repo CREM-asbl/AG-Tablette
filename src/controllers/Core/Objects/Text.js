@@ -56,14 +56,14 @@ export class Text {
   }
 
   updateMessage() {
-    if (this.type == 'group') {
+    if (this.type === 'group') {
       const shape = app.mainCanvasLayer.shapes.find(
-        (s) => s.id == this.referenceId,
+        (s) => s.id === this.referenceId,
       );
       const group = GroupManager.getShapeGroup(shape);
       if (group == null) return;
       const groupIndex = GroupManager.getGroupIndex(group);
-      if (groupIndex != -1) this.message = 'Groupe ' + (groupIndex + 1);
+      if (groupIndex !== -1) this.message = 'Groupe ' + (groupIndex + 1);
     }
   }
 

@@ -59,10 +59,10 @@ export class CubeShape extends RegularShape {
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
       const lastPointDrawn = this.points[this.points.length - 1];
       if (
-        lastVertex == undefined ||
-        lastVertex.type != 'vertex' ||
+        lastVertex === undefined ||
+        lastVertex.type !== 'vertex' ||
         (lastPointDrawn.coordinates.equal(coordinates) &&
-          lastPointDrawn.type == 'vertex')
+          lastPointDrawn.type === 'vertex')
       ) {
         lastVertex = new Point({
           coordinates: coordinates,
@@ -81,7 +81,7 @@ export class CubeShape extends RegularShape {
       });
     };
 
-    if (allPathElements[0] != 'M')
+    if (allPathElements[0] !== 'M')
       startVertex = lastVertex = new Point({
         shapeId: this.id,
         layer: this.layer,
@@ -147,7 +147,7 @@ export class CubeShape extends RegularShape {
           lastVertex = this.points.find((pt) =>
             pt.coordinates.equal(nextVertexCoordinates),
           );
-          if (lastVertex == undefined || lastVertex.type != 'vertex') {
+          if (lastVertex === undefined || lastVertex.type !== 'vertex') {
             lastVertex = new Point({
               coordinates: nextVertexCoordinates,
               shapeId: this.id,
@@ -172,7 +172,7 @@ export class CubeShape extends RegularShape {
             idx: segmentIdx++,
             vertexIds: [firstVertex.id, lastVertex.id],
             arcCenterId: arcCenter.id,
-            counterclockwise: sweepFlag == 0,
+            counterclockwise: Number(sweepFlag) === 0,
           });
           arcCenter.segmentIds.push(segment.id);
 
@@ -191,10 +191,10 @@ export class CubeShape extends RegularShape {
     }
     // if segment length == 0
     if (
-      app.environment.name == 'Geometrie' &&
+      app.environment.name === 'Geometrie' &&
       !this.isCircle() &&
-      this.points.filter((pt) => pt.type != 'arcCenter').length !=
-        this.segmentIds.length
+      this.points.filter((pt) => pt.type !== 'arcCenter').length !==
+      this.segmentIds.length
     ) {
       const coord = this.points[0].coordinates;
       const numberOfSegment = this.segmentIds.length;

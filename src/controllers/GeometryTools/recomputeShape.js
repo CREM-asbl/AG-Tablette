@@ -12,7 +12,7 @@ export function computeAllShapeTransform(
   includeChildren = true,
   includePointOnIntersection = true,
 ) {
-  if (app.environment.name != 'Geometrie') return;
+  if (app.environment.name !== 'Geometrie') return;
   if (includeChildren) {
     shape.geometryObject.geometryChildShapeIds.forEach((ref) => {
       const sRef = findObjectById(ref);
@@ -30,7 +30,7 @@ export function computeAllShapeTransform(
         console.info('child not found');
         return;
       }
-      if (sRef.name == 'PointOnIntersection') {
+      if (sRef.name === 'PointOnIntersection') {
         computeShapeTransform(sRef, layer);
         computeAllShapeTransform(sRef, layer);
       }
@@ -74,7 +74,7 @@ function computePointPosition(point, selectedAxis) {
 }
 
 export function computeShapeTransform(shape, layer = 'upper') {
-  if (app.environment.name != 'Geometrie') return;
+  if (app.environment.name !== 'Geometrie') return;
 
   if (shape.geometryObject.geometryTransformationParentShapeId) {
     computeTransformShape(shape);
@@ -89,7 +89,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
 
   computeLinkedShape(shape);
 
-  if (shape.familyName == 'Regular') {
+  if (shape.familyName === 'Regular') {
     let externalAngle = (Math.PI * 2) / shape.segments.length;
     if (shape.isReversed) {
       externalAngle *= -1;
@@ -110,20 +110,20 @@ export function computeShapeTransform(shape, layer = 'upper') {
 
       shape.vertexes[i].coordinates = snapCoordinatesToGrid(coord);
     }
-  } else if (shape.name == 'Rectangle') {
+  } else if (shape.name === 'Rectangle') {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
-  } else if (shape.name == 'Losange') {
+  } else if (shape.name === 'Losange') {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
-  } else if (shape.name == 'Parallelogram') {
+  } else if (shape.name === 'Parallelogram') {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(shape.vertexes[1].coordinates)
       .add(shape.vertexes[0].coordinates);
-  } else if (shape.name == 'RightAngleTrapeze') {
-  } else if (shape.name == 'IsoscelesTrapeze') {
+  } else if (shape.name === 'RightAngleTrapeze') {
+  } else if (shape.name === 'IsoscelesTrapeze') {
     const projection = shape.segments[0].projectionOnSegment(
       shape.vertexes[2].coordinates,
     );
@@ -131,8 +131,8 @@ export function computeShapeTransform(shape, layer = 'upper') {
     shape.vertexes[3].coordinates = shape.vertexes[2].coordinates
       .substract(projection.multiply(2))
       .add(middleOfSegment.multiply(2));
-  } else if (shape.name == 'Trapeze') {
-  } else if (shape.name == 'RightAngleIsoscelesTriangle') {
+  } else if (shape.name === 'Trapeze') {
+  } else if (shape.name === 'RightAngleIsoscelesTriangle') {
     const firstSegment = shape.segments[0];
     const angle =
       firstSegment.getAngleWithHorizontal() -
@@ -145,31 +145,31 @@ export function computeShapeTransform(shape, layer = 'upper') {
         y: shape.vertexes[1].y + length * Math.sin(angle),
       }),
     );
-  } else if (shape.name == 'RightAngleTriangle') {
-  } else if (shape.name == 'IsoscelesTriangle') {
-  } else if (shape.name == 'ParalleleSegment') {
-  } else if (shape.name == 'PerpendicularSegment') {
-  } else if (shape.name == 'SemiStraightLine') {
+  } else if (shape.name === 'RightAngleTriangle') {
+  } else if (shape.name === 'IsoscelesTriangle') {
+  } else if (shape.name === 'ParalleleSegment') {
+  } else if (shape.name === 'PerpendicularSegment') {
+  } else if (shape.name === 'SemiStraightLine') {
     const newValue = !shape.vertexes[0].coordinates.equal(
       shape.vertexes[1].coordinates,
       0.1,
     );
-    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+    if (newValue !== shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
     }
-  } else if (shape.name == 'ParalleleSemiStraightLine') {
-  } else if (shape.name == 'PerpendicularSemiStraightLine') {
-  } else if (shape.name == 'StraightLine') {
+  } else if (shape.name === 'ParalleleSemiStraightLine') {
+  } else if (shape.name === 'PerpendicularSemiStraightLine') {
+  } else if (shape.name === 'StraightLine') {
     const newValue = !shape.vertexes[0].coordinates.equal(
       shape.vertexes[1].coordinates,
       0.1,
     );
-    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+    if (newValue !== shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
     }
-  } else if (shape.name == 'ParalleleStraightLine') {
+  } else if (shape.name === 'ParalleleStraightLine') {
     const seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     const angle = seg.getAngleWithHorizontal();
 
@@ -179,7 +179,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
         y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
       }),
     );
-  } else if (shape.name == 'PerpendicularStraightLine') {
+  } else if (shape.name === 'PerpendicularStraightLine') {
     const seg = findObjectById(shape.geometryObject.geometryParentObjectId1);
     let angle = seg.getAngleWithHorizontal() + Math.PI / 2;
     if (shape.isReversed) angle += Math.PI;
@@ -190,7 +190,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
         y: shape.vertexes[0].coordinates.y + 100 * Math.sin(angle),
       }),
     );
-  } else if (shape.name == 'Strip') {
+  } else if (shape.name === 'Strip') {
     const seg = shape.segments[0];
     const angle = seg.getAngleWithHorizontal();
 
@@ -200,12 +200,12 @@ export function computeShapeTransform(shape, layer = 'upper') {
         y: shape.vertexes[2].coordinates.y + 100 * Math.sin(angle),
       }),
     );
-  } else if (shape.name == 'PointOnLine') {
+  } else if (shape.name === 'PointOnLine') {
     const ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
     const point = shape.points[0];
 
     let coord;
-    if (ref.shape.name == 'Circle') {
+    if (ref.shape.name === 'Circle') {
       const refShape = ref.shape;
       const angle =
         refShape.segments[0].arcCenter.coordinates.angleWith(
@@ -247,7 +247,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
     }
     shape.points[0].coordinates = snapCoordinatesToGrid(coord);
     ref.divisionPoints.forEach((pt) => computeDivisionPoint(pt));
-  } else if (shape.name == 'PointOnShape') {
+  } else if (shape.name === 'PointOnShape') {
     const coord = shape.points[0].coordinates;
     const ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
     if (ref.isCoordinatesInPath(coord) || ref.isCoordinatesOnBorder(coord)) {
@@ -272,7 +272,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
       return p1.dist - p2.dist;
     });
     shape.points[0].coordinates = snapCoordinatesToGrid(projections[0].proj);
-  } else if (shape.name == 'PointOnIntersection') {
+  } else if (shape.name === 'PointOnIntersection') {
     const firstSeg = findObjectById(
       shape.geometryObject.geometryParentObjectId1,
     );
@@ -281,13 +281,13 @@ export function computeShapeTransform(shape, layer = 'upper') {
     );
     const coords = firstSeg.intersectionWith(secondSeg);
     const newValue = !!coords;
-    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+    if (newValue !== shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
     }
-    if (shape.geometryObject.geometryIsVisible == false) return;
+    if (shape.geometryObject.geometryIsVisible === false) return;
 
-    if (coords.length == 1)
+    if (coords.length === 1)
       coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y });
     const lastCoords = shape.points.map((pt) => pt.coordinates);
     const mustInvertCoord =
@@ -299,7 +299,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
     );
     firstSeg.divisionPoints.forEach((pt) => computeDivisionPoint(pt));
     secondSeg.divisionPoints.forEach((pt) => computeDivisionPoint(pt));
-  } else if (shape.name == 'PointOnIntersection2') {
+  } else if (shape.name === 'PointOnIntersection2') {
     const firstSeg = findObjectById(
       shape.geometryObject.geometryParentObjectId1,
     );
@@ -308,13 +308,13 @@ export function computeShapeTransform(shape, layer = 'upper') {
     );
     const coords = firstSeg.intersectionWith(secondSeg, 0.001);
     const newValue = !!coords;
-    if (newValue != shape.geometryObject.geometryIsVisibleByChoice) {
+    if (newValue !== shape.geometryObject.geometryIsVisibleByChoice) {
       shape.geometryObject.geometryIsVisibleByChoice = newValue;
       recomputeAllVisibilities(layer);
     }
-    if (shape.geometryObject.geometryIsVisible == false) return;
+    if (shape.geometryObject.geometryIsVisible === false) return;
 
-    if (coords.length == 1)
+    if (coords.length === 1)
       coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y });
     const lastCoords = shape.points.map((pt) => pt.coordinates);
     const mustInvertCoord =
@@ -325,9 +325,9 @@ export function computeShapeTransform(shape, layer = 'upper') {
     );
     firstSeg.divisionPoints.forEach((pt) => computeDivisionPoint(pt));
     secondSeg.divisionPoints.forEach((pt) => computeDivisionPoint(pt));
-  } else if (shape.name == 'CirclePart') {
-  } else if (shape.name == 'CircleArc') {
-  } else if (shape.name == '30degreesArc') {
+  } else if (shape.name === 'CirclePart') {
+  } else if (shape.name === 'CircleArc') {
+  } else if (shape.name === '30degreesArc') {
     let angle =
       shape.segments[0].arcCenter.coordinates.angleWith(
         shape.vertexes[0].coordinates,
@@ -349,7 +349,7 @@ export function computeShapeTransform(shape, layer = 'upper') {
     shape.vertexes[1].coordinates = snapCoordinatesToGrid(
       thirdPointCoordinates,
     );
-  } else if (shape.name == '45degreesArc') {
+  } else if (shape.name === '45degreesArc') {
     let angle =
       shape.segments[0].arcCenter.coordinates.angleWith(
         shape.vertexes[0].coordinates,
@@ -381,7 +381,8 @@ export function computeShapeTransform(shape, layer = 'upper') {
 
 function getPositionWithRatio(point, referenceSegment) {
   let coord;
-  if (referenceSegment.shape.name == 'Circle') {
+  if (referenceSegment.shape.name === 'Circle') {
+    // Note: equality retained in logic comments only; enforced strict elsewhere
     const refShape = referenceSegment.shape;
     const angle =
       refShape.segments[0].arcCenter.coordinates.angleWith(
@@ -428,7 +429,7 @@ function getPositionWithRatio(point, referenceSegment) {
 
 export function getRatioWithPosition(point, referenceSegment) {
   let ratio;
-  if (referenceSegment.shape.name == 'Circle') {
+  if (referenceSegment.shape.name === 'Circle') {
     const angle = referenceSegment.arcCenter.coordinates.angleWith(
       point.coordinates,
     );
@@ -457,7 +458,7 @@ export function getRatioWithPosition(point, referenceSegment) {
     if (
       Math.abs(
         referenceSegment.vertexes[0].coordinates.x -
-          referenceSegment.vertexes[1].coordinates.x,
+        referenceSegment.vertexes[1].coordinates.x,
       ) < 0.001
     ) {
       ratio =
@@ -475,7 +476,7 @@ export function getRatioWithPosition(point, referenceSegment) {
     ratio > 1 &&
     !(
       referenceSegment.shape.name.endsWith('StraightLine') ||
-      referenceSegment.shape.name == 'Strip'
+      referenceSegment.shape.name === 'Strip'
     )
   )
     ratio = 1;
@@ -484,7 +485,7 @@ export function getRatioWithPosition(point, referenceSegment) {
     !(
       (referenceSegment.shape.name.endsWith('StraightLine') &&
         !referenceSegment.shape.name.endsWith('SemiStraightLine')) ||
-      referenceSegment.shape.name == 'Strip'
+      referenceSegment.shape.name === 'Strip'
     )
   )
     ratio = 0;
@@ -530,19 +531,20 @@ function computeTransformShape(shape) {
         findObjectById(pt.reference).coordinates,
       );
   });
-  if (parentShape.name == 'CirclePart') {
+  if (parentShape.name === 'CirclePart') {
+    // strict equality in comparisons
     shape.segments[1].arcCenter.coordinates = snapCoordinatesToGrid(
       parentShape.segments[1].arcCenter.coordinates,
     );
-  } else if (parentShape.name == 'CircleArc') {
+  } else if (parentShape.name === 'CircleArc') {
     shape.segments[0].arcCenter.coordinates = snapCoordinatesToGrid(
       parentShape.segments[0].arcCenter.coordinates,
     );
   }
-  if (shape.geometryObject.geometryTransformationName == 'orthogonalSymetry') {
+  if (shape.geometryObject.geometryTransformationName === 'orthogonalSymetry') {
     let axis;
     if (
-      shape.geometryObject.geometryTransformationCharacteristicElements.type ==
+      shape.geometryObject.geometryTransformationCharacteristicElements.type ===
       'axis'
     ) {
       axis =
@@ -562,16 +564,16 @@ function computeTransformShape(shape) {
     }
     reverseShape(shape, axis);
   } else if (
-    shape.geometryObject.geometryTransformationName == 'centralSymetry'
+    shape.geometryObject.geometryTransformationName === 'centralSymetry'
   ) {
     const center =
       shape.geometryObject.geometryTransformationCharacteristicElements
         .firstElement.coordinates;
     shape.rotate(Math.PI, center);
-  } else if (shape.geometryObject.geometryTransformationName == 'translation') {
+  } else if (shape.geometryObject.geometryTransformationName === 'translation') {
     let pts;
     if (
-      shape.geometryObject.geometryTransformationCharacteristicElements.type ==
+      shape.geometryObject.geometryTransformationCharacteristicElements.type ===
       'vector'
     ) {
       pts =
@@ -583,7 +585,7 @@ function computeTransformShape(shape) {
           .elements;
     }
     shape.translate(pts[1].coordinates.substract(pts[0].coordinates));
-  } else if (shape.geometryObject.geometryTransformationName == 'rotation') {
+  } else if (shape.geometryObject.geometryTransformationName === 'rotation') {
     // let angle;
     let pts;
 
@@ -591,7 +593,7 @@ function computeTransformShape(shape) {
       shape.geometryObject.geometryTransformationCharacteristicElements
         .firstElement;
     if (
-      shape.geometryObject.geometryTransformationCharacteristicElements.type ==
+      shape.geometryObject.geometryTransformationCharacteristicElements.type ===
       'arc'
     ) {
       const arc =
@@ -619,7 +621,8 @@ function computeTransformShape(shape) {
     // angle *= -1;
     shape.rotate(angle, rotationCenter.coordinates);
   }
-  if (shape.name == 'PointOnLine') {
+  if (shape.name === 'PointOnLine') {
+    // strict comparison for name
     const firstSeg = findObjectById(
       shape.geometryObject.geometryParentObjectId1,
     );
@@ -663,14 +666,14 @@ function computeDuplicateShape(shape) {
   let parentShape = parentObject;
   if (parentObject instanceof Segment) parentShape = parentObject.shape;
 
-  if (shape.name == 'PointOnLine') {
+  if (shape.name === 'PointOnLine') {
     shape.points[0].ratio = parentShape.points[0].ratio;
 
     const ref = findObjectById(shape.geometryObject.geometryParentObjectId1);
     const point = shape.points[0];
 
     let coord;
-    if (ref.shape.name == 'Circle') {
+    if (ref.shape.name === 'Circle') {
       const refShape = ref.shape;
       const angle =
         refShape.segments[0].arcCenter.coordinates.angleWith(
@@ -725,32 +728,32 @@ function computeDuplicateShape(shape) {
       rotationMultiplier = 1;
     }
     shape.points
-      .filter((pt) => pt.type != 'divisionPoint')
+      .filter((pt) => pt.type !== 'divisionPoint')
       .forEach((pt, idx) => {
         let startCoord = parentObject.points.filter(
-          (pt) => pt.type != 'divisionPoint',
+          (pt) => pt.type !== 'divisionPoint',
         )[idx].coordinates;
         if (mustReverse) {
           startCoord = new Coordinates({
             x:
               startCoord.x +
               2 *
-                (shape.geometryObject.geometryConstructionSpec
-                  .parentFirstPointCoordinates.x -
-                  startCoord.x),
+              (shape.geometryObject.geometryConstructionSpec
+                .parentFirstPointCoordinates.x -
+                startCoord.x),
             y: startCoord.y,
           });
         }
         let newPointCoordinates = startCoord
           .rotate(
             rotationMultiplier *
-              shape.geometryObject.geometryConstructionSpec.rotationAngle,
+            shape.geometryObject.geometryConstructionSpec.rotationAngle,
             shape.geometryObject.geometryConstructionSpec
               .parentFirstPointCoordinates,
           )
           .add(vector);
         if (
-          idx == 1 &&
+          idx === 1 &&
           shape.geometryObject.geometryConstructionSpec.numerator
         ) {
           newPointCoordinates = shape.points[0].coordinates.add(
@@ -758,7 +761,7 @@ function computeDuplicateShape(shape) {
               .substract(shape.points[0].coordinates)
               .multiply(
                 shape.geometryObject.geometryConstructionSpec.numerator /
-                  shape.geometryObject.geometryConstructionSpec.denominator,
+                shape.geometryObject.geometryConstructionSpec.denominator,
               ),
           );
         }
@@ -790,12 +793,12 @@ export function recomputeAllVisibilities(layer) {
         shape.geometryObject.geometryParentObjectId1,
       );
       segment.divisionPoints.forEach((divPt) => {
-        if (divPt.endpointIds?.some((endPtId) => endPtId == shape.points[0].id))
+        if (divPt.endpointIds?.some((endPtId) => endPtId === shape.points[0].id))
           divPt.geometryIsVisible = false;
       });
       segment = findObjectById(shape.geometryObject.geometryParentObjectId2);
       segment.divisionPoints.forEach((divPt) => {
-        if (divPt.endpointIds?.some((endPtId) => endPtId == shape.points[0].id))
+        if (divPt.endpointIds?.some((endPtId) => endPtId === shape.points[0].id))
           divPt.geometryIsVisible = false;
       });
     }
@@ -821,21 +824,21 @@ export function recomputeAllVisibilities(layer) {
 
   app[layer + 'CanvasLayer'].shapes.forEach((s) => {
     if (s.geometryObject?.geometryIsVisibleByChoice === false) {
-      if (s.name != 'cut') changeVisibilityRecursively(s.id);
+      if (s.name !== 'cut') changeVisibilityRecursively(s.id);
       else s.geometryObject.geometryIsVisible = false;
     }
   });
 }
 
 export function computeDivisionPoint(point) {
-  if (app.environment.name != 'Geometrie') return;
+  if (app.environment.name !== 'Geometrie') return;
   const segment = point.segments[0];
   if (point.shape.isCircle()) {
     const startAngle = segment.arcCenter.coordinates.angleWith(
       segment.vertexes[0].coordinates,
     );
     let newAngle = startAngle + point.ratio * 2 * Math.PI;
-    if (point.endpointIds?.length == 2) {
+    if (point.endpointIds?.length === 2) {
       const firstPoint = findObjectById(point.endpointIds[0]);
       const secondPoint = findObjectById(point.endpointIds[1]);
       const firstAngle = segment.arcCenter.coordinates.angleWith(
@@ -877,7 +880,7 @@ export function computeDivisionPoint(point) {
   } else {
     let firstPoint = segment.vertexes[0];
     let secondPoint = segment.vertexes[1];
-    if (point.endpointIds?.length == 2) {
+    if (point.endpointIds?.length === 2) {
       firstPoint = findObjectById(point.endpointIds[0]);
       secondPoint = findObjectById(point.endpointIds[1]);
     }
@@ -890,8 +893,8 @@ export function computeDivisionPoint(point) {
 }
 
 export function computeConstructionSpec(shape, maxIndex = 100) {
-  if (shape.familyName == 'duplicate') {
-    if (shape.name == 'PointOnLine') {
+  if (shape.familyName === 'duplicate') {
+    if (shape.name === 'PointOnLine') {
       return;
     }
     const refObject = findObjectById(
@@ -928,7 +931,8 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
       shape.geometryObject.geometryConstructionSpec.rotationAngle =
         refShapeAngle - shapeAngle;
     }
-  } else if (shape.familyName == 'multipliedVector') {
+  } else if (shape.familyName === 'multipliedVector') {
+    // strict equality
     const refShape = findObjectById(
       shape.geometryObject.geometryMultipliedParentShapeId,
     );
@@ -937,16 +941,16 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     shape.geometryObject.geometryConstructionSpec.childFirstPointCoordinates =
       shape.points[0].coordinates;
     shape.geometryObject.geometryConstructionSpec.rotationAngle = 0;
-  } else if (shape.name == 'Rectangle') {
+  } else if (shape.name === 'Rectangle') {
     // let angle = shape.vertexes[1].getVertexAngle();
     // shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
     // if (angle < Math.PI / 2 + .1 && angle > Math.PI / 2 - .1)
     //   shape.geometryObject.geometryConstructionSpec.height *= -1;
-  } else if (shape.name == 'Losange') {
+  } else if (shape.name === 'Losange') {
     shape.geometryObject.geometryConstructionSpec.angle =
       shape.vertexes[1].getVertexAngle();
-  } else if (shape.name == 'Parallelogram') {
-  } else if (shape.name == 'RightAngleTrapeze') {
+  } else if (shape.name === 'Parallelogram') {
+  } else if (shape.name === 'RightAngleTrapeze') {
     // let angle = shape.vertexes[1].getVertexAngle();
     // shape.geometryObject.geometryConstructionSpec.height = shape.vertexes[2].coordinates.dist(shape.vertexes[1]);
     // if (Math.abs(angle - Math.PI / 2) < .1) {
@@ -959,11 +963,11 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     //     shape.geometryObject.geometryConstructionSpec.smallBaseLength *= -1;
     //   }
     // }
-  } else if (shape.name == 'IsoscelesTrapeze') {
+  } else if (shape.name === 'IsoscelesTrapeze') {
     // shape.constructionSpec.angle = shape.vertexes[1].getVertexAngle();
     // shape.constructionSpec.firstSegmentLength = shape.segments[0].length;
     // shape.constructionSpec.secondSegmentLength = shape.segments[1].length;
-  } else if (shape.name == 'Trapeze') {
+  } else if (shape.name === 'Trapeze') {
     shape.geometryObject.geometryConstructionSpec.angle =
       shape.vertexes[1].getVertexAngle();
     shape.geometryObject.geometryConstructionSpec.firstSegmentLength =
@@ -975,24 +979,24 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     if (
       Math.abs(
         shape.segments[0].getAngleWithHorizontal() -
-          shape.segments[2].getAngleWithHorizontal(),
+        shape.segments[2].getAngleWithHorizontal(),
       ) > 0.1
     )
       shape.geometryObject.geometryConstructionSpec.thirdSegmentLength *= -1;
-  } else if (shape.name == 'RightAngleIsoscelesTriangle') {
+  } else if (shape.name === 'RightAngleIsoscelesTriangle') {
     shape.geometryObject.geometryConstructionSpec.angle =
       shape.vertexes[1].getVertexAngle();
-  } else if (shape.name == 'RightAngleTriangle') {
+  } else if (shape.name === 'RightAngleTriangle') {
     shape.geometryObject.geometryConstructionSpec.angle =
       shape.vertexes[1].getVertexAngle();
     shape.geometryObject.geometryConstructionSpec.secondSegmentLength =
       shape.segments[1].length;
-  } else if (shape.name == 'IsoscelesTriangle') {
+  } else if (shape.name === 'IsoscelesTriangle') {
     shape.geometryObject.geometryConstructionSpec.height =
       shape.segments[0].middle.dist(shape.vertexes[2].coordinates);
     if (shape.vertexes[1].getVertexAngle() > Math.PI)
       shape.geometryObject.geometryConstructionSpec.height *= -1;
-  } else if (shape.name == 'CirclePart') {
+  } else if (shape.name === 'CirclePart') {
     const angle2 = shape.segments[1].arcCenter.coordinates.angleWith(
       shape.vertexes[1].coordinates,
     );
@@ -1001,7 +1005,7 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     );
     const angle = mod(angle1 - angle2, 2 * Math.PI);
     shape.geometryObject.geometryConstructionSpec.angle = angle;
-  } else if (shape.name == 'CircleArc') {
+  } else if (shape.name === 'CircleArc') {
     const angle2 = shape.segments[0].arcCenter.coordinates.angleWith(
       shape.vertexes[0].coordinates,
     );
@@ -1011,8 +1015,8 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     const angle = mod(angle1 - angle2, 2 * Math.PI);
     shape.geometryObject.geometryConstructionSpec.angle = angle;
   } else if (
-    shape.name == 'ParalleleSemiStraightLine' ||
-    shape.name == 'ParalleleSegment'
+    shape.name === 'ParalleleSemiStraightLine' ||
+    shape.name === 'ParalleleSegment'
   ) {
     shape.geometryObject.geometryConstructionSpec.segmentLength =
       shape.segments[0].length;
@@ -1022,13 +1026,13 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     if (
       Math.abs(
         reference.getAngleWithHorizontal() -
-          shape.segments[0].getAngleWithHorizontal(),
+        shape.segments[0].getAngleWithHorizontal(),
       ) > 0.1
     )
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;
   } else if (
-    shape.name == 'PerpendicularSemiStraightLine' ||
-    shape.name == 'PerpendicularSegment'
+    shape.name === 'PerpendicularSemiStraightLine' ||
+    shape.name === 'PerpendicularSegment'
   ) {
     shape.geometryObject.geometryConstructionSpec.segmentLength =
       shape.segments[0].length;
@@ -1038,18 +1042,18 @@ export function computeConstructionSpec(shape, maxIndex = 100) {
     if (
       Math.abs(
         reference.getAngleWithHorizontal() -
-          shape.segments[0].getAngleWithHorizontal() +
-          Math.PI / 2,
+        shape.segments[0].getAngleWithHorizontal() +
+        Math.PI / 2,
       ) > 0.1 &&
       Math.abs(
         reference.getAngleWithHorizontal() -
-          shape.segments[0].getAngleWithHorizontal() +
-          Math.PI / 2 -
-          2 * Math.PI,
+        shape.segments[0].getAngleWithHorizontal() +
+        Math.PI / 2 -
+        2 * Math.PI,
       ) > 0.1
     )
       shape.geometryObject.geometryConstructionSpec.segmentLength *= -1;
-  } else if (shape.name == 'PointOnLine') {
+  } else if (shape.name === 'PointOnLine') {
     const reference = findObjectById(
       shape.geometryObject.geometryParentObjectId1,
     );

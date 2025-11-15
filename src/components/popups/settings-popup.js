@@ -57,23 +57,22 @@ class SettingsPopup extends LitElement {
               <label for="settings_automatic_adjustment">Ajustement automatique</label>
             </div>
 
-            ${
-              app.environment.name === 'Geometrie'
-                ? html` <div class="field">
+            ${app.environment.name === 'Geometrie'
+        ? html` <div class="field">
                     <input
                       type="checkbox"
                       name="settings_animation_in_geometry_tranformations"
                       id="settings_animation_in_geometry_tranformations"
                       .checked="${this.settings
-                        .geometryTransformationAnimation}"
+            .geometryTransformationAnimation}"
                       @change="${this._actionHandle}"
                     />
                     <label for="settings_animation_in_geometry_tranformations"
                       >Animation des tranformations</label
                     >
                   </div>`
-                : ''
-            }
+        : ''
+      }
 
             <div class="field">
               <color-button @click="${this.openToolChoicePopup}">
@@ -82,12 +81,11 @@ class SettingsPopup extends LitElement {
             </div>
           </fieldset>
 
-          ${
-            app.environment.name != 'Tangram'
-              ? html` <fieldset>
+          ${app.environment.name !== 'Tangram'
+        ? html` <fieldset>
                   <legend>Figures</legend>
                   ${app.environment.name === 'Grandeurs'
-                    ? html` <div class="field">
+            ? html` <div class="field">
                         <label for="settings_shapes_size"
                           >Taille des figures</label
                         >
@@ -116,7 +114,7 @@ class SettingsPopup extends LitElement {
                           </option>
                         </select>
                       </div>`
-                    : ''}
+            : ''}
 
                   <div class="field">
                     <input
@@ -131,8 +129,8 @@ class SettingsPopup extends LitElement {
                     >
                   </div>
                 </fieldset>`
-              : ''
-          }
+        : ''
+      }
           </div>
 
           <footer slot="footer">
@@ -194,11 +192,11 @@ class SettingsPopup extends LitElement {
       default:
         console.error(
           'Settings: paramètre inconnu: ' +
-            event.target.name +
-            ' ' +
-            event.target.value +
-            ' ' +
-            event.target.checked,
+          event.target.name +
+          ' ' +
+          event.target.value +
+          ' ' +
+          event.target.checked,
         );
     }
     this.settings = { ...this.settings };

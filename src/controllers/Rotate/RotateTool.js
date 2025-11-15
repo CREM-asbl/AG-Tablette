@@ -99,16 +99,16 @@ export class RotateTool extends Tool {
    * Appelée par événement du SelectManager quand une figure est sélectionnée (canvasMouseDown)
    */
   objectSelected(shape) {
-    if (app.tool.currentStep != 'listen') return;
+    if (app.tool.currentStep !== 'listen') return;
     if (!shape) return;
 
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
-        if (currentShape.geometryObject?.geometryTransformationName != null) {
+        if (currentShape.geometryObject?.geometryTransformationName !== null) {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
@@ -119,7 +119,7 @@ export class RotateTool extends Tool {
           );
           return;
         }
-        if (currentShape.familyName == 'multipliedVector') {
+        if (currentShape.familyName === 'multipliedVector') {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
@@ -165,7 +165,7 @@ export class RotateTool extends Tool {
       ),
     );
 
-    if (app.environment.name != 'Cubes')
+    if (app.environment.name !== 'Cubes')
       new Point({
         coordinates: this.center,
         layer: 'upper',
@@ -188,7 +188,7 @@ export class RotateTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (app.tool.currentStep != 'rotate') return;
+    if (app.tool.currentStep !== 'rotate') return;
 
     this.executeAction();
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
@@ -198,10 +198,10 @@ export class RotateTool extends Tool {
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
   refreshStateUpper() {
-    if (app.tool.currentStep == 'rotate') {
+    if (app.tool.currentStep === 'rotate') {
       const newAngle = this.center.angleWith(
-          app.workspace.lastKnownMouseCoordinates,
-        ),
+        app.workspace.lastKnownMouseCoordinates,
+      ),
         diffAngle = newAngle - this.lastAngle;
 
       this.lastAngle = newAngle;
@@ -223,7 +223,7 @@ export class RotateTool extends Tool {
       .filter((editingShapeId) =>
         this.shapesToMove.some(
           (shapeToMove) =>
-            shapeToMove.id == addInfoToId(editingShapeId, 'upper'),
+            shapeToMove.id === addInfoToId(editingShapeId, 'upper'),
         ),
       )
       .forEach((sId, idxS) => {
@@ -238,7 +238,7 @@ export class RotateTool extends Tool {
         s.rotate(adjustment.rotationAngle, centerCoordinates);
         s.translate(adjustment.translation);
       });
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       app.mainCanvasLayer.shapes.forEach((s) => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
           (duplicateChildId) => {

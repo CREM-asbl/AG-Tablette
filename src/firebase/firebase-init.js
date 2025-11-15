@@ -30,7 +30,7 @@ const db = initializeFirestore(firebaseApp, {
 });
 const storage = getStorage(firebaseApp);
 
-if (location.hostname != 'localhost') {
+if (location.hostname !== 'localhost') {
   const analytics = getAnalytics();
   const perf = getPerformance(firebaseApp);
 }

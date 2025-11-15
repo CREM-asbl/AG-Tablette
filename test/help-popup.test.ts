@@ -108,7 +108,7 @@ describe('HelpPopup component with Vitest and jsdom', () => {
     const shadowRoot = element.shadowRoot;
     const fallbackDiv = shadowRoot.querySelector('div#helpPopupBody div');
     expect(fallbackDiv).not.toBeNull();
-    expect(fallbackDiv?.textContent).toBe("L'aide n'est pas encore disponible pour cette fonction.");
+    expect(fallbackDiv?.textContent?.trim()).toBe("L'aide n'est pas encore disponible pour cette fonction.");
     const img = shadowRoot.querySelector('img');
     expect(img).toBeNull(); // S'assurer qu'aucune image n'est rendue
   });

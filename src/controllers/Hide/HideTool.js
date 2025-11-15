@@ -69,7 +69,7 @@ export class HideTool extends Tool {
   }
 
   _executeAction() {
-    if (this.mode == 'shape') {
+    if (this.mode === 'shape') {
       const workingShapes = this.involvedShapes.map((s) =>
         findObjectById(addInfoToId(s.id, 'main')),
       );
@@ -96,7 +96,7 @@ export class HideTool extends Tool {
               child.geometryObject.geometryIsHidden;
         }
       });
-    } else if (this.mode == 'divisionPoint') {
+    } else if (this.mode === 'divisionPoint') {
       this.point.geometryIsHidden = true;
     }
   }

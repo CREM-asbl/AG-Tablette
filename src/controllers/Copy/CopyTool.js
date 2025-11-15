@@ -107,7 +107,7 @@ export class CopyTool extends Tool {
   }
 
   objectSelected(object) {
-    if (app.tool.currentStep != 'listen') return;
+    if (app.tool.currentStep !== 'listen') return;
     if (!object) return;
 
     if (object instanceof Segment) {
@@ -124,7 +124,7 @@ export class CopyTool extends Tool {
         id: undefined,
         segmentsColor: [object.color],
         pointsColor: object.points
-          .filter((pt) => pt.type != 'divisionPoint')
+          .filter((pt) => pt.type !== 'divisionPoint')
           .map((pt) => {
             return pt.color;
           }),
@@ -141,7 +141,7 @@ export class CopyTool extends Tool {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
-        if (currentShape.name == 'Vector') {
+        if (currentShape.name === 'Vector') {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
               detail: {
@@ -171,7 +171,7 @@ export class CopyTool extends Tool {
             return seg.color;
           }),
           pointsColor: s.points
-            .filter((pt) => pt.type != 'divisionPoint')
+            .filter((pt) => pt.type !== 'divisionPoint')
             .map((pt) => {
               return pt.color;
             }),
@@ -190,7 +190,7 @@ export class CopyTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (app.tool.currentStep != 'move') return;
+    if (app.tool.currentStep !== 'move') return;
 
     this.translation = app.workspace.lastKnownMouseCoordinates
       .substract(this.startClickCoordinates)
@@ -201,7 +201,7 @@ export class CopyTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'move') {
+    if (app.tool.currentStep === 'move') {
       this.shapeMoved++;
       if (this.shapeMoved <= 10) return;
       const mainShape = findObjectById(
@@ -254,7 +254,7 @@ export class CopyTool extends Tool {
   _executeAction() {
     const shapesList = [];
 
-    if (this.mode == 'segment') {
+    if (this.mode === 'segment') {
       const newShape = new LineShape({
         layer: 'main',
         familyName: 'copy',
@@ -262,7 +262,7 @@ export class CopyTool extends Tool {
         id: undefined,
         segmentsColor: [this.involvedSegment.color],
         pointsColor: this.involvedSegment.points
-          .filter((pt) => pt.type != 'divisionPoint')
+          .filter((pt) => pt.type !== 'divisionPoint')
           .map((pt) => {
             return pt.color;
           }),
@@ -286,7 +286,7 @@ export class CopyTool extends Tool {
             return seg.color;
           }),
           pointsColor: s.points
-            .filter((pt) => pt.type != 'divisionPoint')
+            .filter((pt) => pt.type !== 'divisionPoint')
             .map((pt) => {
               return pt.color;
             }),

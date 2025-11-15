@@ -181,7 +181,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'animatePoint') {
+    if (app.tool.currentStep === 'animatePoint') {
       this.points[this.points.length - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
@@ -198,7 +198,7 @@ export class CreateIrregularTool extends Tool {
       this.points[0].coordinates.y,
     ];
     this.points.forEach((point, i) => {
-      if (i != 0) path.push('L', point.coordinates.x, point.coordinates.y);
+      if (i !== 0) path.push('L', point.coordinates.x, point.coordinates.y);
     });
     // path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');

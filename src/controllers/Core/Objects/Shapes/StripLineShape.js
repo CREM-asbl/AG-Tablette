@@ -37,7 +37,7 @@ export class StripLineShape extends Shape {
     this.fillColor = fillColor;
     this.fillOpacity = fillOpacity;
 
-    if (this.segments.length == 2) {
+    if (this.segments.length === 2) {
       this.segments[0].isInfinite = true;
       this.segments[1].isInfinite = true;
     }
@@ -66,8 +66,8 @@ export class StripLineShape extends Shape {
       firstVertex = lastVertex;
       lastVertex = this.points.find((pt) => pt.coordinates.equal(coordinates));
       if (
-        lastVertex == undefined ||
-        lastVertex.type != 'vertex' ||
+        lastVertex === undefined ||
+        lastVertex.type !== 'vertex' ||
         this.points[this.points.length - 1].coordinates.equal(coordinates)
       ) {
         lastVertex = new Point({
@@ -87,7 +87,7 @@ export class StripLineShape extends Shape {
       });
     };
 
-    if (allPathElements[0] != 'M')
+    if (allPathElements[0] !== 'M')
       startVertex = lastVertex = new Point({
         coordinates: Coordinates.nullCoordinates,
         shapeId: this.id,
@@ -154,7 +154,7 @@ export class StripLineShape extends Shape {
           lastVertex = this.points.find((pt) =>
             pt.coordinates.equal(nextVertexCoordinates),
           );
-          if (lastVertex == undefined || lastVertex.type != 'vertex') {
+          if (lastVertex === undefined || lastVertex.type !== 'vertex') {
             lastVertex = new Point({
               coordinates: nextVertexCoordinates,
               shapeId: this.id,
@@ -179,7 +179,7 @@ export class StripLineShape extends Shape {
             idx: segmentIdx++,
             vertexIds: [firstVertex.id, lastVertex.id],
             arcCenterId: arcCenter.id,
-            counterclockwise: sweepFlag == 0,
+            counterclockwise: sweepFlag === 0,
           });
 
           this.cleanSameDirectionSegment();
@@ -202,7 +202,7 @@ export class StripLineShape extends Shape {
     ctx.fillStyle = this.fillColor;
     ctx.globalAlpha = this.fillOpacity;
     ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
-    if (scaling == 'no scale') ctx.lineWidth = this.strokeWidth;
+    if (scaling === 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
   /* #################################################################### */
@@ -220,7 +220,7 @@ export class StripLineShape extends Shape {
   isCoordinatesInPath(coord) {
     const firstProjection = this.segments[0].projectionOnSegment(coord);
     const secondProjection = this.segments[1].projectionOnSegment(coord);
-    if (firstProjection.x == secondProjection.x) {
+    if (firstProjection.x === secondProjection.x) {
       return (
         (firstProjection.y - coord.y > 0) ^ (secondProjection.y - coord.y > 0)
       );
@@ -293,7 +293,7 @@ export class StripLineShape extends Shape {
       const segmentPath = seg.getSVGPath('scale', true);
       const segmentColor = seg.color ? seg.color : this.strokeColor;
       let strokeWidth = 1;
-      if (seg.width != 1) strokeWidth = seg.width;
+      if (seg.width !== 1) strokeWidth = seg.width;
       else strokeWidth = this.strokeWidth;
 
       const strokeAttributes = {
@@ -313,7 +313,7 @@ export class StripLineShape extends Shape {
     });
 
     const pointToDraw = [];
-    if (app.settings.areShapesPointed && this.name != 'silhouette') {
+    if (app.settings.areShapesPointed && this.name !== 'silhouette') {
       if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));

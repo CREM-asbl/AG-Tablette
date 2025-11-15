@@ -145,7 +145,7 @@ export class ShowTool extends Tool {
   }
 
   _executeAction() {
-    if (this.mode == 'shape') {
+    if (this.mode === 'shape') {
       const workingShapes = ShapeManager.getAllBindedShapes(
         findObjectById(addInfoToId(this.shapeToShow.id, 'main')),
       );
@@ -172,7 +172,7 @@ export class ShowTool extends Tool {
               child.geometryObject.geometryIsHidden;
         }
       });
-    } else if (this.mode == 'divisionPoint') {
+    } else if (this.mode === 'divisionPoint') {
       findObjectById(addInfoToId(this.point.id, 'main')).geometryIsHidden =
         false;
     }

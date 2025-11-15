@@ -113,11 +113,11 @@ class RegularPopup extends LitElement {
         <div slot="footer">
           <color-button
             @click="${() =>
-              window.dispatchEvent(new CustomEvent('close-popup'))}"
+        window.dispatchEvent(new CustomEvent('close-popup'))}"
             innerText="Ok"
             backgroundColor="${getComputedStyle(
-              document.documentElement,
-            ).getPropertyValue('--theme-color')}"
+          document.documentElement,
+        ).getPropertyValue('--theme-color')}"
           ></color-button>
         </div>
       </template-popup>
@@ -134,7 +134,7 @@ class RegularPopup extends LitElement {
   }
 
   decrementNumberOfPoints() {
-    if (app.settings.numberOfRegularPoints == 3) return;
+    if (app.settings.numberOfRegularPoints === 3) return;
     setState({
       settings: {
         ...app.settings,
@@ -145,7 +145,7 @@ class RegularPopup extends LitElement {
   }
 
   incrementNumberOfPoints() {
-    if (app.settings.numberOfRegularPoints == 20) return;
+    if (app.settings.numberOfRegularPoints === 20) return;
     setState({
       settings: {
         ...app.settings,

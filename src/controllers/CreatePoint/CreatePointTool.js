@@ -64,7 +64,7 @@ export class CreatePointTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    if (app.tool.selectedTemplate.name == 'PointOnIntersection') {
+    if (app.tool.selectedTemplate.name === 'PointOnIntersection') {
       app.workspace.selectionConstraints =
         app.fastSelectionConstraints.click_all_segments;
       this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -73,7 +73,7 @@ export class CreatePointTool extends Tool {
     }
   }
 
-  selectSecondSegment() {}
+  selectSecondSegment() { }
 
   animatePoint() {
     this.removeListeners();
@@ -98,7 +98,7 @@ export class CreatePointTool extends Tool {
       fillOpacity: 0,
     });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
-    if (app.tool.currentStep == 'drawPoint') {
+    if (app.tool.currentStep === 'drawPoint') {
       this.geometryParentObjectId1 = segment.id;
       setState({
         tool: {
@@ -108,7 +108,7 @@ export class CreatePointTool extends Tool {
         },
       });
     } else {
-      if (this.geometryParentObjectId1 == segment.id) {
+      if (this.geometryParentObjectId1 === segment.id) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
             detail: {
@@ -174,8 +174,8 @@ export class CreatePointTool extends Tool {
     point.adjustedOn = undefined;
     let reference, newCoord;
     if (
-      app.tool.selectedTemplate.name == 'Point' ||
-      app.environment.name == 'Geometrie'
+      app.tool.selectedTemplate.name === 'Point' ||
+      app.environment.name === 'Geometrie'
     ) {
       // Convertir les coordonnées du point en espace canvas pour getClosestGridPoint
       const pointInCanvasSpace = point.coordinates.toCanvasCoordinates();
@@ -216,7 +216,7 @@ export class CreatePointTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'animatePoint') {
+    if (app.tool.currentStep === 'animatePoint') {
       this.point.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
@@ -226,7 +226,7 @@ export class CreatePointTool extends Tool {
 
   _executeAction() {
     let shape;
-    if (app.tool.selectedTemplate.name == 'Point') {
+    if (app.tool.selectedTemplate.name === 'Point') {
       shape = new SinglePointShape({
         layer: 'main',
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
@@ -234,7 +234,7 @@ export class CreatePointTool extends Tool {
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
-    } else if (app.tool.selectedTemplate.name == 'PointOnLine') {
+    } else if (app.tool.selectedTemplate.name === 'PointOnLine') {
       if (!this.geometryParentObjectId1) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
@@ -259,7 +259,7 @@ export class CreatePointTool extends Tool {
 
       const reference = findObjectById(this.geometryParentObjectId1);
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-    } else if (app.tool.selectedTemplate.name == 'PointOnShape') {
+    } else if (app.tool.selectedTemplate.name === 'PointOnShape') {
       if (!this.geometryParentObjectId1) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
@@ -281,7 +281,7 @@ export class CreatePointTool extends Tool {
         this.geometryParentObjectId1;
       const reference = findObjectById(this.geometryParentObjectId1);
       reference.geometryObject.geometryChildShapeIds.push(shape.id);
-    } else if (app.tool.selectedTemplate.name == 'PointOnIntersection') {
+    } else if (app.tool.selectedTemplate.name === 'PointOnIntersection') {
       const firstSeg = findObjectById(this.geometryParentObjectId1);
       const secondSeg = findObjectById(this.geometryParentObjectId2);
       const coords = firstSeg.intersectionWith(secondSeg);
@@ -296,7 +296,7 @@ export class CreatePointTool extends Tool {
         );
         return;
       }
-      if (coords.length == 1)
+      if (coords.length === 1)
         coords[1] = new Coordinates({ x: coords[0].x, y: coords[0].y });
       shape = new SinglePointShape({
         layer: 'main',

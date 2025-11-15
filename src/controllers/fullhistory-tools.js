@@ -314,23 +314,23 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
     this.tools = app.fullHistory.steps
       .filter(
         (step) =>
-          step.type == 'tool-changed' ||
-          step.type == 'undo' ||
-          step.type == 'redo',
+          step.type === 'tool-changed' ||
+          step.type === 'undo' ||
+          step.type === 'redo',
       )
       .map((step) => {
         const time = step.timeStamp - previousStepTimestamp;
         previousStepTimestamp = step.timeStamp;
         let name = step.detail.title;
-        if (step.type == 'undo') name = 'Annuler';
-        if (step.type == 'redo') name = 'Refaire';
+        if (step.type === 'undo') name = 'Annuler';
+        if (step.type === 'redo') name = 'Refaire';
 
         return { name, time, timeStamp: step.timeStamp, actions: [] };
       });
     let toolIndex = -1;
     let actionIndex = 1;
     app.fullHistory.steps
-      .filter((step) => step.type == 'add-fullstep')
+      .filter((step) => step.type === 'add-fullstep')
       .forEach((step) => {
         const timeStamp = step.timeStamp;
         while (this.tools[toolIndex + 1]?.timeStamp < timeStamp) {
@@ -434,25 +434,25 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
         <div id="action-container">
           <div class="timeline">
             ${this.tools.map((tool, toolIdx) => {
-              // Déterminer l'état du marqueur d'outil
-              const hasActiveAction = tool.actions.some(
-                (action) => action.actionIndex === this.index,
-              );
-              const isToolPast =
-                tool.actions.length > 0 &&
-                tool.actions[tool.actions.length - 1].actionIndex < this.index;
-              const isToolFuture =
-                tool.actions.length > 0 &&
-                tool.actions[0].actionIndex > this.index;
-              const toolStateClass = hasActiveAction
-                ? 'active'
-                : isToolPast
-                  ? 'past'
-                  : isToolFuture
-                    ? 'future'
-                    : '';
+      // Déterminer l'état du marqueur d'outil
+      const hasActiveAction = tool.actions.some(
+        (action) => action.actionIndex === this.index,
+      );
+      const isToolPast =
+        tool.actions.length > 0 &&
+        tool.actions[tool.actions.length - 1].actionIndex < this.index;
+      const isToolFuture =
+        tool.actions.length > 0 &&
+        tool.actions[0].actionIndex > this.index;
+      const toolStateClass = hasActiveAction
+        ? 'active'
+        : isToolPast
+          ? 'past'
+          : isToolFuture
+            ? 'future'
+            : '';
 
-              return html`
+      return html`
                 <div class="tool-marker ${toolStateClass}">
                   <div class="tool-header">
                     <h3 class="tool-name">${tool.name}</h3>
@@ -460,22 +460,22 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
                   </div>
                   <div class="tool-actions">
                     ${tool.actions.map((action, actionIdx) => {
-                      const isActive = action.actionIndex === this.index;
-                      const isPast = action.actionIndex < this.index;
-                      const isFuture = action.actionIndex > this.index;
-                      return html`
+        const isActive = action.actionIndex === this.index;
+        const isPast = action.actionIndex < this.index;
+        const isFuture = action.actionIndex > this.index;
+        return html`
                         <div
                           class="action-item ${isActive
-                            ? 'active'
-                            : isPast
-                              ? 'past'
-                              : isFuture
-                                ? 'future'
-                                : ''}"
+            ? 'active'
+            : isPast
+              ? 'past'
+              : isFuture
+                ? 'future'
+                : ''}"
                         >
                           ${isActive
-                            ? html`<div class="current-marker"></div>`
-                            : ''}
+            ? html`<div class="current-marker"></div>`
+            : ''}
                           <button
                             id="b${action.actionIndex}"
                             @click="${this._clickHandler}"
@@ -495,11 +495,11 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
                           ></button>
                         </div>
                       `;
-                    })}
+      })}
                   </div>
                 </div>
               `;
-            })}
+    })}
           </div>
         </div>
       </nav>
@@ -511,7 +511,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
       this.close();
       return;
     }
-    if (app.fullHistory.index != this.index) {
+    if (app.fullHistory.index !== this.index) {
       this.index = app.fullHistory.actionIndex;
       this.shadowRoot
         .getElementById('b' + this.index)
@@ -534,7 +534,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
         FullHistoryManager.playBrowsing(true);
         break;
       case 'undo':
-        if (index == 0) {
+        if (index === 0) {
           break;
         }
         FullHistoryManager.moveTo(index - 1);

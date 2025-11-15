@@ -56,9 +56,9 @@ function computeTransformation(e1, e2, shapes, mainShape) {
     * Les () indiquent que ce n'est pas/plus le cas
   */
 function checkCompatibility(e1, e2) {
-  if (e1.moving.shapeId != e2.moving.shapeId) return false;
+  if (e1.moving.shapeId !== e2.moving.shapeId) return false;
 
-  if (e1.moving.type == 'shapeCenter' || e2.moving.type == 'shapeCenter')
+  if (e1.moving.type === 'shapeCenter' || e2.moving.type === 'shapeCenter')
     return false;
 
   const d1 = e1.fixed.coordinates.dist(e2.fixed.coordinates),
@@ -67,8 +67,8 @@ function checkCompatibility(e1, e2) {
 
   // if (!e1.moving.shape.contains(new Segment(e1.moving, e2.moving))) return false;
 
-  if (e1.fixed.type != 'grid' && e2.fixed.type != 'grid') {
-    if (e1.fixed.shapeId != e2.fixed.shapeId) return false;
+  if (e1.fixed.type !== 'grid' && e2.fixed.type !== 'grid') {
+    if (e1.fixed.shapeId !== e2.fixed.shapeId) return false;
     // if (!e1.fixed.shape.contains(new Segment(e1.fixed, e2.fixed))) return false;
   }
 
@@ -120,7 +120,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
   // }
 
   const shapesAndAllChildren = [...shapes];
-  if (app.environment.name == 'Geometrie') {
+  if (app.environment.name === 'Geometrie') {
     shapes.forEach((s) => getAllChildrenInGeometry(s, shapesAndAllChildren));
   }
 
@@ -189,7 +189,7 @@ export function getShapeAdjustment(shapes, mainShape, blacklistShapeIds) {
   });
 
   cPtListBorder = cPtListShape.filter(
-    (pt) => pt.fixed.type == 'vertex' || pt.fixed.type == 'divisionPoint',
+    (pt) => pt.fixed.type === 'vertex' || pt.fixed.type === 'divisionPoint',
   );
 
   const possibilities = [];

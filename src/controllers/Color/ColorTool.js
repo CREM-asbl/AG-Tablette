@@ -86,7 +86,7 @@ export class ColorTool extends Tool {
   getConstraints() {
     const constraints = SelectManager.getEmptySelectionConstraints();
     constraints.shapes.canSelect = true;
-    if (this.clickType == 'normal') {
+    if (this.clickType === 'normal') {
       constraints.segments.canSelect = true;
       constraints.segments.blockHidden = true; // sûr ?
       constraints.points.canSelect = true;
@@ -109,13 +109,13 @@ export class ColorTool extends Tool {
   }
 
   _executeAction() {
-    if (this.clickType == 'normal') {
+    if (this.clickType === 'normal') {
       if (this.object instanceof Shape) {
         const involvedShapes = ShapeManager.getAllBindedShapes(this.object);
         let mustChangeOpacity = false;
         if (
           involvedShapes.some((s) => {
-            return s.fillOpacity != 1;
+            return s.fillOpacity !== 1;
           })
         ) {
           mustChangeOpacity = true;
@@ -135,7 +135,7 @@ export class ColorTool extends Tool {
           (obj) => (obj.color = app.settings.shapesDrawColor),
         );
       }
-    } else if (this.clickType == 'long') {
+    } else if (this.clickType === 'long') {
       const involvedShapes = ShapeManager.getAllBindedShapes(this.object);
       involvedShapes.forEach((s) => {
         s.strokeColor = app.settings.shapesDrawColor;

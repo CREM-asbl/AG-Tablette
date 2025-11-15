@@ -111,7 +111,7 @@ export class CreateTool extends Tool {
     }
 
     const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
-    if (shapeTemplates.length == 1) {
+    if (shapeTemplates.length === 1) {
       const selectedTemplate = shapeTemplates[0];
       setState({
         tool: { ...app.tool, currentStep: 'listen', selectedTemplate },
@@ -129,7 +129,7 @@ export class CreateTool extends Tool {
   }
 
   canvasMouseDown() {
-    if (app.tool.currentStep != 'listen') return;
+    if (app.tool.currentStep !== 'listen') return;
 
     // Nettoyer avant de commencer la création
     app.upperCanvasLayer.removeAllObjects();
@@ -161,7 +161,7 @@ export class CreateTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (app.tool.currentStep != 'move') return;
+    if (app.tool.currentStep !== 'move') return;
 
     this.executeAction();
     // Nettoyer l'upperCanvasLayer après la création pour éviter les contours de groupe résiduels
@@ -171,11 +171,11 @@ export class CreateTool extends Tool {
 
   refreshStateUpper() {
     // Nettoyer en permanence les contours de groupes résiduels quand on utilise l'outil Create
-    if (app.tool.currentStep != 'move') {
+    if (app.tool.currentStep !== 'move') {
       app.upperCanvasLayer.removeAllObjects();
     }
 
-    if (app.tool.currentStep == 'move') {
+    if (app.tool.currentStep === 'move') {
       this.shapeToCreate.translate(
         app.workspace.lastKnownMouseCoordinates.substract(this.currentShapePos),
       );
@@ -206,7 +206,7 @@ export class CreateTool extends Tool {
         size: shapeSize,
         layer: 'main',
       });
-    } else if (app.environment.name != 'Cubes') {
+    } else if (app.environment.name !== 'Cubes') {
       shape = new RegularShape({
         ...selectedTemplate,
         size: shapeSize,

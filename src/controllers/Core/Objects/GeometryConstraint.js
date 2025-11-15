@@ -20,7 +20,7 @@ export class GeometryConstraint {
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';
-      if (ln.length == 2) {
+      if (ln.length === 2) {
         // segment de droite
         const angle = ln[0].angleWith(ln[1]);
         ln[0] = ln[0].substract({
@@ -32,7 +32,7 @@ export class GeometryConstraint {
           y: 10000 * Math.sin(angle),
         });
         path = ['M', ln[0].x, ln[0].y, 'L', ln[1].x, ln[1].y].join(' ');
-      } else if (ln.length == 3) {
+      } else if (ln.length === 3) {
         // cercle
         const oppositeCoordinates = ln[2].multiply(2).substract(ln[0]),
           radius = ln[0].dist(ln[2]);
@@ -73,19 +73,19 @@ export class GeometryConstraint {
   }
 
   get isFree() {
-    return this.type == 'isFree';
+    return this.type === 'isFree';
   }
 
   get isConstrained() {
-    return this.type == 'isConstrained';
+    return this.type === 'isConstrained';
   }
 
   get isBlocked() {
-    return this.type == 'isBlocked';
+    return this.type === 'isBlocked';
   }
 
   get isConstructed() {
-    return this.type == 'isConstructed';
+    return this.type === 'isConstructed';
   }
 
   projectionOnConstraints(coordinates, errorWhenTooFar = false) {

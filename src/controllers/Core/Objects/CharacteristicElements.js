@@ -12,11 +12,11 @@ export class CharacteristicElements {
 
   equal(characteristicElements) {
     if (
-      this.type == characteristicElements.type &&
-      this.clockwise == characteristicElements.clockwise
+      this.type === characteristicElements.type &&
+      this.clockwise === characteristicElements.clockwise
     ) {
       if (
-        this.elementIds.length == characteristicElements.elementIds.length &&
+        this.elementIds.length === characteristicElements.elementIds.length &&
         this.elementIds.every(
           (elem, index) => elem === characteristicElements.elementIds[index],
         )

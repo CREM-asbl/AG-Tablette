@@ -63,7 +63,7 @@ export class OrthogonalSymetryTool extends Tool {
   selectReference() {
     this.removeListeners();
 
-    if (this.pointsDrawn.length == 1) {
+    if (this.pointsDrawn.length === 1) {
       const shapesToDelete = [];
       app.upperCanvasLayer.shapes.forEach((s) => {
         if (s.geometryObject?.geometryIsCharacteristicElements)
@@ -134,7 +134,7 @@ export class OrthogonalSymetryTool extends Tool {
 
   canvasMouseDown() {
     const coord = app.workspace.lastKnownMouseCoordinates;
-    if (this.pointsDrawn.length == 0) {
+    if (this.pointsDrawn.length === 0) {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.segments.canSelect = true;
@@ -142,11 +142,11 @@ export class OrthogonalSymetryTool extends Tool {
       app.workspace.selectionConstraints.points.canSelect = true;
       const object = SelectManager.selectObject(coord);
       if (object instanceof Segment && !object.isArc()) {
-        if (object.layer == 'upper') {
+        if (object.layer === 'upper') {
           this.characteristicElements =
             object.shape.geometryObject.geometryTransformationCharacteristicElements;
           let referenceShape;
-          if (this.characteristicElements.type == 'axis') {
+          if (this.characteristicElements.type === 'axis') {
             referenceShape = new LineShape({
               path: this.characteristicElements.firstElement.getSVGPath(
                 'no scale',
@@ -248,7 +248,7 @@ export class OrthogonalSymetryTool extends Tool {
   canvasMouseUp() {
     this.stopAnimation();
 
-    if (app.tool.currentStep == 'animateFirstRefPoint') {
+    if (app.tool.currentStep === 'animateFirstRefPoint') {
       const coord = app.workspace.lastKnownMouseCoordinates;
       const object = SelectManager.selectObject(coord);
       if (object) {
@@ -309,13 +309,13 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   animate() {
-    if (app.tool.currentStep == 'animateFirstRefPoint') {
+    if (app.tool.currentStep === 'animateFirstRefPoint') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
         this.animate(),
       );
       return;
-    } else if (app.tool.currentStep == 'animateSecondRefPoint') {
+    } else if (app.tool.currentStep === 'animateSecondRefPoint') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
         this.animate(),
@@ -323,7 +323,7 @@ export class OrthogonalSymetryTool extends Tool {
       return;
     }
     this.lastProgress = this.progress || 0;
-    if (this.lastProgress == 0) {
+    if (this.lastProgress === 0) {
       this.drawingShapes.forEach((s) =>
         s.points.forEach((point) => {
           const center = this.referenceShape.segments[0].projectionOnSegment(
@@ -338,7 +338,7 @@ export class OrthogonalSymetryTool extends Tool {
       );
     }
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
-    if (this.progress > 1 && app.tool.name == 'orthogonalSymetry') {
+    if (this.progress > 1 && app.tool.name === 'orthogonalSymetry') {
       this.executeAction();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
@@ -352,7 +352,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'ortho') {
+    if (app.tool.currentStep === 'ortho') {
       const progressInAnimation =
         Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
       app.upperCanvasLayer.points.forEach((point) => {
@@ -364,7 +364,7 @@ export class OrthogonalSymetryTool extends Tool {
           );
         }
       });
-    } else if (app.tool.currentStep == 'animateFirstRefPoint') {
+    } else if (app.tool.currentStep === 'animateFirstRefPoint') {
       const coord = app.workspace.lastKnownMouseCoordinates;
       const object = SelectManager.selectObject(coord);
       if (object) {
@@ -372,7 +372,7 @@ export class OrthogonalSymetryTool extends Tool {
       } else {
         this.pointsDrawn[0].coordinates = coord;
       }
-    } else if (app.tool.currentStep == 'animateSecondRefPoint') {
+    } else if (app.tool.currentStep === 'animateSecondRefPoint') {
       const coord = app.workspace.lastKnownMouseCoordinates;
       const object = SelectManager.selectObject(coord);
       if (object) {
@@ -384,10 +384,10 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   _executeAction() {
-    if (this.characteristicElements.type == 'two-points') {
+    if (this.characteristicElements.type === 'two-points') {
       this.characteristicElements.elementIds.forEach((elemId, idx) => {
         const element = findObjectById(elemId);
-        if (element.layer == 'upper') {
+        if (element.layer === 'upper') {
           this.characteristicElements.elementIds[idx] = new SinglePointShape({
             layer: 'main',
             path: `M ${element.coordinates.x} ${element.coordinates.y}`,
@@ -503,7 +503,7 @@ export class OrthogonalSymetryTool extends Tool {
   showLastCharacteristicElements() {
     app.workspace.orthogonalSymetryLastCharacteristicElements.forEach(
       (characteristicElement) => {
-        if (characteristicElement.type == 'axis') {
+        if (characteristicElement.type === 'axis') {
           const axis = findObjectById(characteristicElement.elementIds[0]);
           const coordinates = [
             axis.points[0].coordinates,

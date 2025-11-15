@@ -109,7 +109,7 @@ export class CreateQuadrilateralTool extends Tool {
     );
 
     if (
-      this.constraints.type == 'isConstrained' &&
+      this.constraints.type === 'isConstrained' &&
       !this.constraints.projectionOnConstraints(newCoordinates, true)
     ) {
       window.dispatchEvent(
@@ -137,7 +137,7 @@ export class CreateQuadrilateralTool extends Tool {
       });
       this.segments.push(seg);
     }
-    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
       if (this.numberOfPointsDrawn < 4) this.finishShape();
       const seg = new Segment({
         layer: 'upper',
@@ -178,7 +178,7 @@ export class CreateQuadrilateralTool extends Tool {
         )
       ) {
         const firstPointCoordinates = this.points[0].coordinates;
-        if (this.numberOfPointsDrawn == 2) {
+        if (this.numberOfPointsDrawn === 2) {
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 1;
           this.points = [
@@ -190,7 +190,7 @@ export class CreateQuadrilateralTool extends Tool {
             }),
           ];
           this.segments = [];
-        } else if (this.numberOfPointsDrawn == 3) {
+        } else if (this.numberOfPointsDrawn === 3) {
           const secondPointCoordinates = this.points[1].coordinates;
           app.upperCanvasLayer.removeAllObjects();
           this.numberOfPointsDrawn = 2;
@@ -221,7 +221,7 @@ export class CreateQuadrilateralTool extends Tool {
             strokeColor: app.settings.temporaryDrawColor,
             fillOpacity: 0,
           });
-        } else if (this.numberOfPointsDrawn == 4) {
+        } else if (this.numberOfPointsDrawn === 4) {
           const secondPointCoordinates = this.points[1].coordinates;
           const thirdPointCoordinates = this.points[2].coordinates;
           app.upperCanvasLayer.removeAllObjects();
@@ -276,7 +276,7 @@ export class CreateQuadrilateralTool extends Tool {
       }
     }
 
-    if (this.numberOfPointsDrawn == this.numberOfPointsRequired()) {
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
       setState({
@@ -347,9 +347,9 @@ export class CreateQuadrilateralTool extends Tool {
             seg1
               .projectionOnSegment(adjustedCoordinates)
               .dist(adjustedCoordinates) >
-            seg2
-              .projectionOnSegment(adjustedCoordinates)
-              .dist(adjustedCoordinates)
+              seg2
+                .projectionOnSegment(adjustedCoordinates)
+                .dist(adjustedCoordinates)
               ? 1
               : -1,
           )[0];
@@ -358,7 +358,7 @@ export class CreateQuadrilateralTool extends Tool {
             .intersectionWith(this.constraints.segments[0])
             .sort((intersection1, intersection2) =>
               intersection1.dist(adjustedCoordinates) >
-              intersection2.dist(adjustedCoordinates)
+                intersection2.dist(adjustedCoordinates)
                 ? 1
                 : -1,
             )[0];
@@ -370,13 +370,13 @@ export class CreateQuadrilateralTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'animatePoint') {
+    if (app.tool.currentStep === 'animatePoint') {
       this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
       if (
-        this.numberOfPointsDrawn == this.numberOfPointsRequired() &&
+        this.numberOfPointsDrawn === this.numberOfPointsRequired() &&
         this.numberOfPointsDrawn < 4
       ) {
         this.finishShape();
@@ -404,9 +404,9 @@ export class CreateQuadrilateralTool extends Tool {
 
   _executeAction() {
     let familyName = '4-corner-shape';
-    if (app.tool.selectedTemplate.name == 'Square') {
+    if (app.tool.selectedTemplate.name === 'Square') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTemplate.name == 'IrregularQuadrilateral') {
+    } else if (app.tool.selectedTemplate.name === 'IrregularQuadrilateral') {
       familyName = 'Irregular';
     }
 
@@ -435,21 +435,21 @@ export class CreateQuadrilateralTool extends Tool {
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
     if (
-      shape.name == 'Rectangle' ||
-      shape.name == 'Losange' ||
-      shape.name == 'Parallelogram' ||
-      shape.name == 'RightAngleTrapeze' ||
-      shape.name == 'IsoscelesTrapeze' ||
-      shape.name == 'Trapeze' ||
-      shape.name == 'IrregularQuadrilateral'
+      shape.name === 'Rectangle' ||
+      shape.name === 'Losange' ||
+      shape.name === 'Parallelogram' ||
+      shape.name === 'RightAngleTrapeze' ||
+      shape.name === 'IsoscelesTrapeze' ||
+      shape.name === 'Trapeze' ||
+      shape.name === 'IrregularQuadrilateral'
     ) {
       shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[2]);
     }
     if (
-      shape.name == 'RightAngleTrapeze' ||
-      shape.name == 'Trapeze' ||
-      shape.name == 'IrregularQuadrilateral'
+      shape.name === 'RightAngleTrapeze' ||
+      shape.name === 'Trapeze' ||
+      shape.name === 'IrregularQuadrilateral'
     ) {
       shape.vertexes[3].adjustedOn = this.points[3].adjustedOn;
       linkNewlyCreatedPoint(shape, shape.vertexes[3]);

@@ -39,7 +39,7 @@ class HelpPopup extends LitElement {
 
   render() {
     const tool = this.toolname
-      ? this.tools.find((t) => t.name == this.toolname)
+      ? this.tools.find((t) => t.name === this.toolname)
       : undefined;
     let url = '';
     let titleSuffix = '';
@@ -50,9 +50,9 @@ class HelpPopup extends LitElement {
       altText = `Aide de ${tool.title}`; // altText spécifique si tool est trouvé
 
       // Logique de construction de l'URL
-      if (tool.type == undefined && tool.name != 'create') {
+      if (tool.type === undefined && tool.name !== 'create') {
         url = `images/help/OutilsGeneraux/${tool.name}.webp`;
-      } else if (app.environment.name != 'Geometrie') {
+      } else if (app.environment.name !== 'Geometrie') {
         // Utiliser tool.name ici car this.toolname pourrait être juste le nom,
         // et on a déjà confirmé que 'tool' existe.
         url = `images/help/${app.environment.name}/${tool.name}.webp`;
@@ -72,8 +72,8 @@ class HelpPopup extends LitElement {
         <h2 slot="title">Aide${titleSuffix}</h2>
         <div id="helpPopupBody" slot="body">
           ${url
-            ? html`<img src="${url}" alt="${altText}" />` // Utiliser la variable altText mise à jour
-            : html`<div>
+        ? html`<img src="${url}" alt="${altText}" />` // Utiliser la variable altText mise à jour
+        : html`<div>
                 L'aide n'est pas encore disponible pour cette fonction.
               </div>`}
         </div>

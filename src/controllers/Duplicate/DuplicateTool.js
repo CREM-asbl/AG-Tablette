@@ -78,7 +78,7 @@ export class DuplicateTool extends Tool {
     constraints.eventType = 'mousedown';
     constraints.shapes.canSelect = true;
     constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(
-      (s) => s instanceof SinglePointShape && s.name != 'PointOnLine',
+      (s) => s instanceof SinglePointShape && s.name !== 'PointOnLine',
     );
     constraints.segments.canSelect = true;
     constraints.segments.blacklist = app.mainCanvasLayer.shapes
@@ -115,12 +115,11 @@ export class DuplicateTool extends Tool {
 
   objectSelected(object) {
     if (
-      app.tool.currentStep != 'listen' &&
-      app.tool.currentStep != 'selectSegment'
-    )
-      return;
+      app.tool.currentStep !== 'listen' &&
+      app.tool.currentStep !== 'selectSegment'
+    ) return;
 
-    if (app.tool.currentStep == 'selectSegment' && object instanceof Segment) {
+    if (app.tool.currentStep === 'selectSegment' && object instanceof Segment) {
       if (object.isInfinite || object.isSemiInfinite) return;
       this.mode = 'point';
       this.segment = object;
@@ -142,10 +141,8 @@ export class DuplicateTool extends Tool {
         id: undefined,
         segmentsColor: [object.color],
         pointsColor: object.points
-          .filter((pt) => pt.type != 'divisionPoint')
-          .map((pt) => {
-            return pt.color;
-          }),
+          .filter((pt) => pt.type !== 'divisionPoint')
+          .map((pt) => pt.color),
       });
       newShape.translate(this.translateOffset);
 
@@ -153,7 +150,7 @@ export class DuplicateTool extends Tool {
 
       setState({ tool: { ...app.tool, currentStep: 'move' } });
       this.animate();
-    } else if (object.name == 'PointOnLine') {
+    } else if (object.name === 'PointOnLine') {
       this.involvedPoint = object;
       new Point({
         coordinates: object.points[0].coordinates,
@@ -167,15 +164,13 @@ export class DuplicateTool extends Tool {
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
-        if (currentShape.name == 'Vector') {
-          window.dispatchEvent(
-            new CustomEvent('show-notif', {
-              detail: {
-                message:
-                  'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.',
-              },
-            }),
-          );
+        if (currentShape.name === 'Vector') {
+          this.dispatchEvent(new CustomEvent('show-notif', {
+            detail: {
+              message:
+                'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.',
+            },
+          }));
           return;
         }
       }
@@ -200,7 +195,7 @@ export class DuplicateTool extends Tool {
             return seg.color;
           }),
           pointsColor: s.points
-            .filter((pt) => pt.type != 'divisionPoint')
+            .filter((pt) => pt.type !== 'divisionPoint')
             .map((pt) => {
               return pt.color;
             }),
@@ -218,7 +213,7 @@ export class DuplicateTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (app.tool.currentStep != 'move') return;
+    if (app.tool.currentStep !== 'move') return;
 
     this.translation = app.workspace.lastKnownMouseCoordinates
       .substract(this.startClickCoordinates)
@@ -229,7 +224,7 @@ export class DuplicateTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'move') {
+    if (app.tool.currentStep === 'move') {
       const transformation = app.workspace.lastKnownMouseCoordinates.substract(
         this.lastKnownMouseCoordinates,
       );
@@ -241,11 +236,11 @@ export class DuplicateTool extends Tool {
   }
 
   _executeAction() {
-    if (this.mode == 'point') {
+    if (this.mode === 'point') {
       const segment = this.segment;
       let coord;
       const ratio = this.involvedPoint.points[0].ratio;
-      if (segment.shape.name == 'Circle') {
+      if (segment.shape.name === 'Circle') {
         const refShape = segment.shape;
         const angle =
           refShape.segments[0].arcCenter.coordinates.angleWith(
@@ -307,7 +302,7 @@ export class DuplicateTool extends Tool {
       this.involvedPoint.geometryObject.geometryDuplicateChildShapeIds.push(
         shape.id,
       );
-    } else if (this.mode == 'segment') {
+    } else if (this.mode === 'segment') {
       const newShape = new LineShape({
         layer: 'main',
         familyName: 'duplicate',
@@ -315,7 +310,7 @@ export class DuplicateTool extends Tool {
         id: undefined,
         segmentsColor: [this.involvedSegment.color],
         pointsColor: this.involvedSegment.points
-          .filter((pt) => pt.type != 'divisionPoint')
+          .filter((pt) => pt.type !== 'divisionPoint')
           .map((pt) => {
             return pt.color;
           }),
@@ -335,8 +330,6 @@ export class DuplicateTool extends Tool {
 
       newShape.rotate(transformation.rotationAngle, newShape.centerCoordinates);
       newShape.translate(transformation.translation);
-
-      computeConstructionSpec(newShape);
     } else {
       const shapesList = [];
 
@@ -354,7 +347,7 @@ export class DuplicateTool extends Tool {
             return seg.color;
           }),
           pointsColor: s.points
-            .filter((pt) => pt.type != 'divisionPoint')
+            .filter((pt) => pt.type !== 'divisionPoint')
             .map((pt) => {
               return pt.color;
             }),
@@ -372,7 +365,6 @@ export class DuplicateTool extends Tool {
           });
         s.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
         shapesList.push(newShape);
-        newShape.translate(this.translation);
       });
 
       const transformation = getShapeAdjustment(shapesList, shapesList[0]);

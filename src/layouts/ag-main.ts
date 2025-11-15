@@ -20,9 +20,9 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker
       .register('/service-worker.js')
-      .then((registration) => {})
+      .then((registration) => { })
       .catch((error) => {
-        console.log("Échec de l'enregistrement du Service Worker:", error);
+        console.error("Échec de l'enregistrement du Service Worker:", error);
       });
   });
 }

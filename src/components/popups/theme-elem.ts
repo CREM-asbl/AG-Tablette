@@ -103,22 +103,22 @@ class ThemeElem extends SignalWatcher(LitElement) {
         <div class="modules-container">
           ${!this.loaded ? html`<progress></progress>` : html``}
           ${this.modules.length === 0 && this.loaded
-            ? html`<div style="padding:12px;color:#888;font-size:0.95em;">
+        ? html`<div style="padding:12px;color:#888;font-size:0.95em;">
                 Aucun module disponible
               </div>`
-            : html``}
+        : html``}
           ${this.modules
-            .filter((info) => info?.hidden != true)
-            .map(
-              (info) =>
-                html` <module-elem
+        .filter((info) => info?.hidden !== true)
+        .map(
+          (info) =>
+            html` <module-elem
                   title="${info.id}"
                   .fileNames="${info.files
-                    ? info.files.map((file) => file.id)
-                    : []}"
+                ? info.files.map((file) => file.id)
+                : []}"
                 >
                 </module-elem>`,
-            )}
+        )}
         </div>
       </details>
     `;

@@ -177,14 +177,14 @@ export class ReverseTool extends Tool {
    */
   objectSelected(object) {
     if (
-      (app.tool.currentStep == 'listen' ||
-        app.tool.currentStep == 'selectAxis') &&
+      (app.tool.currentStep === 'listen' ||
+        app.tool.currentStep === 'selectAxis') &&
       object instanceof Shape
     ) {
       const selectedShape = object;
 
       this.involvedShapes = ShapeManager.getAllBindedShapes(selectedShape);
-      if (app.environment.name == 'Geometrie') {
+      if (app.environment.name === 'Geometrie') {
         this.involvedShapes =
           ShapeManager.getAllBindedShapesInGeometry(selectedShape);
         for (let i = 0; i < this.involvedShapes.length; i++) {
@@ -200,7 +200,7 @@ export class ReverseTool extends Tool {
             );
             return;
           }
-          if (currentShape.familyName == 'multipliedVector') {
+          if (currentShape.familyName === 'multipliedVector') {
             window.dispatchEvent(
               new CustomEvent('show-notif', {
                 detail: {
@@ -229,7 +229,7 @@ export class ReverseTool extends Tool {
         },
       });
     } else if (
-      app.tool.currentStep == 'selectAxis' &&
+      app.tool.currentStep === 'selectAxis' &&
       object instanceof Segment
     ) {
       const selectedAxis = object;
@@ -379,7 +379,7 @@ export class ReverseTool extends Tool {
   animate() {
     this.lastProgress = this.progress || 0;
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
-    if (this.progress > 1 && app.tool.name == 'reverse') {
+    if (this.progress > 1 && app.tool.name === 'reverse') {
       this.executeAction();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'listen' },
@@ -397,7 +397,7 @@ export class ReverseTool extends Tool {
    * @param  {Point} mouseCoordinates Les coordonnées de la souris
    */
   refreshStateUpper() {
-    if (app.tool.currentStep == 'reverse') {
+    if (app.tool.currentStep === 'reverse') {
       const progressInAnimation =
         Math.cos(Math.PI * (1 - this.progress)) / 2 + 0.5;
       this.shapesToMove.forEach((s) => {
@@ -461,7 +461,7 @@ export class ReverseTool extends Tool {
         const s = findObjectById(sId);
         this.reverseShape(s, selectedAxis);
       });
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       app.mainCanvasLayer.shapes.forEach((s) => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
           (duplicateChildId) => {

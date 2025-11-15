@@ -9,9 +9,9 @@ import { SelectManager } from './SelectManager';
 export class FullHistoryManager {
   static startBrowsing() {
     const numberOfActions = app.fullHistory.steps.filter(
-      (step) => step.type == 'add-fullstep',
+      (step) => step.type === 'add-fullstep',
     ).length;
-    if (numberOfActions == 0) {
+    if (numberOfActions === 0) {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
           detail: { message: "L'historique est vide." },
@@ -89,7 +89,7 @@ export class FullHistoryManager {
     FullHistoryManager.pauseBrowsing();
     let index = app.fullHistory.steps.findIndex(
       (step) =>
-        step.detail?.actionIndex === actionIndex && step.type == 'add-fullstep',
+        step.detail?.actionIndex === actionIndex && step.type === 'add-fullstep',
     );
     let data = app.fullHistory.steps[index]?.detail.data;
     if (isForSingleActionPlaying) {
@@ -155,12 +155,12 @@ export class FullHistoryManager {
       });
     }
 
-    if (type == 'add-fullstep') {
-      if (detail.name == 'Retourner') {
+    if (type === 'add-fullstep') {
+      if (detail.name === 'Retourner') {
         FullHistoryManager.nextTime = 2 * 1000;
-      } else if (detail.name == 'Diviser') {
+      } else if (detail.name === 'Diviser') {
         FullHistoryManager.nextTime = 0.5 * 1000;
-      } else if (detail.name == 'Découper') {
+      } else if (detail.name === 'Découper') {
         FullHistoryManager.nextTime = 0.5 * 1000;
       }
       setTimeout(() => {
@@ -168,26 +168,26 @@ export class FullHistoryManager {
         app.workspace.initFromObject(data);
         setState({ tangram: { ...data.tangram } });
       }, FullHistoryManager.nextTime + 30);
-      if (app.fullHistory.numberOfActions + 1 == app.fullHistory.actionIndex)
+      if (app.fullHistory.numberOfActions + 1 === app.fullHistory.actionIndex)
         setTimeout(
           () => FullHistoryManager.stopBrowsing(),
           FullHistoryManager.nextTime,
         );
       return true;
-    } else if (type == 'tool-changed' || type == 'tool-updated') {
+    } else if (type === 'tool-changed' || type === 'tool-updated') {
       setState({ tool: { ...detail } });
-    } else if (type == 'settings-changed') {
+    } else if (type === 'settings-changed') {
       FullHistoryManager.nextTime = 1 * 1000;
       setState({ settings: { ...detail } });
-    } else if (type == 'objectSelected') {
+    } else if (type === 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
-    } else if (type == 'mouse-coordinates-changed') {
+    } else if (type === 'mouse-coordinates-changed') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('show-cursor'));
-    } else if (type == 'setNumberOfParts') {
+    } else if (type === 'setNumberOfParts') {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
       window.dispatchEvent(new CustomEvent('close-popup'));
-    } else if (type == 'canvasMouseUp') {
+    } else if (type === 'canvasMouseUp') {
       window.dispatchEvent(new CustomEvent(type));
     } else {
       window.dispatchEvent(new CustomEvent(type, { detail: detail }));
@@ -200,16 +200,16 @@ export class FullHistoryManager {
       const { type, _ } = app.fullHistory.steps[i];
       const nextType = app.fullHistory.steps[i + 1].type;
 
-      if (type == 'canvasMouseUp') {
+      if (type === 'canvasMouseUp') {
         isClicked = false;
-      } else if (type == 'canvasMouseDown') {
+      } else if (type === 'canvasMouseDown') {
         isClicked = true;
       }
 
       if (
-        (type == 'mouse-coordinates-changed' || type == 'canvasMouseMove') &&
+        (type === 'mouse-coordinates-changed' || type === 'canvasMouseMove') &&
         !isClicked &&
-        nextType != 'objectSelected'
+        nextType !== 'objectSelected'
       ) {
         app.fullHistory.steps.splice(i, 1);
         i--;
@@ -225,13 +225,13 @@ export class FullHistoryManager {
       const nextNextDetail = app.fullHistory.steps[i + 2].detail;
 
       if (
-        type == 'tool-updated' &&
-        detail.name == 'color' &&
-        detail.currentStep == 'listen' &&
-        nextType == 'settings-changed' &&
-        nextNextType == 'tool-updated' &&
-        nextNextDetail.name == 'color' &&
-        nextNextDetail.currentStep == 'listen'
+        type === 'tool-updated' &&
+        detail.name === 'color' &&
+        detail.currentStep === 'listen' &&
+        nextType === 'settings-changed' &&
+        nextNextType === 'tool-updated' &&
+        nextNextDetail.name === 'color' &&
+        nextNextDetail.currentStep === 'listen'
       ) {
         app.fullHistory.steps.splice(i, 1);
         app.fullHistory.steps.splice(i, 1);
@@ -252,11 +252,11 @@ export class FullHistoryManager {
   static addStep(type, event) {
     if (app.fullHistory.isRunning) return;
     const detail = { ...event.detail };
-    if (type == 'objectSelected') detail.object = undefined;
-    if (type == 'add-fullstep') {
+    if (type === 'objectSelected') detail.object = undefined;
+    if (type === 'add-fullstep') {
       detail.actionIndex =
         app.fullHistory.steps.filter((step) => {
-          return step.type == 'add-fullstep';
+          return step.type === 'add-fullstep';
         }).length + 1;
       const data = app.workspace.data;
       data.history = undefined;
@@ -269,12 +269,12 @@ export class FullHistoryManager {
     } else {
       detail.actionIndex =
         app.fullHistory.steps.filter((step) => {
-          return step.type == 'add-fullstep';
+          return step.type === 'add-fullstep';
         }).length + 1;
     }
     if (
-      (type == 'tool-changed' || type == 'tool-updated') &&
-      (!detail.name || detail.name == 'solveChecker')
+      (type === 'tool-changed' || type === 'tool-updated') &&
+      (!detail.name || detail.name === 'solveChecker')
     ) {
       return;
     }

@@ -59,7 +59,7 @@ export function duplicateShape(s, layer = 'upper') {
     pt.geometryIsVisible = s.points[idx].geometryIsVisible;
     pt.geometryIsHidden = s.points[idx].geometryIsHidden;
   });
-  if (app.environment.name == 'Geometrie') {
+  if (app.environment.name === 'Geometrie') {
     let newCharacteristicElements = null;
     const characteristicElements =
       s.geometryObject.geometryTransformationCharacteristicElements;
@@ -117,5 +117,5 @@ export function duplicateShape(s, layer = 'upper') {
 export function compareIdBetweenLayers(id1, id2) {
   id1 = id1.substring(0, 8);
   id2 = id2.substring(0, 8);
-  return id1 == id2;
+  return id1 === id2;
 }

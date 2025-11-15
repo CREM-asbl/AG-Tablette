@@ -41,7 +41,7 @@ export class Segment {
     color = undefined,
     width = 1,
   }) {
-    if (id == undefined) id = uniqId(layer, 'segment');
+    if (id === undefined) id = uniqId(layer, 'segment');
     else id = addInfoToId(id, layer, 'segment');
     this.id = id;
     this.layer = layer;
@@ -73,7 +73,7 @@ export class Segment {
         });
         return newPoint.id;
       });
-      if (arcCenterCoordinates != undefined) {
+      if (arcCenterCoordinates !== undefined) {
         const arcCenter = new Point({
           layer: this.layer,
           segmentIds: [this.id],
@@ -258,7 +258,7 @@ export class Segment {
       });
     }
 
-    if (scaling == 'scale') {
+    if (scaling === 'scale') {
       firstCoordinates = firstCoordinates.toCanvasCoordinates();
       secondCoordinates = secondCoordinates.toCanvasCoordinates();
     }
@@ -268,7 +268,7 @@ export class Segment {
 
     if (
       !this.shape ||
-      this.idx == 0 ||
+      this.idx === 0 ||
       this.vertexIds[0] !== this.previousSegment.vertexIds[1] ||
       includeMoveTo
     ) {
@@ -281,7 +281,7 @@ export class Segment {
     } else if (this.axisAngle === undefined) {
       // circle or arc
       let centerCoordinates = this.arcCenter.coordinates;
-      if (scaling == 'scale')
+      if (scaling === 'scale')
         centerCoordinates = centerCoordinates.toCanvasCoordinates();
 
       let radius = centerCoordinates.dist(secondCoordinates),
@@ -340,7 +340,7 @@ export class Segment {
       // ellipse or ellipse arc
 
       let centerCoordinates = this.arcCenter.coordinates;
-      if (scaling == 'scale')
+      if (scaling === 'scale')
         centerCoordinates = centerCoordinates.toCanvasCoordinates();
 
       let radius = centerCoordinates.dist(secondCoordinates),
@@ -360,7 +360,7 @@ export class Segment {
       // seg.tangentPoint1/2 are Points (logical coordinates). Convert them to canvas to avoid mixing units under zoom.
       let tp1 = this.tangentPoint1?.coordinates || this.tangentPoint1;
       let tp2 = this.tangentPoint2?.coordinates || this.tangentPoint2;
-      if (scaling == 'scale') {
+      if (scaling === 'scale') {
         tp1 = tp1?.toCanvasCoordinates ? tp1.toCanvasCoordinates() : tp1;
         tp2 = tp2?.toCanvasCoordinates ? tp2.toCanvasCoordinates() : tp2;
       }
@@ -423,7 +423,7 @@ export class Segment {
       return null;
     }
     const numberOfSegments = this.shape.segmentIds.length;
-    if (numberOfSegments == 1) {
+    if (numberOfSegments === 1) {
       console.info('Previous Segment of Shape with one Segment returns this.');
     }
     const previousIdx = mod(this.idx - 1, numberOfSegments);
@@ -437,7 +437,7 @@ export class Segment {
       return null;
     }
     const numberOfSegments = this.shape.segmentIds.length;
-    if (numberOfSegments == 1) {
+    if (numberOfSegments === 1) {
       console.info('Next Segment of Shape with one Segment returns this.');
     }
     const nextIdx = mod(this.idx + 1, numberOfSegments);
@@ -465,9 +465,9 @@ export class Segment {
       x: xCoordinate,
       y: yCoordinate,
     });
-    if (perpendicularOriginVector.y == Infinity)
+    if (perpendicularOriginVector.y === Infinity)
       perpendicularOriginVector = new Coordinates({ x: 0, y: 1 });
-    else if (perpendicularOriginVector.y == -Infinity)
+    else if (perpendicularOriginVector.y === -Infinity)
       perpendicularOriginVector = new Coordinates({ x: 0, y: -1 });
     else
       perpendicularOriginVector = perpendicularOriginVector.multiply(
@@ -492,7 +492,7 @@ export class Segment {
       !verifyIfPointExists ||
       this.divisionPoints
         .filter((divPt) => divPt.visible)
-        .findIndex((pt) => pt.coordinates.dist(coordinates) < 0.001) == -1
+        .findIndex((pt) => pt.coordinates.dist(coordinates) < 0.001) === -1
     ) {
       const newPoint = new Point({
         coordinates: coordinates,
@@ -523,17 +523,17 @@ export class Segment {
   deletePoint(point) {
     const pointId = point.id;
     let i = this.divisionPointIds.findIndex((divisionPointId) => {
-      return pointId == divisionPointId;
+      return pointId === divisionPointId;
     });
-    if (i == -1) {
+    if (i === -1) {
       console.error("couldn't delete point from segment");
       return null;
     }
     this.divisionPointIds.splice(i, 1);
     i = this.shape.pointIds.findIndex((shapePointId) => {
-      return pointId == shapePointId;
+      return pointId === shapePointId;
     });
-    if (i == -1) {
+    if (i === -1) {
       console.error("couldn't delete point from shape");
       return null;
     }
@@ -579,19 +579,19 @@ export class Segment {
   divideWith(points) {
     points.sort((pt1, pt2) =>
       pt1.coordinates.dist(this.vertexes[0].coordinates) >
-      pt2.coordinates.dist(this.vertexes[0].coordinates)
+        pt2.coordinates.dist(this.vertexes[0].coordinates)
         ? 1
         : -1,
     );
     const newSegments = [this.vertexes[0], ...points, this.vertexes[1]]
       .map((pt, idx, pts) =>
-        idx == 0
+        idx === 0
           ? undefined
           : new Segment({
-              layer: this.layer,
-              createFromNothing: true,
-              vertexCoordinates: [pts[idx - 1].coordinates, pt.coordinates],
-            }),
+            layer: this.layer,
+            createFromNothing: true,
+            vertexCoordinates: [pts[idx - 1].coordinates, pt.coordinates],
+          }),
       )
       .slice(1);
     return newSegments;
@@ -712,7 +712,7 @@ export class Segment {
   arcParelleleWith(segment) {
     if (
       this.arcCenter.coordinates.equal(segment.arcCenter.coordinates) &&
-      this.radius == segment.radius
+      this.radius === segment.radius
     ) {
       return true;
     }
@@ -838,7 +838,8 @@ export class Segment {
           );
           return [segment.centerProjectionOnSegment(angleBetweenCenter)];
         }
-      } else if (y0 == y1) {
+      } else if (y0 === y1) {
+      } else if (y0 === y1) {
         const x = (R1 ** 2 - R0 ** 2 - x1 ** 2 + x0 ** 2) / (2 * (x0 - x1));
         const A = 1,
           B = -2 * y1,
@@ -904,7 +905,7 @@ export class Segment {
       if (Math.abs(r1.y - r2.y) < 0.001) return r1.x - r2.x;
       return r1.y - r2.y;
     });
-    if (result.length == 0) return null;
+    if (result.length === 0) return null;
     return result;
   }
 
@@ -915,7 +916,7 @@ export class Segment {
    */
   doesIntersect(segment, falseIfEdgePoint = false) {
     const intersections = this.intersectionWith(segment);
-    if (intersections == null) return false;
+    if (intersections === null) return false;
     if (falseIfEdgePoint) {
       for (let i = 0; i < intersections.length; i++) {
         if (
@@ -928,7 +929,7 @@ export class Segment {
         }
       }
     }
-    if (intersections.length == 0) return false;
+    if (intersections.length === 0) return false;
     if (
       intersections.some(
         (intersection) =>
@@ -947,7 +948,7 @@ export class Segment {
           (vx) =>
             this.points.findIndex((point) =>
               point.coordinates.equal(vx.coordinates),
-            ) != -1,
+            ) !== -1,
         );
       } else {
         console.info('not implemented yet');
@@ -980,8 +981,8 @@ export class Segment {
       if (this.isArc()) {
         return (
           this.arcCenter.coordinates.equal(segment.arcCenter.coordinates) &&
-          (this.counterclockwise != segment.counterclockwise) ^
-            this.vertexes[1].coordinates.equal(segment.vertexes[1].coordinates)
+          (this.counterclockwise !== segment.counterclockwise) ^
+          this.vertexes[1].coordinates.equal(segment.vertexes[1].coordinates)
         );
       } else return true;
     } else {
@@ -1010,8 +1011,8 @@ export class Segment {
       this.isArc() &&
       segment.isArc() &&
       this.arcCenter.coordinates.equal(segment.arcCenter.coordinates, 0.001) &&
-      this.radius == 0 &&
-      segment.radius == 0
+      this.radius === 0 &&
+      segment.radius === 0
     ) {
       return true;
     }
@@ -1047,13 +1048,13 @@ export class Segment {
 
     if (this.divisionPointIds.length !== 0)
       data.divisionPointIds = [...this.divisionPointIds];
-    if (this.arcCenterId != undefined) data.arcCenterId = this.arcCenterId;
+    if (this.arcCenterId !== undefined) data.arcCenterId = this.arcCenterId;
     if (this.counterclockwise !== false)
       data.counterclockwise = this.counterclockwise;
     if (this.isInfinite !== false) data.isInfinite = this.isInfinite;
     if (this.isSemiInfinite !== false)
       data.isSemiInfinite = this.isSemiInfinite;
-    if (this.color != undefined) data.color = this.color;
+    if (this.color !== undefined) data.color = this.color;
     if (this.width !== 1) data.width = this.width;
     return data;
   }

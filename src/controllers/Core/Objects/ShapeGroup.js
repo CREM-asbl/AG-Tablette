@@ -79,8 +79,8 @@ export class ShapeGroup {
    */
   deleteShape(shapeId) {
     const length = this.shapesIds.length;
-    this.shapesIds = this.shapesIds.filter((id) => shapeId != id);
-    if (length == this.shapesIds.length)
+    this.shapesIds = this.shapesIds.filter((id) => shapeId !== id);
+    if (length === this.shapesIds.length)
       console.error("Couldn't delete shape from user group.");
   }
 

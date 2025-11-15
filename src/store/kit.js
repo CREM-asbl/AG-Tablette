@@ -75,9 +75,9 @@ export const setFamiliesVisibility = (families) => {
   const current = kit.get();
   current.families.forEach(
     (family) =>
-      (family.isVisible = families.find(
-        (f) => f.name == family.name,
-      ).isVisible),
+    (family.isVisible = families.find(
+      (f) => f.name === family.name,
+    ).isVisible),
   );
   kit.set({ ...current });
 };

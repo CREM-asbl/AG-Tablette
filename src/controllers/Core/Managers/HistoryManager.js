@@ -11,7 +11,7 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canUndo() {
-    return app.history.index != -1;
+    return app.history.index !== -1;
   }
 
   /**
@@ -33,7 +33,7 @@ export class HistoryManager {
     }
     const index = app.history.index - 1;
     let data;
-    if (index == -1) {
+    if (index === -1) {
       data = app.history.startSituation;
     } else {
       data = app.history.steps[index];
@@ -96,7 +96,7 @@ export class HistoryManager {
       delete settingsForApp.isVisible;
       delete settingsForApp.gridShown; // Old key
 
-      if (app.environment.name == 'Tangram') {
+      if (app.environment.name === 'Tangram') {
         if (data.tangram) {
           tangram = {
             ...app.defaultState.tangram,
@@ -161,7 +161,7 @@ export class HistoryManager {
     delete settingsForApp.isVisible;
     delete settingsForApp.gridShown; // Old key
 
-    if (app.environment.name == 'Tangram') {
+    if (app.environment.name === 'Tangram') {
       if (data.tangram) {
         tangram = {
           ...app.defaultState.tangram,
@@ -224,7 +224,7 @@ export class HistoryManager {
     // This is what will be saved in the history step.
     data.settings = settingsForHistory;
 
-    if (app.environment.name == 'Tangram') {
+    if (app.environment.name === 'Tangram') {
       data.tangram = {
         isSilhouetteShown: app.tangram?.isSilhouetteShown,
       };
@@ -273,7 +273,7 @@ export class HistoryManager {
       let indexOfReference = index - 1;
       let previousObjectData = steps[index - 1].objects[
         objectType + 'Data'
-      ].find((sData) => sData.id == objectData.id);
+      ].find((sData) => sData.id === objectData.id);
       if (previousObjectData) {
         if (previousObjectData.indexOfReference) {
           indexOfReference = previousObjectData.indexOfReference;
@@ -285,7 +285,7 @@ export class HistoryManager {
             continue;
           previousObjectData = steps[indexOfReference].objects[
             objectType + 'Data'
-          ].find((sData) => sData.id == objectData.id);
+          ].find((sData) => sData.id === objectData.id);
         }
         if (
           previousObjectData &&
@@ -301,7 +301,7 @@ export class HistoryManager {
   }
 
   static reduceSize(steps, index) {
-    if (index == 0) return;
+    if (index === 0) return;
     HistoryManager.reduceSizeOfSingleObjectType('shapes', steps, index);
     HistoryManager.reduceSizeOfSingleObjectType('segments', steps, index);
     HistoryManager.reduceSizeOfSingleObjectType('points', steps, index);

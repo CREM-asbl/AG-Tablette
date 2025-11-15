@@ -95,7 +95,8 @@ export const loadEnvironnement = async (name) => {
       modules: config.default.modules,
     });
 
-    console.log(`Environnement "${name}" chargé avec succès`);
+    if (import.meta.env.DEV)
+      console.log(`Environnement "${name}" chargé avec succès`);
   } catch (error) {
     console.error(
       `Erreur lors du chargement de l'environnement "${name}":`,
@@ -223,9 +224,10 @@ const loadModules = async (list) => {
       });
     }
 
-    console.log(
-      `${loadedModules.length} modules chargés avec succès sur ${list.length} demandés`,
-    );
+    if (import.meta.env.DEV)
+      console.log(
+        `${loadedModules.length} modules chargés avec succès sur ${list.length} demandés`,
+      );
 
     if (failedModules.length > 0) {
       console.warn('Modules ayant échoué:', failedModules);

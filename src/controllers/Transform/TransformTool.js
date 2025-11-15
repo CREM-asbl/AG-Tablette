@@ -123,7 +123,7 @@ export class TransformTool extends Tool {
         !point.transformConstraints.isConstructed,
     );
 
-    if (points.length == 0) return;
+    if (points.length === 0) return;
 
     let point = points.find(
       (point) => point.transformConstraints.isConstrained,
@@ -221,7 +221,7 @@ export class TransformTool extends Tool {
 
     app.mainCanvasLayer.editingShapeIds = involvedShapes.map((s) => s.id);
 
-    if (point.shape.name == 'PointOnLine') {
+    if (point.shape.name === 'PointOnLine') {
       let constraintSegment = findObjectById(
         addInfoToId(
           point.shape.geometryObject.geometryParentObjectId1,
@@ -267,7 +267,7 @@ export class TransformTool extends Tool {
 
   createTree(index, tree) {
     const currentEntries = Object.entries(tree);
-    if (currentEntries.length == index) return;
+    if (currentEntries.length === index) return;
     const currentShapeId = currentEntries[index][0];
     const currentShape = findObjectById(currentShapeId);
     const dependenciesIds = [
@@ -304,14 +304,14 @@ export class TransformTool extends Tool {
   }
 
   browseTree(tree, callNumber) {
-    if (callNumber == 100) {
+    if (callNumber === 100) {
       console.error('too much call on browsetree');
       return;
     }
     let elementDone = 0,
       treeLength = 0;
     for (const currentShapeId in tree) {
-      if (tree[currentShapeId].isDone == 0) {
+      if (tree[currentShapeId].isDone === 0) {
         if (
           tree[currentShapeId].parents.every((parentId) => {
             if (tree[parentId].isDone > 0) {
@@ -319,8 +319,8 @@ export class TransformTool extends Tool {
             }
             const parent = findObjectById(parentId);
             if (
-              parent.name == 'PointOnLine' ||
-              parent.name == 'PointOnIntersection2'
+              parent.name === 'PointOnLine' ||
+              parent.name === 'PointOnIntersection2'
             ) {
               const constraint = findObjectById(
                 parent.geometryObject.geometryParentObjectId1,
@@ -345,8 +345,8 @@ export class TransformTool extends Tool {
                 .map((childId) => findObjectById(childId))
                 .filter(
                   (child) =>
-                    child.name == 'PointOnLine' ||
-                    child.name == 'PointOnIntersection2',
+                    child.name === 'PointOnLine' ||
+                    child.name === 'PointOnIntersection2',
                 )
                 .forEach((pointOnLine) => {
                   computeShapeTransform(pointOnLine);
@@ -361,7 +361,7 @@ export class TransformTool extends Tool {
       }
       treeLength++;
     }
-    if (elementDone == treeLength) {
+    if (elementDone === treeLength) {
       return;
     }
     this.browseTree(tree, callNumber + 1);
@@ -392,12 +392,12 @@ export class TransformTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'transform') {
+    if (app.tool.currentStep === 'transform') {
       const point = findObjectById(addInfoToId(this.pointSelectedId, 'upper'));
       const shape = point.shape;
-      if (shape.name == 'Trapeze' && point.idx < 3) {
+      if (shape.name === 'Trapeze' && point.idx < 3) {
         computeConstructionSpec(shape);
-      } else if (point.idx < 2 || point.type == 'arcCenter') {
+      } else if (point.idx < 2 || point.type === 'arcCenter') {
         switch (shape.name) {
           case 'Rectangle':
           case 'Losange':
@@ -414,7 +414,7 @@ export class TransformTool extends Tool {
             break;
         }
       }
-      if (point.idx == 0 || point.type == 'arcCenter') {
+      if (point.idx === 0 || point.type === 'arcCenter') {
         switch (shape.name) {
           case 'CircleArc':
           case 'ParalleleSemiStraightLine':
@@ -428,7 +428,7 @@ export class TransformTool extends Tool {
       }
       point.coordinates = app.workspace.lastKnownMouseCoordinates;
       this.adjustPoint(point);
-      if (shape.name == 'PointOnLine') {
+      if (shape.name === 'PointOnLine') {
         const reference = findObjectById(
           shape.geometryObject.geometryParentObjectId1,
         );
@@ -461,13 +461,13 @@ export class TransformTool extends Tool {
 
       this.resetTree();
       this.browseTree(this.tree, 0);
-    } else if (app.tool.currentStep == 'selectPoint') {
+    } else if (app.tool.currentStep === 'selectPoint') {
       app.mainCanvasLayer.shapes.forEach((s) => {
         s.vertexes.forEach((pt) => {
           pt.computeTransformConstraint();
         });
         s.points
-          .filter((pt) => pt.type == 'arcCenter')
+          .filter((pt) => pt.type === 'arcCenter')
           .forEach((pt) => {
             pt.computeTransformConstraint();
           });
@@ -482,7 +482,7 @@ export class TransformTool extends Tool {
         .forEach((s) => {
           const points = [
             ...s.vertexes,
-            ...s.points.filter((pt) => pt.type == 'arcCenter'),
+            ...s.points.filter((pt) => pt.type === 'arcCenter'),
           ];
           points.forEach((pt) => {
             const transformConstraints = pt.transformConstraints;
@@ -494,7 +494,7 @@ export class TransformTool extends Tool {
             };
             const color = colorPicker[true];
 
-            if (color != '#f00' && color != undefined) {
+            if (color !== '#f00' && color !== undefined) {
               new Point({
                 layer: 'upper',
                 coordinates: pt.coordinates,
@@ -510,7 +510,7 @@ export class TransformTool extends Tool {
   adjustPoint(point) {
     const constraints = SelectManager.getEmptySelectionConstraints().points;
     constraints.canSelect = true;
-    if (point.shape.name == 'PointOnLine') {
+    if (point.shape.name === 'PointOnLine') {
       const segment = findObjectById(
         point.shape.geometryObject.geometryParentObjectId1,
       );
@@ -541,7 +541,7 @@ export class TransformTool extends Tool {
     );
     if (adjustedCoordinates) {
       point.coordinates = new Coordinates(adjustedCoordinates.coordinates);
-    } else if (point.shape.name != 'PointOnLine') {
+    } else if (point.shape.name !== 'PointOnLine') {
       const gridPointInCanvasSpace = app.gridCanvasLayer.getClosestGridPoint(
         point.coordinates.toCanvasCoordinates(),
       );

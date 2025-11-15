@@ -64,7 +64,7 @@ export class OpacityTool extends Tool {
    * @param  {Shape} shape            La figure sélectionnée
    */
   objectSelected(shape) {
-    if (app.tool.currentStep != 'selectObject') return;
+    if (app.tool.currentStep !== 'selectObject') return;
 
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 

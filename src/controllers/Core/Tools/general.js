@@ -1,7 +1,7 @@
 //ce fichier est un peu trop fourre-tout
 //par exemple: faudrait séparer les fonctions sur le couleurs dans un autre fichier
 
-import { app } from '../App';
+import { app } from '../App.js';
 
 const layerOrder = [
   'upper',
@@ -28,7 +28,7 @@ export function getAverageColor(...colors) {
     }
   }
   const usableColors = colors.map((color) => {
-    if (color.length == 4) {
+    if (color.length === 4) {
       return (
         '#' +
         color[1] +
@@ -76,7 +76,7 @@ export function getComplementaryColor(color) {
     );
     return;
   }
-  if (color.length == 4)
+  if (color.length === 4)
     //transfigure #abc en #aabbcc
     color =
       '#' +
@@ -153,7 +153,7 @@ export function RGBFromColor(color) {
     );
     return;
   }
-  if (color.length == 4)
+  if (color.length === 4)
     //transfigure #abc en #aabbcc
     color =
       '#' +
@@ -232,7 +232,7 @@ export function hex(x) {
 export function addInfoToId(id, layer, objectType = undefined) {
   if (!id) return;
   let objectTypeId = id[9];
-  if (id.length == 10) id = id.substring(0, 8);
+  if (id.length === 10) id = id.substring(0, 8);
   else id = id.substring(id.length - 8, id.length);
   const layerId = layerOrder.indexOf(layer);
   if (objectType) {
@@ -252,7 +252,7 @@ export function uniqId(layer, objectType) {
   let result =
     timestamp.toString(16).padStart(4, '0') +
     randInt.toString(16).padStart(4, '0');
-  if (objectType != undefined && layer != undefined) {
+  if (objectType !== undefined && layer !== undefined) {
     result = addInfoToId(result, layer, objectType);
   }
   return result;
@@ -263,7 +263,7 @@ export function findObjectById(id) {
   const layer = layerOrder[id[8]];
   const objectType = objectTypeOrder[id[9]];
   const object = app[layer + 'CanvasLayer'][objectType + 's'].find(
-    (obj) => obj.id == id,
+    (obj) => obj.id === id,
   );
   return object;
 }
@@ -273,14 +273,14 @@ export function findIndexById(id) {
   const layer = layerOrder[id[8]];
   const objectType = objectTypeOrder[id[9]];
   const index = app[layer + 'CanvasLayer'][objectType + 's'].findIndex(
-    (obj) => obj.id == id,
+    (obj) => obj.id === id,
   );
   return index;
 }
 
 export function findObjectsByName(name, layer, objectType = 'shape') {
   const objects = app[layer + 'CanvasLayer'][objectType + 's'].filter(
-    (obj) => obj.name == name,
+    (obj) => obj.name === name,
   );
   return objects;
 }
@@ -289,10 +289,10 @@ export function removeObjectById(id) {
   if (!id) return -1;
   const objectType = objectTypeOrder[id[9]];
   const index = findIndexById(id, objectType);
-  if (index == -1) return;
+  if (index === -1) return;
   const layer = layerOrder[id[8]];
   const object = app[layer + 'CanvasLayer'][objectType + 's'][index];
-  if (objectType == 'shape') {
+  if (objectType === 'shape') {
     object.segments.forEach((seg) => removeObjectById(seg.id));
     object.points.forEach((pt) => removeObjectById(pt.id));
   }

@@ -5,10 +5,10 @@ export function deleteSubDivisionPoints(segment, point) {
   segment.divisionPoints.forEach((divPt) => {
     if (
       divPt.endpointIds &&
-      divPt.endpointIds.some((endPtId) => endPtId == point.id)
+      divPt.endpointIds.some((endPtId) => endPtId === point.id)
     ) {
       deleteSubDivisionPoints(segment, divPt);
-      if (app.environment.name == 'Geometrie')
+      if (app.environment.name === 'Geometrie')
         deleteChildrenOfDivisionPoint(divPt);
       segment.deletePoint(divPt);
     }
@@ -17,7 +17,7 @@ export function deleteSubDivisionPoints(segment, point) {
 
 export function deleteChildren(shape) {
   if (
-    shape.name == 'PointOnLine' ||
+    shape.name === 'PointOnLine' ||
     shape.name.startsWith('PointOnIntersection')
   ) {
     const segment = findObjectById(
@@ -41,18 +41,18 @@ export function deleteChildren(shape) {
   }
   app.mainCanvasLayer.shapes.forEach((s) => {
     s.geometryObject.geometryChildShapeIds =
-      s.geometryObject.geometryChildShapeIds.filter((id) => id != shape.id);
+      s.geometryObject.geometryChildShapeIds.filter((id) => id !== shape.id);
   });
   app.mainCanvasLayer.shapes.forEach((s) => {
     s.geometryObject.geometryTransformationChildShapeIds =
       s.geometryObject.geometryTransformationChildShapeIds.filter(
-        (id) => id != shape.id,
+        (id) => id !== shape.id,
       );
   });
   app.mainCanvasLayer.shapes.forEach((s) => {
     s.geometryObject.geometryDuplicateChildShapeIds =
       s.geometryObject.geometryDuplicateChildShapeIds.filter(
-        (id) => id != shape.id,
+        (id) => id !== shape.id,
       );
   });
   shape.geometryObject.geometryTransformationChildShapeIds.forEach(
@@ -83,8 +83,8 @@ export function deleteChildrenOfDivisionPoint(point) {
   shape.geometryObject.geometryChildShapeIds.forEach((childId) => {
     const child = findObjectById(childId);
     if (!child) return;
-    if (child.vertexes.some((vx) => vx.reference == point.id)) {
-      if (app.environment.name == 'Geometrie') deleteChildren(child);
+    if (child.vertexes.some((vx) => vx.reference === point.id)) {
+      if (app.environment.name === 'Geometrie') deleteChildren(child);
       removeObjectById(child.id);
     }
   });
@@ -93,12 +93,12 @@ export function deleteChildrenOfDivisionPoint(point) {
       const child = findObjectById(childId);
       if (!child) return;
       child.divisionPoints.forEach((divPt) => {
-        if (divPt.reference == point.id) {
+        if (divPt.reference === point.id) {
           const segment = divPt.segments[0];
           if (segment) {
             // if segment not deleted yet
             deleteSubDivisionPoints(segment, divPt);
-            if (app.environment.name == 'Geometrie')
+            if (app.environment.name === 'Geometrie')
               deleteChildrenOfDivisionPoint(divPt);
             segment.deletePoint(divPt);
           }

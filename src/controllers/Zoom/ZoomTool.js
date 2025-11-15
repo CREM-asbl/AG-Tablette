@@ -60,7 +60,7 @@ export class ZoomTool extends Tool {
 
   start() {
     this.removeListeners();
-    if (app.tool.mode == 'touch') {
+    if (app.tool.mode === 'touch') {
       this.touchMoveId = app.addListener('canvasTouchMove', this.handler);
       this.touchEndId = app.addListener('canvasTouchEnd', this.handler);
     }
@@ -82,11 +82,11 @@ export class ZoomTool extends Tool {
 
   canvasTouchStart(touches) {
     this.running = true;
-    if (touches.length == 2) {
+    if (touches.length === 2) {
       const point1 = touches[0],
         point2 = touches[1];
       this.baseDist = point1.dist(point2);
-      if (this.baseDist == 0) this.baseDist = 0.001;
+      if (this.baseDist === 0) this.baseDist = 0.001;
       this.originalZoom = app.workspace.zoomLevel;
       app.upperCanvasLayer.removeAllObjects();
       setState({
@@ -102,11 +102,11 @@ export class ZoomTool extends Tool {
 
   canvasTouchMove(touches) {
     if (touches.length !== 2) return;
-    if (app.tool.currentStep == 'start') {
+    if (app.tool.currentStep === 'start') {
       const point1 = touches[0],
         point2 = touches[1];
       let newDist = point1.dist(point2);
-      if (newDist == 0) newDist = 0.001;
+      if (newDist === 0) newDist = 0.001;
       const scaleOffset = newDist / this.baseDist;
       const newZoom = calculateZoomWithLimits(
         this.originalZoom,

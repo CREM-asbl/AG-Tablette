@@ -2,7 +2,8 @@
 import '../services/activity-sync.js';
 
 export function initOfflineSupport() {
-  console.log('Système de support hors ligne initialisé');
+  if (import.meta.env.DEV)
+    console.log('Système de support hors ligne initialisé');
 
   // Afficher une notification à l'utilisateur sur les capacités hors ligne
   window.addEventListener('load', () => {

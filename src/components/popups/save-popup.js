@@ -58,11 +58,11 @@ class SavePopup extends LitElement {
           <label for="save_popup_format">Format</label>
           <select name="save_popup_format" id="save_popup_format">
             ${this.opts.types.map(
-              (type) =>
-                html`<option value="${type.description}">
+      (type) =>
+        html`<option value="${type.description}">
                   ${type.description}
                 </option>`,
-            )}
+    )}
           </select>
 
           <fieldset>
@@ -93,7 +93,7 @@ class SavePopup extends LitElement {
   }
 
   renderHistoryField() {
-    if (app.environment.name != 'Tangram' || app.tangram.isSilhouetteShown)
+    if (app.environment.name !== 'Tangram' || app.tangram.isSilhouetteShown)
       return html`
         <div class="field">
           <input

@@ -165,7 +165,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   animate() {
-    if (app.tool.currentStep == 'animateCharacteristicElement') {
+    if (app.tool.currentStep === 'animateCharacteristicElement') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
         this.animate(),
@@ -173,7 +173,7 @@ export class CentralSymetryTool extends Tool {
       return;
     }
     this.lastProgress = this.progress || 0;
-    if (this.lastProgress == 0) {
+    if (this.lastProgress === 0) {
       app.upperCanvasLayer.points.forEach((point) => {
         point.startCoordinates = new Coordinates(point.coordinates);
         point.endCoordinates = new Coordinates({
@@ -183,7 +183,7 @@ export class CentralSymetryTool extends Tool {
       });
     }
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
-    if (this.progress > 1 && app.tool.name == 'centralSymetry') {
+    if (this.progress > 1 && app.tool.name === 'centralSymetry') {
       this.executeAction();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
@@ -197,7 +197,7 @@ export class CentralSymetryTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'central') {
+    if (app.tool.currentStep === 'central') {
       app.upperCanvasLayer.points.forEach((point) => {
         if (point.startCoordinates)
           point.coordinates = point.startCoordinates.substract(
@@ -206,7 +206,7 @@ export class CentralSymetryTool extends Tool {
               .multiply(this.progress),
           );
       });
-    } else if (app.tool.currentStep == 'animateCharacteristicElement') {
+    } else if (app.tool.currentStep === 'animateCharacteristicElement') {
       const coord = app.workspace.lastKnownMouseCoordinates;
       const object = SelectManager.selectObject(coord);
       if (object) {

@@ -91,27 +91,27 @@ export class DeleteTool extends Tool {
   }
 
   _executeAction() {
-    if (this.mode == 'shape') {
+    if (this.mode === 'shape') {
       this.involvedShapes.forEach((s) => {
-        if (app.environment.name == 'Geometrie') deleteChildren(s);
+        if (app.environment.name === 'Geometrie') deleteChildren(s);
         removeObjectById(s.id);
       });
 
       if (this.userGroup) {
         GroupManager.deleteGroup(this.userGroup);
       }
-    } else if (this.mode == 'divisionPoint') {
+    } else if (this.mode === 'divisionPoint') {
       const segment = this.point.segments[0];
       deleteSubDivisionPoints(segment, this.point);
-      if (app.environment.name == 'Geometrie')
+      if (app.environment.name === 'Geometrie')
         deleteChildrenOfDivisionPoint(this.point);
       segment.deletePoint(this.point);
     }
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
         const s = app.mainCanvasLayer.shapes[i];
         s.points
-          .filter((pt) => pt.type != 'divisionPoint')
+          .filter((pt) => pt.type !== 'divisionPoint')
           .forEach((pt) => {
             if (pt.reference && !findObjectById(pt.reference))
               pt.reference = null;

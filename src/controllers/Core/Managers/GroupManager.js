@@ -16,7 +16,7 @@ export class GroupManager {
    * @return {Number}             L'index (peut varier dans le temps!)
    */
   static getGroupIndex(group) {
-    return app.workspace.shapeGroups.findIndex((gr) => gr.id == group.id);
+    return app.workspace.shapeGroups.findIndex((gr) => gr.id === group.id);
   }
 
   /**
@@ -36,7 +36,7 @@ export class GroupManager {
    */
   static getGroup(id) {
     for (let i = 0; i < app.workspace.shapeGroups.length; i++) {
-      if (app.workspace.shapeGroups[i].id == id)
+      if (app.workspace.shapeGroups[i].id === id)
         return app.workspace.shapeGroups[i];
     }
     return null;
@@ -48,7 +48,7 @@ export class GroupManager {
    */
   static deleteGroup(group) {
     const idx = GroupManager.getGroupIndex(group);
-    if (idx != -1) app.workspace.shapeGroups.splice(idx, 1);
+    if (idx !== -1) app.workspace.shapeGroups.splice(idx, 1);
     else console.error("Couldn't delete group: ", group);
   }
 }

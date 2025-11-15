@@ -11,8 +11,8 @@ export class TangramManager extends LitElement {
 
   tangramStart = async () => {
     const currentTools = tools.get();
-    currentTools.find((tool) => tool.name == 'translate').isDisable = true;
-    currentTools.find((tool) => tool.name == 'color').isDisable = true;
+    currentTools.find((tool) => tool.name === 'translate').isDisable = true;
+    currentTools.find((tool) => tool.name === 'color').isDisable = true;
     tools.set([...currentTools]);
   };
 
@@ -32,7 +32,7 @@ export class TangramManager extends LitElement {
 
   readFile(event) {
     this.data = event.detail;
-    if (this.data.envName != 'Tangram') return;
+    if (this.data.envName !== 'Tangram') return;
     this.mode = 'reproduction';
     this.requestUpdate();
   }

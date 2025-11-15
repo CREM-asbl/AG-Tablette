@@ -39,7 +39,7 @@ export class ScalarMultiplicationTool extends Tool {
   }
 
   objectSelected(object) {
-    if (object.name != 'Vector') {
+    if (object.name !== 'Vector') {
       window.dispatchEvent(
         new CustomEvent('show-notif', {
           detail: { message: 'La figure sélectionnée doit être un vecteur' },

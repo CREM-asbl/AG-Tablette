@@ -125,7 +125,7 @@ export class CreateRegularTool extends Tool {
   // }
 
   canvasMouseDown() {
-    if (app.tool.currentStep == 'drawFirstPoint') {
+    if (app.tool.currentStep === 'drawFirstPoint') {
       setState({ tool: { ...app.tool, currentStep: 'animateFirstPoint' } });
     } else {
       setState({ tool: { ...app.tool, currentStep: 'animateSecondPoint' } });
@@ -135,7 +135,7 @@ export class CreateRegularTool extends Tool {
   }
 
   canvasMouseUp() {
-    if (app.tool.currentStep == 'animateFirstPoint') {
+    if (app.tool.currentStep === 'animateFirstPoint') {
       this.stopAnimation();
       this.adjustPoint(this.firstPoint);
       window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -218,12 +218,12 @@ export class CreateRegularTool extends Tool {
   }
 
   refreshStateUpper() {
-    if (app.tool.currentStep == 'animateFirstPoint') {
+    if (app.tool.currentStep === 'animateFirstPoint') {
       this.firstPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.firstPoint);
-    } else if (app.tool.currentStep == 'animateSecondPoint') {
+    } else if (app.tool.currentStep === 'animateSecondPoint') {
       this.secondPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );

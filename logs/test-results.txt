@@ -1,0 +1,334 @@
+
+> test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mC:/Users/gunbl/Dev/ag-tablette[39m
+
+Cannot parse C:/Users/gunbl/Dev/ag-tablette/test/components/canvas-layer.test.js:
+Expression expected.
+stderr | test/help-popup.test.ts > HelpPopup component with Vitest and jsdom
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/components/popups/grid-popup.test.ts > GridPopup component with Vitest and jsdom
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/components/open-server-popup.test.ts
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+(node:3364) [DEP0151] DeprecationWarning: No "main" or "exports" field defined in the package.json for C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\semantic-dom-diff\ resolving the main entry point "index.js", imported from C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\testing\register-chai-plugins.js.
+Default "index" lookups for the main are deprecated for ES modules.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ [31mÔØ»[39m test/sync-optimization.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m4 failed[39m[2m)[22m[32m 177[2mms[22m[39m
+   [32mÔ£ô[39m Optimisations de Synchronisation[2m > [22mCache de m├®tadonn├®es[2m > [22mdevrait sauvegarder les m├®tadonn├®es de synchronisation[32m 123[2mms[22m[39m
+   [32mÔ£ô[39m Optimisations de Synchronisation[2m > [22mCache de m├®tadonn├®es[2m > [22mdevrait v├®rifier la fra├«cheur de la synchronisation[32m 1[2mms[22m[39m
+[31m   [31m├ù[31m Optimisations de Synchronisation[2m > [22mSynchronisation intelligente[2m > [22mdevrait ├®viter la synchronisation si r├®cente[39m[32m 22[2mms[22m[39m
+[31m     ÔåÆ expected undefined to be 'recent' // Object.is equality[39m
+[31m   [31m├ù[31m Optimisations de Synchronisation[2m > [22mSynchronisation intelligente[2m > [22mdevrait forcer la synchronisation quand demand├®[39m[32m 19[2mms[22m[39m
+[31m     ÔåÆ expected [ 'completed', 'error' ] to include undefined[39m
+[31m   [31m├ù[31m Optimisations de Synchronisation[2m > [22mNavigation optimis├®e[2m > [22mdevrait r├®initialiser l'├®tat sans recharger[39m[32m 7[2mms[22m[39m
+[31m     ÔåÆ Cannot find module 'C:\Users\gunbl\Dev\ag-tablette\src\controllers\Core\App' imported from C:\Users\gunbl\Dev\ag-tablette\src\controllers\Core\Tools\general.js[39m
+[31m   [31m├ù[31m Optimisations de Synchronisation[2m > [22mInt├®gration compl├¿te[2m > [22mdevrait optimiser le cycle complet de navigation[39m[32m 3[2mms[22m[39m
+[31m     ÔåÆ Cannot find module 'C:\Users\gunbl\Dev\ag-tablette\src\controllers\Core\App' imported from C:\Users\gunbl\Dev\ag-tablette\src\controllers\Core\Tools\general.js[39m
+stderr | test/controllers/Core/Tools/automatic_adjustment.test.js > Automatic Adjustment Logic > should call getClosestGridPoint with canvas coords and convert result back to world coords
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [31mÔØ»[39m test/services/cache.service.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 107[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mverifierDisponibilite[2m > [22mdevrait retourner disponible: false si IndexedDB n'est pas support├®[32m 3[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mverifierDisponibilite[2m > [22mdevrait retourner disponible: true avec statistiques si IndexedDB fonctionne[32m 6[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mverifierDisponibilite[2m > [22mdevrait g├®rer les erreurs d'ouverture de DB[32m 16[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mviderCache[2m > [22mdevrait vider le cache avec succ├¿s[32m 21[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mviderCache[2m > [22mdevrait lancer CacheClearError en cas d'erreur de vidage[32m 26[2mms[22m[39m
+[31m   [31m├ù[31m CacheService[2m > [22mviderCache[2m > [22mdevrait lancer CacheUnavailableError si la DB ne peut pas s'ouvrir[39m[32m 28[2mms[22m[39m
+[31m     ÔåÆ expected error to be instance of CacheClearError[39m
+   [32mÔ£ô[39m CacheService[2m > [22mobtenirStatistiques[2m > [22mdevrait retourner des statistiques compl├¿tes[32m 2[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mobtenirStatistiques[2m > [22mdevrait retourner disponible: false en cas d'erreur[32m 1[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mTypes d'erreurs[2m > [22mCacheError devrait avoir les bonnes propri├®t├®s[32m 1[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mTypes d'erreurs[2m > [22mCacheUnavailableError devrait h├®riter de CacheError[32m 1[2mms[22m[39m
+   [32mÔ£ô[39m CacheService[2m > [22mTypes d'erreurs[2m > [22mCacheClearError devrait h├®riter de CacheError[32m 1[2mms[22m[39m
+ [31mÔØ»[39m test/help-popup.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 351[2mms[22m[39m
+   [32mÔ£ô[39m HelpPopup component with Vitest and jsdom[2m > [22mshould load and register the custom element[32m 57[2mms[22m[39m
+   [32mÔ£ô[39m HelpPopup component with Vitest and jsdom[2m > [22mrenders a h2 with a title[32m 15[2mms[22m[39m
+   [32mÔ£ô[39m HelpPopup component with Vitest and jsdom[2m > [22mrenders a h2 with default title if toolname is not provided[32m 14[2mms[22m[39m
+   [32mÔ£ô[39m HelpPopup component with Vitest and jsdom[2m > [22mrenders an image if url is constructed[32m 6[2mms[22m[39m
+[31m   [31m├ù[31m HelpPopup component with Vitest and jsdom[2m > [22mrenders a fallback message if url is not constructed[39m[32m 26[2mms[22m[39m
+[31m     ÔåÆ expected '\n                L\'aide n\'est pas ÔÇª' to be 'L\'aide n\'est pas encore disponible ÔÇª' // Object.is equality[39m
+ [32mÔ£ô[39m test/components/popups/grid-popup.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 356[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Tools/automatic_adjustment.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 493[2mms[22m[39m
+   [33m[2mÔ£ô[22m[39m Automatic Adjustment Logic[2m > [22mshould call getClosestGridPoint with canvas coords and convert result back to world coords [33m 488[2mms[22m[39m
+ [32mÔ£ô[39m test/components/open-server-popup.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 392[2mms[22m[39m
+stderr | test/store/syncState.test.ts
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2m├ëtat initial[2m > [22m[2mdoit avoir les valeurs par d├®faut correctes
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2m├ëtat initial[2m > [22m[2mgetSyncState doit retourner l'├®tat complet
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2m├ëtat initial[2m > [22m[2ml'├®tat initial doit ├¬tre coh├®rent apr├¿s plusieurs r├®initialisations
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit accepter des valeurs valides
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit normaliser les valeurs invalides
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit g├®rer les valeurs non num├®riques
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit arrondir les d├®cimales seulement si normalis├®es
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit ├®mettre un ├®v├®nement personnalis├®
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit g├®rer les progressions dans l'ordre
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit maintenir la visibilit├® pendant la progression
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit marquer la synchronisation comme termin├®e
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit masquer imm├®diatement si demand├®
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit ├®mettre un ├®v├®nement de completion
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit fonctionner m├¬me si aucune sync n'est en cours
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mshowSyncIndicator doit afficher l'indicateur
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mhideSyncIndicator doit masquer l'indicateur
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mhideSyncIndicator ne doit pas masquer pendant une sync sans force
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mhideSyncIndicator avec force doit masquer m├¬me pendant une sync
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mdoit ├®mettre des ├®v├®nements de visibilit├®
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mresetSyncState[2m > [22m[2mdoit r├®initialiser compl├¿tement l'├®tat
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mresetSyncState[2m > [22m[2mdoit ├®mettre un ├®v├®nement de reset
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mresetSyncState[2m > [22m[2mdoit ├¬tre idempotent
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion d'erreurs[2m > [22m[2msetSyncProgress doit g├®rer les erreurs de signal
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion d'erreurs[2m > [22m[2mresetSyncState doit g├®rer les erreurs gracieusement
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mPerformance[2m > [22m[2mdoit supporter de nombreuses mises ├á jour rapides
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mPerformance[2m > [22m[2mdoit ├¬tre efficace avec des mises ├á jour r├®p├®titives
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mInt├®gration des signaux[2m > [22m[2mles signaux doivent ├¬tre r├®actifs
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mInt├®gration des signaux[2m > [22m[2mles signaux doivent maintenir la coh├®rence
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mInt├®gration des signaux[2m > [22m[2mles changements d'├®tat doivent ├¬tre atomiques
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mSc├®narios d'usage r├®els[2m > [22m[2msimulation compl├¿te de synchronisation
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mSc├®narios d'usage r├®els[2m > [22m[2minterruption de synchronisation
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mSc├®narios d'usage r├®els[2m > [22m[2msynchronisations multiples successives
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mValidation des ├®v├®nements[2m > [22m[2mtous les ├®v├®nements doivent ├¬tre ├®mis dans l'ordre correct
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mValidation des ├®v├®nements[2m > [22m[2mles d├®tails des ├®v├®nements doivent ├¬tre corrects
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mEdge cases[2m > [22m[2mdoit g├®rer les valeurs de progression extr├¬mes
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mEdge cases[2m > [22m[2mdoit g├®rer les appels concurrents
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mEdge cases[2m > [22m[2mdoit maintenir la coh├®rence avec des valeurs d├®cimales pr├®cises
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+ [32mÔ£ô[39m test/store/syncState.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 123[2mms[22m[39m
+stderr | test/controllers/Core/Managers/OpenFileManager.test.js > OpenFileManager > parseJsonContent > should handle invalid JSON
+Erreur de parsing JSON: SyntaxError: Expected double-quoted property name in JSON at position 24 (line 1 column 25)
+    at JSON.parse (<anonymous>)
+    at Object.parseJsonContent (C:\Users\gunbl\Dev\ag-tablette\src\controllers\Core\Managers\OpenFileManager.js:325:25)
+    at C:\Users\gunbl\Dev\ag-tablette\test\controllers\Core\Managers\OpenFileManager.test.js:160:38
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/chunk-hooks.js:155:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/chunk-hooks.js:752:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/chunk-hooks.js:1897:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/chunk-hooks.js:1863:10)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/chunk-hooks.js:1574:12)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+
+ [32mÔ£ô[39m test/controllers/Core/Managers/OpenFileManager.test.js [2m([22m[2m11 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+stderr | test/controllers/Reverse/ReverseAnimationZoom.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/controllers/Core/Managers/SaveFileManager.test.js > SaveFileManager > validateAppState > should return false when environment is missing
+L'environnement n'est pas charg├®, la sauvegarde est annul├®e.
+
+stderr | test/controllers/Core/Managers/SaveFileManager.test.js > SaveFileManager > validateAppState > should return false when kit is required but not loaded
+Le kit de formes requis n'est pas charg├®, la sauvegarde est annul├®e.
+
+stderr | test/controllers/Core/Managers/SaveFileManager.test.js > SaveFileManager > prepareSaveData > should return null when app state is invalid
+L'environnement n'est pas charg├®, la sauvegarde est annul├®e.
+
+ [32mÔ£ô[39m test/controllers/Core/Managers/SaveFileManager.test.js [2m([22m[2m12 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Reverse/ReverseAnimationZoom.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+stderr | test/controllers/Reverse/ReverseZoom.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/controllers/Core/SaveFileManager.test.js [2m([22m[2m10 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Reverse/ReverseZoom.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+[90mstdout[2m | test/controllers/version-migration.test.js[2m > [22m[2mVersion Migration[2m > [22m[2mmigrateShapeScale[2m > [22m[2mshould scale workspace data correctly
+[22m[39mMigration d'├®chelle avec facteur 0.756 pour compatibilit├® avec les anciennes versions
+
+[90mstdout[2m | test/controllers/version-migration.test.js[2m > [22m[2mVersion Migration[2m > [22m[2mapplyMigrations[2m > [22m[2mshould apply migration to eligible files
+[22m[39mMigration d├®tect├®e pour Cubes v1.4.6 beta 1 - Application du facteur d'├®chelle 0.7559999999999999
+Migration d'├®chelle avec facteur 0.7559999999999999 pour compatibilit├® avec les anciennes versions
+
+ [32mÔ£ô[39m test/controllers/version-migration.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Rotation/RotationTool.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32mÔ£ô[39m test/Coordinates/equal.test.js [2m([22m[2m10 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+[90mstdout[2m | test/controllers/Rotation/RotationIntegration.test.js[2m > [22m[2mRotation - Tests d'int├®gration selon le guide utilisateur[2m > [22m[2mSc├®nario complet selon le guide utilisateur[2m > [22m[2mdevrait reproduire le processus complet de rotation selon les sp├®cifications
+[22m[39mPoints de test:
+Point 0: (90, 90) -> (10.00, 90.00)
+Point 1: (110, 90) -> (10.00, 110.00)
+Point 2: (110, 110) -> (-10.00, 110.00)
+Point 3: (90, 110) -> (-10.00, 90.00)
+
+ [32mÔ£ô[39m test/controllers/Rotation/RotationIntegration.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32mÔ£ô[39m test/Coordinates/multiply.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32mÔ£ô[39m test/store/gridStore.test.js [2m([22m[2m10 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32mÔ£ô[39m test/Coordinates/add.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Rotation/RotationArcSelection.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32mÔ£ô[39m test/Coordinates/substract.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Suites 1 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  test/components/canvas-layer.test.js [ test/components/canvas-layer.test.js ]
+Error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: vite:import-analysis
+  File: C:/Users/gunbl/Dev/ag-tablette/test/components/canvas-layer.test.js:903:0
+ ÔØ» TransformPluginContext._formatLog node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42528:41
+ ÔØ» TransformPluginContext.error node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42525:16
+ ÔØ» TransformPluginContext.transform node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:40455:14
+ ÔØ» EnvironmentPluginContainer.transform node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:42323:18
+ ÔØ» loadAndTransform node_modules/vite/dist/node/chunks/dep-D4NMHUTW.js:35739:27
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/7]ÔÄ»
+
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 6 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL  test/help-popup.test.ts > HelpPopup component with Vitest and jsdom > renders a fallback message if url is not constructed
+AssertionError: expected '\n                L\'aide n\'est pas ÔÇª' to be 'L\'aide n\'est pas encore disponible ÔÇª' // Object.is equality
+
+- Expected
++ Received
+
+- L'aide n'est pas encore disponible pour cette fonction.
++
++                 L'aide n'est pas encore disponible pour cette fonction.
++               
+
+ ÔØ» test/help-popup.test.ts:111:38
+    109|     const fallbackDiv = shadowRoot.querySelector('div#helpPopupBody diÔÇª
+    110|     expect(fallbackDiv).not.toBeNull();
+    111|     expect(fallbackDiv?.textContent).toBe("L'aide n'est pas encore disÔÇª
+       |                                      ^
+    112|     const img = shadowRoot.querySelector('img');
+    113|     expect(img).toBeNull(); // S'assurer qu'aucune image n'est rendue
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/7]ÔÄ»
+
+ FAIL  test/sync-optimization.test.ts > Optimisations de Synchronisation > Synchronisation intelligente > devrait ├®viter la synchronisation si r├®cente
+AssertionError: expected undefined to be 'recent' // Object.is equality
+
+- Expected: 
+"recent"
+
++ Received: 
+undefined
+
+ ÔØ» test/sync-optimization.test.ts:137:22
+    135| 
+    136|       const result = await smartSync();
+    137|       expect(result).toBe('recent');
+       |                      ^
+    138|     });
+    139| 
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/7]ÔÄ»
+
+ FAIL  test/sync-optimization.test.ts > Optimisations de Synchronisation > Synchronisation intelligente > devrait forcer la synchronisation quand demand├®
+AssertionError: expected [ 'completed', 'error' ] to include undefined
+ ÔØ» test/sync-optimization.test.ts:162:38
+    160|       // Test avec force = true
+    161|       const result = await smartSync({ force: true });
+    162|       expect(['completed', 'error']).toContain(result);
+       |                                      ^
+    163|     });
+    164|   });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/7]ÔÄ»
+
+ FAIL  test/sync-optimization.test.ts > Optimisations de Synchronisation > Navigation optimis├®e > devrait r├®initialiser l'├®tat sans recharger
+ FAIL  test/sync-optimization.test.ts > Optimisations de Synchronisation > Int├®gration compl├¿te > devrait optimiser le cycle complet de navigation
+Error: Cannot find module 'C:\Users\gunbl\Dev\ag-tablette\src\controllers\Core\App' imported from C:\Users\gunbl\Dev\ag-tablette\src\controllers\Core\Tools\general.js
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/7]ÔÄ»
+
+ FAIL  test/services/cache.service.test.ts > CacheService > viderCache > devrait lancer CacheUnavailableError si la DB ne peut pas s'ouvrir
+AssertionError: expected error to be instance of CacheClearError
+
+- Expected: 
+[Function CacheClearError]
+
++ Received: 
+CacheError {
+  "message": "Impossible d'ouvrir la base de donn├®es: DB unavailable",
+  "name": "CacheError",
+  "type": "CACHE_UNAVAILABLE",
+}
+
+ ÔØ» test/services/cache.service.test.ts:173:7
+    171|       }, 0);
+    172| 
+    173|       await expect(CacheService.viderCache()).rejects.toThrow(CacheCleÔÇª
+       |       ^
+    174|     });
+    175|   });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/7]ÔÄ»
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m18 passed[39m[22m[90m (22)[39m
+[2m      Tests [22m [1m[31m6 failed[39m[22m[2m | [22m[1m[32m160 passed[39m[22m[90m (166)[39m
+[2m   Start at [22m 09:31:56
+[2m   Duration [22m 17.61s[2m (transform 1.62s, setup 1.29s, collect 2.55s, tests 2.16s, environment 75.62s, prepare 7.84s)[22m
+

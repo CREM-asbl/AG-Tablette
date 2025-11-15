@@ -68,7 +68,7 @@ export class RotationTool extends Tool {
   selectReference() {
     this.removeListeners();
 
-    if (this.pointsDrawn.length == 1) {
+    if (this.pointsDrawn.length === 1) {
       const shapesToDelete = [];
       app.upperCanvasLayer.shapes.forEach((s) => {
         if (s.geometryObject?.geometryIsCharacteristicElements)
@@ -148,11 +148,11 @@ export class RotationTool extends Tool {
       if (object instanceof Segment && object.isArc()) {
         const firstElementId = this.characteristicElements.elementIds[0];
         let referenceShape;
-        if (object.layer == 'upper') {
+        if (object.layer === 'upper') {
           this.characteristicElements = new CharacteristicElements(
             object.shape.geometryObject.geometryTransformationCharacteristicElements,
           );
-          if (this.characteristicElements.type == 'arc') {
+          if (this.characteristicElements.type === 'arc') {
             referenceShape = new ArrowLineShape({
               path: this.characteristicElements.secondElement.getSVGPath(
                 'no scale',
@@ -391,7 +391,7 @@ export class RotationTool extends Tool {
     );
     this.clockwise = isAngleInside;
     this.characteristicElements.clockwise = this.clockwise;
-    if (this.arcShape0.segments[0].counterclockwise == this.clockwise) {
+    if (this.arcShape0.segments[0].counterclockwise === this.clockwise) {
       removeObjectById(this.arcShape0.id);
     } else {
       removeObjectById(this.arcShape1.id);
@@ -454,7 +454,7 @@ export class RotationTool extends Tool {
       return;
     }
     this.lastProgress = this.progress || 0;
-    if (this.lastProgress == 0) {
+    if (this.lastProgress === 0) {
       const rotationCenter = this.characteristicElements.firstElement;
       this.drawingShapes.forEach((s) =>
         s.points.forEach((point) => {
@@ -471,7 +471,7 @@ export class RotationTool extends Tool {
       );
     }
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
-    if (this.progress > 1 && app.tool.name == 'rotation') {
+    if (this.progress > 1 && app.tool.name === 'rotation') {
       this.executeAction();
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
@@ -505,7 +505,7 @@ export class RotationTool extends Tool {
           });
         }
       });
-    } else if (app.tool.currentStep == 'animateRefPoint') {
+    } else if (app.tool.currentStep === 'animateRefPoint') {
       const coord = app.workspace.lastKnownMouseCoordinates;
       const object = SelectManager.selectObject(coord);
       if (object) {
@@ -521,7 +521,7 @@ export class RotationTool extends Tool {
     if (this.characteristicElements.type === 'points') {
       this.characteristicElements.elementIds.forEach((elemId, idx) => {
         const element = findObjectById(elemId);
-        if (element.layer == 'upper') {
+        if (element.layer === 'upper') {
           this.characteristicElements.elementIds[idx] = new SinglePointShape({
             layer: 'main',
             path: `M ${element.coordinates.x} ${element.coordinates.y}`,
@@ -533,7 +533,7 @@ export class RotationTool extends Tool {
       });
     } else {
       const rotationCenter = this.characteristicElements.firstElement;
-      if (rotationCenter.layer == 'upper') {
+      if (rotationCenter.layer === 'upper') {
         this.characteristicElements.elementIds[0] = new SinglePointShape({
           layer: 'main',
           path: `M ${rotationCenter.coordinates.x} ${rotationCenter.coordinates.y}`,

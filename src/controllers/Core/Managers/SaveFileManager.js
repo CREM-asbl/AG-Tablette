@@ -345,7 +345,8 @@ const saveToJson = async (saveData, options, environment, handle = null) => {
     return true;
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log("Sauvegarde JSON annulée par l'utilisateur.");
+      if (import.meta.env.DEV)
+        console.log("Sauvegarde JSON annulée par l'utilisateur.");
       return false;
     }
     console.error('Erreur lors de la sauvegarde JSON:', error);
@@ -413,7 +414,8 @@ const saveToPng = async (app, saveData, options, handle = null) => {
     return true;
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log("Sauvegarde PNG annulée par l'utilisateur.");
+      if (import.meta.env.DEV)
+        console.log("Sauvegarde PNG annulée par l'utilisateur.");
       return false;
     }
     console.error('Erreur lors de la sauvegarde PNG:', error);
@@ -493,7 +495,8 @@ const saveToSvg = async (app, saveData, options, handle = null) => {
     return true;
   } catch (error) {
     if (error.name === 'AbortError') {
-      console.log("Sauvegarde SVG annulée par l'utilisateur.");
+      if (import.meta.env.DEV)
+        console.log("Sauvegarde SVG annulée par l'utilisateur.");
       return false;
     }
     console.error('Erreur lors de la sauvegarde SVG:', error);
@@ -662,7 +665,8 @@ export const saveFile = async (app, options = {}) => {
           handle = await window.showSaveFilePicker(saveOptionsNative);
         } catch (error) {
           if (error.name === 'AbortError') {
-            console.log("Sauvegarde annulée par l'utilisateur.");
+            if (import.meta.env.DEV)
+              console.log("Sauvegarde annulée par l'utilisateur.");
             return;
           }
           console.error('Erreur lors de la sauvegarde du fichier :', error);

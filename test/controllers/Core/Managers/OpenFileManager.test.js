@@ -48,7 +48,7 @@ vi.mock('@controllers/Core/Tools/general.js', () => {
     addInfoToId: vi.fn((id, layer, objectType = undefined) => {
       if (!id) return;
       let objectTypeId = id[9];
-      if (id.length == 10)
+      if (id.length === 10)
         id = id.substring(0, 8)
       else
         id = id.substring(id.length - 8, id.length);

@@ -52,11 +52,11 @@ class ToolbarKit extends LitElement {
         <h2 slot="title">${this.kit.name}</h2>
         <div slot="body">
           ${familyNames.map(
-            (familyName) => html`
+      (familyName) => html`
               <icon-button
                 name="${this.kit.families.find(
-                  (family) => family.name == familyName,
-                ).shapeTemplates[0].name}"
+        (family) => family.name === familyName,
+      ).shapeTemplates[0].name}"
                 type="Create"
                 title="${familyName}"
                 ?active="${familyName === this.selectedFamily}"
@@ -65,7 +65,7 @@ class ToolbarKit extends LitElement {
               >
               </icon-button>
             `,
-          )}
+    )}
         </div>
       </template-toolbar>
     `;

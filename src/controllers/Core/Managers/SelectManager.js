@@ -139,12 +139,12 @@ export class SelectManager {
     const potentialPoints = [];
     let allPoints = [...app.mainCanvasLayer.points];
 
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       allPoints = allPoints
         .filter((pt) => pt.shape.geometryObject?.geometryIsVisible !== false)
         .filter((pt) => pt.shape.geometryObject?.geometryIsHidden !== true)
         .filter(
-          (pt) => pt.shape.geometryObject?.geometryIsConstaintDraw == false,
+          (pt) => pt.shape.geometryObject?.geometryIsConstaintDraw === false,
         );
     }
 
@@ -166,21 +166,19 @@ export class SelectManager {
       if (constraints.whitelist != null) {
         if (
           !constraints.whitelist.some((constr) => {
-            if (constr.shapeId != potentialPoint.shapeId) return false;
-            if (constr.type == 'shapeCenter')
-              return potentialPoint.type == 'shapeCenter';
-            if (constr.type == 'vertex')
+            if (constr.shapeId !== potentialPoint.shapeId) return false;
+            if (constr.type === 'shapeCenter')
+              return potentialPoint.type === 'shapeCenter';
+            if (constr.type === 'vertex')
               return (
-                potentialPoint.type == 'vertex' &&
-                (constr.index == undefined ||
-                  constr.index == potentialPoint.idx)
+                potentialPoint.type === 'vertex' &&
+                (constr.index === undefined || constr.index === potentialPoint.idx)
               );
-            if (constr.type == 'divisionPoint')
+            if (constr.type === 'divisionPoint')
               return (
-                potentialPoint.type == 'divisionPoint' &&
-                (constr.index == undefined ||
-                  constr.index == potentialPoint.segments[0].idx) &&
-                (constr.ratio == undefined ||
+                potentialPoint.type === 'divisionPoint' &&
+                (constr.index === undefined || constr.index === potentialPoint.segments[0].idx) &&
+                (constr.ratio === undefined ||
                   Math.abs(constr.ratio - potentialPoint.ratio) < 0.001)
               );
             return true;
@@ -191,21 +189,21 @@ export class SelectManager {
       if (constraints.blacklist != null) {
         if (
           constraints.blacklist.some((constr) => {
-            if (constr.shapeId != potentialPoint.shapeId) return false;
-            if (constr.type == 'shapeCenter')
-              return potentialPoint.type == 'shapeCenter';
-            if (constr.type == 'vertex')
+            if (constr.shapeId !== potentialPoint.shapeId) return false;
+            if (constr.type === 'shapeCenter')
+              return potentialPoint.type === 'shapeCenter';
+            if (constr.type === 'vertex')
               return (
-                potentialPoint.type == 'vertex' &&
-                (constr.index == undefined ||
-                  constr.index == potentialPoint.idx)
+                potentialPoint.type === 'vertex' &&
+                (constr.index === undefined ||
+                  constr.index === potentialPoint.idx)
               );
-            if (constr.type == 'divisionPoint')
+            if (constr.type === 'divisionPoint')
               return (
-                potentialPoint.type == 'divisionPoint' &&
-                (constr.index == undefined ||
-                  constr.index == potentialPoint.segments[0].idx) &&
-                (constr.ratio == undefined ||
+                potentialPoint.type === 'divisionPoint' &&
+                (constr.index === undefined ||
+                  constr.index === potentialPoint.segments[0].idx) &&
+                (constr.ratio === undefined ||
                   Math.abs(constr.ratio - potentialPoint.ratio) < 0.001)
               );
             return true;
@@ -217,7 +215,7 @@ export class SelectManager {
     });
 
     // if no possibilities
-    if (constrainedPoints.length == 0) return null;
+    if (constrainedPoints.length === 0) return null;
 
     // sort by distance, by shape height and by index in the shape, taking next criteria when equal
     constrainedPoints.sort((pt1, pt2) => {
@@ -225,19 +223,19 @@ export class SelectManager {
       const dist2 = pt2.coordinates.dist(mouseCoordinates);
       if (Math.abs(dist1 - dist2) > 0.001) return dist1 - dist2;
 
-      if (pt1.shape.layer == 'upper' && pt2.shape.layer == 'main') return -1;
-      if (pt2.shape.layer == 'upper' && pt1.shape.layer == 'main') return 1;
+      if (pt1.shape.layer === 'upper' && pt2.shape.layer === 'main') return -1;
+      if (pt2.shape.layer === 'upper' && pt1.shape.layer === 'main') return 1;
 
       const shapeIndex1 = ShapeManager.getShapeIndex(pt1.shape);
       const shapeIndex2 = ShapeManager.getShapeIndex(pt2.shape);
-      if (shapeIndex1 != shapeIndex2) return shapeIndex2 - shapeIndex1;
+      if (shapeIndex1 !== shapeIndex2) return shapeIndex2 - shapeIndex1;
 
-      if (pt1.type == 'vertex' && pt2.type == 'vertex')
+      if (pt1.type === 'vertex' && pt2.type === 'vertex')
         return pt2.idx - pt1.idx;
       return 0;
     });
 
-    if (constraints.numberOfObjects == 'allInDistance') {
+    if (constraints.numberOfObjects === 'allInDistance') {
       return constrainedPoints;
     }
 
@@ -264,15 +262,15 @@ export class SelectManager {
 
       // if no possibilities
       // if (notHiddenPoints.length == 0) return null;
-      if (!constrainedPoints.find((pt) => pt.isBehindShape == false))
+      if (!constrainedPoints.find((pt) => pt.isBehindShape === false))
         return false;
     }
 
-    if (constraints.numberOfObjects == 'one')
-      return constrainedPoints.find((pt) => pt.isBehindShape == false); //notHiddenPoints[0];
-    else if (constraints.numberOfObjects == 'allSuperimposed') {
+    if (constraints.numberOfObjects === 'one')
+      return constrainedPoints.find((pt) => pt.isBehindShape === false); //notHiddenPoints[0];
+    else if (constraints.numberOfObjects === 'allSuperimposed') {
       const firstPointCoord = constrainedPoints.find(
-        (pt) => pt.isBehindShape == false,
+        (pt) => pt.isBehindShape === false,
       ).coordinates;
       // let coordPt1 = constrainedPoints[firstPointIndex].coordinates//notHiddenPoints[0].coordinates;
       let i = 0; //1;
@@ -292,12 +290,12 @@ export class SelectManager {
     let potentialSegments = [];
     let allSegments = [...app.mainCanvasLayer.segments];
 
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       allSegments = allSegments
         .filter((seg) => seg.shape.geometryObject?.geometryIsVisible !== false)
         .filter((seg) => seg.shape.geometryObject?.geometryIsHidden !== true)
         .filter(
-          (seg) => seg.shape.geometryObject?.geometryIsConstaintDraw == false,
+          (seg) => seg.shape.geometryObject?.geometryIsConstaintDraw === false,
         );
     }
 
@@ -329,9 +327,9 @@ export class SelectManager {
       if (constraints.whitelist != null) {
         if (
           !constraints.whitelist.some((constr) => {
-            if (constr.shapeId != potentialSegment.shapeId) return false;
+            if (constr.shapeId !== potentialSegment.shapeId) return false;
             if (constr.index !== undefined)
-              return constr.index == potentialSegment.idx;
+              return constr.index === potentialSegment.idx;
             return true;
           })
         )
@@ -340,9 +338,9 @@ export class SelectManager {
       if (constraints.blacklist != null) {
         if (
           constraints.blacklist.some((constr) => {
-            if (constr.shapeId != potentialSegment.shapeId) return false;
+            if (constr.shapeId !== potentialSegment.shapeId) return false;
             if (constr.index !== undefined)
-              return constr.index == potentialSegment.idx;
+              return constr.index === potentialSegment.idx;
             return true;
           })
         )
@@ -352,9 +350,9 @@ export class SelectManager {
     });
 
     // if no possibilities
-    if (constrainedSegments.length == 0) return null;
+    if (constrainedSegments.length === 0) return null;
 
-    if (constraints.numberOfObjects == 'allInDistance') {
+    if (constraints.numberOfObjects === 'allInDistance') {
       return constrainedSegments;
     }
 
@@ -377,7 +375,7 @@ export class SelectManager {
       });
 
       // if no possibilities
-      if (notHiddenSegments.length == 0) return null;
+      if (notHiddenSegments.length === 0) return null;
     }
 
     return notHiddenSegments[0];
@@ -398,17 +396,17 @@ export class SelectManager {
       constraints,
     );
 
-    if (app.environment.name == 'Geometrie') {
+    if (app.environment.name === 'Geometrie') {
       shapes = shapes
         .filter((s) => s.geometryObject?.geometryIsVisible !== false)
         .filter((s) => s.geometryObject?.geometryIsHidden !== true)
-        .filter((s) => s.geometryObject?.geometryIsConstaintDraw == false);
+        .filter((s) => s.geometryObject?.geometryIsConstaintDraw === false);
     }
 
     if (constraints.whitelist != null) {
       shapes = shapes.filter((shape) => {
         return constraints.whitelist.some((shape2) => {
-          return shape.id == shape2.id;
+          return shape.id === shape2.id;
         });
       });
     }
@@ -416,7 +414,7 @@ export class SelectManager {
     if (constraints.blacklist != null) {
       shapes = shapes.filter((shape) => {
         return constraints.blacklist.every((shape2) => {
-          return shape.id != shape2.id;
+          return shape.id !== shape2.id;
         });
       });
     }
@@ -429,7 +427,7 @@ export class SelectManager {
       )
         return shapes[0];
       const idx = shapes.findIndex((s) => s instanceof RegularShape);
-      if (idx != -1) shapes = shapes.slice(0, idx);
+      if (idx !== -1) shapes = shapes.slice(0, idx);
       const dists = shapes.map((s) => {
         if (s instanceof LineShape) {
           const projection =
@@ -474,7 +472,7 @@ export class SelectManager {
       !constr.priority.every((p) => {
         return ['points', 'segments', 'shapes'].includes(p);
       }) ||
-      constr.priority.length != 3
+      constr.priority.length !== 3
     ) {
       console.error('Bad constr.priority value!');
       return null;

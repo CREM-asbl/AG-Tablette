@@ -56,8 +56,12 @@ vi.mock('@controllers/Core/App', () => ({
     settings: {},
     tool: {},
     history: {},
+    canvasWidth: 800, // Nécessaire pour drawGridPoints
+    canvasHeight: 600, // Nécessaire pour drawGridPoints
     workspace: {
       lastKnownMouseCoordinates: { x: 0, y: 0 },
+      zoomLevel: 1, // Nécessaire pour drawGridPoints
+      translateOffset: { x: 0, y: 0 }, // Nécessaire pour drawGridPoints
     },
   },
 }));

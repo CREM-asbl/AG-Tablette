@@ -76,23 +76,23 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
           </button>
           <div class="toolContainer">
             ${this.families
-              .filter((family) => family.isVisible)
-              .map(
-                (family) =>
-                  html` <icon-button
+        .filter((family) => family.isVisible)
+        .map(
+          (family) =>
+            html` <icon-button
                     name="${family.shapeTemplates[0].name}"
                     type="Create"
                     title="${family.name}"
                     @click="${this._actionHandle}"
                   ></icon-button>`,
-              )}
+        )}
             ${this.tools
-              .filter(
-                (tool) =>
-                  tool.name != 'create' && tool.isVisible && !tool.isDisable,
-              )
-              .map(
-                (tool) => html`
+        .filter(
+          (tool) =>
+            tool.name !== 'create' && tool.isVisible && !tool.isDisable,
+        )
+        .map(
+          (tool) => html`
                   <icon-button
                     name="${tool.name}"
                     type="State"
@@ -101,7 +101,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
                     @click="${this._actionHandle}"
                   ></icon-button>
                 `,
-              )}
+        )}
           </div>
           <h3>Non disponibles</h3>
           <button id="allShow" @click="${this._actionHandle}">
@@ -109,23 +109,23 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
           </button>
           <div class="toolContainer">
             ${this.families
-              .filter((family) => !family.isVisible)
-              .map(
-                (family) =>
-                  html` <icon-button
+        .filter((family) => !family.isVisible)
+        .map(
+          (family) =>
+            html` <icon-button
                     name="${family.shapeTemplates[0].name}"
                     type="Create"
                     title="${family.name}"
                     @click="${this._actionHandle}"
                   ></icon-button>`,
-              )}
+        )}
             ${this.tools
-              .filter(
-                (tool) =>
-                  tool.name != 'create' && !tool.isVisible && !tool.isDisable,
-              )
-              .map(
-                (tool) => html`
+        .filter(
+          (tool) =>
+            tool.name !== 'create' && !tool.isVisible && !tool.isDisable,
+        )
+        .map(
+          (tool) => html`
                   <icon-button
                     name="${tool.name}"
                     type="State"
@@ -135,7 +135,7 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
                     @click="${this._actionHandle}"
                   ></icon-button>
                 `,
-              )}
+        )}
           </div>
         </div>
         <div slot="footer">
@@ -150,14 +150,14 @@ class ToolChoicePopup extends SignalWatcher(LitElement) {
 
   _actionHandle(event) {
     if (!app.fullHistory.isRunning) {
-      if (event.target.id == 'allHide') {
+      if (event.target.id === 'allHide') {
         toggleAllToolsVisibility(false);
         toggleAllFamiliesVisibility(false);
-      } else if (event.target.id == 'allShow') {
+      } else if (event.target.id === 'allShow') {
         toggleAllToolsVisibility(true);
         toggleAllFamiliesVisibility(true);
       } else {
-        if (event.target.type == 'Create') {
+        if (event.target.type === 'Create') {
           toggleFamilyVisibility(event.target.title);
         } else {
           toggleToolVisibility(event.target.name);
