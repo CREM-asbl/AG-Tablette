@@ -15,49 +15,52 @@ import { getAllActivities } from '../../utils/indexeddb-activities.js';
 import { debounce } from '../../utils/signal-observer.js';
 
 /**
+ * Interface pour les informations de synchronisation
+ */
+interface LastSyncInfo {
+  lastSyncDate: Date;
+  syncedFilesCount: number;
+  totalFilesCount: number;
+  totalThemesCount: number;
+  expiryDate: Date;
+  isExpired: boolean;
+  nextSyncDue: boolean;
+}
+
+/**
  * Types d'erreurs pour la synchronisation
  */
-class SyncError extends Error {
-  constructor(
-    message: string,
-    public type: string = 'SYNC_ERROR',
-  ) {
-    super(message);
-    this.name = 'SyncError';
-  }
-}
-
-class NetworkError extends SyncError {
-  constructor(message: string = 'Problème de connexion réseau') {
-    super(message, 'NETWORK_ERROR');
-  }
-}
-
-class AuthError extends SyncError {
-  constructor(message: string = "Erreur d'authentification") {
-    super(message, 'AUTH_ERROR');
-  }
-}
-
 @customElement('sync-settings-popup')
-class SyncSettingsPopup extends LitElement {
+class _SyncSettingsPopup extends LitElement {
   @property({ type: String }) errorMessage = '';
   @property({ type: String }) successMessage = '';
-  @property({ type: Object }) lastSyncInfo = null;
+  @property({ type: Object }) lastSyncInfo: LastSyncInfo | null = null;
   @property({ type: Boolean }) showClearCacheConfirmation = false;
   @property({ type: Boolean }) isSyncing = false;
   @property({ type: Number }) localActivitiesCount = 0;
+  @property({ type: Boolean }) private isLoading = false;
 
   private debouncedForceSync = debounce(this.forceSync.bind(this), 1000);
   private debouncedClearCache = debounce(this.clearCache.bind(this), 300);
+  private hasLoadedData = false;
 
   async connectedCallback() {
     super.connectedCallback();
-    await this.loadSyncInfo();
+    // Chargement paresseux : attendre le premier rendu pour charger les données
+    // Cela évite d'impacter le temps de montage initial du composant
+    requestAnimationFrame(() => {
+      this.loadSyncInfo();
+    });
   }
 
   async loadSyncInfo() {
+    // Éviter de charger plusieurs fois
+    if (this.hasLoadedData) {
+      return;
+    }
+
     try {
+      this.isLoading = true;
       const [syncInfo, localActivities] = await Promise.all([
         getLastSyncInfo(),
         getAllActivities(),
@@ -65,14 +68,14 @@ class SyncSettingsPopup extends LitElement {
 
       this.lastSyncInfo = syncInfo;
       this.localActivitiesCount = localActivities.length;
-
-      if ((window as any).dev_mode) {
-      }
+      this.hasLoadedData = true;
     } catch (error) {
       console.warn(
         'Erreur lors du chargement des informations de sync:',
         error,
       );
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -367,22 +370,24 @@ class SyncSettingsPopup extends LitElement {
     } catch (error) {
       console.error('[SYNC] Erreur synchronisation:', error);
 
+      const errorMessage = error instanceof Error ? error.message : String(error);
+
       if (
-        error.message?.includes('network') ||
-        error.message?.includes('fetch')
+        errorMessage.includes('network') ||
+        errorMessage.includes('fetch')
       ) {
         this.errorMessage =
           '🌐 Problème de connexion réseau. Vérifiez votre connexion internet.';
       } else if (
-        error.message?.includes('auth') ||
-        error.message?.includes('401')
+        errorMessage.includes('auth') ||
+        errorMessage.includes('401')
       ) {
         this.errorMessage = "🔒 Erreur d'authentification. Reconnectez-vous.";
-      } else if (error.message?.includes('timeout')) {
+      } else if (errorMessage.includes('timeout')) {
         this.errorMessage =
           "⏱️ Délai d'attente dépassé. Réessayez dans quelques instants.";
       } else {
-        this.errorMessage = `⚠️ Erreur technique: ${error.message}`;
+        this.errorMessage = `⚠️ Erreur technique: ${errorMessage}`;
       }
     } finally {
       this.isSyncing = false;
@@ -434,7 +439,8 @@ class SyncSettingsPopup extends LitElement {
       } else if (error instanceof CacheError) {
         this.errorMessage = `💾 Erreur cache: ${error.message}`;
       } else {
-        this.errorMessage = `⚠️ Erreur technique: ${error.message}`;
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        this.errorMessage = `⚠️ Erreur technique: ${errorMessage}`;
       }
     }
   }
@@ -450,80 +456,87 @@ class SyncSettingsPopup extends LitElement {
 
             <div
               class="status-indicator ${syncInProgress.value
-                ? 'progress'
-                : this.lastSyncInfo &&
-                    this.localActivitiesCount <
-                      this.lastSyncInfo.totalFilesCount
-                  ? 'warning'
-                  : 'success'}"
+        ? 'progress'
+        : this.lastSyncInfo &&
+          this.localActivitiesCount <
+          this.lastSyncInfo.totalFilesCount
+          ? 'warning'
+          : 'success'}"
             >
               <span>
                 ${syncInProgress.value
-                  ? `🔄 Synchronisation en cours (${Math.min(syncProgress.value ?? 0, 100)}%)`
-                  : this.lastSyncInfo &&
-                      this.localActivitiesCount <
-                        this.lastSyncInfo.totalFilesCount
-                    ? `⚠️ Synchronisation partielle (${this.localActivitiesCount}/${this.lastSyncInfo.totalFilesCount})`
-                    : '✅ Synchronisation complète'}
+        ? `🔄 Synchronisation en cours (${Math.min(syncProgress.value ?? 0, 100)}%)`
+        : this.lastSyncInfo &&
+          this.localActivitiesCount <
+          this.lastSyncInfo.totalFilesCount
+          ? `⚠️ Synchronisation partielle (${this.localActivitiesCount}/${this.lastSyncInfo.totalFilesCount})`
+          : '✅ Synchronisation complète'}
               </span>
             </div>
 
-            ${this.lastSyncInfo
-              ? html`
-                  <div class="sync-details">
-                    <div class="detail-item">
-                      <div class="detail-label">Dernière synchronisation</div>
-                      <div class="detail-value">
-                        ${this.lastSyncInfo.lastSyncDate.toLocaleDateString()} à
-                        ${this.lastSyncInfo.lastSyncDate.toLocaleTimeString()}
-                      </div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">Statut</div>
-                      <div class="detail-value">
-                        ${this.lastSyncInfo.nextSyncDue
-                          ? '⚠️ Sync recommandée'
-                          : '✅ À jour'}
-                      </div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">Activités en local</div>
-                      <div class="detail-value">
-                        ${this.localActivitiesCount} /
-                        ${this.lastSyncInfo.totalFilesCount} disponibles
-                      </div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">Dernière session</div>
-                      <div class="detail-value">
-                        ${this.lastSyncInfo.syncedFilesCount}
-                        ${this.lastSyncInfo.syncedFilesCount === 1
-                          ? 'mise à jour'
-                          : 'mises à jour'}
-                      </div>
-                    </div>
-                    <div class="detail-item">
-                      <div class="detail-label">Thèmes disponibles</div>
-                      <div class="detail-value">
-                        ${this.lastSyncInfo.totalThemesCount} thèmes
-                      </div>
-                    </div>
+            ${this.isLoading
+        ? html`
+                  <div class="message warning-message">
+                    <span>⏳</span>
+                    <span>Chargement des informations...</span>
                   </div>
                 `
-              : html`
-                  <div class="message warning-message">
-                    <span>⚠️</span>
-                    <span>Aucune synchronisation détectée</span>
-                  </div>
-                `}
+        : this.lastSyncInfo
+          ? html`
+                    <div class="sync-details">
+                      <div class="detail-item">
+                        <div class="detail-label">Dernière synchronisation</div>
+                        <div class="detail-value">
+                          ${this.lastSyncInfo.lastSyncDate.toLocaleDateString()} à
+                          ${this.lastSyncInfo.lastSyncDate.toLocaleTimeString()}
+                        </div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-label">Statut</div>
+                        <div class="detail-value">
+                          ${this.lastSyncInfo.nextSyncDue
+              ? '⚠️ Sync recommandée'
+              : '✅ À jour'}
+                        </div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-label">Activités en local</div>
+                        <div class="detail-value">
+                          ${this.localActivitiesCount} /
+                          ${this.lastSyncInfo.totalFilesCount} disponibles
+                        </div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-label">Dernière session</div>
+                        <div class="detail-value">
+                          ${this.lastSyncInfo.syncedFilesCount}
+                          ${this.lastSyncInfo.syncedFilesCount === 1
+              ? 'mise à jour'
+              : 'mises à jour'}
+                        </div>
+                      </div>
+                      <div class="detail-item">
+                        <div class="detail-label">Thèmes disponibles</div>
+                        <div class="detail-value">
+                          ${this.lastSyncInfo.totalThemesCount} thèmes
+                        </div>
+                      </div>
+                    </div>
+                  `
+          : html`
+                    <div class="message warning-message">
+                      <span>⚠️</span>
+                      <span>Aucune synchronisation détectée</span>
+                    </div>
+                  `}
 
             <div class="primary-action">
               <color-button
                 @click="${this.debouncedForceSync}"
                 ?disabled="${this.isSyncing || syncInProgress.value}"
                 aria-label="${this.lastSyncInfo?.nextSyncDue
-                  ? 'Synchroniser les données maintenant'
-                  : 'Forcer une nouvelle synchronisation'}"
+        ? 'Synchroniser les données maintenant'
+        : 'Forcer une nouvelle synchronisation'}"
                 role="button"
                 tabindex="0"
               >
@@ -531,8 +544,8 @@ class SyncSettingsPopup extends LitElement {
                   >${this.lastSyncInfo?.nextSyncDue ? '🔄' : '🔧'}</span
                 >
                 ${this.lastSyncInfo?.nextSyncDue
-                  ? 'Synchroniser maintenant'
-                  : 'Forcer la synchronisation'}
+        ? 'Synchroniser maintenant'
+        : 'Forcer la synchronisation'}
               </color-button>
             </div>
 
@@ -573,20 +586,20 @@ class SyncSettingsPopup extends LitElement {
 
           <!-- Messages d'état -->
           ${this.errorMessage
-            ? html`
+        ? html`
                 <div class="message error-message">
                   <span>⚠️</span>
                   <span>${this.errorMessage}</span>
                 </div>
               `
-            : ''}
+        : ''}
           ${this.successMessage
-            ? html`
+        ? html`
                 <div class="message success-message">
                   <span>${this.successMessage}</span>
                 </div>
               `
-            : ''}
+        : ''}
         </div>
       </template-popup>
 
