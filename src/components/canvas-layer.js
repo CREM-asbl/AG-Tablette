@@ -1046,7 +1046,7 @@ class CanvasLayer extends LitElement {
     } else if (gridState.gridType === 'horizontal-lines') {
       gridWorldX = worldX; // Pas de contrainte sur X
       gridWorldY = Math.round(worldY / baseGridStep) * baseGridStep;
-    } else if (gridState.gridType === 'horizontal-triangle') {
+    } else if (gridState.gridType === 'vertical-triangle') {
       // Grille triangulaire verticale
       const triangleHeight = baseGridStep * (Math.sqrt(3) / 2);
 
@@ -1061,7 +1061,7 @@ class CanvasLayer extends LitElement {
       const adjustedX = worldX - offsetX;
       const col = Math.round(adjustedX / baseGridStep);
       gridWorldX = col * baseGridStep + offsetX;
-    } else if (gridState.gridType === 'vertical-triangle') {
+    } else if (gridState.gridType === 'horizontal-triangle') {
       // Grille triangulaire horizontale
       const horizontalStep = baseGridStep * (Math.sqrt(3) / 2);
 

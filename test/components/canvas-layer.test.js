@@ -188,15 +188,15 @@ describe('CanvasLayer', () => {
         const checkingPixelCoords = new Coordinates({ x: 40, y: 40 });
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
         expect(closest).toBeInstanceOf(Coordinates);
-        expect(closest.x).toBeCloseTo(37.795);
-        expect(closest.y).toBeCloseTo(37.795);
+        expect(closest.x).toBeCloseTo(37.8);
+        expect(closest.y).toBeCloseTo(37.8);
       });
 
       it('should find the exact point if on a grid intersection', () => {
-        const checkingPixelCoords = new Coordinates({ x: 37.795, y: 37.795 * 2 });
+        const checkingPixelCoords = new Coordinates({ x: 37.8, y: 37.8 * 2 });
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
-        expect(closest.x).toBeCloseTo(37.795);
-        expect(closest.y).toBeCloseTo(37.795 * 2);
+        expect(closest.x).toBeCloseTo(37.8);
+        expect(closest.y).toBeCloseTo(37.8 * 2);
       });
     });
 
@@ -215,33 +215,33 @@ describe('CanvasLayer', () => {
         const checkingPixelCoords = new Coordinates({ x: 30, y: 100 });
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
         expect(closest).toBeInstanceOf(Coordinates);
-        expect(closest.x).toBeCloseTo(37.795);
+        expect(closest.x).toBeCloseTo(37.8);
         expect(closest.y).toBe(100);
       });
 
       it('should find the exact point if X is on a grid line, Y aligns with input', () => {
-        const checkingPixelCoords = new Coordinates({ x: 37.795 * 2, y: 150 });
+        const checkingPixelCoords = new Coordinates({ x: 37.8 * 2, y: 150 });
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
-        expect(closest.x).toBeCloseTo(37.795 * 2);
+        expect(closest.x).toBeCloseTo(37.8 * 2);
         expect(closest.y).toBe(150);
       });
 
       it('should handle points between two vertical lines', () => {
         const checkingCloserToSecond = new Coordinates({ x: 60, y: 200 });
         const closest2 = canvasLayerElement.getClosestGridPoint(checkingCloserToSecond);
-        expect(closest2.x).toBeCloseTo(37.795 * 2);
+        expect(closest2.x).toBeCloseTo(37.8 * 2);
         expect(closest2.y).toBe(200);
 
         const checkingCloserToFirst = new Coordinates({ x: 50, y: 200 });
         const closest1 = canvasLayerElement.getClosestGridPoint(checkingCloserToFirst);
-        expect(closest1.x).toBeCloseTo(37.795);
+        expect(closest1.x).toBeCloseTo(37.8);
         expect(closest1.y).toBe(200);
       });
 
       it('should handle points outside canvas width but within calculatedSize margin', () => {
         const checkingPixelCoords = new Coordinates({ x: 810, y: 50 });
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
-        expect(closest.x).toBeCloseTo(22 * 37.795);
+        expect(closest.x).toBeCloseTo(21 * 37.8);
         expect(closest.y).toBe(50);
       });
     });
@@ -262,33 +262,33 @@ describe('CanvasLayer', () => {
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
         expect(closest).toBeInstanceOf(Coordinates);
         expect(closest.x).toBe(100);
-        expect(closest.y).toBeCloseTo(37.795);
+        expect(closest.y).toBeCloseTo(37.8);
       });
 
       it('should find the exact point if Y is on a grid line, X aligns with input', () => {
-        const checkingPixelCoords = new Coordinates({ x: 150, y: 37.795 * 2 });
+        const checkingPixelCoords = new Coordinates({ x: 150, y: 37.8 * 2 });
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
         expect(closest.x).toBe(150);
-        expect(closest.y).toBeCloseTo(37.795 * 2);
+        expect(closest.y).toBeCloseTo(37.8 * 2);
       });
 
       it('should handle points between two horizontal lines', () => {
         const checkingCloserToSecond = new Coordinates({ x: 200, y: 60 });
         const closest2 = canvasLayerElement.getClosestGridPoint(checkingCloserToSecond);
         expect(closest2.x).toBe(200);
-        expect(closest2.y).toBeCloseTo(37.795 * 2);
+        expect(closest2.y).toBeCloseTo(37.8 * 2);
 
         const checkingCloserToFirst = new Coordinates({ x: 200, y: 50 });
         const closest1 = canvasLayerElement.getClosestGridPoint(checkingCloserToFirst);
         expect(closest1.x).toBe(200);
-        expect(closest1.y).toBeCloseTo(37.795);
+        expect(closest1.y).toBeCloseTo(37.8);
       });
 
       it('should handle points outside canvas height but within calculatedSize margin', () => {
         const checkingPixelCoords = new Coordinates({ x: 50, y: 610 });
         const closest = canvasLayerElement.getClosestGridPoint(checkingPixelCoords);
         expect(closest.x).toBe(50);
-        expect(closest.y).toBeCloseTo(16 * 37.795);
+        expect(closest.y).toBeCloseTo(16 * 37.8);
       });
     });
 
@@ -304,7 +304,7 @@ describe('CanvasLayer', () => {
       });
 
       it('should find the closest vertex in a vertical triangle grid', () => {
-        const side = 37.795;
+        const side = 37.8;
         const triangleHeight = side * Math.sqrt(3) / 2;
 
         let checkingPixelCoords = new Coordinates({ x: 5, y: 5 });
@@ -329,7 +329,7 @@ describe('CanvasLayer', () => {
       });
 
       it('should correctly snap to vertices when between multiple choices', () => {
-        const side = 37.795;
+        const side = 37.8;
         const triangleHeight = side * Math.sqrt(3) / 2;
 
         let checkingPixelCoords = new Coordinates({ x: side / 2 - 1, y: triangleHeight / 3 });
@@ -361,7 +361,7 @@ describe('CanvasLayer', () => {
       });
 
       it('should find the closest vertex in a horizontal triangle grid', () => {
-        const side = 37.795;
+        const side = 37.8;
         const horizontalStep = side * Math.sqrt(3) / 2;
 
         let checkingPixelCoords = new Coordinates({ x: 5, y: 5 });
@@ -386,7 +386,7 @@ describe('CanvasLayer', () => {
       });
 
       it('should correctly snap to vertices when between multiple choices', () => {
-        const side = 37.795;
+        const side = 37.8;
         const horizontalStep = side * Math.sqrt(3) / 2;
 
         let checkingPixelCoords = new Coordinates({ x: horizontalStep / 4, y: side / 4 });
