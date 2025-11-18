@@ -186,6 +186,9 @@ class Tool {
 3. **Respecter les patterns** établis
 4. **Tester localement** avec `npm run test:all`
 
+### 🚦 Évolution du state management
+> **Note (novembre 2025)** : Pour les futurs développements, la gestion d'état doit progressivement migrer vers un système basé sur **Signal** (state management réactif). Toute nouvelle fonctionnalité ou refactorisation majeure doit privilégier l'usage de Signal pour la gestion d'état, en cohérence avec l'architecture existante et de façon incrémentale.
+
 ### Pour les nouveaux outils géométriques
 1. Créer un dossier `controllers/[NomOutil]/`
 2. Hériter de la classe `Tool` de base
