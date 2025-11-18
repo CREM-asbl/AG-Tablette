@@ -12,7 +12,7 @@ export const setToolsVisibility = (toolsVisibility) => {
   const current = tools.get();
   current.forEach((tool) => {
     const toolVisibility = toolsVisibility.find((t) => t.name === tool.name);
-    if (toolVisibility) {
+    if (toolVisibility && toolVisibility.isVisible !== undefined) {
       tool.isVisible = toolVisibility.isVisible;
     }
   });

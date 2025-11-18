@@ -3,7 +3,9 @@ import { signal } from '@lit-labs/signals';
 export const kit = signal();
 
 export const getFamily = (name) => {
-  return kit.get().families.find((family) => family.name === name);
+  const currentKit = kit.get();
+  if (!currentKit || !currentKit.families) return undefined;
+  return currentKit.families.find((family) => family.name === name);
 };
 
 const initTemplates = (families) => {

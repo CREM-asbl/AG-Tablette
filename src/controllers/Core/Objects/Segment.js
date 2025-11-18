@@ -73,7 +73,7 @@ export class Segment {
         });
         return newPoint.id;
       });
-      if (arcCenterCoordinates !== undefined) {
+      if (arcCenterCoordinates) {
         const arcCenter = new Point({
           layer: this.layer,
           segmentIds: [this.id],

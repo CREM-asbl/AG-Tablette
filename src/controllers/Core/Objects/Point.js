@@ -44,7 +44,7 @@ export class Point {
     this.layer = layer;
     this.canvasLayer.points.push(this);
 
-    if (coordinates !== undefined)
+    if (coordinates !== undefined && coordinates !== null)
       this.coordinates = new Coordinates(coordinates);
     else
       this.coordinates = new Coordinates({
@@ -119,7 +119,7 @@ export class Point {
    * rotate a point clockwise
    * @param {number} angle - rotation angle
    * @param {{x: number, y: number}} [center] - rotation center
-   * @return {{x: number, y: number}} new coordinates
+   * @return {Point} this (for chaining)
    */
   rotate(angle, center = { x: 0, y: 0 }) {
     const s = Math.sin(angle),
@@ -128,9 +128,8 @@ export class Point {
       y = this.y - center.y,
       newX = x * c - y * s + center.x,
       newY = x * s + y * c + center.y;
-    this.x = newX;
-    this.y = newY;
-    return this.copy();
+    this.coordinates = new Coordinates({ x: newX, y: newY });
+    return this;
   }
 
   computeTransformConstraint() {

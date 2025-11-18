@@ -189,6 +189,8 @@ class Tool {
 ### 🚦 Évolution du state management
 > **Note (novembre 2025)** : Pour les futurs développements, la gestion d'état doit progressivement migrer vers un système basé sur **Signal** (state management réactif). Toute nouvelle fonctionnalité ou refactorisation majeure doit privilégier l'usage de Signal pour la gestion d'état, en cohérence avec l'architecture existante et de façon incrémentale.
 
+> **⚠️ PRÉREQUIS MIGRATION** : Avant toute migration vers Signal, la couverture des tests des modules critiques doit atteindre **60% minimum**. Voir `docs/test-coverage-plan.md` pour le plan détaillé. État actuel : 20.4% global, modules critiques entre 0% et 93%.
+
 ### Pour les nouveaux outils géométriques
 1. Créer un dossier `controllers/[NomOutil]/`
 2. Hériter de la classe `Tool` de base

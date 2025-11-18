@@ -60,6 +60,9 @@ export class ShapeManager {
    * @param {Number} nbr number of shapes to reverse
    */
   static reverseUpperShapes(nbr) {
+    // Si nbr = 0, ne rien faire
+    if (nbr === 0) return;
+
     const lower = app.workspace.shapes.slice(0, -nbr),
       upper = app.workspace.shapes.slice(-nbr);
     app.workspace.shapes = [...lower, ...upper.reverse()];

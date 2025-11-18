@@ -8,7 +8,7 @@ export class Coordinates {
    * @param {Number}                      x
    * @param {Number}                      y
    */
-  constructor({ x = 0, y = 0 }) {
+  constructor({ x = 0, y = 0 } = {}) {
     this.x = parseFloat(x);
     this.y = parseFloat(y);
   }
