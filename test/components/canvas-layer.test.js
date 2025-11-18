@@ -297,7 +297,7 @@ describe('CanvasLayer', () => {
         const currentState = gridStore.getState();
         gridStore.getState.mockReturnValue({
           ...currentState,
-          gridType: 'vertical-triangle',
+          gridType: 'horizontal-triangle',
           gridSize: 1,
           isVisible: true,
         });
@@ -354,7 +354,7 @@ describe('CanvasLayer', () => {
         const currentState = gridStore.getState();
         gridStore.getState.mockReturnValue({
           ...currentState,
-          gridType: 'horizontal-triangle',
+          gridType: 'vertical-triangle',
           gridSize: 1,
           isVisible: true,
         });
