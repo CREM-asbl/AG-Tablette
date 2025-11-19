@@ -52,6 +52,14 @@ export const settings = signal({
 // Signaux pour l'interface utilisateur
 export const notifications = signal([]);
 export const dialogs = signal([]);
+export const filename = signal('');
+export const helpSelected = signal(false);
+export const historyState = signal({
+  canUndo: false,
+  canRedo: false,
+  size: 0,
+  currentIndex: -1,
+});
 
 // Signaux calculés pour des données dérivées
 export const isEnvironmentLoaded = computed(() => {
@@ -111,6 +119,14 @@ export const appActions = {
     window.dispatchEvent(
       new CustomEvent('environment:modules-changed', { detail: { modules } }),
     );
+  },
+
+  setFilename: (name) => {
+    filename.set(name);
+  },
+
+  setHelpSelected: (selected) => {
+    helpSelected.set(selected);
   },
 
   setActiveTool: (toolName) => {
@@ -253,6 +269,7 @@ class SimpleHistory {
         detail: { index: this.currentIndex },
       }),
     );
+    this.updateSignal();
   }
 
   undo() {
@@ -265,6 +282,7 @@ class SimpleHistory {
           detail: { index: this.currentIndex },
         }),
       );
+      this.updateSignal();
       return true;
     }
     return false;
@@ -280,6 +298,7 @@ class SimpleHistory {
           detail: { index: this.currentIndex },
         }),
       );
+      this.updateSignal();
       return true;
     }
     return false;
@@ -303,6 +322,11 @@ class SimpleHistory {
     this.history = [];
     this.currentIndex = -1;
     window.dispatchEvent(new CustomEvent('history:cleared'));
+    this.updateSignal();
+  }
+
+  updateSignal() {
+    historyState.set(this.getStats());
   }
 
   getStats() {
@@ -388,6 +412,8 @@ export const resetAppState = () => {
   });
   notifications.set([]);
   dialogs.set([]);
+  filename.set('');
+  helpSelected.set(false);
   history.clear();
 
   window.dispatchEvent(new CustomEvent('app:state-reset'));

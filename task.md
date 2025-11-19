@@ -1,0 +1,12 @@
+# Tâches
+
+- [x] Finaliser le plan de couverture de tests <!-- id: 0 -->
+    - [x] Vérifier la couverture actuelle <!-- id: 1 -->
+    - [x] Mettre à jour `docs/test-coverage-plan.md` <!-- id: 2 -->
+    - [x] Confirmer la fin de la Phase 1 <!-- id: 3 -->
+- [x] Préparer la migration Signal <!-- id: 4 -->
+- [ ] Phase 2 : Migration UI vers Signal <!-- id: 5 -->
+    - [x] Identifier un composant pilote <!-- id: 6 -->
+    - [x] Migrer le composant pilote <!-- id: 7 -->
+    - [x] Vérifier le fonctionnement <!-- id: 8 -->
+    - [x] Migrer `ag-menu.ts` <!-- id: 9 -->

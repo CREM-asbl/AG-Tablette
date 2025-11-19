@@ -262,3 +262,8 @@ export const setState = (update) => {
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   changes.set(update);
 };
+
+// Initialisation du service de synchronisation Signal
+import { signalSyncService } from '../../services/SignalSyncService';
+signalSyncService.init(app);
+

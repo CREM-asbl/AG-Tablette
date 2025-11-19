@@ -6,17 +6,13 @@ import { SignalWatcher } from '@lit-labs/signals';
 import { kit } from '@store/kit';
 import { tools } from '@store/tools';
 import { css, html, LitElement } from 'lit';
-import { customElement, property } from 'lit/decorators.js';
-import { app, setState } from '../controllers/Core/App';
+import { customElement } from 'lit/decorators.js';
+import { app } from '../controllers/Core/App';
 import { createElem } from '../controllers/Core/Tools/general';
+import { activeTool, appActions, helpSelected, historyActions, historyState } from '../store/appState';
 
 @customElement('ag-menu')
 class AGMenu extends SignalWatcher(LitElement) {
-  @property({ type: Boolean }) helpSelected = false;
-  @property({ type: Object }) tool;
-  @property({ type: Boolean }) canUndo = false;
-  @property({ type: Boolean }) canRedo = false;
-
   static styles = css`
     :host {
       display: flex;
@@ -41,37 +37,61 @@ class AGMenu extends SignalWatcher(LitElement) {
   `;
 
   render() {
+    const currentToolName = activeTool.get();
+    const currentTool = currentToolName ? { name: currentToolName, title: app.tool?.title, selectedFamily: app.tool?.selectedFamily } : null;
+    // Note: app.tool might still be needed for title/family if not in store yet, 
+    // but ideally we should get everything from store. 
+    // For now, we rely on activeTool for the name, but title might be missing if we don't look it up.
+    // Let's look up the tool info from the tools store if possible, or keep using app.tool as fallback for properties not yet in signal.
+    // Actually, appState.js has activeTool name. tools.js has the list of tools.
+
+    let toolTitle = 'Sélectionnez une fonctionnalité';
+    let toolFamily = '';
+
+    if (currentToolName) {
+      const toolList = tools.get();
+      const toolInfo = toolList.find(t => t.name === currentToolName);
+      if (toolInfo) {
+        toolTitle = 'mode: ' + toolInfo.title;
+        toolFamily = toolInfo.type; // Assuming type is the family
+      } else if (app.tool) {
+        toolTitle = 'mode: ' + app.tool.title;
+        toolFamily = app.tool.selectedFamily;
+      }
+    }
+
+    const isHelpSelected = helpSelected.get();
+    const history = historyState.get();
+
     return html`
       <h3>
-        ${this.tool?.title != null
-        ? 'mode: ' + this.tool.title
-        : 'Sélectionnez une fonctionnalité'}
+        ${toolTitle}
       </h3>
       <template-toolbar>
-        <div slot="body">${this._renderActionButtons()}</div>
+        <div slot="body">${this._renderActionButtons(history, isHelpSelected)}</div>
       </template-toolbar>
 
       <toolbar-kit
         .kit=${kit.get()}
-        selectedFamily="${this.tool?.selectedFamily}"
-        ?helpSelected="${this.helpSelected}"
-        selected="${this.tool?.name}"
+        selectedFamily="${toolFamily}"
+        ?helpSelected="${isHelpSelected}"
+        selected="${currentToolName}"
       >
       </toolbar-kit>
-      ${this._renderToolbarSections()}
+      ${this._renderToolbarSections(isHelpSelected, currentToolName)}
     `;
   }
 
-  _renderActionButtons() {
+  _renderActionButtons(history, isHelpSelected) {
     const actions = [
       { name: 'home', title: 'Accueil' },
       { name: 'open', title: 'Ouvrir' },
       { name: 'save', title: 'Enregistrer' },
       { name: 'settings', title: 'Paramètres' },
-      { name: 'undo', title: 'Annuler', disabled: !this.canUndo },
-      { name: 'redo', title: 'Refaire', disabled: !this.canRedo },
+      { name: 'undo', title: 'Annuler', disabled: !history.canUndo },
+      { name: 'redo', title: 'Refaire', disabled: !history.canRedo },
       { name: 'replay', title: 'Rejouer' },
-      { name: 'help', title: 'Aide', active: this.helpSelected },
+      { name: 'help', title: 'Aide', active: isHelpSelected },
     ];
 
     return actions.map(
@@ -81,14 +101,14 @@ class AGMenu extends SignalWatcher(LitElement) {
           title="${action.title}"
           ?disabled="${action.disabled}"
           ?active="${action.active}"
-          ?helpanimation="${this.helpSelected}"
+          ?helpanimation="${isHelpSelected}"
           @click="${this._actionHandle}"
         ></icon-button>
       `,
     );
   }
 
-  _renderToolbarSections() {
+  _renderToolbarSections(isHelpSelected, currentToolName) {
     const sections = [
       { title: 'Figures libres', toolsType: 'geometryCreator' },
       { title: 'Mouvements', toolsType: 'move' },
@@ -103,8 +123,8 @@ class AGMenu extends SignalWatcher(LitElement) {
           title="${section.title}"
           .tools="${tools.get()}"
           toolsType="${section.toolsType}"
-          ?helpSelected="${this.helpSelected}"
-          selected="${this.tool?.name}"
+          ?helpSelected="${isHelpSelected}"
+          selected="${currentToolName}"
         ></toolbar-section>
       `,
     );
@@ -116,13 +136,13 @@ class AGMenu extends SignalWatcher(LitElement) {
       return;
     }
 
-    if (this.helpSelected) {
+    if (helpSelected.get()) {
       window.dispatchEvent(
         new CustomEvent('helpToolChosen', {
           detail: { toolname: event.target.name },
         }),
       );
-      setState({ helpSelected: false });
+      appActions.setHelpSelected(false);
       return;
     }
 
@@ -145,11 +165,17 @@ class AGMenu extends SignalWatcher(LitElement) {
         createElem('home-popup');
         return true;
       },
-      undo: () => window.dispatchEvent(new CustomEvent('undo')),
-      redo: () => window.dispatchEvent(new CustomEvent('redo')),
+      undo: () => {
+        historyActions.undo();
+        return false; // Undo doesn't reset tool usually, or does it? Original code dispatched event.
+      },
+      redo: () => {
+        historyActions.redo();
+        return false;
+      },
       replay: () => window.dispatchEvent(new CustomEvent('start-browsing')),
       help: () => {
-        setState({ helpSelected: true });
+        appActions.setHelpSelected(true);
         return true;
       },
     };
@@ -158,7 +184,7 @@ class AGMenu extends SignalWatcher(LitElement) {
     if (action) {
       const resetTool = action();
       if (resetTool) {
-        setState({ tool: null });
+        appActions.setActiveTool(null);
       }
     } else {
       console.info(

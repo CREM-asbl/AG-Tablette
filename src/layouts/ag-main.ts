@@ -2,13 +2,14 @@ import '@components/canvas-container';
 import '@components/popups/notification';
 import { bugSend } from '@controllers/Bugs';
 import '@layouts/ag-menu';
+import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import '../components/sync-status-indicator.ts';
 import { app } from '../controllers/Core/App';
-import { HistoryManager } from '../controllers/Core/Managers/HistoryManager';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import { createElem } from '../controllers/Core/Tools/general';
+import { activeTool, environmentConfig, filename, helpSelected, historyState } from '../store/appState';
 import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
 
@@ -28,7 +29,7 @@ if ('serviceWorker' in navigator) {
 }
 
 @customElement('ag-main')
-class AGMain extends LitElement {
+class AGMain extends SignalWatcher(LitElement) {
   @property({ type: Boolean }) canUndo = false;
   @property({ type: Boolean }) canRedo = false;
   @property({ type: String }) background = '';
@@ -79,14 +80,20 @@ class AGMain extends LitElement {
   `;
 
   render() {
+    const currentToolName = activeTool.get();
+    const currentTool = currentToolName ? { name: currentToolName } : null;
+    const history = historyState.get();
+    const currentFilename = filename.get();
+    const isHelpSelected = helpSelected.get();
+
+    // Update title
+    const title = currentFilename || 'AG mobile';
+    if (document.title !== title) document.title = title;
+
     return html`
       <div id="app-view">
         <ag-menu
           id="left-menu"
-          .helpSelected="${this.helpSelected}"
-          .tool="${this.tool}"
-          .canUndo="${this.canUndo}"
-          .canRedo="${this.canRedo}"
         >
         </ag-menu>
         <canvas-container
@@ -128,15 +135,9 @@ class AGMain extends LitElement {
   }
 
   showZoom() {
-    if (app.tool?.name !== 'zoom') return html``;
+    if (activeTool.get() !== 'zoom') return html``;
     import('../controllers/Zoom/zoom-menu');
     return html`<zoom-menu></zoom-menu>`;
-  }
-
-  updateProperties() {
-    this.helpSelected = app.helpSelected;
-    this.filename = app.filename || '';
-    document.title = this.filename !== '' ? this.filename : 'AG mobile';
   }
 
   preventZoom(e) {
@@ -157,13 +158,7 @@ class AGMain extends LitElement {
       ) as HTMLInputElement;
       input?.click();
     });
-    window.addEventListener('history-changed', () => {
-      this.canUndo = HistoryManager.canUndo();
-      this.canRedo = HistoryManager.canRedo();
-    });
-    window.addEventListener('tool-changed', () => {
-      this.tool = app.tool;
-    });
+
     this.addEventListener('touchstart', this.preventZoom);
     window.addEventListener('helpToolChosen', (e) => {
       import('@components/popups/help-popup');
@@ -171,10 +166,7 @@ class AGMain extends LitElement {
       // @ts-ignore
       helpElem.toolname = e.detail.toolname;
     });
-    window.addEventListener('state-changed', () => {
-      this.updateProperties();
-      this.requestUpdate();
-    });
+
     window.onerror = (a, b, c, d, e) => {
       bugSend(a, b, c, d, e);
       if (location.hostname === 'localhost') return false;
