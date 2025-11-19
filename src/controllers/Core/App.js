@@ -3,6 +3,7 @@ import { resetToolsVisibility, tools } from '@store/tools';
 import { resetKitVisibility } from '../../store/kit';
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
+import './Managers/HistoryManager'; // Import to register event listeners
 import { Workspace } from './Objects/Workspace';
 import { uniqId } from './Tools/general';
 

@@ -1,5 +1,5 @@
 import { app } from '../../src/controllers/Core/App.js';
-import { appActions, activeTool, viewport, settings } from '../../src/store/appState.js';
+import { appActions, activeTool, viewport, settings, historyState } from '../../src/store/appState.js';
 import { signalSyncService } from '../../src/services/SignalSyncService.js';
 import { describe, it, expect, beforeEach } from 'vitest';
 
@@ -43,4 +43,17 @@ describe('SignalSyncService Integration', () => {
 
         expect(settings.get().magnetismDistance).toBe(50);
     });
+
+    it('should sync history changes', () => {
+        // Test history sync
+        app.history = { index: 1, steps: [{}, {}, {}] };
+        window.dispatchEvent(new CustomEvent('history-changed'));
+
+        const history = historyState.get();
+        expect(history.canUndo).toBe(true);
+        expect(history.canRedo).toBe(true);
+        expect(history.size).toBe(3);
+        expect(history.currentIndex).toBe(1);
+    });
 });
+

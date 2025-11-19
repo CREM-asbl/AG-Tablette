@@ -10,3 +10,7 @@
     - [x] Migrer le composant pilote <!-- id: 7 -->
     - [x] Vérifier le fonctionnement <!-- id: 8 -->
     - [x] Migrer `ag-menu.ts` <!-- id: 9 -->
+    - [x] Déboguer et corriger le problème undo/redo (HistoryManager non importé)
+- [ ] Continuer la migration des composants UI
+    - [ ] Migrer `canvas-container.ts` <!-- id: 10 -->
+    - [ ] Migrer les autres composants progressivement

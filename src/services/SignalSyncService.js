@@ -1,4 +1,4 @@
-import { appActions, filename, helpSelected } from '../store/appState';
+import { appActions, filename, helpSelected, historyState } from '../store/appState';
 
 /**
  * Service de synchronisation entre le système d'événements legacy (Workspace)
@@ -46,8 +46,12 @@ export class SignalSyncService {
 
     // Synchronisation de l'historique
     this.addListener('history-changed', () => {
-      // L'historique se met à jour lui-même via SimpleHistory, 
-      // mais on peut forcer une synchro si nécessaire ou gérer des cas spécifiques
+      appActions.setHistoryState({
+        canUndo: app.history.index !== -1,
+        canRedo: app.history.index < app.history.steps.length - 1,
+        size: app.history.steps.length,
+        currentIndex: app.history.index,
+      });
     });
 
     // Synchronisation du nom de fichier

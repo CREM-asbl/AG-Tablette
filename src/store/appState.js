@@ -129,6 +129,10 @@ export const appActions = {
     helpSelected.set(selected);
   },
 
+  setHistoryState: (state) => {
+    historyState.set(state);
+  },
+
   setActiveTool: (toolName) => {
     activeTool.set(toolName);
     // Réinitialiser l'état de l'outil
@@ -345,13 +349,22 @@ export const history = new SimpleHistory();
  * Actions d'historique
  */
 export const historyActions = {
-  save: () => history.saveState(),
-  undo: () => history.undo(),
-  redo: () => history.redo(),
-  clear: () => history.clear(),
-  canUndo: () => history.canUndo(),
-  canRedo: () => history.canRedo(),
-  getStats: () => history.getStats(),
+  save: () => {
+    // Legacy save is automatic or handled by HistoryManager
+    // For now, we might not need an explicit save action from UI if it's automatic
+    // But if we did, we'd dispatch an event.
+    // HistoryManager.addStep() is called on 'actions-executed'
+  },
+  undo: () => window.dispatchEvent(new CustomEvent('undo')),
+  redo: () => window.dispatchEvent(new CustomEvent('redo')),
+  clear: () => {
+    // Legacy clear
+    // window.dispatchEvent(new CustomEvent('new-window')); // Maybe? Or just clear history?
+    // For now let's just dispatch a clear event if it exists, or do nothing if not used by UI yet
+  },
+  canUndo: () => historyState.get().canUndo,
+  canRedo: () => historyState.get().canRedo,
+  getStats: () => historyState.get(),
 };
 
 /**
