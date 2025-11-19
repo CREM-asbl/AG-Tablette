@@ -98,7 +98,6 @@ class AGMain extends SignalWatcher(LitElement) {
         </ag-menu>
         <canvas-container
           id="canvas-container"
-          .environment="${app.environment}"
         ></canvas-container>
       </div>
       <sync-status-indicator></sync-status-indicator>

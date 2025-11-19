@@ -54,6 +54,29 @@ Cette simple ligne garantit que les event listeners de `HistoryManager` sont enr
 
 Le système fonctionne maintenant de bout en bout ! ✅
 
+## Migration de canvas-container.ts
+
+### Approche Minimaliste
+Après analyse, `canvas-container.ts` ne nécessitait qu'une **migration minimale** car :
+- L'état du curseur (`cursorPos`, `cursorShow`) est **local** au composant
+- Les event listeners sont appropriés pour le cycle de vie du composant
+- Seule la prop `environment` devait être migrée vers un signal
+
+### Changements Effectués
+- **`src/components/canvas-container.ts`** :
+  - Ajout de `SignalWatcher`
+  - Import et utilisation de `currentEnvironment` signal
+  - Suppression de `@property environment`
+  - Utilisation de `currentEnvironment.get()` dans `render()`
+
+- **`src/layouts/ag-main.ts`** :
+  - Suppression de la prop `.environment="${app.environment}"`
+
+### Vérification
+- ✅ Le canvas s'affiche correctement
+- ✅ Le redimensionnement fonctionne
+- ✅ L'affichage varie selon l'environnement (grid vs tangram)
+
 ## Prochaines Étapes
 - Migrer d'autres composants UI (ex: `canvas-container`)
 - Remplacer progressivement les `dispatchEvent` par des appels directs aux actions Signal

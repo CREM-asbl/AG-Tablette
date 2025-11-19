@@ -1,24 +1,69 @@
-# Phase 2 : Migration UI vers Signal - `ag-menu.ts`
+# Plan de Migration : canvas-container.ts
 
-## Objectif
-Migrer `ag-menu.ts` pour utiliser les signaux et actions directement, réduisant la dépendance aux props et aux événements globaux.
+## Analyse
+
+`canvas-container.ts` est le conteneur principal des couches canvas. Il gère :
+- Le rendu de plusieurs `canvas-layer` (invisible, background, grid/tangram, main, upper)
+- L'affichage d'un curseur temporaire
+- Le redimensionnement du canvas
+- Les event listeners pour les interactions souris
 
 ## Changements Proposés
 
-### 1. Migration du Composant
-#### [MODIFY] [src/layouts/ag-menu.ts](file:///c:/Users/gunbl/Dev/ag-tablette/src/layouts/ag-menu.ts)
-- Supprimer les `@property` (`helpSelected`, `tool`, `canUndo`, `canRedo`).
-- Utiliser les signaux `helpSelected`, `activeTool`, `historyState` dans `render`.
-- Remplacer `setState` par `appActions`.
-- Remplacer `window.dispatchEvent('undo')` par `historyActions.undo()`.
-- Remplacer `window.dispatchEvent('redo')` par `historyActions.redo()`.
+### Changements Minimes Requis
 
-### 2. Nettoyage
-- Vérifier si `ag-main.ts` a besoin de passer des props à `ag-menu`. (Non, car `ag-menu` sera autonome).
-- Mettre à jour `ag-main.ts` pour ne plus passer de props à `ag-menu`.
+Ce composant n'a **PAS besoin** d'une migration Signal majeure car :
+- `cursorPos`, `cursorSize`, `cursorShow` sont de l'**état local** au composant (pas d'état global nécessaire)
+- Les event listeners (`resize`, `mouse-coordinates-changed`, etc.) sont des **side effects** appropriés pour `firstUpdated()` et `disconnectedCallback()`
+- Le contenu de `render()` ne dépend que de l'état local et de `environment`
 
-## Plan de Vérification
-### Vérification Manuelle
-- Vérifier que le menu affiche le bon outil.
-- Vérifier que les boutons Undo/Redo sont activés/désactivés correctement.
-- Vérifier que l'aide s'active/désactive.
+### Seule Modification : Utiliser le Signal `currentEnvironment`
+
+**Fichier** : `src/components/canvas-container.ts`
+
+**Avant** :
+```typescript
+@property({ type: Object }) environment;
+```
+
+**Après** :
+```typescript
+import { SignalWatcher } from '@lit-labs/signals';
+import { currentEnvironment } from '../store/appState';
+
+class CanvasContainer extends SignalWatcher(LitElement) {
+  // Supprimer @property environment
+  
+  render() {
+    const environment = currentEnvironment.get();
+    // ... rest of render
+  }
+}
+```
+
+**Mise à jour dans** : `src/layouts/ag-main.ts`
+```typescript
+// Supprimer la prop environment passée à canvas-container
+<canvas-container></canvas-container>
+```
+
+## Justification
+
+Ce composant est **déjà bien structuré** :
+- État local approprié pour le curseur
+- Event listeners correctement nettoyés dans `disconnectedCallback()`
+- Aucun état global à gérer sauf `environment`
+
+Une migration plus poussée serait **over-engineering** et n'apporterait pas de valeur.
+
+## Vérification
+
+### Test Manuel
+1. Vérifier que le canvas se redimensionne correctement
+2. Vérifier que le curseur temporaire apparaît lors d'actions
+3. Vérifier l'affichage du tangramCanvas vs gridCanvas selon l'environnement
+
+### Test Unitaire (Optionnel)
+Créer `test/components/canvas-container.test.js` pour vérifier :
+- Le rendu des bonnes couches selon l'environnement
+- L'intégration du signal `currentEnvironment`

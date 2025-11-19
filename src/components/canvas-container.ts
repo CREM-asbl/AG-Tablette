@@ -1,14 +1,15 @@
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
+import { SignalWatcher } from '@lit-labs/signals';
 import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
+import { currentEnvironment } from '../store/appState';
 import './canvas-layer';
 
-class CanvasContainer extends LitElement {
+class CanvasContainer extends SignalWatcher(LitElement) {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates;
   @property({ type: Number }) cursorSize = 20;
   @property({ type: Boolean }) cursorShow = false;
-  @property({ type: Object }) environment;
 
   private timeoutId: number | undefined;
 
@@ -69,6 +70,8 @@ class CanvasContainer extends LitElement {
     }
   `;
   render() {
+    const environment = currentEnvironment.get();
+
     return html`
       <!-- for the paths -->
       <!-- <svg-layer id="svgLayer" .paths='\${this.paths}'></svg-layer> -->
@@ -80,7 +83,7 @@ class CanvasContainer extends LitElement {
       <canvas-layer id="backgroundCanvas"></canvas-layer>
 
       <!-- for grid points or tangram outline -->
-      ${this.environment.name !== 'Tangram'
+      ${environment?.name !== 'Tangram'
         ? html`<canvas-layer id="gridCanvas"></canvas-layer>`
         : html`<canvas-layer
             id="tangramCanvas"
@@ -98,7 +101,7 @@ class CanvasContainer extends LitElement {
         height="${this.cursorSize}"
         width="${this.cursorSize}"
         style="margin-left: ${this.cursorPos
-          .x}px; z-index: 50; position: relative; margin-top: ${this.cursorPos
+        .x}px; z-index: 50; position: relative; margin-top: ${this.cursorPos
           .y}px; display: ${this.cursorShow ? 'block' : 'none'}"
       />
     `;
