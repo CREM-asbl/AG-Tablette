@@ -61,7 +61,7 @@ const mockMainCanvasLayer = global.mockMainCanvasLayer;
 const mockUpperCanvasLayer = global.mockUpperCanvasLayer;
 
 // Import de SelectManager (après les mocks)
-import { SelectManager } from '@controllers/Core/Managers/SelectManager.js';
+import { SelectManager, initSelectManager } from '@controllers/Core/Managers/SelectManager.js';
 
 describe('SelectManager - Tests TDD', () => {
   beforeEach(() => {
@@ -660,8 +660,8 @@ describe('SelectManager - Tests TDD', () => {
         blacklist: null,
         numberOfObjects: 'one',
       };
-      const mouseCoordinates = { 
-        x: 10, 
+      const mouseCoordinates = {
+        x: 10,
         y: 10,
         equal: vi.fn(() => true)
       };
@@ -680,8 +680,8 @@ describe('SelectManager - Tests TDD', () => {
         blacklist: [{ shapeId: 'shape1', index: 0 }],
         numberOfObjects: 'one',
       };
-      const mouseCoordinates = { 
-        x: 10, 
+      const mouseCoordinates = {
+        x: 10,
         y: 10,
         equal: vi.fn(() => true)
       };
@@ -700,8 +700,8 @@ describe('SelectManager - Tests TDD', () => {
         blacklist: null,
         numberOfObjects: 'one',
       };
-      const mouseCoordinates = { 
-        x: 10, 
+      const mouseCoordinates = {
+        x: 10,
         y: 10,
         equal: vi.fn(() => true)
       };
@@ -748,8 +748,8 @@ describe('SelectManager - Tests TDD', () => {
         blacklist: null,
         numberOfObjects: 'allInDistance',
       };
-      const mouseCoordinates = { 
-        x: 10, 
+      const mouseCoordinates = {
+        x: 10,
         y: 10,
         equal: vi.fn(() => true)
       };
@@ -795,8 +795,8 @@ describe('SelectManager - Tests TDD', () => {
         numberOfObjects: 'one',
         blockHidden: true,
       };
-      const mouseCoordinates = { 
-        x: 10, 
+      const mouseCoordinates = {
+        x: 10,
         y: 10,
         equal: vi.fn(() => true)
       };
@@ -818,8 +818,8 @@ describe('SelectManager - Tests TDD', () => {
         numberOfObjects: 'one',
         blockHidden: true,
       };
-      const mouseCoordinates = { 
-        x: 10, 
+      const mouseCoordinates = {
+        x: 10,
         y: 10,
         equal: vi.fn(() => true)
       };
@@ -926,6 +926,230 @@ describe('SelectManager - Tests TDD', () => {
       // Avec blacklist, shape1 est exclue, seule shape2 reste
       // Mais selectShape retournera undefined car aucune forme ne match instanceof
       expect(result).toBeFalsy();
+    });
+  });
+
+  describe('selectObject - Méthode orchestratrice', () => {
+    beforeEach(() => {
+      // Mock de workspace avec selectionConstraints
+      global.mockWorkspace.selectionConstraints = SelectManager.getEmptySelectionConstraints();
+      global.mockWorkspace.selectionConstraints.priority = ['points', 'segments', 'shapes'];
+    });
+
+    it('devrait retourner null si priority est invalide (manque un élément)', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+      global.mockWorkspace.selectionConstraints.priority = ['points', 'shapes']; // manque 'segments'
+
+      const result = SelectManager.selectObject({ x: 10, y: 10 });
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith('Bad constr.priority value!');
+      consoleSpy.mockRestore();
+    });
+
+    it('devrait retourner null si priority contient un élément invalide', () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
+      global.mockWorkspace.selectionConstraints.priority = ['points', 'invalid', 'shapes'];
+
+      const result = SelectManager.selectObject({ x: 10, y: 10 });
+
+      expect(result).toBeNull();
+      expect(consoleSpy).toHaveBeenCalledWith('Bad constr.priority value!');
+      consoleSpy.mockRestore();
+    });
+
+    it('devrait appeler selectPoint en premier si points est prioritaire', () => {
+      const selectPointSpy = vi.spyOn(SelectManager, 'selectPoint').mockReturnValue({ id: 'point1', type: 'point' });
+      const selectSegmentSpy = vi.spyOn(SelectManager, 'selectSegment');
+      const selectShapeSpy = vi.spyOn(SelectManager, 'selectShape');
+
+      global.mockWorkspace.selectionConstraints.priority = ['points', 'segments', 'shapes'];
+      global.mockWorkspace.selectionConstraints.points = { canSelect: true };
+
+      const mouseCoord = { x: 5, y: 5 };
+      const result = SelectManager.selectObject(mouseCoord);
+
+      expect(selectPointSpy).toHaveBeenCalledWith(mouseCoord, { canSelect: true });
+      expect(result).toEqual({ id: 'point1', type: 'point' });
+      // Les autres méthodes ne doivent pas être appelées si point est trouvé
+      expect(selectSegmentSpy).not.toHaveBeenCalled();
+      expect(selectShapeSpy).not.toHaveBeenCalled();
+
+      selectPointSpy.mockRestore();
+      selectSegmentSpy.mockRestore();
+      selectShapeSpy.mockRestore();
+    });
+
+    it('devrait appeler selectSegment si selectPoint retourne null', () => {
+      const selectPointSpy = vi.spyOn(SelectManager, 'selectPoint').mockReturnValue(null);
+      const selectSegmentSpy = vi.spyOn(SelectManager, 'selectSegment').mockReturnValue({ id: 'seg1' });
+      const selectShapeSpy = vi.spyOn(SelectManager, 'selectShape');
+
+      global.mockWorkspace.selectionConstraints.priority = ['points', 'segments', 'shapes'];
+      global.mockWorkspace.selectionConstraints.points = { canSelect: true };
+      global.mockWorkspace.selectionConstraints.segments = { canSelect: true };
+
+      const mouseCoord = { x: 5, y: 5 };
+      const result = SelectManager.selectObject(mouseCoord);
+
+      expect(selectPointSpy).toHaveBeenCalled();
+      expect(selectSegmentSpy).toHaveBeenCalledWith(mouseCoord, { canSelect: true });
+      expect(result).toEqual({ id: 'seg1' });
+      expect(selectShapeSpy).not.toHaveBeenCalled();
+
+      selectPointSpy.mockRestore();
+      selectSegmentSpy.mockRestore();
+      selectShapeSpy.mockRestore();
+    });
+
+    it('devrait retourner null si aucune sélection ne réussit', () => {
+      const selectPointSpy = vi.spyOn(SelectManager, 'selectPoint').mockReturnValue(null);
+      const selectSegmentSpy = vi.spyOn(SelectManager, 'selectSegment').mockReturnValue(null);
+      const selectShapeSpy = vi.spyOn(SelectManager, 'selectShape').mockReturnValue(null);
+
+      global.mockWorkspace.selectionConstraints.priority = ['points', 'segments', 'shapes'];
+
+      const result = SelectManager.selectObject({ x: 5, y: 5 });
+
+      expect(result).toBeNull();
+
+      selectPointSpy.mockRestore();
+      selectSegmentSpy.mockRestore();
+      selectShapeSpy.mockRestore();
+    });
+
+    it('devrait émettre un événement objectSelected quand un objet est sélectionné', () => {
+      const eventSpy = vi.fn();
+      window.addEventListener('objectSelected', eventSpy);
+
+      const mockPoint = { id: 'point1', type: 'point' };
+      const selectPointSpy = vi.spyOn(SelectManager, 'selectPoint').mockReturnValue(mockPoint);
+
+      global.mockWorkspace.selectionConstraints.priority = ['points', 'segments', 'shapes'];
+      global.mockWorkspace.selectionConstraints.points = { canSelect: true };
+
+      const mouseCoord = { x: 5, y: 5 };
+      SelectManager.selectObject(mouseCoord);
+
+      expect(eventSpy).toHaveBeenCalledTimes(1);
+      const eventDetail = eventSpy.mock.calls[0][0].detail;
+      expect(eventDetail.object).toEqual(mockPoint);
+      expect(eventDetail.mousePos).toEqual(mouseCoord);
+
+      window.removeEventListener('objectSelected', eventSpy);
+      selectPointSpy.mockRestore();
+    });
+
+    it('devrait respecter un ordre de priorité personnalisé', () => {
+      const selectPointSpy = vi.spyOn(SelectManager, 'selectPoint').mockReturnValue(null);
+      const selectSegmentSpy = vi.spyOn(SelectManager, 'selectSegment').mockReturnValue(null);
+      const selectShapeSpy = vi.spyOn(SelectManager, 'selectShape').mockReturnValue({ id: 'shape1' });
+
+      // Priority inversée: shapes en premier
+      global.mockWorkspace.selectionConstraints.priority = ['shapes', 'segments', 'points'];
+      global.mockWorkspace.selectionConstraints.shapes = { canSelect: true };
+
+      const mouseCoord = { x: 5, y: 5 };
+      const result = SelectManager.selectObject(mouseCoord);
+
+      // selectShape doit être appelé en premier
+      expect(selectShapeSpy).toHaveBeenCalled();
+      expect(result).toEqual({ id: 'shape1' });
+
+      selectPointSpy.mockRestore();
+      selectSegmentSpy.mockRestore();
+      selectShapeSpy.mockRestore();
+    });
+  });
+
+  describe('initSelectManager - Initialisation', () => {
+    it('devrait initialiser les contraintes de sélection rapide', () => {
+      const mockApp = {
+        workspace: {},
+        fastSelectionConstraints: undefined,
+      };
+
+      initSelectManager(mockApp);
+
+      expect(mockApp.fastSelectionConstraints).toBeDefined();
+      expect(mockApp.fastSelectionConstraints.click_all_shape).toBeDefined();
+      expect(mockApp.fastSelectionConstraints.mousedown_all_shape).toBeDefined();
+      expect(mockApp.fastSelectionConstraints.click_all_segments).toBeDefined();
+    });
+
+    it('devrait créer des contraintes click_all_shape avec eventType click', () => {
+      const mockApp = {
+        workspace: {},
+        fastSelectionConstraints: undefined,
+      };
+
+      initSelectManager(mockApp);
+
+      const clickShapeConstr = mockApp.fastSelectionConstraints.click_all_shape;
+      expect(clickShapeConstr.eventType).toBe('click');
+      expect(clickShapeConstr.shapes.canSelect).toBe(true);
+    });
+
+    it('devrait créer des contraintes mousedown_all_shape avec eventType mousedown', () => {
+      const mockApp = {
+        workspace: {},
+        fastSelectionConstraints: undefined,
+      };
+
+      initSelectManager(mockApp);
+
+      const mousedownShapeConstr = mockApp.fastSelectionConstraints.mousedown_all_shape;
+      expect(mousedownShapeConstr.eventType).toBe('mousedown');
+      expect(mousedownShapeConstr.shapes.canSelect).toBe(true);
+    });
+
+    it('devrait créer des contraintes click_all_segments', () => {
+      const mockApp = {
+        workspace: {},
+        fastSelectionConstraints: undefined,
+      };
+
+      initSelectManager(mockApp);
+
+      const clickSegmentsConstr = mockApp.fastSelectionConstraints.click_all_segments;
+      expect(clickSegmentsConstr.eventType).toBe('click');
+      expect(clickSegmentsConstr.segments.canSelect).toBe(true);
+    });
+
+    it('devrait écouter l\'événement reset-selection-constraints', () => {
+      const mockApp = {
+        workspace: {},
+        fastSelectionConstraints: undefined,
+      };
+
+      initSelectManager(mockApp);
+
+      // Simuler l'événement
+      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+
+      // Les contraintes de sélection doivent être réinitialisées
+      expect(mockApp.workspace.selectionConstraints).toBeDefined();
+      expect(mockApp.workspace.selectionConstraints.priority).toEqual(['points', 'segments', 'shapes']);
+    });
+
+    it('devrait réinitialiser les contraintes à chaque événement reset', () => {
+      const mockApp = {
+        workspace: {
+          selectionConstraints: { custom: 'data' },
+        },
+        fastSelectionConstraints: undefined,
+      };
+
+      initSelectManager(mockApp);
+
+      // Vérifier que les contraintes personnalisées sont remplacées
+      window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
+
+      expect(mockApp.workspace.selectionConstraints.custom).toBeUndefined();
+      expect(mockApp.workspace.selectionConstraints.priority).toEqual(['points', 'segments', 'shapes']);
+      expect(mockApp.workspace.selectionConstraints.points).toBeDefined();
+      expect(mockApp.workspace.selectionConstraints.segments).toBeDefined();
+      expect(mockApp.workspace.selectionConstraints.shapes).toBeDefined();
     });
   });
 });
