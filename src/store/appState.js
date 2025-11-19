@@ -21,6 +21,7 @@ export const activeTool = signal(null);
 export const toolState = signal({});
 export const currentStep = signal(null);
 export const selectedTemplate = signal(null);
+export const toolUiState = signal(null);
 
 // Signaux pour le workspace
 export const workspaceData = signal({
@@ -154,6 +155,13 @@ export const appActions = {
     currentStep.set(step);
     window.dispatchEvent(
       new CustomEvent('tool:step-changed', { detail: { step } }),
+    );
+  },
+
+  setToolUiState: (state) => {
+    toolUiState.set(state);
+    window.dispatchEvent(
+      new CustomEvent('tool:ui-state-changed', { detail: { state } }),
     );
   },
 

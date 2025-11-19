@@ -1,5 +1,6 @@
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
@@ -47,19 +48,22 @@ export class CreateLineTool extends Tool {
     `;
   }
 
-  start() {
+  async start() {
     this.removeListeners();
     this.stopAnimation();
     this.geometryParentObjectId = null;
 
-    import('@components/shape-selector');
-    const elem = document.createElement('shape-selector');
-    elem.family = 'Lignes';
-    elem.templatesNames = lines;
-    elem.selectedTemplate = app.tool.selectedTemplate;
-    elem.type = 'Geometry';
-    elem.nextStep = 'drawFirstPoint';
-    document.querySelector('body').appendChild(elem);
+    await import('@components/shape-selector');
+
+    // Utiliser le signal pour afficher le sélecteur de forme
+    appActions.setToolUiState({
+      name: 'shape-selector',
+      family: 'Lignes',
+      templatesNames: lines,
+      selectedTemplate: app.tool.selectedTemplate,
+      type: 'Geometry',
+      nextStep: 'drawFirstPoint',
+    });
   }
 
   drawFirstPoint() {
@@ -159,11 +163,10 @@ export class CreateLineTool extends Tool {
       this.constraints.type === 'isConstrained' &&
       !this.constraints.projectionOnConstraints(newCoordinates, true)
     ) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Veuillez placer le point sur la contrainte.' },
-        }),
-      );
+      appActions.addNotification({
+        message: 'Veuillez placer le point sur la contrainte.',
+        type: 'info',
+      });
       return;
     }
 
@@ -282,11 +285,10 @@ export class CreateLineTool extends Tool {
         size: 2,
       });
       this.segments = [];
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Veuillez placer le point autre part.' },
-        }),
-      );
+      appActions.addNotification({
+        message: 'Veuillez placer le point autre part.',
+        type: 'info',
+      });
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
       });

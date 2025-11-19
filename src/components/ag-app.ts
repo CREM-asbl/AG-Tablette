@@ -6,6 +6,7 @@ import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../controllers/Core/Manifest';
 import { appLoading, currentEnvironment } from '../store/appState';
+import './tool-ui-container';
 // import { openFileFromServer } from '../firebase/firebase-init'; // Moved to dynamic import
 
 /**

@@ -6,6 +6,7 @@ import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import '../components/sync-status-indicator.ts';
+import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import { createElem } from '../controllers/Core/Tools/general';
@@ -99,6 +100,7 @@ class AGMain extends SignalWatcher(LitElement) {
         <canvas-container
           id="canvas-container"
         ></canvas-container>
+        <tool-ui-container></tool-ui-container>
       </div>
       <sync-status-indicator></sync-status-indicator>
       <notif-center></notif-center>

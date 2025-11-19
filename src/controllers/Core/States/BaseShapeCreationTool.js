@@ -1,5 +1,6 @@
 import { html } from 'lit';
-import { app, setState } from '../../Core/App';
+import { appActions } from '../../../store/appState';
+import { app } from '../../Core/App';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Coordinates } from '../../Core/Objects/Coordinates';
 import { Point } from '../../Core/Objects/Point';
@@ -43,14 +44,15 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       // Charger dynamiquement le composant shape-selector
       await import('@components/shape-selector');
 
-      const elem = document.createElement('shape-selector');
-      elem.family = this.familyName;
-      elem.templatesNames = this.templatesImport;
-      elem.selectedTemplate = app.tool.selectedTemplate;
-      elem.type = 'Geometry';
-      elem.nextStep = 'drawFirstPoint';
-
-      document.querySelector('body').appendChild(elem);
+      // Utiliser le signal pour afficher le sélecteur de forme
+      appActions.setToolUiState({
+        name: 'shape-selector',
+        family: this.familyName,
+        templatesNames: this.templatesImport,
+        selectedTemplate: app.tool.selectedTemplate,
+        type: 'Geometry',
+        nextStep: 'drawFirstPoint',
+      });
     } catch (error) {
       console.error('Erreur lors du chargement du sélecteur de forme:', error);
       this.showErrorNotification('Erreur lors du chargement des templates');
@@ -70,7 +72,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       await this.loadShapeDefinition();
 
       this.resetDrawingState();
-      this.safeSetState('drawPoint');
+      appActions.setToolState({ currentStep: 'drawPoint' });
+      appActions.setCurrentStep('drawPoint');
     } catch (error) {
       console.error('Erreur lors du chargement de la définition:', error);
       this.showErrorNotification("Erreur lors de l'initialisation");
@@ -136,16 +139,18 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     // Vérifier les contraintes si applicables
     if (this.constraints && this.constraints.type === 'isConstrained') {
       if (!this.constraints.projectionOnConstraints(newCoordinates, true)) {
-        this.showInfoNotification(
-          'Veuillez placer le point sur la contrainte.',
-        );
+        appActions.addNotification({
+          message: 'Veuillez placer le point sur la contrainte.',
+          type: 'info',
+        });
         return;
       }
     }
 
     this.addPointToShape(newCoordinates);
     this.updateShapePreview();
-    this.safeSetState('animatePoint');
+    appActions.setToolState({ currentStep: 'animatePoint' });
+    appActions.setCurrentStep('animatePoint');
   }
 
   /**
@@ -219,9 +224,13 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    * Gérer la collision par magnétisme
    */
   handleMagnetismCollision(collisionIndex) {
-    this.showInfoNotification('Veuillez placer le point autre part.');
+    appActions.addNotification({
+      message: 'Veuillez placer le point autre part.',
+      type: 'info',
+    });
     this.rollbackLastPoint();
-    this.safeSetState('drawPoint');
+    appActions.setToolState({ currentStep: 'drawPoint' });
+    appActions.setCurrentStep('drawPoint');
   }
 
   /**
@@ -243,7 +252,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   continueDrawing() {
     this.getConstraints(this.numberOfPointsDrawn);
-    this.safeSetState('drawPoint');
+    appActions.setToolState({ currentStep: 'drawPoint' });
+    appActions.setCurrentStep('drawPoint');
   }
 
   /**
@@ -254,7 +264,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
 
     this.safeExecuteAction(async () => {
       await this.executeAction();
-      this.safeSetState('drawFirstPoint');
+      appActions.setToolState({ currentStep: 'drawFirstPoint' });
+      appActions.setCurrentStep('drawFirstPoint');
     }, 'création de forme');
   }
 

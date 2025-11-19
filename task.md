@@ -19,3 +19,8 @@
     - [x] Créer guide de migration pour développeurs
     - [x] Documenter les patterns et best practices
     - [ ] Ajouter tests unitaires pour composants migrés (optionnel)
+- [x] Refactoring Tools (Audit Recommendations)
+    - [x] Refactor BaseShapeCreationTool to use Signals
+    - [x] Standardize Tool Instantiation (Declarative UI)
+    - [x] Refactor CreateLineTool to use Signals
+    - [ ] Test manual des outils refactorisés (nécessite l'utilisateur)
