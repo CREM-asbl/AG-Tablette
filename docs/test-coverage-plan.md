@@ -178,50 +178,49 @@
 ### Modules avec tests améliorés 🔨
 | Module | Couverture initiale | Couverture actuelle | Tests créés | Progression |
 |--------|-------------------|-------------------|-------------|-------------|
-| `Point.js` | 11.79% | **21.92%** | 10 | +10.13% |
-| `Segment.js` | 17.87% | **21.28%** | 11 | +3.41% |
-| `Shape.js` | 20.61% | **25.77%** | 5 | +5.16% |
+| `Point.js` | 11.79% | **42.54%** ✅ | 13 | +30.75% |
+| `Segment.js` | 17.87% | **50.70%** ✅ | 30 | +32.83% |
+| `Shape.js` | 20.61% | **44.32%** ✅ | 13 | +23.71% |
+| `Coordinates.js` | 10.00% | **93.33%** ✅ | 11 | +83.33% |
 
 ### Modules en cours / bloqués ⚠️
 - Aucun module bloqué actuellement
 
 ### Statistiques globales
-- **Tests créés:** 534 tests (97 nouveaux dans cette session: +25 SelectManager, +16 HistoryManager, +19 ShapeManager, +37 ShapeGroup)
-- **Tests passants:** 534/534 (100%) 🎉
+- **Tests créés:** 600+ tests (approx)
+- **Tests passants:** 100% 🎉
 - **Tests skipped:** 0
-- **Nouveaux fichiers de tests:** 1 (ShapeGroup.test.js)
-- **Bugs corrigés:** 3 bugs de production découverts par TDD
-- **Bugs détectés (corrigés):** Tous les bugs identifiés ont été corrigés
-- **Couverture globale:** 29.56% (+9.16% depuis le début à 20.4%, +2.60% cette session)
+- **Nouveaux fichiers de tests:** `Coordinates.test.js`
+- **Bugs corrigés:** 
+  - `Segment.js`: appels méthodes inexistantes (`multiplyWithScalar`, `isPointOnSegment`)
+  - `Shape.js`: imports manquants (`findObjectById`, `deleteChildren`), bug `contains(Point)` (`equal` inexistant)
+- **Couverture globale:** 33.3% (+12.9% depuis le début à 20.4%)
 
 ### État de la couverture globale
-**Résultats de `npm run test:coverage` (19 novembre 2025 - 09h47) :**
+**Résultats de `npm run test:coverage` (19 novembre 2025 - 10h23) :**
 
-- **Couverture globale:** 29.56% statements (+9.16% depuis 20.4%)
+- **Couverture globale:** 33.3% statements (+12.9% depuis 20.4%)
 - **Modules critiques atteints :**
   - `store/tools.js` : 100% ✅
   - `store/syncState.js` : 93.93% ✅
   - `store/gridStore.js` : 87.09% ✅
   - `store/kit.js` : 74.57% ✅
-  - **`HistoryManager.js` : 77.16% ✅** (objectif 60% dépassé !)
-  - **`SelectManager.js` : 75.36% ✅** (objectif 60% dépassé !)
-  - **`ShapeManager.js` : 98.41% 🎯** (objectif 60% LARGEMENT dépassé !)
-  - **`ShapeGroup.js` : 100% 🎯** (objectif 50% LARGEMENT dépassé !)
-  - `Workspace.js` : 62.16% ✅ (objectif 50%)
+  - **`HistoryManager.js` : 77.16% ✅**
+  - **`SelectManager.js` : 75.36% ✅**
+  - **`ShapeManager.js` : 98.41% 🎯**
+  - **`ShapeGroup.js` : 100% 🎯**
+  - `Workspace.js` : 62.16% ✅
   - `GroupManager.js` : 100% ✅
-  - `Shape.js` : 25.77% 🔨
-  - `Segment.js` : 21.28% 🔨
-  - `Point.js` : 21.92% 🔨
+  - **`Shape.js` : 44.32% ✅** (objectif 40% atteint)
+  - **`Segment.js` : 50.70% ✅** (objectif 40% atteint)
+  - **`Point.js` : 42.54% ✅** (objectif 40% atteint)
+  - **`Coordinates.js` : 93.33% ✅** (objectif 40% atteint)
 
 **Prochaines priorités :**
-1. Améliorer couverture `Point.js`, `Segment.js`, `Shape.js` (atteindre 40%)
-2. Commencer Phase 2 : Components et Services
-3. Objectif global : Atteindre 40% de couverture globale
+1. Commencer Phase 2 : Components et Services
+2. Objectif global : Atteindre 40% de couverture globale
 
-**🎆 MIGRATION SIGNAL DÉBLOQUÉE !** Tous les modules critiques dépassent les seuils requis :
-- Tous les Managers : ✅ 60%+
-- ShapeGroup : ✅ 100%
-- Store modules : ✅ 70%+
+**🎆 MIGRATION SIGNAL DÉBLOQUÉE !** Tous les modules critiques dépassent les seuils requis.
 
 ---
 

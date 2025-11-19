@@ -5,7 +5,9 @@ import {
   mod,
   removeObjectById,
   uniqId,
+  findObjectById,
 } from '../../Tools/general';
+import { deleteChildren } from '../../../GeometryTools/deleteShape';
 import { Bounds } from '../Bounds';
 import { Coordinates } from '../Coordinates';
 import { Point } from '../Point';
@@ -361,12 +363,12 @@ export class Shape {
   contains(object) {
     if (object instanceof Point) {
       if (
-        this.allOutlinePoints.some((outline_point) =>
-          outline_point.equal(object),
+        this.points.some((outline_point) =>
+          outline_point.coordinates.equal(object.coordinates),
         )
       )
         return true;
-      if (this.isCenterShown && this.center.equal(object)) return true;
+      if (this.isCenterShown && this.center.coordinates.equal(object.coordinates)) return true;
       return false;
     } else if (object instanceof Segment) {
       if (this.segments.some((segment) => segment.equal(object))) return true;

@@ -546,17 +546,14 @@ export class Segment {
   /* #################################################################### */
 
   scale(scaling) {
-    this.vertexes.forEach((vertex) => vertex.multiplyWithScalar(scaling, true));
-    if (this.points)
-      this.points.forEach((pt) => pt.multiplyWithScalar(scaling, true));
-    if (this.arcCenter) this.arcCenter.multiplyWithScalar(scaling, true);
+    this.vertexes.forEach((vertex) => vertex.multiply(scaling));
+    this.divisionPoints.forEach((pt) => pt.multiply(scaling));
+    if (this.arcCenter) this.arcCenter.multiply(scaling);
   }
 
   translate(coordinates) {
-    if (this.vertexes)
-      this.vertexes.forEach((vertex) => vertex.translate(coordinates));
-    if (this.points)
-      this.points.forEach((point) => point.translate(coordinates));
+    this.vertexes.forEach((vertex) => vertex.translate(coordinates));
+    this.divisionPoints.forEach((point) => point.translate(coordinates));
     if (this.arcCenter) this.arcCenter.translate(coordinates);
   }
 
@@ -644,8 +641,8 @@ export class Segment {
    */
   isSubsegment(subseg) {
     return (
-      this.isPointOnSegment(subseg.vertexes[0]) &&
-      this.isPointOnSegment(subseg.vertexes[1])
+      this.isCoordinatesOnSegment(subseg.vertexes[0].coordinates) &&
+      this.isCoordinatesOnSegment(subseg.vertexes[1].coordinates)
     );
   }
 
@@ -955,8 +952,14 @@ export class Segment {
       }
     } else if (object instanceof Point)
       return (
-        this.vertexes.some((vertex) => vertex.equal(object)) ||
-        (matchSegmentPoints && this.points.some((point) => point.equal(object)))
+                this.vertexes.some((vertex) =>
+          vertex.coordinates.equal(object.coordinates),
+        ) ||
+
+        (matchSegmentPoints &&
+          this.points.some((point) =>
+            point.coordinates.equal(object.coordinates),
+          ))
       );
     else if (object instanceof Coordinates) {
       return (
