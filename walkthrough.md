@@ -77,6 +77,63 @@ Après analyse, `canvas-container.ts` ne nécessitait qu'une **migration minimal
 - ✅ Le redimensionnement fonctionne
 - ✅ L'affichage varie selon l'environnement (grid vs tangram)
 
+## Migration de ag-app.ts (Root Component)
+
+### Importance Stratégique
+`ag-app.ts` est le **composant racine** de l'application. Il gère le routing entre :
+- L'écran de sélection d'environnement
+- L'écran de chargement
+- L'application principale (`ag-main`)
+
+### Changements Effectués
+- **`src/components/ag-app.ts`** :
+  - Ajout de `SignalWatcher`
+  - Import et utilisation des signals `appLoading` et `currentEnvironment`
+  - Suppression de `@property appLoading` et `@property environnement_selected`
+  - Suppression de la méthode `setState()` et du listener `state-changed`
+  - Utilisation directe des signals dans `render()`
+
+### Code Avant/Après
+
+**Avant** :
+```typescript
+export class App extends LitElement {
+  @property({ type: Boolean }) appLoading;
+  @property({ type: Boolean }) environnement_selected;
+  
+  firstUpdated() {
+    window.addEventListener('state-changed', () => this.setState());
+  }
+  
+  setState() {
+    this.appLoading = app.appLoading;
+    this.environnement_selected = app.environment !== undefined;
+  }
+  
+  render() {
+    if (this.environnement_selected) { /* ... */ }
+  }
+}
+```
+
+**Après** :
+```typescript
+export class App extends SignalWatcher(LitElement) {
+  render() {
+    const isLoading = appLoading.get();
+    const environmentSelected = currentEnvironment.get() !== null;
+    
+    if (environmentSelected) { /* ... */ }
+  }
+}
+```
+
+### Bénéfices
+- ✅ Réactivité automatique au niveau racine de l'application
+- ✅ Suppression de 10 lignes de code de synchronisation manuelle
+- ✅ Code plus déclaratif et facile à comprendre
+- ✅ Plus de risque d'oubli de mise à jour d'état
+
 ## Prochaines Étapes
 - Migrer d'autres composants UI (ex: `canvas-container`)
 - Remplacer progressivement les `dispatchEvent` par des appels directs aux actions Signal

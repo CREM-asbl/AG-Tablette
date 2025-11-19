@@ -13,4 +13,6 @@
     - [x] Déboguer et corriger le problème undo/redo (HistoryManager non importé)
 - [ ] Continuer la migration des composants UI
     - [x] Migrer `canvas-container.ts` <!-- id: 10 -->
+    - [x] Migrer `ag-app.ts` (root component)
+    - [ ] Migrer `shape-selector.ts` (optionnel)
     - [ ] Migrer les autres composants progressivement

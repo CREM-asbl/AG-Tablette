@@ -1,10 +1,11 @@
 import { html, LitElement } from 'lit';
-import { property } from 'lit/decorators.js';
+import { SignalWatcher } from '@lit-labs/signals';
 import '../controllers/auto-launch';
 import '../controllers/backbutton-manager';
 import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../controllers/Core/Manifest';
+import { appLoading, currentEnvironment } from '../store/appState';
 // import { openFileFromServer } from '../firebase/firebase-init'; // Moved to dynamic import
 
 /**
@@ -14,18 +15,11 @@ if (document.body.clientHeight > screen.height) {
   document.body.style.height = `${screen.height}px`;
 }
 
-export class App extends LitElement {
-  @property({ type: Boolean }) appLoading;
-  @property({ type: Boolean }) environnement_selected;
+export class App extends SignalWatcher(LitElement) {
 
   constructor() {
     super();
     this.parseURL();
-    this.setState();
-  }
-
-  firstUpdated() {
-    window.addEventListener('state-changed', () => this.setState());
   }
 
   async parseURL() {
@@ -45,24 +39,22 @@ export class App extends LitElement {
   }
 
   render() {
-    if (this.environnement_selected) {
+    const isLoading = appLoading.get();
+    const environmentSelected = currentEnvironment.get() !== null;
+
+    if (environmentSelected) {
       history.pushState({}, 'main page');
       import('@layouts/ag-main');
       app.appLoading = false;
       return html`<ag-main></ag-main>`;
-    } else if (!this.appLoading) {
+    } else if (!isLoading) {
       import('./ag-environnements');
       return html`<ag-environnements></ag-environnements>`;
     }
-    if (this.appLoading) {
+    if (isLoading) {
       import('./loading-elem');
       return html`<loading-elem></loading-elem>`;
     }
-  }
-
-  setState() {
-    this.appLoading = app.appLoading;
-    this.environnement_selected = app.environment !== undefined;
   }
 }
 customElements.define('ag-app', App);
