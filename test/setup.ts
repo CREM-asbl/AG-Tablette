@@ -1,15 +1,8 @@
 // Setup pour les tests Vitest - mocks des APIs browser
 import { vi } from 'vitest';
+import 'fake-indexeddb/auto';
 
-// Mock IndexedDB pour éviter les erreurs dans JSDOM
-global.indexedDB = {
-  open: vi.fn(() => ({
-    result: { transaction: vi.fn() },
-    onerror: vi.fn(),
-    onsuccess: vi.fn(),
-  })),
-  deleteDatabase: vi.fn(),
-} as any;
+// fake-indexedDB provides complete IndexedDB implementation for tests
 
 // Mock dialog.showModal() pour les popups
 Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {

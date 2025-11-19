@@ -1,6 +1,5 @@
-import { expect } from '@open-wc/testing';
 import { historyActions } from '../../src/store/appState';
-import { vi, describe, it, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';
 
 describe('historyActions', () => {
     let originalDispatch;

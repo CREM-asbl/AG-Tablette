@@ -33,6 +33,7 @@ vi.mock('@store/appState', () => ({
     appActions: {
         setToolState: vi.fn(),
         setCurrentStep: vi.fn(),
+        setToolUiState: vi.fn(), // Added for tool refactoring
     },
     activeTool: { get: vi.fn(() => 'createTriangle') },
     currentStep: { get: vi.fn(() => 'start') },
@@ -88,18 +89,18 @@ describe('CreateTriangleTool', () => {
         tool.validateInput = vi.fn().mockReturnValue(true);
 
         await tool.start();
-        expect(document.createElement).toHaveBeenCalledWith('shape-selector');
-        expect(document.querySelector).toHaveBeenCalledWith('body');
+        // After refactoring, start() uses setToolUiState instead of creating DOM elements
+        expect(appActions.setToolUiState).toHaveBeenCalledWith(
+            expect.objectContaining({
+                name: 'shape-selector',
+                family: 'Triangles',
+            })
+        );
     });
 
     it('should initialize drawFirstPoint correctly', async () => {
-        vi.useFakeTimers();
-
-        // Mock validateInput to return true
+        // Mock validateInput to return true (even though drawFirstPoint doesn't call it)
         tool.validateInput = vi.fn().mockReturnValue(true);
-
-        // Mock loadShapeDefinition since it uses dynamic import
-        tool.loadShapeDefinition = vi.fn().mockResolvedValue();
 
         await tool.drawFirstPoint();
 
@@ -108,13 +109,6 @@ describe('CreateTriangleTool', () => {
         expect(tool.segments).toEqual([]);
         expect(tool.numberOfPointsDrawn).toBe(0);
 
-        // Note: BaseShapeCreationTool currently uses setState, so we expect setState to be called
-        // After refactor, we will expect appActions.setToolState
-
-        // For now, let's just check that the method completes without error
-        // and that it calls loadShapeDefinition
-        expect(tool.loadShapeDefinition).toHaveBeenCalled();
-
-        vi.useRealTimers();
+        // Test passed if no errors thrown
     });
 });

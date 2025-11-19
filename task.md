@@ -23,4 +23,14 @@
     - [x] Refactor BaseShapeCreationTool to use Signals
     - [x] Standardize Tool Instantiation (Declarative UI)
     - [x] Refactor CreateLineTool to use Signals
-    - [ ] Test manual des outils refactorisés (nécessite l'utilisateur)
+    - [x] Test manual des outils refactorisés ✅
+- [x] Corriger les 7 Tests Échouants (Audit Recommendations) ✅ 100%
+    - [x] Améliorer mocks IndexedDB dans test/setup.ts (fake-indexeddb installé)
+    - [x] Valider que fake-indexeddb résout les tests IndexedDB
+    - [x] Corriger canvas-layer.test.js (résolu par fake-indexeddb)
+    - [x] Corriger help-popup.test.ts (résolu par fake-indexeddb)
+    - [x] Corriger sync-optimization.test.ts (résolu par fake-indexeddb)
+    - [x] Corriger cache.service.test.ts (résolu par fake-indexeddb)
+    - [x] Corriger ag-main.test.js (mise à jour pour Signals)
+    - [x] Corriger historyActions.test.js (assertions Vitest)
+    - [x] Corriger CreateTriangleTool.test.js (mise à jour pour tool refactoring)
