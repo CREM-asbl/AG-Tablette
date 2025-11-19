@@ -1,3 +1,5 @@
+import { computed } from '@lit-labs/signals';
+import { activeTool, currentStep, createWatcher } from '../../../store/appState';
 import { app } from '../App';
 
 /**
@@ -21,6 +23,30 @@ export class Tool {
     this.handler = (event) => this.eventHandler(event);
 
     window.addEventListener('tool-updated', this.handler);
+
+    // Signal listener
+    const combinedSignal = computed(() => ({
+      toolName: activeTool.get(),
+      step: currentStep.get(),
+    }));
+
+    this.disposeWatcher = createWatcher(combinedSignal, (newValue) => {
+      const { toolName, step } = newValue;
+
+      if (toolName === this.name && step) {
+        // Sync legacy state to ensure App.js delegates events correctly
+        // and eventHandler uses the correct step.
+        if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step) {
+          app.tool = { ...(app.tool || {}), name: toolName, currentStep: step };
+        }
+
+        if (typeof this[step] === 'function') {
+          this[step]();
+        }
+      } else if (toolName !== this.name && this.name === app.tool?.name) {
+        this.end();
+      }
+    });
   }
 
   /**

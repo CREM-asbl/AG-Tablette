@@ -1,6 +1,11 @@
 import { CreateCircleTool } from '@controllers/CreateCircle/CreateCircleTool';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Mock @lit-labs/signals
+vi.mock('@lit-labs/signals', () => ({
+    computed: vi.fn((cb) => ({ get: cb })),
+}));
+
 // Mock the App module
 vi.mock('@controllers/Core/App', () => {
     const setState = vi.fn();
@@ -23,7 +28,26 @@ vi.mock('@controllers/Core/App', () => {
     return { app, setState };
 });
 
-import { app, setState } from '@controllers/Core/App';
+// Mock appState
+vi.mock('@store/appState', () => ({
+    appActions: {
+        setToolState: vi.fn(),
+        setCurrentStep: vi.fn(),
+    },
+    activeTool: { get: vi.fn(() => 'createCircle') },
+    currentStep: { get: vi.fn(() => 'start') },
+    createWatcher: vi.fn((signal, cb) => {
+        // Simulate immediate callback execution for testing
+        // In real app, this happens on change.
+        // For test, we want to verify subscription.
+        // We can simulate a change by calling the callback manually if needed,
+        // but for now just returning the dispose function is enough to avoid errors.
+        return vi.fn();
+    }),
+}));
+
+import { app } from '@controllers/Core/App';
+import { appActions } from '@store/appState';
 
 describe('CreateCircleTool', () => {
     let tool;
@@ -75,12 +99,11 @@ describe('CreateCircleTool', () => {
 
         vi.runAllTimers();
 
-        // Verify setState was called
-        expect(setState).toHaveBeenCalledWith(expect.objectContaining({
-            tool: expect.objectContaining({
-                currentStep: 'drawPoint',
-            }),
+        // Verify appActions was called
+        expect(appActions.setToolState).toHaveBeenCalledWith(expect.objectContaining({
+            currentStep: 'drawPoint',
         }));
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
 
         vi.useRealTimers();
     });
