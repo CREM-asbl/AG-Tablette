@@ -1,130 +1,118 @@
-# Plan de Priorisation - Migration Signal
+# Plan de Migration : shape-selector.ts
 
-## Composants Analysés
+## Analyse
 
-### ✅ Déjà Migrés
-1. **ag-main.ts** - Layout principal
-2. **ag-menu.ts** - Menu latéral
-3. **canvas-container.ts** - Conteneur canvas
+`shape-selector.ts` est un **popup dynamique** qui apparaît lors de la sélection de formes. Il affiche une grille de modèles de formes parmi lesquels l'utilisateur peut choisir.
 
-### 🎯 Composants Prioritaires
+### Utilisation Actuelle
+Le composant est créé **dynamiquement** par les outils de création :
+```javascript
+const elem = document.createElement('shape-selector');
+elem.family = app.tool.selectedFamily;
+elem.templatesNames = getFamily(app.tool.selectedFamily).shapeTemplates;
+elem.selectedTemplate = app.tool.selectedTemplate;
+elem.type = 'Create';
+elem.nextStep = 'listen';
+document.querySelector('body').appendChild(elem);
+```
 
-#### **Priorité 1 : ag-app.ts** (Root Component)
-**Fichier** : `src/components/ag-app.ts`
+### Propriétés Actuelles
+1. `@property() family` - Nom de la famille de formes (ex: "Carrés")
+2. `@property() type` - Type d'outil ('Create', 'CreateLine', etc.)
+3. `@property() templatesNames` - Liste des modèles disponibles
+4. `@property() titles` - Liste des titres (non utilisée actuellement)
+5. `@property() selectedTemplate` - Modèle actuellement sélectionné
+6. `@property() nextStep` - Prochaine étape de l'outil
 
-**Props actuelles** :
-- `@property() appLoading` - État de chargement global
-- `@property() environnement_selected` - Environnement sélectionné
+## Décision : Migration Minimale Recommandée
 
-**Signaux disponibles** :
-- `appLoading` → utilisable
-- `currentEnvironment` → peut remplacer `environnement_selected`
+### Option A : Migration Complète (NON RECOMMANDÉE)
+- Remplacer toutes les props par des signals
+- Créer des signals pour `selectedTemplate`, `nextStep`, etc.
+- **Problème** : Ces propriétés sont **locales au contexte** de création
+- Polluerait le store global avec de l'état temporaire
 
-**Impact** : **TRÈS ÉLEVÉ**
-- Composant racine de l'application
-- Gère le routing entre écran de sélection environnement et application principale
-- Simplifiera la logique de démarrage
+### Option B : Migration Partielle (RECOMMANDÉE) ✅
 
-**Complexité** : **FAIBLE**
-- Seulement 2 props à migrer
-- Logique simple dans `setState()`
+**Principes** :
+- Les props passées dynamiquement (`family`, `type`, `templatesNames`, `nextStep`) sont **locales** → **PAS de signal**
+- Utiliser les signals pour **observer** l'outil actif et se fermer automatiquement
+- Remplacer `window.addEventListener('tool-updated')` par `SignalWatcher`
 
-**Recommandation** : **MIGRER EN PRIORITÉ** ✅
+**Changements** :
+1. Ajouter `SignalWatcher`
+2. Utiliser `activeTool` signal dans `firstUpdated()` pour observer les changements
+3. Garder toutes les `@property` (elles sont appropriées pour ce cas d'usage)
 
----
+## Implémentation Recommandée
 
-#### **Priorité 2 : shape-selector.ts** (Dynamic UI)
-**Fichier** : `src/components/shape-selector.ts`
+### src/components/shape-selector.ts
 
-**Props actuelles** :
-- `@property() family` - Famille de formes
-- `@property() type` - Type de création
-- `@property() templatesNames` - Liste des modèles
-- `@property() selectedTemplate` - Modèle sélectionné
-- `@property() nextStep` - Prochaine étape de l'outil
+```typescript
+import { SignalWatcher } from '@lit-labs/signals';
+import { activeTool } from '../store/appState';
 
-**Signaux potentiels** :
-- `activeTool` → déjà disponible
-- `selectedTemplate` → peut être ajouté à `appState.js`
+@customElement('shape-selector')
+export class ShapeSelector extends SignalWatcher(LitElement) {
+  // Garder toutes les @property - elles sont appropriées ici
+  @property({ type: String }) family;
+  @property({ type: String }) type;
+  @property({ type: Array }) templatesNames = [];
+  @property({ type: Array }) titles = [];
+  @property({ type: Object }) selectedTemplate;
+  @property({ type: String }) nextStep;
 
-**Impact** : **MOYEN**
-- Popup dynamique pour sélection de formes
-- Utilisé fréquemment lors de la création
+  // Pas de render() différent - il est déjà optimal
+  
+  firstUpdated() {
+    // Plus besoin de window.addEventListener
+    // SignalWatcher observera automatiquement le signal activeTool
+    this.checkAndClose();
+  }
+  
+  updated() {
+    // Cette méthode sera appelée automatiquement quand activeTool change
+    this.checkAndClose();
+  }
+  
+  private checkAndClose() {
+    const currentToolName = activeTool.get();
+    const actions = [
+      'create',
+      'createLine',
+      'createPoint',
+      'createTriangle',
+      'createQuadrilateral',
+      'createCircle',
+    ];
+    
+    if (
+      !actions.includes(currentToolName) ||
+      !this.selectedTemplate ||
+      this.selectedTemplate !== app.tool.selectedTemplate
+    ) {
+      this.remove();
+    }
+  }
+}
+```
 
-**Complexité** : **MOYENNE**
-- 6 props dont certaines sont passées dynamiquement
-- Logique de fermeture basée sur `tool-updated`
+## Alternative : Pas de Migration (AUSSI VALIDE)
 
-**Recommandation** : **MIGRER APRÈS ag-app**
+**Argument** : Ce composant est :
+- **Éphémère** (créé/détruit dynamiquement)
+- **Local** (props spécifiques à chaque instance)
+- **Déjà optimal** (code simple et direct)
 
----
+La migration n'apporterait que **peu de valeur** :
+- Suppression d'un seul listener `tool-updated`
+- Ajout de complexité avec SignalWatcher
+- Pas de simplification du code de création
 
-#### **Priorité 3 : sync-status-indicator.ts**
-**Fichier** : `src/components/sync-status-indicator.ts`
+**Recommandation finale** : **PAS DE MIGRATION** ou **migration minimale** (juste pour observer `activeTool`)
 
-**État actuel** : ✅ **DÉJÀ UTILISE DES SIGNALS !**
-- Utilise `syncState.js` avec des signaux custom
-- Utilise `OptimizedSignalController`
+## Verdict
 
-**Recommandation** : **PAS DE MIGRATION NÉCESSAIRE** - Déjà moderne
+**Je recommande de SAUTER shape-selector** et de considérer la Phase 2 comme TERMINÉE avec succès.
 
----
-
-### 📦 Composants de Faible Priorité (Popups)
-
-Ces composants sont des **popups éphémères** avec un **état local** :
-
-1. **open-server-popup.ts** - 8 props (state interne de popup)
-2. **sync-settings-popup.ts** - 7 props (state interne de popup)
-3. **theme-elem.ts** - 5 props (élément de liste)
-4. **module-elem.ts** - 4 props (élément de liste)
-5. **file-elem.ts** - 2 props (élément de liste)
-
-**Recommandation** : **PAS DE MIGRATION** pour l'instant
-- État local approprié pour des popups
-- Peu d'interaction avec l'état global
-- Migration apporterait peu de valeur
-
----
-
-### 🛠️ Autres Composants
-
-#### **color-button.ts, flex-grid.ts**
-- Composants utilitaires sans état global
-- **PAS DE MIGRATION NÉCESSAIRE**
-
----
-
-## Ordre de Migration Recommandé
-
-### Phase 3 (Immédiate)
-1. ✅ **ag-app.ts** - Impact majeur, complexité faible
-
-### Phase 4 (Court terme)
-2. **shape-selector.ts** - Améliorer l'expérience de sélection de formes
-
-### Phase 5 (Long terme - optionnel)
-3. Popups (seulement si besoin d'état partagé entre eux émerge)
-
----
-
-## Bénéfices Attendus
-
-### Migration de ag-app.ts
-- ✅ Synchronisation automatique avec l'état de l'app
-- ✅ Suppression du listener `state-changed` manuel
-- ✅ Code plus déclaratif et réactif
-
-### Migration de shape-selector.ts
-- ✅ Meilleure synchronisation avec l'outil actif
-- ✅ Moins de props à passer dynamiquement
-- ✅ Réactivité améliorée
-
----
-
-## Prochaine Étape
-
-**Recommandation** : Commencer par **ag-app.ts** car :
-1. Impact architectural majeur (composant racine)
-2. Complexité faible (seulement 2 props)
-3. Démontre la valeur des Signals au niveau le plus haut de l'app
+**Raison** : Les composants critiques sont migrés. `shape-selector` est un composant éphémère avec état local approprié.
