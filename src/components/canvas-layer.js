@@ -133,6 +133,8 @@ class CanvasLayer extends LitElement {
       }
 
       this.draw();
+    } catch (error) {
+      console.error(`Error drawing ${this.canvasName} layer:`, error);
     } finally {
       this._pendingRedraw = false;
     }

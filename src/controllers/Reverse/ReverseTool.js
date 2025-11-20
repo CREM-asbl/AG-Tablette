@@ -90,6 +90,7 @@ export class ReverseTool extends Tool {
   listen() {
     app.mainCanvasLayer.editingShapeIds = [];
     app.upperCanvasLayer.removeAllObjects();
+    this.axes = []; // Clear axes array
     this.stopAnimation();
     this.removeListeners();
 
@@ -101,6 +102,11 @@ export class ReverseTool extends Tool {
   }
 
   selectAxis() {
+    // Prevent double execution - if axes already exist, we've already initialized
+    if (this.axes && this.axes.length > 0) {
+      return;
+    }
+
     this.removeListeners();
     app.upperCanvasLayer.removeAllObjects();
 
@@ -143,11 +149,10 @@ export class ReverseTool extends Tool {
     app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
     app.workspace.selectionConstraints.shapes.canSelect = true;
     app.workspace.selectionConstraints.shapes.blacklist = [
-      // { shapeId: selectedShape.id },
-      (app.workspace.selectionConstraints.shapes.blacklist =
-        app.mainCanvasLayer.shapes.filter(
-          (s) => s instanceof SinglePointShape,
-        )),
+      ...this.axes,
+      ...app.mainCanvasLayer.shapes.filter(
+        (s) => s instanceof SinglePointShape,
+      ),
     ];
 
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
