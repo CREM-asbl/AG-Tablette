@@ -128,6 +128,9 @@ export class MoveTool extends Tool {
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
 
+    // Filter to ensure only valid shapes (with getSVGPath method)
+    this.shapesToCopy = this.shapesToCopy.filter(s => typeof s.getSVGPath === 'function');
+
     this.drawingShapes = this.shapesToCopy.map((s) => duplicateShape(s));
     this.shapesToMove = this.drawingShapes.filter((s) =>
       this.involvedShapes.find((inShape) =>
