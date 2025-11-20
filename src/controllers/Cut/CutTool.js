@@ -76,6 +76,8 @@ export class CutTool extends Tool {
       size: 2,
     });
 
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -98,6 +100,8 @@ export class CutTool extends Tool {
       color: this.drawColor,
       size: 2,
     });
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
 
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -132,6 +136,8 @@ export class CutTool extends Tool {
         size: 2,
       });
     }
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   end() {
