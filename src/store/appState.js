@@ -450,6 +450,11 @@ export const resetAppState = () => {
   dialogs.set([]);
   filename.set('');
   helpSelected.set(false);
+  tangramState.set({
+    mode: null,
+    level: null,
+    currentFile: null,
+  });
   history.clear();
 
   window.dispatchEvent(new CustomEvent('app:state-reset'));

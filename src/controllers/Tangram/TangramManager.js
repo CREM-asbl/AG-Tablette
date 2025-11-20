@@ -1,7 +1,11 @@
 import { html, LitElement } from 'lit';
 import { tools } from '../../store/tools.js';
-import { app, setState } from '../Core/App.js';
-import { tangramState, createWatcher } from '../../store/appState.js';
+import { app } from '../Core/App.js';
+import {
+  tangramState,
+  createWatcher,
+  appActions,
+} from '../../store/appState.js';
 import { setWorkspaceFromObject } from '../Core/Managers/WorkspaceManager.js';
 import kit from './tangramShapeKit.json';
 
@@ -32,14 +36,19 @@ export class TangramManager extends LitElement {
   }
 
   readFile(event) {
-    this.data = event.detail;
-    if (this.data.envName !== 'Tangram') return;
-    this.mode = 'reproduction';
-    this.requestUpdate();
+    const data = event.detail;
+    if (data.envName !== 'Tangram') return;
+    appActions.setTangramState({
+      mode: 'reproduction',
+      currentFile: data,
+    });
   }
 
   reset() {
-    setState({ tangram: { ...app.defaultState.tangram } });
+    // Reset via signal is handled by appState.resetAppState() usually,
+    // but here we just want to reset local tangram state if needed
+    // or if this is called by legacy code.
+    // For now, we rely on the watcher to update the UI.
     this.tangramStart();
     this.mode = null;
     this.data = null;
@@ -59,39 +68,37 @@ export class TangramManager extends LitElement {
     if (app.dataLoading) return;
     import('./start-popup.js');
     return html`<start-popup
-      @close="${(event) => (this.mode = event.target.mode)}"
+      @close="${(event) =>
+        appActions.setTangramState({ mode: event.target.mode })}"
     ></start-popup>`;
   }
 
   connectedCallback() {
     super.connectedCallback();
     this.tangramStart();
-    this.resetListener = app.addListener('new-window', this.reset.bind(this));
 
-    // Initialiser avec l'état actuel si disponible
+    // Initialiser avec l'état actuel
     const currentState = tangramState.get();
-    if (currentState.currentFile) {
+    if (currentState.mode) {
+      this.mode = currentState.mode;
       this.data = currentState.currentFile;
-      this.mode = 'reproduction';
       this.requestUpdate();
     }
 
     // Surveiller les changements d'état
     this.stopWatcher = createWatcher(tangramState, (newState) => {
-      if (newState.currentFile && newState.mode === 'reproduction') {
-        this.data = newState.currentFile;
-        this.mode = 'reproduction';
-        this.requestUpdate();
-      } else if (newState.mode === null) {
+      this.mode = newState.mode;
+      this.data = newState.currentFile;
+      if (newState.mode === null) {
         this.reset();
       }
+      this.requestUpdate();
     });
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     app.tangramCanvasLayer.removeAllObjects();
-    app.removeListener('new-window', this.resetListener);
     if (this.stopWatcher) this.stopWatcher();
   }
 }

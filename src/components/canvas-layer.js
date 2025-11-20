@@ -4,7 +4,8 @@ import { SelectManager } from '../controllers/Core/Managers/SelectManager';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import { Point } from '../controllers/Core/Objects/Point';
 import { Segment } from '../controllers/Core/Objects/Segment';
-// Shapes imported lazily in loadFromData
+import { SinglePointShape } from '../controllers/Core/Objects/Shapes/SinglePointShape';
+// Other shapes imported lazily in loadFromData
 import {
   capitalizeFirstLetter,
   createElem,
