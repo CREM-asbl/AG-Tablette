@@ -1,5 +1,6 @@
 // OpenFileManager - Version fonctionnelle
 import { app, setState } from '@controllers/Core/App';
+import { appActions } from '@store/appState';
 import {
   addInfoToId,
   createElem,
@@ -597,6 +598,15 @@ export const parseFile = async (fileContent, filename) => {
 
     // Finalisation
     setState({ filename });
+
+    // Mise à jour du signal Tangram si nécessaire
+    if (app.environment.name === 'Tangram') {
+      appActions.setTangramState({
+        currentFile: saveObject,
+        mode: 'reproduction', // Force le mode reproduction lors de l'ouverture
+      });
+    }
+
     window.dispatchEvent(
       new CustomEvent('file-parsed', { detail: saveObject }),
     );

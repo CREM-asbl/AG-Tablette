@@ -1,6 +1,7 @@
 import { html, LitElement } from 'lit';
 import { tools } from '../../store/tools.js';
 import { app, setState } from '../Core/App.js';
+import { tangramState, createWatcher } from '../../store/appState.js';
 import { setWorkspaceFromObject } from '../Core/Managers/WorkspaceManager.js';
 import kit from './tangramShapeKit.json';
 
@@ -66,17 +67,32 @@ export class TangramManager extends LitElement {
     super.connectedCallback();
     this.tangramStart();
     this.resetListener = app.addListener('new-window', this.reset.bind(this));
-    this.fileListener = app.addListener(
-      'file-parsed',
-      this.readFile.bind(this),
-    );
+
+    // Initialiser avec l'état actuel si disponible
+    const currentState = tangramState.get();
+    if (currentState.currentFile) {
+      this.data = currentState.currentFile;
+      this.mode = 'reproduction';
+      this.requestUpdate();
+    }
+
+    // Surveiller les changements d'état
+    this.stopWatcher = createWatcher(tangramState, (newState) => {
+      if (newState.currentFile && newState.mode === 'reproduction') {
+        this.data = newState.currentFile;
+        this.mode = 'reproduction';
+        this.requestUpdate();
+      } else if (newState.mode === null) {
+        this.reset();
+      }
+    });
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     app.tangramCanvasLayer.removeAllObjects();
     app.removeListener('new-window', this.resetListener);
-    app.removeListener('file-parsed', this.fileListener);
+    if (this.stopWatcher) this.stopWatcher();
   }
 }
 customElements.define('tangram-manager', TangramManager);

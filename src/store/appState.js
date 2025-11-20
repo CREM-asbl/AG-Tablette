@@ -62,6 +62,12 @@ export const historyState = signal({
   currentIndex: -1,
 });
 
+export const tangramState = signal({
+  mode: null, // 'creation' | 'reproduction' | null
+  level: null,
+  currentFile: null, // Données du fichier chargé
+});
+
 // Signaux calculés pour des données dérivées
 export const isEnvironmentLoaded = computed(() => {
   return currentEnvironment.get() !== null;
@@ -128,6 +134,15 @@ export const appActions = {
 
   setHelpSelected: (selected) => {
     helpSelected.set(selected);
+  },
+
+  setTangramState: (state) => {
+    // Fusionner avec l'état existant pour éviter d'écraser d'autres propriétés
+    const current = tangramState.get();
+    tangramState.set({ ...current, ...state });
+    window.dispatchEvent(
+      new CustomEvent('tangram:state-changed', { detail: { state } }),
+    );
   },
 
   setHistoryState: (state) => {
