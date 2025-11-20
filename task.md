@@ -34,3 +34,13 @@
     - [x] Corriger ag-main.test.js (mise à jour pour Signals)
     - [x] Corriger historyActions.test.js (assertions Vitest)
     - [x] Corriger CreateTriangleTool.test.js (mise à jour pour tool refactoring)
+- [x] Corriger les erreurs eqeqeq (Audit Recommendations) ✅
+    - [x] Analyser les erreurs avec configuration stricte (9 erreurs trouvées, toutes des null checks valides)
+    - [x] Confirmer la conformité avec la règle 'smart' (aucune action requise)
+- [ ] Améliorer la couverture de tests (Objectif: 40%)
+- [x] Analyse du bundle (Optimisation) ✅
+    - [x] Rapport généré dans `docs/bundle-analysis.md`
+    - [x] Identification du chunk Firebase (541kB) comme principal point d'optimisation
+    - [x] Lazy Loading implémenté pour `open-server-popup` (Gain: 40kB sur le chunk initial, Firebase différé) ✅
+    - [x] Optimisation du splitting (`manualChunks`) : `ag-app` réduit à 0.2kB, création de chunks dédiés (`controllers`, `components`) ✅
+    - [x] Suppression des imports statiques de Firebase dans les popups et lazy-loading complet (Gain: 518kB sur le chargement initial) ✅

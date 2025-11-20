@@ -50,9 +50,11 @@ export async function saveActivity(id, data, version = 1) {
 
   // Préparer les données avec métadonnées
   const now = Date.now();
+  console.log('[DEBUG] saveActivity config:', CACHE_CONFIG.COMPRESSION_ENABLED);
   const compressedData = CACHE_CONFIG.COMPRESSION_ENABLED
     ? compressToUTF16(JSON.stringify(data))
     : JSON.stringify(data);
+  console.log('[DEBUG] compressedData type:', typeof compressedData);
 
   const activityRecord = {
     id,
@@ -85,9 +87,13 @@ export async function saveActivity(id, data, version = 1) {
     request.onsuccess = () => {
       if (CACHE_CONFIG.ENABLE_METRICS) {
       }
+      db.close();
       resolve();
     };
-    request.onerror = () => reject(request.error);
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -145,16 +151,30 @@ async function performSimpleEviction(store, itemsToRemove) {
 
 export async function saveTheme(id, data) {
   const db = await openDB();
-  const tx = db.transaction(STORE_NAMES.themes, 'readwrite');
-  tx.objectStore(STORE_NAMES.themes).put({ id, data });
-  return tx.complete;
+  try {
+    const tx = db.transaction(STORE_NAMES.themes, 'readwrite');
+    tx.objectStore(STORE_NAMES.themes).put({ id, data });
+    return await new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } finally {
+    db.close();
+  }
 }
 
 export async function saveModule(id, data) {
   const db = await openDB();
-  const tx = db.transaction(STORE_NAMES.modules, 'readwrite');
-  tx.objectStore(STORE_NAMES.modules).put({ id, data });
-  return tx.complete;
+  try {
+    const tx = db.transaction(STORE_NAMES.modules, 'readwrite');
+    tx.objectStore(STORE_NAMES.modules).put({ id, data });
+    return await new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } finally {
+    db.close();
+  }
 }
 
 /**
@@ -172,6 +192,9 @@ export async function getActivity(id) {
     request.onsuccess = () => {
       const result = request.result;
       if (result && result.data) {
+        // Clone pour la mise à jour des métadonnées (garder la version compressée)
+        const recordForUpdate = { ...result };
+
         try {
           // Décompression si nécessaire
           const rawData = result.compressed
@@ -183,16 +206,20 @@ export async function getActivity(id) {
 
           // Mettre à jour les métadonnées d'accès (async, ne pas attendre)
           if (CACHE_CONFIG.ENABLE_METRICS) {
-            updateAccessMetadata(store, id, result);
+            updateAccessMetadata(store, id, recordForUpdate);
           }
         } catch (e) {
           console.warn(`[CACHE] Erreur décompression activité ${id}:`, e);
           // Si la donnée n'est pas compressée (legacy), on la garde telle quelle
         }
       }
+      db.close();
       resolve(result || null);
     };
-    request.onerror = () => reject(request.error);
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -223,8 +250,14 @@ export async function getTheme(id) {
       .transaction(STORE_NAMES.themes)
       .objectStore(STORE_NAMES.themes)
       .get(id);
-    request.onsuccess = () => resolve(request.result?.data || null);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      db.close();
+      resolve(request.result?.data || null);
+    };
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -235,8 +268,14 @@ export async function getModule(id) {
       .transaction(STORE_NAMES.modules)
       .objectStore(STORE_NAMES.modules)
       .get(id);
-    request.onsuccess = () => resolve(request.result?.data || null);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      db.close();
+      resolve(request.result?.data || null);
+    };
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -247,8 +286,14 @@ export async function getAllActivities() {
       .transaction(STORE_NAMES.activities)
       .objectStore(STORE_NAMES.activities);
     const request = store.getAll();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      db.close();
+      resolve(request.result);
+    };
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -259,8 +304,14 @@ export async function getAllThemes() {
       .transaction(STORE_NAMES.themes)
       .objectStore(STORE_NAMES.themes);
     const request = store.getAll();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      db.close();
+      resolve(request.result);
+    };
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -271,8 +322,14 @@ export async function getAllModules() {
       .transaction(STORE_NAMES.modules)
       .objectStore(STORE_NAMES.modules);
     const request = store.getAll();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
+    request.onsuccess = () => {
+      db.close();
+      resolve(request.result);
+    };
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -296,23 +353,27 @@ const SYNC_CONFIG = {
  */
 export async function saveSyncMetadata(metadata) {
   const db = await openDB();
-  const tx = db.transaction(STORE_NAMES.sync_metadata, 'readwrite');
-  const store = tx.objectStore(STORE_NAMES.sync_metadata);
+  try {
+    const tx = db.transaction(STORE_NAMES.sync_metadata, 'readwrite');
+    const store = tx.objectStore(STORE_NAMES.sync_metadata);
 
-  const dataToSave = {
-    id: SYNC_CONFIG.METADATA_KEY,
-    lastSyncDate: metadata.lastSyncDate || Date.now(),
-    serverFiles: metadata.serverFiles || [],
-    serverThemes: metadata.serverThemes || [],
-    expiryDate: metadata.expiryDate || Date.now() + SYNC_CONFIG.CACHE_TTL,
-    ...metadata,
-  };
+    const dataToSave = {
+      id: SYNC_CONFIG.METADATA_KEY,
+      lastSyncDate: metadata.lastSyncDate || Date.now(),
+      serverFiles: metadata.serverFiles || [],
+      serverThemes: metadata.serverThemes || [],
+      expiryDate: metadata.expiryDate || Date.now() + SYNC_CONFIG.CACHE_TTL,
+      ...metadata,
+    };
 
-  return new Promise((resolve, reject) => {
-    const request = store.put(dataToSave);
-    request.onsuccess = () => resolve(dataToSave);
-    request.onerror = () => reject(request.error);
-  });
+    return await new Promise((resolve, reject) => {
+      const request = store.put(dataToSave);
+      request.onsuccess = () => resolve(dataToSave);
+      request.onerror = () => reject(request.error);
+    });
+  } finally {
+    db.close();
+  }
 }
 
 /**
@@ -328,6 +389,7 @@ export async function getSyncMetadata() {
       .get(SYNC_CONFIG.METADATA_KEY);
     request.onsuccess = () => {
       const result = request.result;
+      db.close();
 
       // Vérifier si les métadonnées existent et ne sont pas expirées
       if (result && result.expiryDate && result.expiryDate > Date.now()) {
@@ -337,7 +399,10 @@ export async function getSyncMetadata() {
         resolve(null);
       }
     };
-    request.onerror = () => reject(request.error);
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -381,13 +446,23 @@ export async function clearExpiredSyncMetadata() {
       if (result && result.expiryDate && result.expiryDate <= Date.now()) {
         // Métadonnées expirées, les supprimer
         const deleteRequest = store.delete(SYNC_CONFIG.METADATA_KEY);
-        deleteRequest.onsuccess = () => resolve(true);
-        deleteRequest.onerror = () => reject(deleteRequest.error);
+        deleteRequest.onsuccess = () => {
+          db.close();
+          resolve(true);
+        };
+        deleteRequest.onerror = () => {
+          db.close();
+          reject(deleteRequest.error);
+        };
       } else {
+        db.close();
         resolve(false);
       }
     };
-    request.onerror = () => reject(request.error);
+    request.onerror = () => {
+      db.close();
+      reject(request.error);
+    };
   });
 }
 
@@ -407,6 +482,8 @@ export async function getCacheStatistics() {
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
+
+    db.close();
 
     // Calculer les statistiques
     const now = Date.now();

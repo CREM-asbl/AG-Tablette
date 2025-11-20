@@ -2,7 +2,6 @@ import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { createElem } from '@controllers/Core/Tools/general';
 import { html, LitElement } from 'lit';
-import './open-server-popup';
 import './save-warning';
 import './template-popup';
 
@@ -48,7 +47,8 @@ class OpenPopup extends LitElement {
     this.close();
   }
 
-  openServerFile() {
+  async openServerFile() {
+    await import('./open-server-popup');
     createElem('open-server-popup');
     this.close();
   }

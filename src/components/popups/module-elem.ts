@@ -1,7 +1,3 @@
-import {
-  getFilesDocFromModule,
-  getModuleDocFromModuleName,
-} from '@db/firebase-init';
 import { SignalWatcher } from '@lit-labs/signals';
 import { cachedFiles, selectedSequence, toggleSequence } from '@store/notions';
 import { LitElement, css, html } from 'lit';
@@ -143,20 +139,20 @@ class ModuleElem extends SignalWatcher(LitElement) {
           ${this.title}
         </summary>
         ${!this.loaded
-          ? html`<div class="loading-container">
+        ? html`<div class="loading-container">
               <progress></progress>
               <span class="loading-text">Chargement des fichiers...</span>
             </div>`
-          : html`<div class="grid">
+        : html`<div class="grid">
               ${this.files.length > 0
-                ? this.files.map(
-                    (info) =>
-                      html`<file-elem
+            ? this.files.map(
+              (info) =>
+                html`<file-elem
                         title="${info.id}"
                         environment="${info.environment}"
                       ></file-elem>`,
-                  )
-                : html`<div class="no-files">Aucun fichier disponible</div>`}
+            )
+            : html`<div class="no-files">Aucun fichier disponible</div>`}
             </div>`}
       </details>
     `;
@@ -195,7 +191,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
     }
 
     // Sinon charger depuis le serveur
-
+    const { getFilesDocFromModule, getModuleDocFromModuleName } = await import('@db/firebase-init');
     const moduleDocRef = getModuleDocFromModuleName(this.title);
     let filesDoc = await getFilesDocFromModule(moduleDocRef);
     filesDoc = filesDoc.filter((fileDoc) => !fileDoc.hidden);

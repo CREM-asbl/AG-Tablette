@@ -2,10 +2,6 @@ import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import {
-  getModulesDocFromTheme,
-  getThemeDocFromThemeName,
-} from '../../firebase/firebase-init';
-import {
   cachedSequences,
   selectedNotion,
   toggleNotion,
@@ -200,6 +196,7 @@ class ThemeElem extends SignalWatcher(LitElement) {
       }
 
       // Sinon charger depuis getModulesDocFromTheme (qui gère IndexedDB + serveur)
+      const { getModulesDocFromTheme, getThemeDocFromThemeName } = await import('../../firebase/firebase-init');
       const themeDocRef = getThemeDocFromThemeName(this.title);
       const modulesDoc = await getModulesDocFromTheme(this.title); // Passer directement le nom du thème
       this.modules = modulesDoc || [];

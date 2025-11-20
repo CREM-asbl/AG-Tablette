@@ -2,11 +2,6 @@ import '@components/color-button';
 import '@components/popups/template-popup';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import {
-  downloadFileZip,
-  findAllFiles,
-  findAllThemes,
-} from '../../firebase/firebase-init';
 import { getLastSyncInfo } from '../../services/activity-sync.js';
 import { cachedThemes, selectedSequence } from '../../store/notions';
 import { syncInProgress } from '../../store/syncState.js';
@@ -254,6 +249,7 @@ class OpenServerPopup extends LitElement {
         return;
       }
 
+      const { findAllThemes } = await import('../../firebase/firebase-init');
       const themes = await findAllThemes();
 
       this.allThemes = themes;
@@ -324,6 +320,7 @@ class OpenServerPopup extends LitElement {
       );
       setSyncProgress(0);
 
+      const { findAllFiles, downloadFileZip } = await import('../../firebase/firebase-init');
       const files = await findAllFiles();
       if (files && files.length > 0) {
         await downloadFileZip(
@@ -406,27 +403,27 @@ class OpenServerPopup extends LitElement {
 
         <div slot="body" class="popup-content" tabindex="-1">
           ${this.isLoadingThemes ||
-          (this.allThemes.length === 0 && !this.errorMessage)
-            ? html`
+        (this.allThemes.length === 0 && !this.errorMessage)
+        ? html`
                 <div class="loading-skeleton" role="status" aria-live="polite">
                   <div class="skeleton-line"></div>
                   <div class="skeleton-line"></div>
                   <div class="skeleton-line"></div>
                 </div>
               `
-            : html`
+        : html`
                 <div
                   class="theme-list"
                   role="list"
                   aria-label="Thèmes disponibles"
                 >
                   ${this.allThemes.map(
-                    (theme) =>
-                      html`<theme-elem
+          (theme) =>
+            html`<theme-elem
                         role="listitem"
                         .theme=${theme}
                       ></theme-elem>`,
-                  )}
+        )}
                 </div>
               `}
 
@@ -437,36 +434,36 @@ class OpenServerPopup extends LitElement {
               aria-label="Télécharger tous les fichiers"
             >
               ${this.isDownloading
-                ? '⬇️ Téléchargement...'
-                : '💾 Télécharger tous les fichiers'}
+        ? '⬇️ Téléchargement...'
+        : '💾 Télécharger tous les fichiers'}
             </color-button>
           </div>
 
           ${this.isDownloading
-            ? html`<div class="loading-indicator"></div>`
-            : ''}
+        ? html`<div class="loading-indicator"></div>`
+        : ''}
           ${this.errorMessage
-            ? html`
+        ? html`
                 <div class="message error-message">
                   <span>⚠️</span>
                   <span>${this.errorMessage}</span>
                 </div>
               `
-            : ''}
+        : ''}
           ${this.successMessage
-            ? html`
+        ? html`
                 <div class="message success-message">
                   <span>${this.successMessage}</span>
                 </div>
               `
-            : ''}
+        : ''}
 
           <div class="sync-status">
             <div class="sync-info">
               <div
                 class="status-dot ${syncInProgress.value
-                  ? 'warning'
-                  : 'success'}"
+        ? 'warning'
+        : 'success'}"
               ></div>
               <span>Sync: ${syncInProgress.value ? 'En cours' : 'OK'}</span>
             </div>

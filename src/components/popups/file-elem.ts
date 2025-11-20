@@ -1,4 +1,3 @@
-import { openFileFromServer } from '@db/firebase-init';
 import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
@@ -107,10 +106,11 @@ class FileElem extends SignalWatcher(LitElement) {
     }
   }
 
-  openFile() {
+  async openFile() {
     this.dispatchEvent(
       new CustomEvent('close-popup', { bubbles: true, composed: true }),
     );
+    const { openFileFromServer } = await import('@db/firebase-init');
     openFileFromServer(this.title);
   }
 
@@ -122,10 +122,10 @@ class FileElem extends SignalWatcher(LitElement) {
     return html`
       <div class="file-card" @click="${this.handleClick}">
         ${this.environment
-          ? html` <div
+        ? html` <div
               class="environment-tag"
               style="background-color: ${this.envThemeColor ||
-              'var(--theme-color)'}"
+          'var(--theme-color)'}"
             >
               <img
                 class="environment-icon"
@@ -134,7 +134,7 @@ class FileElem extends SignalWatcher(LitElement) {
               />
               ${this.environment}
             </div>`
-          : ''}
+        : ''}
         <div class="file-content">
           <div class="file-name">${this.title}</div>
         </div>

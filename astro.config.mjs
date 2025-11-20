@@ -12,14 +12,18 @@ export default defineConfig({
     build: {
       rollupOptions: {
         output: {
-          manualChunks: {
-            // Séparer les gros modules en chunks
-            'controllers': ['src/controllers'],
-            'firebase': ['firebase/app', 'firebase/firestore', 'firebase/storage', 'firebase/auth', 'firebase/analytics'],
-            'lit': ['lit', '@lit-labs/signals', 'lit-html'],
-            'utils': ['src/utils', 'src/core', 'src/services'],
-            'components': ['src/components'],
-            'store': ['src/store']
+          manualChunks(id) {
+            // Node Modules
+            if (id.includes('node_modules')) {
+              if (id.includes('firebase')) return 'firebase';
+              if (id.includes('lit')) return 'lit';
+            }
+
+            // Source Code
+            if (id.includes('src/controllers')) return 'controllers';
+            if (id.includes('src/components')) return 'components';
+            if (id.includes('src/store')) return 'store';
+            if (id.includes('src/utils') || id.includes('src/core') || id.includes('src/services')) return 'utils';
           }
         }
       }
