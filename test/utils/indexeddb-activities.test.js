@@ -65,94 +65,93 @@ describe('IndexedDB Activities Utils', () => {
 
             expect(retrieved.data).toEqual(activityData);
 
-            // Verify raw data in DB is compressed (string)
-            const db = await IDBUtils.openDB();
-            const tx = db.transaction('activities', 'readonly');
-            const store = tx.objectStore('activities');
-        });
-
-        describe('Themes and Modules', () => {
-            it('should save and retrieve a theme', async () => {
-                const id = 'theme-1';
-                const data = { color: 'red' };
-                await IDBUtils.saveTheme(id, data);
-                const retrieved = await IDBUtils.getTheme(id);
-                expect(retrieved).toEqual(data);
-            });
-
-            it('should save and retrieve a module', async () => {
-                const id = 'module-1';
-                const data = { type: 'geometry' };
-                await IDBUtils.saveModule(id, data);
-                const retrieved = await IDBUtils.getModule(id);
-                expect(retrieved).toEqual(data);
-            });
-
-            it('should get all themes', async () => {
-                await IDBUtils.saveTheme('t1', { v: 1 });
-                await IDBUtils.saveTheme('t2', { v: 2 });
-                const all = await IDBUtils.getAllThemes();
-                expect(all).toHaveLength(2);
-            });
-
-            it('should get all modules', async () => {
-                await IDBUtils.saveModule('m1', { v: 1 });
-                const all = await IDBUtils.getAllModules();
-                expect(all).toHaveLength(1);
-            });
-        });
-
-        describe('Sync Metadata', () => {
-            it('should save and retrieve sync metadata', async () => {
-                const metadata = {
-                    lastSyncDate: Date.now(),
-                    serverFiles: ['f1'],
-                };
-                await IDBUtils.saveSyncMetadata(metadata);
-                const retrieved = await IDBUtils.getSyncMetadata();
-                expect(retrieved.serverFiles).toEqual(['f1']);
-            });
-
-            it('should return null if metadata expired', async () => {
-                const metadata = {
-                    lastSyncDate: Date.now(),
-                    expiryDate: Date.now() - 1000, // Expired
-                };
-                await IDBUtils.saveSyncMetadata(metadata);
-                const retrieved = await IDBUtils.getSyncMetadata();
-                expect(retrieved).toBeNull();
-            });
-
-            it('should check if recent sync is available', async () => {
-                await IDBUtils.saveSyncMetadata({
-                    lastSyncDate: Date.now(),
-                    expiryDate: Date.now() + 10000,
-                });
-                const isRecent = await IDBUtils.isRecentSyncAvailable(1); // 1 hour
-                expect(isRecent).toBe(true);
-            });
-
-            it('should clear expired metadata', async () => {
-                await IDBUtils.saveSyncMetadata({
-                    lastSyncDate: Date.now(),
-                    expiryDate: Date.now() - 1000,
-                });
-                const cleared = await IDBUtils.clearExpiredSyncMetadata();
-                expect(cleared).toBe(true);
-                const retrieved = await IDBUtils.getSyncMetadata();
-                expect(retrieved).toBeNull();
-            });
-        });
-
-        describe('Cache Statistics', () => {
-            it('should return valid statistics', async () => {
-                await IDBUtils.saveActivity('a1', { data: 1 });
-                await IDBUtils.saveActivity('a2', { data: 2 });
-
-                const stats = await IDBUtils.getCacheStatistics();
-                expect(stats.totalActivities).toBe(2);
-                expect(stats.usagePercentage).toBeGreaterThanOrEqual(0);
-                expect(stats.mostUsedActivities).toBeDefined();
-            });
+            // Restore original compression setting
+            CACHE_CONFIG.COMPRESSION_ENABLED = originalCompression;
         });
     });
+
+    describe('Themes and Modules', () => {
+        it('should save and retrieve a theme', async () => {
+            const id = 'theme-1';
+            const data = { color: 'red' };
+            await IDBUtils.saveTheme(id, data);
+            const retrieved = await IDBUtils.getTheme(id);
+            expect(retrieved).toEqual(data);
+        });
+
+        it('should save and retrieve a module', async () => {
+            const id = 'module-1';
+            const data = { type: 'geometry' };
+            await IDBUtils.saveModule(id, data);
+            const retrieved = await IDBUtils.getModule(id);
+            expect(retrieved).toEqual(data);
+        });
+
+        it('should get all themes', async () => {
+            await IDBUtils.saveTheme('t1', { v: 1 });
+            await IDBUtils.saveTheme('t2', { v: 2 });
+            const all = await IDBUtils.getAllThemes();
+            expect(all).toHaveLength(2);
+        });
+
+        it('should get all modules', async () => {
+            await IDBUtils.saveModule('m1', { v: 1 });
+            const all = await IDBUtils.getAllModules();
+            expect(all).toHaveLength(1);
+        });
+    });
+
+    describe('Sync Metadata', () => {
+        it('should save and retrieve sync metadata', async () => {
+            const metadata = {
+                lastSyncDate: Date.now(),
+                serverFiles: ['f1'],
+            };
+            await IDBUtils.saveSyncMetadata(metadata);
+            const retrieved = await IDBUtils.getSyncMetadata();
+            expect(retrieved.serverFiles).toEqual(['f1']);
+        });
+
+        it('should return null if metadata expired', async () => {
+            const metadata = {
+                lastSyncDate: Date.now(),
+                expiryDate: Date.now() - 1000, // Expired
+            };
+            await IDBUtils.saveSyncMetadata(metadata);
+            const retrieved = await IDBUtils.getSyncMetadata();
+            expect(retrieved).toBeNull();
+        });
+
+        it('should check if recent sync is available', async () => {
+            await IDBUtils.saveSyncMetadata({
+                lastSyncDate: Date.now(),
+                expiryDate: Date.now() + 10000,
+            });
+            const isRecent = await IDBUtils.isRecentSyncAvailable(1); // 1 hour
+            expect(isRecent).toBe(true);
+        });
+
+        it('should clear expired metadata', async () => {
+            await IDBUtils.saveSyncMetadata({
+                lastSyncDate: Date.now(),
+                expiryDate: Date.now() - 1000,
+            });
+            const cleared = await IDBUtils.clearExpiredSyncMetadata();
+            expect(cleared).toBe(true);
+            const retrieved = await IDBUtils.getSyncMetadata();
+            expect(retrieved).toBeNull();
+        });
+    });
+
+    describe('Cache Statistics', () => {
+        it('should return valid statistics', async () => {
+            await IDBUtils.saveActivity('a1', { data: 1 });
+            await IDBUtils.saveActivity('a2', { data: 2 });
+
+            const stats = await IDBUtils.getCacheStatistics();
+            expect(stats.totalActivities).toBe(2);
+            expect(stats.usagePercentage).toBeGreaterThanOrEqual(0);
+            expect(stats.mostUsedActivities).toBeDefined();
+        });
+    });
+});
