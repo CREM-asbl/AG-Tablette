@@ -34,9 +34,8 @@ class OpacityPopup extends LitElement {
     };
   }
 
-  static get styles() {
-    return [templatePopupStyles, css``];
-  }
+  static styles = [templatePopupStyles, css``];
+
 
   render() {
     return html`

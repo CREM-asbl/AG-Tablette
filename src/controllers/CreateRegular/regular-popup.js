@@ -34,34 +34,33 @@ class RegularPopup extends LitElement {
     };
   }
 
-  static get styles() {
-    return [
-      templatePopupStyles,
-      css`
-        select {
-          width: 2rem;
-        }
+  static styles = [
+    templatePopupStyles,
+    css`
+      select {
+        width: 2rem;
+      }
 
-        input {
-          display: inline;
-          width: 60%;
-        }
+      input {
+        display: inline;
+        width: 60%;
+      }
 
-        #hello {
-          height: 3em;
-          width: 100%;
-          display: flex;
-          justify-content: center;
-        }
+      #hello {
+        height: 3em;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
 
-        .clickable {
-          cursor: pointer;
-          padding: 10px;
-          padding-top: 1em;
-        }
-      `,
-    ];
-  }
+      .clickable {
+        cursor: pointer;
+        padding: 10px;
+        padding-top: 1em;
+      }
+    `,
+  ];
+
 
   render() {
     return html`

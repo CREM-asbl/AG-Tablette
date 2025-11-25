@@ -37,31 +37,30 @@ class ScalarPopup extends LitElement {
     };
   }
 
-  static get styles() {
-    return [
-      templatePopupStyles,
-      css`
-        span {
-          font-weight: normal;
-        }
+  static styles = [
+    templatePopupStyles,
+    css`
+      span {
+        font-weight: normal;
+      }
 
-        select {
-          text-align: center;
-          width: 2.5rem;
-        }
+      select {
+        text-align: center;
+        width: 2.5rem;
+      }
 
-        hr {
-          height: 4px;
-          width: 20%;
-          border-width: 0;
-          text-align: left;
-          margin: 3px auto 3px;
-          color: black;
-          background-color: black;
-        }
-      `,
-    ];
-  }
+      hr {
+        height: 4px;
+        width: 20%;
+        border-width: 0;
+        text-align: left;
+        margin: 3px auto 3px;
+        color: black;
+        background-color: black;
+      }
+    `,
+  ];
+
 
   render() {
     return html`
