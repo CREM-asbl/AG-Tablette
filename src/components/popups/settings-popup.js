@@ -3,7 +3,6 @@ import { app, setState } from '@controllers/Core/App';
 import { createElem } from '@controllers/Core/Tools/general';
 import '@controllers/version-item';
 import { LitElement, css, html } from 'lit';
-import { templatePopupStyles } from './template-popup';
 
 class SettingsPopup extends LitElement {
   static properties = {
@@ -20,24 +19,52 @@ class SettingsPopup extends LitElement {
     window.addEventListener('close-popup', () => this.close());
   }
 
-  static styles = [
-    templatePopupStyles,
-    css`
-      version-item {
-        margin-right: 8px;
-      }
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
 
-      fieldset {
-        width: 100%;
-        box-sizing: border-box;
-        border-radius: 4px;
-      }
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
 
-      [slot='body'] {
-        gap: 8px;
-      }
-    `,
-  ];
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+
+    version-item {
+      margin-right: 8px;
+    }
+
+    fieldset {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 4px;
+    }
+
+    [slot='body'] {
+      gap: 8px;
+    }
+  `;
+
 
   render() {
     return html`

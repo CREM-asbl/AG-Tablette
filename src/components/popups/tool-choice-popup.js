@@ -13,55 +13,82 @@ import {
   toggleAllToolsVisibility,
   toggleToolVisibility,
 } from '../../store/tools';
-import { templatePopupStyles } from './template-popup';
 
 class ToolChoicePopup extends SignalWatcher(LitElement) {
-  static styles = [
-    templatePopupStyles,
-    css`
-      #toolChoicePopupBody {
-        display: grid;
-        grid-template: auto auto 1fr / 1fr 1fr;
-        height: 100%;
-        grid-auto-flow: column;
-        gap: 8px;
-      }
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
 
-      h3 {
-        margin: 0;
-        width: 100%;
-        text-align: center;
-      }
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
 
-      .toolContainer {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 2px;
-        width: 100%;
-        height: 100%;
-        place-content: baseline;
-        background-color: white;
-        border-radius: 4px;
-        overflow: auto;
-        scrollbar-width: thin;
-      }
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
 
-      button {
-        border: inherit;
-        background: inherit;
-        cursor: pointer;
-        font-size: 16px;
-      }
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
 
-      #allHide {
-        justify-self: right;
-      }
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
 
-      #allShow {
-        justify-self: left;
-      }
-    `,
-  ];
+    #toolChoicePopupBody {
+      display: grid;
+      grid-template: auto auto 1fr / 1fr 1fr;
+      height: 100%;
+      grid-auto-flow: column;
+      gap: 8px;
+    }
+
+    h3 {
+      margin: 0;
+      width: 100%;
+      text-align: center;
+    }
+
+    .toolContainer {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      width: 100%;
+      height: 100%;
+      place-content: baseline;
+      background-color: white;
+      border-radius: 4px;
+      overflow: auto;
+      scrollbar-width: thin;
+    }
+
+    button {
+      border: inherit;
+      background: inherit;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    #allHide {
+      justify-self: right;
+    }
+
+    #allShow {
+      justify-self: left;
+    }
+  `;
+
 
   render() {
     this.tools = tools.get();

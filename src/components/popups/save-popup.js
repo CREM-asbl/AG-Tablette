@@ -1,7 +1,6 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { css, html, LitElement } from 'lit';
-import { templatePopupStyles } from './template-popup';
 
 class SavePopup extends LitElement {
   static properties = {
@@ -20,25 +19,53 @@ class SavePopup extends LitElement {
     window.addEventListener('close-popup', () => this.close());
   }
 
-  static styles = [
-    templatePopupStyles,
-    css`
-      #body {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 16px;
-        justify-content: center;
-      }
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
 
-      label {
-        text-align: right;
-      }
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
 
-      fieldset {
-        grid-column: 1 / 3;
-      }
-    `,
-  ];
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+
+    #body {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    label {
+      text-align: right;
+    }
+
+    fieldset {
+      grid-column: 1 / 3;
+    }
+  `;
+
 
   render() {
     return html`

@@ -2,7 +2,6 @@ import '@components/color-button';
 import { app } from '@controllers/Core/App.js';
 import { gridStore } from '@store/gridStore';
 import { LitElement, css, html } from 'lit';
-import { templatePopupStyles } from './template-popup';
 
 class GridPopup extends LitElement {
   static properties = {
@@ -11,19 +10,47 @@ class GridPopup extends LitElement {
     gridSize: Number,
   };
 
-  static styles = [
-    templatePopupStyles,
-    css`
-      .field {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        text-align: left;
-      }
-      label {
-        margin: 0;
-      }
-    `,
-  ];
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
+
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      text-align: left;
+    }
+    label {
+      margin: 0;
+    }
+  `;
+
 
   constructor() {
     super();
