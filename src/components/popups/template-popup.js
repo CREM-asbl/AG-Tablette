@@ -1,53 +1,21 @@
 import { css, html, LitElement } from 'lit';
 
 /**
- * Shared styles for popup components
- * Exported as a constant to avoid circular dependency issues
+ * Base popup component providing modal dialog functionality with slots for title, body, and footer.
+ * All popup components should use this as a wrapper via <template-popup> tag.
+ * 
+ * @example
+ * <template-popup>
+ *   <h2 slot="title">My Title</h2>
+ *   <div slot="body">Content here</div>
+ *   <div slot="footer"><button>OK</button></div>
+ * </template-popup>
  */
-export const templatePopupStyles = css`
-  .field {
-    display: flex;
-    align-items: center;
-    padding: 8px 0;
-    width: 100%;
-  }
-
-  select {
-    height: 32px;
-    width: auto;
-    border-radius: 4px;
-  }
-
-  input {
-    height: 24px;
-    width: auto;
-    border-radius: 4px;
-  }
-
-  input[type='checkbox'] {
-    height: 24px;
-    width: 24px;
-  }
-
-  label {
-    font-weight: normal;
-    margin: 0 8px;
-    font-size: 1rem;
-  }
-`;
-
 export class TemplatePopup extends LitElement {
   static properties = {
     title: { type: String },
   };
 
-  /**
-   * @deprecated Use exported `templatePopupStyles` constant instead
-   * This method is kept for backward compatibility but should not be used in static getters
-   */
-  static template_popup_styles() {
-    return templatePopupStyles;
-  }
 
   static styles = css`
     :host {

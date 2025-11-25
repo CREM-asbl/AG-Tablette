@@ -1,6 +1,7 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App.js';
 import { gridStore } from '@store/gridStore';
+import '@styles/popup-variables.css';
 import { LitElement, css, html } from 'lit';
 
 class GridPopup extends LitElement {
@@ -12,44 +13,40 @@ class GridPopup extends LitElement {
 
   static styles = css`
     .field {
-      display: flex;
-      align-items: center;
-      padding: 8px 0;
-      width: 100%;
-    }
-
-    select {
-      height: 32px;
-      width: auto;
-      border-radius: 4px;
-    }
-
-    input {
-      height: 24px;
-      width: auto;
-      border-radius: 4px;
-    }
-
-    input[type='checkbox'] {
-      height: 24px;
-      width: 24px;
-    }
-
-    label {
-      font-weight: normal;
-      margin: 0 8px;
-      font-size: 1rem;
-    }
-
-    .field {
+      display: var(--popup-field-display);
+      align-items: var(--popup-field-align-items);
+      padding: var(--popup-field-padding);
+      width: var(--popup-field-width);
       display: grid;
       grid-template-columns: 1fr 1fr;
       text-align: left;
     }
+
+    select {
+      height: var(--popup-select-height);
+      width: var(--popup-select-width);
+      border-radius: var(--popup-select-border-radius);
+    }
+
+    input {
+      height: var(--popup-input-height);
+      width: var(--popup-input-width);
+      border-radius: var(--popup-input-border-radius);
+    }
+
+    input[type='checkbox'] {
+      height: var(--popup-checkbox-height);
+      width: var(--popup-checkbox-width);
+    }
+
     label {
+      font-weight: var(--popup-label-font-weight);
+      margin: var(--popup-label-margin);
+      font-size: var(--popup-label-font-size);
       margin: 0;
     }
   `;
+
 
 
   constructor() {

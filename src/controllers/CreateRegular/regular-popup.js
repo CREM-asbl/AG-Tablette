@@ -1,3 +1,4 @@
+import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import '@components/color-button';
 import { app, setState } from '../Core/App';
@@ -35,42 +36,36 @@ class RegularPopup extends LitElement {
 
   static styles = css`
     .field {
-      display: flex;
-      align-items: center;
-      padding: 8px 0;
-      width: 100%;
+      display: var(--popup-field-display);
+      align-items: var(--popup-field-align-items);
+      padding: var(--popup-field-padding);
+      width: var(--popup-field-width);
     }
 
     select {
-      height: 32px;
-      width: auto;
-      border-radius: 4px;
-    }
-
-    input {
-      height: 24px;
-      width: auto;
-      border-radius: 4px;
-    }
-
-    input[type='checkbox'] {
-      height: 24px;
-      width: 24px;
-    }
-
-    label {
-      font-weight: normal;
-      margin: 0 8px;
-      font-size: 1rem;
-    }
-
-    select {
+      height: var(--popup-select-height);
+      width: var(--popup-select-width);
+      border-radius: var(--popup-select-border-radius);
       width: 2rem;
     }
 
     input {
+      height: var(--popup-input-height);
+      width: var(--popup-input-width);
+      border-radius: var(--popup-input-border-radius);
       display: inline;
       width: 60%;
+    }
+
+    input[type='checkbox'] {
+      height: var(--popup-checkbox-height);
+      width: var(--popup-checkbox-width);
+    }
+
+    label {
+      font-weight: var(--popup-label-font-weight);
+      margin: var(--popup-label-margin);
+      font-size: var(--popup-label-font-size);
     }
 
     #hello {
@@ -86,6 +81,7 @@ class RegularPopup extends LitElement {
       padding-top: 1em;
     }
   `;
+
 
 
   render() {

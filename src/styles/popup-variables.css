@@ -1,0 +1,32 @@
+/**
+ * Shared CSS custom properties for popup components
+ * These variables centralize popup styling without requiring JavaScript imports,
+ * thus avoiding Temporal Dead Zone (TDZ) issues during module initialization.
+ */
+
+:root {
+  /* Field styles */
+  --popup-field-display: flex;
+  --popup-field-align-items: center;
+  --popup-field-padding: 8px 0;
+  --popup-field-width: 100%;
+
+  /* Select element styles */
+  --popup-select-height: 32px;
+  --popup-select-width: auto;
+  --popup-select-border-radius: 4px;
+
+  /* Input element styles */
+  --popup-input-height: 24px;
+  --popup-input-width: auto;
+  --popup-input-border-radius: 4px;
+
+  /* Checkbox styles */
+  --popup-checkbox-height: 24px;
+  --popup-checkbox-width: 24px;
+
+  /* Label styles */
+  --popup-label-font-weight: normal;
+  --popup-label-margin: 0 8px;
+  --popup-label-font-size: 1rem;
+}

@@ -1,39 +1,40 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { goToHomePage } from '@controllers/Core/Tools/general';
+import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import './save-warning';
 
 class HomePopup extends LitElement {
   static styles = css`
     .field {
-      display: flex;
-      align-items: center;
-      padding: 8px 0;
-      width: 100%;
+      display: var(--popup-field-display);
+      align-items: var(--popup-field-align-items);
+      padding: var(--popup-field-padding);
+      width: var(--popup-field-width);
     }
 
     select {
-      height: 32px;
-      width: auto;
-      border-radius: 4px;
+      height: var(--popup-select-height);
+      width: var(--popup-select-width);
+      border-radius: var(--popup-select-border-radius);
     }
 
     input {
-      height: 24px;
-      width: auto;
-      border-radius: 4px;
+      height: var(--popup-input-height);
+      width: var(--popup-input-width);
+      border-radius: var(--popup-input-border-radius);
     }
 
     input[type='checkbox'] {
-      height: 24px;
-      width: 24px;
+      height: var(--popup-checkbox-height);
+      width: var(--popup-checkbox-width);
     }
 
     label {
-      font-weight: normal;
-      margin: 0 8px;
-      font-size: 1rem;
+      font-weight: var(--popup-label-font-weight);
+      margin: var(--popup-label-margin);
+      font-size: var(--popup-label-font-size);
     }
 
     [slot='body'] {
@@ -44,6 +45,7 @@ class HomePopup extends LitElement {
       padding-top: 16px;
     }
   `;
+
 
   render() {
     return html`
