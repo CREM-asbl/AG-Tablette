@@ -1,6 +1,5 @@
-import '@components/color-button';
-import { templatePopupStyles } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
+import '@components/color-button';
 import { app, setState } from '../Core/App';
 
 class RegularPopup extends LitElement {
@@ -34,32 +33,59 @@ class RegularPopup extends LitElement {
     };
   }
 
-  static styles = [
-    templatePopupStyles,
-    css`
-      select {
-        width: 2rem;
-      }
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
 
-      input {
-        display: inline;
-        width: 60%;
-      }
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
 
-      #hello {
-        height: 3em;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
 
-      .clickable {
-        cursor: pointer;
-        padding: 10px;
-        padding-top: 1em;
-      }
-    `,
-  ];
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+
+    select {
+      width: 2rem;
+    }
+
+    input {
+      display: inline;
+      width: 60%;
+    }
+
+    #hello {
+      height: 3em;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    .clickable {
+      cursor: pointer;
+      padding: 10px;
+      padding-top: 1em;
+    }
+  `;
 
 
   render() {

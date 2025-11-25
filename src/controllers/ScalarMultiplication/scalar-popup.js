@@ -1,5 +1,4 @@
 import '@components/color-button';
-import { templatePopupStyles } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import { range } from '../Core/Tools/utils';
@@ -37,29 +36,56 @@ class ScalarPopup extends LitElement {
     };
   }
 
-  static styles = [
-    templatePopupStyles,
-    css`
-      span {
-        font-weight: normal;
-      }
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
 
-      select {
-        text-align: center;
-        width: 2.5rem;
-      }
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
 
-      hr {
-        height: 4px;
-        width: 20%;
-        border-width: 0;
-        text-align: left;
-        margin: 3px auto 3px;
-        color: black;
-        background-color: black;
-      }
-    `,
-  ];
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+
+    span {
+      font-weight: normal;
+    }
+
+    select {
+      text-align: center;
+      width: 2.5rem;
+    }
+
+    hr {
+      height: 4px;
+      width: 20%;
+      border-width: 0;
+      text-align: left;
+      margin: 3px auto 3px;
+      color: black;
+      background-color: black;
+    }
+  `;
 
 
   render() {

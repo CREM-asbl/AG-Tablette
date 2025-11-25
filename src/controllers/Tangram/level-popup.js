@@ -1,5 +1,4 @@
 import '@components/color-button';
-import { templatePopupStyles } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 
 class LevelPopup extends LitElement {
@@ -12,19 +11,47 @@ class LevelPopup extends LitElement {
     this.level = 1;
   }
 
-  static styles = [
-    templatePopupStyles,
-    css`
-      .choice {
-        display: flex;
-        align-items: center;
-        width: 100%;
-      }
-      input[type='radio'] {
-        display: inline;
-      }
-    `,
-  ];
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
+
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+
+    .choice {
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    input[type='radio'] {
+      display: inline;
+    }
+  `;
+
 
   render() {
     return html`

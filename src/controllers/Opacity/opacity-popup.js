@@ -1,5 +1,4 @@
 import '@components/color-button';
-import { templatePopupStyles } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
@@ -34,7 +33,37 @@ class OpacityPopup extends LitElement {
     };
   }
 
-  static styles = [templatePopupStyles, css``];
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
+
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+  `;
 
 
   render() {
