@@ -1,4 +1,4 @@
-import { app } from '../App';
+// import { app } from '../App';
 import {
   addInfoToId,
   findObjectById,
@@ -111,7 +111,7 @@ export class Segment {
   /* #################################################################### */
 
   get canvasLayer() {
-    return app[this.layer + 'CanvasLayer'];
+    return window.app[this.layer + 'CanvasLayer'];
   }
 
   get shape() {
@@ -952,7 +952,7 @@ export class Segment {
       }
     } else if (object instanceof Point)
       return (
-                this.vertexes.some((vertex) =>
+        this.vertexes.some((vertex) =>
           vertex.coordinates.equal(object.coordinates),
         ) ||
 

@@ -3,11 +3,11 @@ import { app } from '@controllers/Core/App';
 import { goToHomePage } from '@controllers/Core/Tools/general';
 import { css, html, LitElement } from 'lit';
 import './save-warning';
-import { TemplatePopup } from './template-popup';
+import { templatePopupStyles } from './template-popup';
 
 class HomePopup extends LitElement {
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       [slot='body'] {
         padding: 0;

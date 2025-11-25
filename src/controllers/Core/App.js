@@ -5,7 +5,7 @@ import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
 import './Managers/HistoryManager'; // Import to register event listeners
 import { Workspace } from './Objects/Workspace';
-import { uniqId } from './Tools/general';
+import { uniqId } from './Tools/utils';
 
 export const changes = signal({});
 
@@ -135,6 +135,7 @@ export class App {
     this.stepSinceSave = false;
     /** @type {boolean} Indique si l'application a démarré */
     this.started = false;
+    console.log('App initialized', this);
     /** @type {boolean} Indique si l'application est en cours de chargement */
     this.appLoading = false;
     /** @type {number} Index pour la prochaine couleur de groupe à assigner */
@@ -224,6 +225,7 @@ export class App {
 }
 
 export const app = new App();
+if (typeof window !== 'undefined') window.app = app;
 
 //Préparation à un state-changed plus général
 //Ceci permettra aussi de réduire le nombre de listener par la suite

@@ -13,11 +13,11 @@ import {
   toggleAllToolsVisibility,
   toggleToolVisibility,
 } from '../../store/tools';
-import { TemplatePopup } from './template-popup';
+import { templatePopupStyles } from './template-popup';
 
 class ToolChoicePopup extends SignalWatcher(LitElement) {
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       #toolChoicePopupBody {
         display: grid;

@@ -98,7 +98,7 @@ export class MoveTool extends Tool {
     if (!shape) return;
     this.selectedShape = shape;
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
@@ -266,7 +266,7 @@ export class MoveTool extends Tool {
       });
     });
 
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       app.mainCanvasLayer.shapes.forEach((s) => {
         s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
           (duplicateChildId) => {

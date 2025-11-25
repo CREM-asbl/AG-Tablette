@@ -3,7 +3,7 @@ import { app, setState } from '@controllers/Core/App';
 import { createElem } from '@controllers/Core/Tools/general';
 import '@controllers/version-item';
 import { LitElement, css, html } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { templatePopupStyles } from './template-popup';
 
 class SettingsPopup extends LitElement {
   static properties = {
@@ -21,7 +21,7 @@ class SettingsPopup extends LitElement {
   }
 
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       version-item {
         margin-right: 8px;

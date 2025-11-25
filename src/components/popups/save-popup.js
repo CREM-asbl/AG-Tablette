@@ -1,7 +1,7 @@
 import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { css, html, LitElement } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { templatePopupStyles } from './template-popup';
 
 class SavePopup extends LitElement {
   static properties = {
@@ -21,7 +21,7 @@ class SavePopup extends LitElement {
   }
 
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       #body {
         display: grid;

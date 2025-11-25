@@ -203,4 +203,4 @@ async function startCachesAndSync() {
   await initializeCachesFromIndexedDB();
   await syncAllThemesAndModules();
 }
-startCachesAndSync();
+// startCachesAndSync(); est appelé explicitement dans ag-main.ts

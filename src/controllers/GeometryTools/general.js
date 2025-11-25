@@ -13,7 +13,7 @@ export function getAllLinkedShapesInGeometry(
   involvedShapes,
   includeDuplicate = true,
 ) {
-  if (app.environment.name !== 'Geometrie') return;
+  if (app.environment?.name !== 'Geometrie') return;
   shape.geometryObject.geometryChildShapeIds.forEach((ref) => {
     const s = findObjectById(ref);
     if (!involvedShapes.find((involvedShape) => involvedShape.id === s.id)) {

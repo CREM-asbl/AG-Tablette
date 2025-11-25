@@ -1,5 +1,5 @@
 import '@components/color-button';
-import { TemplatePopup } from '@components/popups/template-popup';
+import { templatePopupStyles } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 
@@ -35,7 +35,7 @@ class OpacityPopup extends LitElement {
   }
 
   static get styles() {
-    return [TemplatePopup.template_popup_styles(), css``];
+    return [templatePopupStyles, css``];
   }
 
   render() {

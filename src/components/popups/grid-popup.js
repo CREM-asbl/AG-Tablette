@@ -2,7 +2,7 @@ import '@components/color-button';
 import { app } from '@controllers/Core/App.js';
 import { gridStore } from '@store/gridStore';
 import { LitElement, css, html } from 'lit';
-import { TemplatePopup } from './template-popup';
+import { templatePopupStyles } from './template-popup';
 
 class GridPopup extends LitElement {
   static properties = {
@@ -12,7 +12,7 @@ class GridPopup extends LitElement {
   };
 
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       .field {
         display: grid;

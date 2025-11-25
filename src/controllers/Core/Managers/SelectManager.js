@@ -139,7 +139,7 @@ export class SelectManager {
     const potentialPoints = [];
     let allPoints = [...app.mainCanvasLayer.points];
 
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       allPoints = allPoints
         .filter((pt) => pt.shape.geometryObject?.geometryIsVisible !== false)
         .filter((pt) => pt.shape.geometryObject?.geometryIsHidden !== true)
@@ -290,7 +290,7 @@ export class SelectManager {
     let potentialSegments = [];
     let allSegments = [...app.mainCanvasLayer.segments];
 
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       allSegments = allSegments
         .filter((seg) => seg.shape.geometryObject?.geometryIsVisible !== false)
         .filter((seg) => seg.shape.geometryObject?.geometryIsHidden !== true)
@@ -396,7 +396,7 @@ export class SelectManager {
       constraints,
     );
 
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       shapes = shapes
         .filter((s) => s.geometryObject?.geometryIsVisible !== false)
         .filter((s) => s.geometryObject?.geometryIsHidden !== true)

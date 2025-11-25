@@ -2,7 +2,7 @@ import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { css, html, LitElement } from 'lit';
 import { tools } from '../../store/tools';
-import { TemplatePopup } from './template-popup';
+import { templatePopupStyles } from './template-popup';
 
 class HelpPopup extends LitElement {
   static properties = {
@@ -11,7 +11,7 @@ class HelpPopup extends LitElement {
   };
 
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       :host {
         -webkit-touch-callout: text; /* iOS Safari */

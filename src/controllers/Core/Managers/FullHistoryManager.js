@@ -1,6 +1,6 @@
 import { app, setState } from '../App';
 import { Coordinates } from '../Objects/Coordinates';
-import { createElem } from '../Tools/general';
+import { createElem } from '../Tools/utils';
 import { SelectManager } from './SelectManager';
 
 /**

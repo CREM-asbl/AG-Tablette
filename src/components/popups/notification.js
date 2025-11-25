@@ -1,4 +1,4 @@
-import { createElem } from '@controllers/Core/Tools/general';
+import { createElem } from '@controllers/Core/Tools/utils';
 import { css, html, LitElement } from 'lit';
 
 export class Notification extends LitElement {

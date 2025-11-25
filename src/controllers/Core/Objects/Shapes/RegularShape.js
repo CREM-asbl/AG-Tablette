@@ -1,5 +1,5 @@
 import { deleteChildren } from '../../../GeometryTools/deleteShape';
-import { app } from '../../App';
+// import { app } from '../../App';
 import {
   findObjectById,
   getComplementaryColor,
@@ -58,7 +58,7 @@ export class RegularShape extends Shape {
   }
 
   get points() {
-    // if (this.isCircle() && app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
+    // if (this.isCircle() && window.app.environment.name !== 'Geometrie') => doit-on inclure le point du cercle dans Grandeurs et Cubes ?
     const points = this.pointIds
       .map((ptId) => this.canvasLayer.points.find((pt) => pt.id === ptId))
       .filter((pt) => pt !== undefined);
@@ -115,7 +115,7 @@ export class RegularShape extends Shape {
       });
     } else if (!value && this.isCenterShown) {
       const point = this.points.find((pt) => pt.type === 'shapeCenter');
-      if (app.environment.name === 'Geometrie' && point.layer === 'main') {
+      if (window.app.environment.name === 'Geometrie' && point.layer === 'main') {
         const shapesToDelete = [];
         this.geometryObject.geometryChildShapeIds.forEach((sId) => {
           const s = findObjectById(sId);
@@ -124,11 +124,11 @@ export class RegularShape extends Shape {
           }
         });
         shapesToDelete.forEach((s) => {
-          if (app.environment.name === 'Geometrie') deleteChildren(s);
+          if (window.app.environment.name === 'Geometrie') deleteChildren(s);
           removeObjectById(s.id);
         });
-        for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
-          const s = app.mainCanvasLayer.shapes[i];
+        for (let i = 0; i < window.app.mainCanvasLayer.shapes.length; i++) {
+          const s = window.app.mainCanvasLayer.shapes[i];
           s.points
             .filter((pt) => pt.type !== 'divisionPoint')
             .forEach((pt) => {
@@ -302,7 +302,7 @@ export class RegularShape extends Shape {
     }
     // if segment length == 0
     if (
-      app.environment.name === 'Geometrie' &&
+      window.app?.environment?.name === 'Geometrie' &&
       !this.isCircle() &&
       this.points.filter((pt) => pt.type !== 'arcCenter').length !==
       this.segmentIds.length
@@ -434,7 +434,7 @@ export class RegularShape extends Shape {
       type: 'arcCenter',
       visible: false,
     });
-    if (app.environment.name === 'Geometrie' && this.name !== 'Custom')
+    if (window.app.environment.name === 'Geometrie' && this.name !== 'Custom')
       arcCenter.visible = true;
 
     return arcCenter;
@@ -445,7 +445,7 @@ export class RegularShape extends Shape {
     ctx.fillStyle = this.fillColor;
     if (this.isOverlappingAnotherInTangram) ctx.fillStyle = '#F00';
     ctx.globalAlpha = this.fillOpacity;
-    ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
+    ctx.lineWidth = this.strokeWidth * window.app.workspace.zoomLevel;
     if (scaling === 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
@@ -466,7 +466,7 @@ export class RegularShape extends Shape {
   }
 
   isCoordinatesInPath(coordinates) {
-    const ctx = app.invisibleCanvasLayer.ctx;
+    const ctx = window.app.invisibleCanvasLayer.ctx;
     const canvasCoordinates = coordinates.toCanvasCoordinates();
     const selected = ctx.isPointInPath(
       new Path2D(this.getSVGPath()),
@@ -670,7 +670,7 @@ export class RegularShape extends Shape {
     });
 
     const pointToDraw = [];
-    if (app.settings.areShapesPointed && this.name !== 'silhouette') {
+    if (window.app.settings.areShapesPointed && this.name !== 'silhouette') {
       if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));

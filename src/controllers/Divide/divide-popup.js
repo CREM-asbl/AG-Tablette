@@ -1,5 +1,5 @@
 import '@components/color-button';
-import { TemplatePopup } from '@components/popups/template-popup';
+import { templatePopupStyles } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';
 import { range } from '../Core/Tools/general';
@@ -10,7 +10,7 @@ class DividePopup extends LitElement {
   };
 
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       select {
         text-align: center;

@@ -1,5 +1,5 @@
 import '@components/color-button';
-import { TemplatePopup } from '@components/popups/template-popup';
+import { templatePopupStyles } from '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
 
 class LevelPopup extends LitElement {
@@ -13,7 +13,7 @@ class LevelPopup extends LitElement {
   }
 
   static styles = [
-    TemplatePopup.template_popup_styles(),
+    templatePopupStyles,
     css`
       .choice {
         display: flex;

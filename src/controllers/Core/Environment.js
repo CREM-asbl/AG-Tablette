@@ -48,6 +48,7 @@ export const loadEnvironnement = async (name) => {
     }
 
     if (config.default.settings) {
+      console.log('Setting settings on app', app);
       setState({
         settings: { ...app.settings, ...config.default.settings },
         history: {

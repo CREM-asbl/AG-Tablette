@@ -1,4 +1,4 @@
-import { app } from '../App';
+// import { app } from '../App';
 import { addInfoToId, findObjectById, mod, uniqId } from '../Tools/general';
 import { Coordinates } from './Coordinates';
 import { Segment } from './Segment';
@@ -72,7 +72,7 @@ export class Point {
   }
 
   get canvasLayer() {
-    return app[this.layer + 'CanvasLayer'];
+    return window.app[this.layer + 'CanvasLayer'];
   }
 
   get shape() {
@@ -468,7 +468,7 @@ export class Point {
       '" cy="' +
       canvasCoordinates.y +
       '" r="' +
-      this.size * 2 * app.workspace.zoomLevel +
+      this.size * 2 * window.app.workspace.zoomLevel +
       '" fill="' +
       this.color +
       '" />\n'
@@ -530,7 +530,7 @@ export class Point {
     point.coordinates = new Coordinates(point.coordinates);
     point.segmentIds = [...data.segmentIds];
     if (data.endpointIds) point.endpointIds = [...data.endpointIds];
-    if (app.environment.name === 'Tangram') {
+    if (window.app.environment.name === 'Tangram') {
       point.startTangramCoordinates = new Coordinates(point.coordinates);
     }
   }

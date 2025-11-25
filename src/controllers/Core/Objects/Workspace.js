@@ -63,7 +63,7 @@ export class Workspace {
   }
 
   initGeometrie() {
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       this.orthogonalSymetryLastCharacteristicElements = [];
       this.centralSymetryLastCharacteristicElements = [];
       this.translationLastCharacteristicElements = [];

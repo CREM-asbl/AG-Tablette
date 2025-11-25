@@ -92,11 +92,11 @@ class FileElem extends SignalWatcher(LitElement) {
     if (
       this.environment &&
       app.environment &&
-      app.environment.name !== this.environment
+      app.environment?.name !== this.environment
     ) {
       if (
         confirm(
-          `Ce fichier appartient à l'environnement "${this.environment}" qui est différent de l'environnement actuel "${app.environment.name}". Voulez-vous changer d'environnement et ouvrir ce fichier ?`,
+          `Ce fichier appartient à l'environnement "${this.environment}" qui est différent de l'environnement actuel "${app.environment?.name}". Voulez-vous changer d'environnement et ouvrir ce fichier ?`,
         )
       ) {
         this.openFile();

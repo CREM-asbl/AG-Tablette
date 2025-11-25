@@ -154,7 +154,7 @@ class CanvasLayer extends LitElement {
             return;
           this.drawShape(s, scaling);
           if (this.mustDrawPoints) {
-            if (app.environment.name === 'Geometrie') {
+            if (app.environment?.name === 'Geometrie') {
               this.drawGeometryShapePoint(s);
             } else {
               this.drawShapePoint(s);
@@ -415,7 +415,7 @@ class CanvasLayer extends LitElement {
 
       window.addEventListener('tool-changed', () => {
         if (app.tool?.name === 'grid') {
-          if (app.environment.name === 'Cubes') {
+          if (app.environment?.name === 'Cubes') {
             const currentGridState = gridStore.getState();
             if (
               currentGridState.isVisible &&

@@ -106,7 +106,7 @@ class AGMain extends SignalWatcher(LitElement) {
       <notif-center></notif-center>
       <input
         id="fileSelector"
-        accept="${app.environment.extensions.join(',')}"
+        accept="${app?.environment?.extensions?.join(',') || ''}"
         type="file"
         style="display: none"
         @change="${(event) => this.handleFileChange(event)}"
@@ -128,7 +128,8 @@ class AGMain extends SignalWatcher(LitElement) {
   }
 
   addModules() {
-    if (app.environment.name === 'Tangram') {
+    console.log('ag-main addModules app', app, 'window.app', window.app);
+    if (app?.environment?.name === 'Tangram') {
       import('../controllers/Tangram/TangramManager');
       return html`<tangram-manager></tangram-manager>`;
     }

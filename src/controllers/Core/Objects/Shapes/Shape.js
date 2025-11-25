@@ -1,4 +1,4 @@
-import { app } from '../../App';
+// import { app } from '../../App';
 import {
   addInfoToId,
   getComplementaryColor,
@@ -90,7 +90,7 @@ export class Shape {
           return newPoint.id;
         }),
       ];
-      if (this.isCircle() && app.environment.name !== 'Geometrie') {
+      if (this.isCircle() && window.app.environment.name !== 'Geometrie') {
         this.vertexes[0].visible = false;
       }
     } else {
@@ -127,7 +127,7 @@ export class Shape {
   /* #################################################################### */
 
   get canvasLayer() {
-    return app[this.layer + 'CanvasLayer'];
+    return window.app[this.layer + 'CanvasLayer'];
   }
 
   get segments() {
@@ -194,7 +194,7 @@ export class Shape {
       });
     } else if (!value && this.isCenterShown) {
       const point = this.points.find((pt) => pt.type === 'shapeCenter');
-      if (app.environment.name === 'Geometrie' && point.layer === 'main') {
+      if (window.app.environment.name === 'Geometrie' && point.layer === 'main') {
         const shapesToDelete = [];
         this.geometryObject.geometryChildShapeIds.forEach((sId) => {
           const s = findObjectById(sId);
@@ -203,11 +203,11 @@ export class Shape {
           }
         });
         shapesToDelete.forEach((s) => {
-          if (app.environment.name === 'Geometrie') deleteChildren(s);
+          if (window.app.environment.name === 'Geometrie') deleteChildren(s);
           removeObjectById(s.id);
         });
-        for (let i = 0; i < app.mainCanvasLayer.shapes.length; i++) {
-          const s = app.mainCanvasLayer.shapes[i];
+        for (let i = 0; i < window.app.mainCanvasLayer.shapes.length; i++) {
+          const s = window.app.mainCanvasLayer.shapes[i];
           s.points
             .filter((pt) => pt.type !== 'divisionPoint')
             .forEach((pt) => {
@@ -551,7 +551,7 @@ export class Shape {
     path_tag += '/>\n';
 
     let point_tags = '';
-    if (app.settings.areShapesPointed && this.name !== 'silhouette') {
+    if (window.app.settings.areShapesPointed && this.name !== 'silhouette') {
       if (this.isSegment())
         point_tags += this.segments[0].vertexes[0].toSVG('#000', 1);
       if (!this.isCircle())

@@ -1,4 +1,4 @@
-import { app } from '../../App';
+// import { app } from '../../App';
 import { mod, removeObjectById } from '../../Tools/general';
 import { Coordinates } from '../Coordinates';
 import { GeometryObject } from './GeometryObject';
@@ -38,7 +38,7 @@ export class ArrowLineShape extends LineShape {
     ctx.strokeStyle = this.strokeColor;
     ctx.fillStyle = this.fillColor;
     ctx.globalAlpha = this.fillOpacity;
-    ctx.lineWidth = this.strokeWidth * app.workspace.zoomLevel;
+    ctx.lineWidth = this.strokeWidth * window.app.workspace.zoomLevel;
     if (scaling === 'no scale') ctx.lineWidth = this.strokeWidth;
   }
 
@@ -146,7 +146,7 @@ export class ArrowLineShape extends LineShape {
     path_tag += '/>\n';
 
     const pointToDraw = [];
-    if (app.settings.areShapesPointed && this.name !== 'silhouette') {
+    if (window.app.settings.areShapesPointed && this.name !== 'silhouette') {
       if (this.isSegment()) pointToDraw.push(this.segments[0].vertexes[0]);
       if (!this.isCircle())
         this.segments.forEach((seg) => pointToDraw.push(seg.vertexes[1]));
