@@ -2,7 +2,6 @@ import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import { css, html, LitElement } from 'lit';
 import { tools } from '../../store/tools';
-import { templatePopupStyles } from './template-popup';
 
 class HelpPopup extends LitElement {
   static properties = {
@@ -10,28 +9,55 @@ class HelpPopup extends LitElement {
     toolname: String,
   };
 
-  static styles = [
-    templatePopupStyles,
-    css`
-      :host {
-        -webkit-touch-callout: text; /* iOS Safari */
-        -webkit-user-select: text; /* Safari */
-        -khtml-user-select: text; /* Konqueror HTML */
-        -moz-user-select: text; /* Old versions of Firefox */
-        -ms-user-select: text; /* Internet Explorer/Edge */
-        user-select: text;
-      }
-      div#helpPopupBody {
-        max-width: 70dvw;
-        max-height: 70dvh;
-      }
+  static styles = css`
+    .field {
+      display: flex;
+      align-items: center;
+      padding: 8px 0;
+      width: 100%;
+    }
 
-      img {
-        width: 100%;
-        background-color: rgba(255, 255, 255, 0.5);
-      }
-    `,
-  ];
+    select {
+      height: 32px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input {
+      height: 24px;
+      width: auto;
+      border-radius: 4px;
+    }
+
+    input[type='checkbox'] {
+      height: 24px;
+      width: 24px;
+    }
+
+    label {
+      font-weight: normal;
+      margin: 0 8px;
+      font-size: 1rem;
+    }
+
+    :host {
+      -webkit-touch-callout: text;
+      -webkit-user-select: text;
+      -khtml-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+    div#helpPopupBody {
+      max-width: 70dvw;
+      max-height: 70dvh;
+    }
+
+    img {
+      width: 100%;
+      background-color: rgba(255, 255, 255, 0.5);
+    }
+  `;
 
   async firstUpdated() {
     window.addEventListener('close-popup', () => this.close());
