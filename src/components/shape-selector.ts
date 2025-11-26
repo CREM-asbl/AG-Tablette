@@ -93,5 +93,10 @@ export class ShapeSelector extends LitElement {
       )
         this.remove();
     });
+
+    // Remove shape-selector when environment changes
+    window.addEventListener('environment:loaded', () => {
+      this.remove();
+    });
   }
 }
