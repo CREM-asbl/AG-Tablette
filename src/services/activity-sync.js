@@ -189,15 +189,30 @@ export async function syncActivitiesInBackground(forceSync = false) {
         }
       }
 
+
+      /**
+       * Nettoie les données pour la sérialisation IndexedDB
+       * @param {Object} data Données à nettoyer
+       * @returns {Object} Données sérialisables
+       */
+      const cleanData = (data) => {
+        try {
+          return JSON.parse(JSON.stringify(data));
+        } catch (e) {
+          utils.warn('Erreur lors du nettoyage des données:', e);
+          return data;
+        }
+      };
+
       // Synchronisation des thèmes avec mise à jour de progression
       for (const theme of serverThemes) {
         try {
-          await saveTheme(theme.id, theme);
+          await saveTheme(theme.id, cleanData(theme));
 
           // Synchronisation des modules pour chaque thème
           const modules = await getModulesDocFromTheme(theme.id);
           for (const module of modules) {
-            await saveModule(module.id, module);
+            await saveModule(module.id, cleanData(module));
           }
 
           processedThemes++;
