@@ -1,5 +1,6 @@
 import '@components/color-button';
 import '@components/popups/template-popup';
+import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { getLastSyncInfo, smartSync } from '../../services/activity-sync.js';
@@ -31,7 +32,7 @@ interface LastSyncInfo {
  * Types d'erreurs pour la synchronisation
  */
 @customElement('sync-settings-popup')
-class _SyncSettingsPopup extends LitElement {
+class _SyncSettingsPopup extends SignalWatcher(LitElement) {
   @property({ type: String }) errorMessage = '';
   @property({ type: String }) successMessage = '';
   @property({ type: Object }) lastSyncInfo: LastSyncInfo | null = null;
