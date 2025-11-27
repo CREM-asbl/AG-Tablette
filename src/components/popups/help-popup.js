@@ -2,6 +2,7 @@ import '@components/color-button';
 import { app } from '@controllers/Core/App';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
+import './template-popup';
 import { tools } from '../../store/tools';
 
 class HelpPopup extends LitElement {

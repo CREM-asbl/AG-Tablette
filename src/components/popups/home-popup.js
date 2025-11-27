@@ -4,6 +4,7 @@ import { goToHomePage } from '@controllers/Core/Tools/general';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import './save-warning';
+import './template-popup';
 
 class HomePopup extends LitElement {
   static styles = css`

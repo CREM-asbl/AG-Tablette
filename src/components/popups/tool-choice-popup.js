@@ -6,6 +6,7 @@ import { kit } from '@store/kit';
 import { tools } from '@store/tools';
 import '@styles/popup-variables.css';
 import { LitElement, css, html } from 'lit';
+import './template-popup';
 import {
   toggleAllFamiliesVisibility,
   toggleFamilyVisibility,

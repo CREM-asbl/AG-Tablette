@@ -3,6 +3,7 @@ import { app } from '@controllers/Core/App.js';
 import { gridStore } from '@store/gridStore';
 import '@styles/popup-variables.css';
 import { LitElement, css, html } from 'lit';
+import './template-popup';
 
 class GridPopup extends LitElement {
   static properties = {

@@ -4,6 +4,7 @@ import { createElem } from '@controllers/Core/Tools/general';
 import '@controllers/version-item';
 import '@styles/popup-variables.css';
 import { LitElement, css, html } from 'lit';
+import './template-popup';
 
 class SettingsPopup extends LitElement {
   static properties = {
