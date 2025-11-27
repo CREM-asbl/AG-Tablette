@@ -53,7 +53,7 @@ class AGMenu extends SignalWatcher(LitElement) {
       const toolInfo = toolList.find(t => t.name === currentToolName);
       if (toolInfo) {
         toolTitle = 'mode: ' + toolInfo.title;
-        toolFamily = toolInfo.type; // Assuming type is the family
+        toolFamily = app.tool?.selectedFamily || toolInfo.type;
       } else if (app.tool) {
         toolTitle = 'mode: ' + app.tool.title;
         toolFamily = app.tool.selectedFamily;
