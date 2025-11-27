@@ -9,7 +9,7 @@ import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { app } from '../controllers/Core/App';
 import { createElem } from '../controllers/Core/Tools/general';
-import { activeTool, appActions, helpSelected, historyActions, historyState } from '../store/appState';
+import { activeTool, appActions, helpSelected, historyActions, historyState, toolState } from '../store/appState';
 
 @customElement('ag-menu')
 class AGMenu extends SignalWatcher(LitElement) {
@@ -38,6 +38,8 @@ class AGMenu extends SignalWatcher(LitElement) {
 
   render() {
     const currentToolName = activeTool.get();
+    // Subscribe to toolState to re-render when tool properties (like selectedFamily) change
+    toolState.get();
     const currentTool = currentToolName ? { name: currentToolName, title: app.tool?.title, selectedFamily: app.tool?.selectedFamily } : null;
     // Note: app.tool might still be needed for title/family if not in store yet, 
     // but ideally we should get everything from store. 
