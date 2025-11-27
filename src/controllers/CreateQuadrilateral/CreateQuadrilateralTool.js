@@ -1,6 +1,7 @@
 import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -54,13 +55,15 @@ export class CreateQuadrilateralTool extends Tool {
     this.stopAnimation();
 
     import('@components/shape-selector');
-    const elem = document.createElement('shape-selector');
-    elem.family = 'Quadrilatères';
-    elem.templatesNames = quadrilateres;
-    elem.selectedTemplate = app.tool.selectedTemplate;
-    elem.type = 'Geometry';
-    elem.nextStep = 'drawFirstPoint';
-    document.querySelector('body').appendChild(elem);
+    import('@components/shape-selector');
+    appActions.setToolUiState({
+      name: 'shape-selector',
+      family: 'Quadrilatères',
+      templatesNames: quadrilateres,
+      selectedTemplate: app.tool.selectedTemplate,
+      type: 'Geometry',
+      nextStep: 'drawFirstPoint',
+    });
   }
 
   async drawFirstPoint() {

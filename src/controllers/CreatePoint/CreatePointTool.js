@@ -1,6 +1,7 @@
 import points from '@controllers/Core/ShapesKits/points.json';
 import { html } from 'lit';
 import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -50,13 +51,14 @@ export class CreatePointTool extends Tool {
     this.stopAnimation();
 
     import('@components/shape-selector');
-    const elem = document.createElement('shape-selector');
-    elem.family = 'Points';
-    elem.templatesNames = points;
-    elem.selectedTemplate = app.tool.selectedTemplate;
-    elem.type = 'Geometry';
-    elem.nextStep = 'drawPoint';
-    document.querySelector('body').appendChild(elem);
+    appActions.setToolUiState({
+      name: 'shape-selector',
+      family: 'Points',
+      templatesNames: points,
+      selectedTemplate: app.tool.selectedTemplate,
+      type: 'Geometry',
+      nextStep: 'drawPoint',
+    });
   }
 
   drawPoint() {

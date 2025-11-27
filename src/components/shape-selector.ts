@@ -1,6 +1,7 @@
 import '@components/flex-grid';
 import '@components/icon-button';
 import { app, setState } from '@controllers/Core/App';
+import { appActions } from '../store/appState';
 import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators/custom-element.js';
 import { property } from 'lit/decorators/property.js';
@@ -13,6 +14,9 @@ export class ShapeSelector extends LitElement {
   @property({ type: Array }) titles = [];
   @property({ type: Object }) selectedTemplate;
   @property({ type: String }) nextStep;
+
+  private toolUpdatedListener: () => void;
+  private environmentLoadedListener: () => void;
 
   static styles = css`
     :host {
@@ -76,8 +80,9 @@ export class ShapeSelector extends LitElement {
     });
   }
 
-  firstUpdated() {
-    window.addEventListener('tool-updated', () => {
+  connectedCallback() {
+    super.connectedCallback();
+    this.toolUpdatedListener = () => {
       const actions = [
         'create',
         'createLine',
@@ -86,17 +91,32 @@ export class ShapeSelector extends LitElement {
         'createQuadrilateral',
         'createCircle',
       ];
-      if (
-        !actions.includes(app.tool?.name) ||
-        !this.selectedTemplate ||
-        this.selectedTemplate !== app.tool.selectedTemplate
-      )
-        this.remove();
-    });
 
-    // Remove shape-selector when environment changes
-    window.addEventListener('environment:loaded', () => {
-      this.remove();
-    });
+      // Remove if tool is not in the allowed actions
+      if (!actions.includes(app.tool?.name)) {
+        appActions.setToolUiState(null);
+        return;
+      }
+
+      // Remove if user selected a different template (but not when both are undefined)
+      if (
+        app.tool.selectedTemplate !== undefined &&
+        this.selectedTemplate !== app.tool.selectedTemplate
+      ) {
+        appActions.setToolUiState(null);
+      }
+    };
+    window.addEventListener('tool-updated', this.toolUpdatedListener);
+
+    this.environmentLoadedListener = () => {
+      appActions.setToolUiState(null);
+    };
+    window.addEventListener('environment:loaded', this.environmentLoadedListener);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    window.removeEventListener('tool-updated', this.toolUpdatedListener);
+    window.removeEventListener('environment:loaded', this.environmentLoadedListener);
   }
 }

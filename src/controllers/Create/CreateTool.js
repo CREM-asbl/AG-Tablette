@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { getFamily } from '../../store/kit';
 import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { CubeShape } from '../Core/Objects/Shapes/CubeShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
@@ -118,13 +119,14 @@ export class CreateTool extends Tool {
       });
     } else if (!this.shapesList) {
       import('../../components/shape-selector');
-      const elem = document.createElement('shape-selector');
-      elem.family = app.tool.selectedFamily;
-      elem.templatesNames = getFamily(app.tool.selectedFamily).shapeTemplates;
-      elem.selectedTemplate = app.tool.selectedTemplate;
-      elem.type = 'Create';
-      elem.nextStep = 'listen';
-      document.querySelector('body').appendChild(elem);
+      appActions.setToolUiState({
+        name: 'shape-selector',
+        family: app.tool.selectedFamily,
+        templatesNames: getFamily(app.tool.selectedFamily).shapeTemplates,
+        selectedTemplate: app.tool.selectedTemplate,
+        type: 'Create',
+        nextStep: 'listen',
+      });
     }
   }
 

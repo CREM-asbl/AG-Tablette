@@ -6,7 +6,7 @@ import './shape-selector';
 
 @customElement('tool-ui-container')
 export class ToolUiContainer extends SignalWatcher(LitElement) {
-    static styles = css`
+  static styles = css`
     :host {
       display: block;
       position: absolute;
@@ -24,13 +24,13 @@ export class ToolUiContainer extends SignalWatcher(LitElement) {
     }
   `;
 
-    render() {
-        const uiState = toolUiState.get();
+  render() {
+    const uiState = toolUiState.get();
 
-        if (!uiState) return html``;
+    if (!uiState) return html``;
 
-        if (uiState.name === 'shape-selector') {
-            return html`
+    if (uiState.name === 'shape-selector') {
+      return html`
         <shape-selector
           .family="${uiState.family}"
           .type="${uiState.type}"
@@ -39,8 +39,8 @@ export class ToolUiContainer extends SignalWatcher(LitElement) {
           .nextStep="${uiState.nextStep}"
         ></shape-selector>
       `;
-        }
-
-        return html``;
     }
+
+    return html``;
+  }
 }

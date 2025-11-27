@@ -49,6 +49,10 @@ export class CreateLineTool extends Tool {
   }
 
   async start() {
+    console.log('[CreateLineTool] start() called', {
+      currentTool: app.tool,
+      selectedTemplate: app.tool?.selectedTemplate
+    });
     this.removeListeners();
     this.stopAnimation();
     this.geometryParentObjectId = null;
@@ -56,14 +60,16 @@ export class CreateLineTool extends Tool {
     await import('@components/shape-selector');
 
     // Utiliser le signal pour afficher le sélecteur de forme
-    appActions.setToolUiState({
+    const uiState = {
       name: 'shape-selector',
       family: 'Lignes',
       templatesNames: lines,
       selectedTemplate: app.tool.selectedTemplate,
       type: 'Geometry',
       nextStep: 'drawFirstPoint',
-    });
+    };
+    console.log('[CreateLineTool] Setting toolUiState', uiState);
+    appActions.setToolUiState(uiState);
   }
 
   drawFirstPoint() {

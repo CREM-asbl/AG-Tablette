@@ -45,14 +45,15 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       await import('@components/shape-selector');
 
       // Utiliser le signal pour afficher le sélecteur de forme
-      appActions.setToolUiState({
+      const uiState = {
         name: 'shape-selector',
         family: this.familyName,
         templatesNames: this.templatesImport,
         selectedTemplate: app.tool.selectedTemplate,
         type: 'Geometry',
         nextStep: 'drawFirstPoint',
-      });
+      };
+      appActions.setToolUiState(uiState);
     } catch (error) {
       console.error('Erreur lors du chargement du sélecteur de forme:', error);
       this.showErrorNotification('Erreur lors du chargement des templates');

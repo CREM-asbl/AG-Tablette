@@ -53,13 +53,15 @@ export class CreateCircleTool extends Tool {
     this.stopAnimation();
 
     import('@components/shape-selector');
-    const elem = document.createElement('shape-selector');
-    elem.family = 'Arcs';
-    elem.templatesNames = circles;
-    elem.selectedTemplate = app.tool.selectedTemplate;
-    elem.type = 'Geometry';
-    elem.nextStep = 'drawFirstPoint';
-    document.querySelector('body').appendChild(elem);
+    import('@components/shape-selector');
+    appActions.setToolUiState({
+      name: 'shape-selector',
+      family: 'Arcs',
+      templatesNames: circles,
+      selectedTemplate: app.tool.selectedTemplate,
+      type: 'Geometry',
+      nextStep: 'drawFirstPoint',
+    });
   }
 
   async drawFirstPoint() {
