@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import './regular-popup';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';

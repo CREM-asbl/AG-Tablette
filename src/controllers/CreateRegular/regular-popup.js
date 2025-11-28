@@ -1,6 +1,7 @@
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import '@components/color-button';
+import '../../components/popups/template-popup';
 import { app, setState } from '../Core/App';
 
 class RegularPopup extends LitElement {
