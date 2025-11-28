@@ -411,15 +411,9 @@ export const createWatcher = (signalToWatch, callback) => {
 };
 
 /**
- * Fonction de réinitialisation complète
+ * Fonction de réinitialisation de l'espace de travail (sans quitter l'environnement)
  */
-export const resetAppState = () => {
-  appLoading.set(false);
-  appError.set(null);
-  appStarted.set(false);
-  currentEnvironment.set(null);
-  environmentConfig.set(null);
-  environmentModules.set([]);
+export const resetWorkspaceState = () => {
   activeTool.set(null);
   toolState.set({});
   currentStep.set(null);
@@ -439,13 +433,7 @@ export const resetAppState = () => {
     offsetX: 0,
     offsetY: 0,
   });
-  settings.set({
-    gridShown: false,
-    areShapesPointed: true,
-    temporaryDrawColor: '#ff0000',
-    selectionDistance: 20,
-    magnetismDistance: 15,
-  });
+  // On ne reset pas les settings ici pour garder la grille et les options
   notifications.set([]);
   dialogs.set([]);
   filename.set('');
@@ -456,6 +444,32 @@ export const resetAppState = () => {
     currentFile: null,
   });
   history.clear();
+
+  window.dispatchEvent(new CustomEvent('app:workspace-reset'));
+};
+
+/**
+ * Fonction de réinitialisation complète
+ */
+export const resetAppState = () => {
+  appLoading.set(false);
+  appError.set(null);
+  appStarted.set(false);
+  currentEnvironment.set(null);
+  environmentConfig.set(null);
+  environmentModules.set([]);
+
+  // Utiliser resetWorkspaceState pour la partie commune
+  resetWorkspaceState();
+
+  // Reset des settings pour le reset complet
+  settings.set({
+    gridShown: false,
+    areShapesPointed: true,
+    temporaryDrawColor: '#ff0000',
+    selectionDistance: 20,
+    magnetismDistance: 15,
+  });
 
   window.dispatchEvent(new CustomEvent('app:state-reset'));
 };

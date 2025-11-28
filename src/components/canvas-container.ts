@@ -3,7 +3,7 @@ import { property } from 'lit/decorators.js';
 import { SignalWatcher } from '@lit-labs/signals';
 import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
-import { currentEnvironment } from '../store/appState';
+import { currentEnvironment, resetWorkspaceState } from '../store/appState';
 import './canvas-layer';
 
 class CanvasContainer extends SignalWatcher(LitElement) {
@@ -42,12 +42,7 @@ class CanvasContainer extends SignalWatcher(LitElement) {
     app.upperCanvasLayer.removeAllObjects();
     app.tangramCanvasLayer?.removeAllObjects();
     app.invisibleCanvasLayer?.removeAllObjects();
-    setState({
-      filename: null,
-      history: app.defaultState.history,
-      fullHistory: app.defaultState.fullHistory,
-      stepSinceSave: app.defaultState.stepSinceSave,
-    });
+    resetWorkspaceState();
   };
 
   static styles = css`
