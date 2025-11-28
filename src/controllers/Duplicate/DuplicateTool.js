@@ -364,6 +364,7 @@ export class DuplicateTool extends Tool {
             geometryDuplicateParentShapeId: s.id,
           });
         s.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
+        newShape.translate(this.translation);
         shapesList.push(newShape);
       });
 
