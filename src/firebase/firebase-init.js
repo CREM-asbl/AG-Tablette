@@ -92,31 +92,37 @@ async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
   }
 }
 
-export async function readFileFromServer(filename) {
+export async function readFileFromServer(filename, options = {}) {
   try {
     // Validation du nom de fichier
     if (!filename || typeof filename !== 'string') {
       throw new Error('Nom de fichier invalide');
     }
 
-    // Vérifier d'abord IndexedDB (accès hors ligne)
-    try {
-      const localActivity = await getActivity(filename);
-      if (localActivity) {
+    const { forceDownload = false } = options;
 
-        // Notification supprimée pour transparence utilisateur
-        return localActivity.data;
+    // Vérifier d'abord IndexedDB (accès hors ligne) - sauf si forceDownload
+    if (!forceDownload) {
+      try {
+        const localActivity = await getActivity(filename);
+        if (localActivity) {
+
+          // Notification supprimée pour transparence utilisateur
+          return localActivity.data;
+        }
+      } catch (indexedDBError) {
+
       }
-    } catch (indexedDBError) {
-
     }
 
-    // Vérifier le cache mémoire
+    // Vérifier le cache mémoire - sauf si forceDownload
     const cacheKey = `file_${filename}`;
-    const cachedData = fileCache.get(cacheKey);
-    if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
+    if (!forceDownload) {
+      const cachedData = fileCache.get(cacheKey);
+      if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
 
-      return cachedData.data;
+        return cachedData.data;
+      }
     }
 
     // Télécharger avec retry

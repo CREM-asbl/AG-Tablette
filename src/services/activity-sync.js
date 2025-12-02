@@ -155,7 +155,7 @@ export async function syncActivitiesInBackground(forceSync = false) {
             );
 
             const activityData = await Promise.race([
-              readFileFromServer(serverFile.id),
+              readFileFromServer(serverFile.id, { forceDownload: true }),
               timeoutPromise,
             ]);
 
