@@ -133,12 +133,24 @@ class PerformanceManager {
    */
   async measure(label, fn) {
     const start = performance.now();
-    const result = await fn();
-    const end = performance.now();
 
-    if (import.meta.env.DEV)
-      console.log(`${label}: ${(end - start).toFixed(2)}ms`);
-    return result;
+    // En développement : log console uniquement
+    if (import.meta.env.DEV) {
+      const result = await fn();
+      const duration = performance.now() - start;
+      console.log(`${label}: ${duration.toFixed(2)}ms`);
+      return result;
+    }
+
+    // En production : envoyer à Firebase Performance
+    try {
+      const { traceOperation } = await import('../firebase/firebase-init.js');
+      return await traceOperation(label, fn);
+    } catch (error) {
+      // Fallback si Firebase Performance n'est pas disponible
+      const result = await fn();
+      return result;
+    }
   }
 
   /**
@@ -152,6 +164,28 @@ class PerformanceManager {
         resolve();
       });
     });
+  }
+
+  /**
+   * Enregistrer une métrique personnalisée (production uniquement)
+   * @param {string} metricName - Nom de la métrique
+   * @param {number} value - Valeur numérique
+   * @param {string} category - Catégorie optionnelle (ex: 'canvas', 'sync', 'tools')
+   */
+  async recordCustomMetric(metricName, value, category = 'general') {
+    // En développement, juste logger
+    if (import.meta.env.DEV) {
+      console.log(`📊 Métrique [${category}] ${metricName}: ${value}`);
+      return;
+    }
+
+    // En production, envoyer à Firebase Performance
+    try {
+      const { recordMetric } = await import('../firebase/firebase-init.js');
+      await recordMetric(category, metricName, value);
+    } catch (error) {
+      // Silencieux en cas d'erreur
+    }
   }
 
   /**

@@ -1,13 +1,24 @@
 /**
  * Middleware de performance pour les événements natifs
- * Surveille et optimise les performances du système
+ * ⚠️ MODE DÉVELOPPEMENT UNIQUEMENT ⚠️
+ * Pour les métriques production, utilisez PerformanceManager avec Firebase Performance
+ *
+ * Ce système surveille et analyse les performances en développement.
+ * En production, toutes les métriques sont envoyées à Firebase Performance.
  */
 
 /**
- * Classe de monitoring des performances
+ * Classe de monitoring des performances (Développement uniquement)
  */
 class PerformanceMonitor {
   constructor() {
+    // Désactiver automatiquement en production
+    if (!import.meta.env.DEV) {
+      console.warn('⚠️ PerformanceMonitor ne doit être utilisé qu\'en développement');
+      this.enabled = false;
+      return;
+    }
+
     this.metrics = new Map();
     this.thresholds = {
       eventProcessing: 10, // ms
@@ -21,16 +32,22 @@ class PerformanceMonitor {
   }
 
   /**
-   * Activer le monitoring
+   * Activer le monitoring (Développement uniquement)
    */
   enable() {
+    // Bloquer en production
+    if (!import.meta.env.DEV) {
+      console.warn('PerformanceMonitor est désactivé en production. Utilisez Firebase Performance.');
+      return;
+    }
+
     if (this.enabled) return;
 
     this.enabled = true;
     this.setupEventListeners();
     this.startReporting();
 
-    if (import.meta.env.DEV) console.log('Performance monitoring activé');
+    console.log('🔍 Performance monitoring activé (mode développement)');
   }
 
   /**
@@ -510,7 +527,12 @@ export class SmartCache {
 export const performanceMonitor = new PerformanceMonitor();
 export const smartCache = new SmartCache();
 
-// Auto-configuration selon l'environnement
-if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-  performanceMonitor.enable();
+// Auto-activation en développement uniquement
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  // Activer après un court délai pour ne pas impacter le chargement initial
+  setTimeout(() => {
+    performanceMonitor.enable();
+    console.log('📊 Monitoring de performance activé (dev mode)');
+    console.log('💡 En production, les métriques sont envoyées à Firebase Performance');
+  }, 2000);
 }

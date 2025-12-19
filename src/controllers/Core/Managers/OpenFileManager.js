@@ -1,15 +1,16 @@
 // OpenFileManager - Version fonctionnelle
 import { app, setState } from '@controllers/Core/App';
-import { appActions } from '@store/appState';
 import {
   addInfoToId,
   createElem,
   getExtension,
 } from '@controllers/Core/Tools/general.js';
 import { applyMigrations } from '@controllers/Core/Tools/version-migration.js';
+import { appActions } from '@store/appState';
 import { gridStore } from '@store/gridStore.js';
 import { setFamiliesVisibility } from '@store/kit.js';
 import { setToolsVisibility } from '@store/tools.js';
+import { performanceManager } from '../../../utils/PerformanceManager.js';
 
 // Constantes d'erreur
 const ERROR_MESSAGES = {
@@ -552,71 +553,82 @@ export const oldReadFile = (file) => {
  * @param {string} filename - Le nom du fichier
  */
 export const parseFile = async (fileContent, filename) => {
-  try {
-    // Parsing du contenu
-    const parseResult = parseJsonContent(fileContent);
-    if (!parseResult.success) {
-      showErrorNotification(ERROR_MESSAGES.FILE_PARSE_ERROR);
-      return;
+  // Mesurer l'opération complète de parsing
+  return await performanceManager.measure('parse-file', async () => {
+    try {
+      // Parsing du contenu
+      const parseResult = parseJsonContent(fileContent);
+      if (!parseResult.success) {
+        showErrorNotification(ERROR_MESSAGES.FILE_PARSE_ERROR);
+        return;
+      }
+
+      const saveObject = parseResult.data;
+
+      // Ajout de l'extension du fichier
+      saveObject.fileExtension = getExtension(filename);
+
+      // Validation du fichier
+      const validation = validateFileContent(saveObject, app.environment);
+      if (!validation.isValid) {
+        showErrorNotification(validation.error);
+        return;
+      }
+
+      // Appliquer les migrations nécessaires pour la compatibilité entre versions
+      applyMigrations(saveObject);
+
+      // Chargement du workspace
+      const WorkspaceManagerModule = await import(
+        '@controllers/Core/Managers/WorkspaceManager.js'
+      );
+      await WorkspaceManagerModule.setWorkspaceFromObject(
+        saveObject.workspaceData || saveObject.wsdata,
+      );
+
+      // Traitement spécial pour Tangram
+      if (
+        app.environment.name === 'Tangram' &&
+        saveObject.fileExtension === 'ags'
+      ) {
+        app.mainCanvasLayer.removeAllObjects();
+      }
+
+      // Traitement des différentes sections
+      processSettings(saveObject, app, gridStore);
+      processHistory(saveObject, app, app.environment.name);
+      processVisibility(saveObject, setToolsVisibility, setFamiliesVisibility);
+
+      // Finalisation
+      setState({ filename });
+
+      // Enregistrer métriques personnalisées
+      const objectCount = saveObject.workspaceData?.objects?.length || 0;
+      await performanceManager.recordCustomMetric(
+        'workspace-objects-count',
+        objectCount,
+        'workspace'
+      );
+
+      // Mise à jour du signal Tangram si nécessaire
+      if (app.environment.name === 'Tangram') {
+        appActions.setTangramState({
+          currentFile: saveObject,
+          mode: 'reproduction', // Force le mode reproduction lors de l'ouverture
+        });
+      }
+
+      window.dispatchEvent(
+        new CustomEvent('file-parsed', { detail: saveObject }),
+      );
+      triggerRefreshEvents();
+    } catch (error) {
+      const errorMessage = error.message.includes('vide')
+        ? ERROR_MESSAGES.FILE_PARSE_ERROR + ' (fichier vide)'
+        : ERROR_MESSAGES.FILE_PARSE_ERROR;
+      showErrorNotification(errorMessage);
     }
-
-    const saveObject = parseResult.data;
-
-    // Ajout de l'extension du fichier
-    saveObject.fileExtension = getExtension(filename);
-
-    // Validation du fichier
-    const validation = validateFileContent(saveObject, app.environment);
-    if (!validation.isValid) {
-      showErrorNotification(validation.error);
-      return;
-    }
-
-    // Appliquer les migrations nécessaires pour la compatibilité entre versions
-    applyMigrations(saveObject);
-
-    // Chargement du workspace
-    const WorkspaceManagerModule = await import(
-      '@controllers/Core/Managers/WorkspaceManager.js'
-    );
-    await WorkspaceManagerModule.setWorkspaceFromObject(
-      saveObject.workspaceData || saveObject.wsdata,
-    );
-
-    // Traitement spécial pour Tangram
-    if (
-      app.environment.name === 'Tangram' &&
-      saveObject.fileExtension === 'ags'
-    ) {
-      app.mainCanvasLayer.removeAllObjects();
-    }
-
-    // Traitement des différentes sections
-    processSettings(saveObject, app, gridStore);
-    processHistory(saveObject, app, app.environment.name);
-    processVisibility(saveObject, setToolsVisibility, setFamiliesVisibility);
-
-    // Finalisation
-    setState({ filename });
-
-    // Mise à jour du signal Tangram si nécessaire
-    if (app.environment.name === 'Tangram') {
-      appActions.setTangramState({
-        currentFile: saveObject,
-        mode: 'reproduction', // Force le mode reproduction lors de l'ouverture
-      });
-    }
-
-    window.dispatchEvent(
-      new CustomEvent('file-parsed', { detail: saveObject }),
-    );
-    triggerRefreshEvents();
-  } catch (error) {
-    const errorMessage = error.message.includes('vide')
-      ? ERROR_MESSAGES.FILE_PARSE_ERROR + ' (fichier vide)'
-      : ERROR_MESSAGES.FILE_PARSE_ERROR;
-    showErrorNotification(errorMessage);
-  }
+  });
 };
 
 // Gestion des événements

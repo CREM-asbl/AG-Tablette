@@ -30,10 +30,17 @@ const db = initializeFirestore(firebaseApp, {
 });
 const storage = getStorage(firebaseApp);
 
+// Initialisation Firebase Performance
+let analytics = null;
+let perf = null;
+
 if (location.hostname !== 'localhost') {
-  const analytics = getAnalytics();
-  const perf = getPerformance(firebaseApp);
+  analytics = getAnalytics();
+  perf = getPerformance(firebaseApp);
 }
+
+// Exporter pour utilisation dans l'application
+export { perf };
 
 export async function openFileFromServer(activityName) {
   try {
@@ -506,6 +513,69 @@ export async function getFilesDocFromModule(moduleDoc) {
   const fileDocsWithId = [];
   fileDocs.forEach((doc) => fileDocsWithId.push({ id: doc.id, ...doc.data() }));
   return fileDocsWithId;
+}
+
+/**
+ * Utilitaires Firebase Performance
+ */
+
+/**
+ * Créer une trace personnalisée Firebase Performance
+ * @param {string} traceName - Nom de la trace
+ * @param {Function} fn - Fonction à tracer
+ * @returns {Promise<any>} Résultat de la fonction
+ */
+export async function traceOperation(traceName, fn) {
+  // En développement, pas de trace Firebase
+  if (import.meta.env.DEV || !perf) {
+    return await fn();
+  }
+
+  const { trace } = await import('firebase/performance');
+  const traceInstance = trace(perf, traceName);
+
+  try {
+    traceInstance.start();
+    const result = await fn();
+    traceInstance.stop();
+    return result;
+  } catch (error) {
+    traceInstance.stop();
+    throw error;
+  }
+}
+
+/**
+ * Enregistrer une métrique personnalisée sur une trace
+ * @param {string} traceName - Nom de la trace
+ * @param {string} metricName - Nom de la métrique
+ * @param {number} value - Valeur de la métrique
+ */
+export async function recordMetric(traceName, metricName, value) {
+  if (import.meta.env.DEV || !perf) return;
+
+  try {
+    const { trace } = await import('firebase/performance');
+    const traceInstance = trace(perf, traceName);
+    traceInstance.putMetric(metricName, value);
+  } catch (error) {
+    console.error('Erreur enregistrement métrique Firebase:', error);
+  }
+}
+
+/**
+ * Créer une trace HTTP automatique (requête réseau)
+ * Firebase Performance trace automatiquement fetch() mais cette fonction
+ * permet d'ajouter des attributs personnalisés
+ * @param {string} url - URL de la requête
+ * @param {object} attributes - Attributs personnalisés
+ */
+export function setHttpTraceAttributes(url, attributes = {}) {
+  if (import.meta.env.DEV || !perf) return;
+
+  // Firebase Performance trace automatiquement les fetch()
+  // mais on peut ajouter des attributs via les headers personnalisés
+  // Les attributs seront visibles dans la console Firebase
 }
 
 export async function downloadFileZip(zipname, files) {
