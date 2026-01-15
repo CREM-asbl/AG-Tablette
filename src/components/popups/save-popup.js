@@ -15,7 +15,7 @@ class SavePopup extends LitElement {
 
   constructor() {
     super();
-    this.filename = 'sans titre';
+    this.filename = app.filename;
     this.saveSettings = true;
     this.saveHistory = true;
     this.permanentHide = false;
@@ -26,10 +26,16 @@ class SavePopup extends LitElement {
   willUpdate(changedProperties) {
     if (
       changedProperties.has('opts') &&
-      this.opts?.types?.length > 0 &&
-      !this.selectedFormat
+      this.opts
     ) {
-      this.selectedFormat = this.opts.types[0].description;
+      if (this.opts.types?.length > 0 && !this.selectedFormat) {
+        this.selectedFormat = this.opts.types[0].description;
+      }
+
+      const suggested = this.opts.suggestedName;
+      if (suggested && suggested !== 'sans-titre' && suggested !== 'sans titre') {
+        this.filename = suggested;
+      }
     }
   }
 
@@ -98,7 +104,7 @@ class SavePopup extends LitElement {
             type="text"
             name="save_popup_filename"
             id="save_popup_filename"
-            value="${this.opts.suggestedName || this.filename}"
+            value="${this.filename}"
             @change="${this._actionHandle}"
             onfocus="this.select()"
           />

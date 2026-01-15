@@ -79,6 +79,9 @@ export class App {
     /** @type {object | null} L'outil actuellement sélectionné par l'utilisateur */
     this.tool = null;
 
+    /** @type {string} Le nom du fichier actuel */
+    this.filename = 'sans titre';
+
     /** @type {Settings} Paramètres de l'application */
     this.settings = {
       magnetismDistance: 20,
@@ -147,6 +150,7 @@ export class App {
     /** @type {object} État par défaut de l'application, utilisé pour la réinitialisation */
     this.defaultState = {
       tool: null,
+      filename: 'sans titre',
       settings: { ...this.settings },
       history: { ...this.history },
       fullHistory: { ...this.fullHistory },

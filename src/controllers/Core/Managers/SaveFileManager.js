@@ -535,6 +535,7 @@ const processSaveDirect = async (handle, app, detail, fileType) => {
     }
 
     if (success) {
+      setState({ filename: handle.name, stepSinceSave: false });
       window.dispatchEvent(
         new CustomEvent('show-notif', {
           detail: { message: `Sauvegardé vers ${handle.name}.` },
@@ -587,6 +588,7 @@ const processSave = async (handle, app, detail) => {
     }
 
     if (success) {
+      setState({ filename: handle.name, stepSinceSave: false });
       window.dispatchEvent(
         new CustomEvent('show-notif', {
           detail: { message: `Sauvegardé vers ${handle.name}.` },
@@ -702,7 +704,15 @@ export const saveFile = async (app, options = {}) => {
  * @param {object} app - L'instance principale de l'application.
  */
 export const initSaveFileEventListener = (app) => {
-  window.addEventListener('save-file', () => saveFile(app));
+  window.addEventListener('save-file', () => {
+    let fileName = app.filename;
+    if (fileName) {
+      const extensionIndex = fileName.lastIndexOf('.');
+      if (extensionIndex !== -1)
+        fileName = fileName.substring(0, extensionIndex);
+    }
+    saveFile(app, { fileName });
+  });
 };
 
 // Export des fonctions utilitaires pour les tests
