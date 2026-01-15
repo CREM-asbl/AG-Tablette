@@ -22,7 +22,7 @@
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
     "@playwright/test": "^1.52.0",
-    "@types/node": "^24.0.7",
+    "@types/node": "^25.0.8",
     "@typescript-eslint/eslint-plugin": "^8.46.0",
     "@typescript-eslint/parser": "^8.46.0",
     "@vitest/coverage-v8": "^4.0.9",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@astrojs/lit": "^4.3.0",
-    "@lit-labs/signals": "^0.1.1",
+    "@lit-labs/signals": "^0.2.0",
     "astro": "^5.16.0",
     "astrojs-service-worker": "^2.0.0",
     "fflate": "^0.8.0",

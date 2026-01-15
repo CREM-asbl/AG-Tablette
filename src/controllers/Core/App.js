@@ -6,6 +6,7 @@ import { initSelectManager } from './Managers/SelectManager';
 import './Managers/HistoryManager'; // Import to register event listeners
 import { Workspace } from './Objects/Workspace';
 import { uniqId } from './Tools/utils';
+import { initBugReporting } from '../../services/bug-report.service';
 
 export const changes = signal({});
 
@@ -226,6 +227,15 @@ export class App {
 
 export const app = new App();
 if (typeof window !== 'undefined') window.app = app;
+
+// Initialiser le service de rapportage de bugs
+// Mode 'silent' en PROD, 'off' en DEV
+initBugReporting({
+  mode: import.meta.env.DEV ? 'off' : 'silent',
+  sampleRate: 0.2, // 20% des erreurs S2/S3
+  maxPerSession: 10,
+  minIntervalMs: 5000,
+});
 
 //Préparation à un state-changed plus général
 //Ceci permettra aussi de réduire le nombre de listener par la suite
