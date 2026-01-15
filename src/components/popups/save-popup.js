@@ -10,6 +10,7 @@ class SavePopup extends LitElement {
     filename: { type: String },
     saveSettings: { type: Boolean },
     saveHistory: { type: Boolean },
+    selectedFormat: { type: String },
   };
 
   constructor() {
@@ -18,7 +19,27 @@ class SavePopup extends LitElement {
     this.saveSettings = true;
     this.saveHistory = true;
     this.permanentHide = false;
+    this.selectedFormat = '';
     window.addEventListener('close-popup', () => this.close());
+  }
+
+  willUpdate(changedProperties) {
+    if (
+      changedProperties.has('opts') &&
+      this.opts?.types?.length > 0 &&
+      !this.selectedFormat
+    ) {
+      this.selectedFormat = this.opts.types[0].description;
+    }
+  }
+
+  get isImageFormat() {
+    if (!this.selectedFormat) return false;
+    const extension = this.selectedFormat.slice(
+      this.selectedFormat.indexOf('.'),
+      -1,
+    );
+    return ['.png', '.svg'].includes(extension);
   }
 
   static styles = css`
@@ -83,7 +104,11 @@ class SavePopup extends LitElement {
           />
 
           <label for="save_popup_format">Format</label>
-          <select name="save_popup_format" id="save_popup_format">
+          <select
+            name="save_popup_format"
+            id="save_popup_format"
+            @change="${this._actionHandle}"
+          >
             ${this.opts.types.map(
       (type) =>
         html`<option value="${type.description}">
@@ -101,6 +126,7 @@ class SavePopup extends LitElement {
                 name="save_popup_settings"
                 id="save_popup_settings"
                 ?checked="${this.saveSettings}"
+                ?disabled="${this.isImageFormat}"
                 @change="${this._actionHandle}"
               />
               <label for="save_popup_settings"
@@ -128,6 +154,7 @@ class SavePopup extends LitElement {
             name="save_popup_history"
             id="save_popup_history"
             ?checked="${this.saveHistory}"
+            ?disabled="${this.isImageFormat}"
             @change="${this._actionHandle}"
           />
           <label for="save_popup_history">Enregistrer l'historique</label>
@@ -145,6 +172,7 @@ class SavePopup extends LitElement {
             name="save_popup_permanent_hide"
             id="save_popup_permanent_hide"
             ?checked="${this.permanentHide}"
+            ?disabled="${this.isImageFormat}"
             @change="${this._actionHandle}"
           />
           <label for="save_popup_permanent_hide"
@@ -163,6 +191,10 @@ class SavePopup extends LitElement {
     switch (event.target.name) {
       case 'save_popup_settings':
         this.saveSettings = !this.saveSettings;
+        break;
+
+      case 'save_popup_format':
+        this.selectedFormat = event.target.value;
         break;
 
       case 'save_popup_history':
