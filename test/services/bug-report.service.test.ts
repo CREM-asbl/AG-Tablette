@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  _recordSentReport,
+  getBugReportingState,
+  getFingerprint,
   initBugReporting,
   reportError,
-  getFingerprint,
-  shouldReport,
-  getBugReportingState,
   resetBugReporting,
-  _recordSentReport,
+  shouldReport,
 } from '../../src/services/bug-report.service';
 
 describe('BugReportService', () => {

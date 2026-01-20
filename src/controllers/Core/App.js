@@ -1,13 +1,12 @@
 import { signal } from '@lit-labs/signals';
 import { resetToolsVisibility, tools } from '@store/tools';
+import { initBugReporting } from '../../services/bug-report.service';
 import { resetKitVisibility } from '../../store/kit';
+import './Managers/HistoryManager'; // Import to register event listeners
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
-import './Managers/HistoryManager'; // Import to register event listeners
 import { Workspace } from './Objects/Workspace';
 import { uniqId } from './Tools/utils';
-import { initBugReporting } from '../../services/bug-report.service';
-import { appActions } from '../../store/appState';
 
 export const changes = signal({});
 
@@ -80,9 +79,6 @@ export class App {
     /** @type {object | null} L'outil actuellement sélectionné par l'utilisateur */
     this.tool = null;
 
-    /** @type {string} Le nom du fichier actuel */
-    this.filename = 'sans titre';
-
     /** @type {Settings} Paramètres de l'application */
     this.settings = {
       magnetismDistance: 20,
@@ -147,12 +143,10 @@ export class App {
     this.nextGroupColorIdx = 0;
 
     this.workspace = new Workspace();
-    appActions.setFilename(this.filename);
 
     /** @type {object} État par défaut de l'application, utilisé pour la réinitialisation */
     this.defaultState = {
       tool: null,
-      filename: 'sans titre',
       settings: { ...this.settings },
       history: { ...this.history },
       fullHistory: { ...this.fullHistory },
@@ -277,9 +271,6 @@ export const setState = (update) => {
   }
   if ('started' in update) {
     window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
-  }
-  if ('filename' in update) {
-    appActions.setFilename(update.filename);
   }
   window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   changes.set(update);
