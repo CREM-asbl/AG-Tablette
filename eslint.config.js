@@ -3,6 +3,7 @@
 
 import typescriptPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
+import litPlugin from 'eslint-plugin-lit';
 
 export default [
   {
@@ -39,6 +40,7 @@ export default [
     },
     plugins: {
       '@typescript-eslint': typescriptPlugin,
+      lit: litPlugin,
     },
     rules: {
       // Règles raisonnables et non bloquantes
@@ -50,6 +52,11 @@ export default [
       'eqeqeq': ['error', 'smart'],
       // Ajout pour décorateurs TypeScript
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // Règles Lit
+      'lit/no-invalid-html': 'error',
+      'lit/no-useless-template-literals': 'warn',
+      'lit/no-legacy-template-syntax': 'error',
+      'lit/attribute-value-entities': 'warn',
     },
   },
   {
@@ -67,6 +74,9 @@ export default [
         performance: 'readonly',
       },
     },
+    plugins: {
+      lit: litPlugin,
+    },
     rules: {
       // Règles raisonnables et non bloquantes
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
@@ -75,6 +85,11 @@ export default [
       'no-debugger': 'warn',
       'prefer-const': 'warn',
       'eqeqeq': ['error', 'smart'],
+      // Règles Lit
+      'lit/no-invalid-html': 'error',
+      'lit/no-useless-template-literals': 'warn',
+      'lit/no-legacy-template-syntax': 'error',
+      'lit/attribute-value-entities': 'warn',
     },
   },
 ];
