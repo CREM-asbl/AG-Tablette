@@ -1,6 +1,6 @@
 // Setup pour les tests Vitest - mocks des APIs browser
-import { vi } from 'vitest';
 import 'fake-indexeddb/auto';
+import { vi } from 'vitest';
 
 // fake-indexedDB provides complete IndexedDB implementation for tests
 

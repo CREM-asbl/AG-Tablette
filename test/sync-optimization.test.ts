@@ -264,11 +264,11 @@ describe('Optimisations de Synchronisation', () => {
       global.window.app = { environment: 'Geometrie' };
       const originalHref = 'http://localhost:3000?interface=Geometrie';
       let newLocation = null;
-      
+
       // Mock de window.location pour capturer les assignments
       Object.defineProperty(global.window, 'location', {
         writable: true,
-        value: { 
+        value: {
           href: originalHref,
           set href(value) {
             newLocation = value;
@@ -295,7 +295,7 @@ describe('Optimisations de Synchronisation', () => {
       // Mock window.location
       let assignmentCalled = false;
       const originalHref = 'http://localhost:3000?interface=Geometrie';
-      
+
       Object.defineProperty(window, 'location', {
         configurable: true,
         get() {
@@ -310,7 +310,7 @@ describe('Optimisations de Synchronisation', () => {
           assignmentCalled = true;
         }
       });
-      
+
       let syncCallCount = 0;
 
       // Mock de la synchronisation pour compter les appels

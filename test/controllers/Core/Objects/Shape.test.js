@@ -2,13 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@controllers/Core/App', () => {
   const main = { segments: [], points: [], shapes: [] };
-  return { 
-    app: { 
-      mainCanvasLayer: main, 
-      settings: { areShapesPointed: false }, 
+  return {
+    app: {
+      mainCanvasLayer: main,
+      settings: { areShapesPointed: false },
       environment: { name: 'Test' },
       workspace: { zoomLevel: 1, translateOffset: { x: 0, y: 0 } }
-    } 
+    }
   };
 });
 
@@ -28,12 +28,12 @@ vi.mock('@controllers/GeometryTools/deleteShape', () => ({
 
 // Initialiser window.app après mock pour Point/Segment qui y accèdent directement
 import { app } from '@controllers/Core/App';
-window.app = app;
 import { Coordinates } from '@controllers/Core/Objects/Coordinates';
+import { Point } from '@controllers/Core/Objects/Point';
 import { Segment } from '@controllers/Core/Objects/Segment';
 import { Shape } from '@controllers/Core/Objects/Shapes/Shape';
-import { Point } from '@controllers/Core/Objects/Point';
 import { findObjectById } from '@controllers/Core/Tools/general';
+window.app = app;
 
 describe('Shape basic', () => {
   beforeEach(() => {
@@ -42,7 +42,7 @@ describe('Shape basic', () => {
     app.mainCanvasLayer.points.length = 0;
     app.mainCanvasLayer.shapes.length = 0;
     vi.clearAllMocks();
-    
+
     findObjectById.mockImplementation((id) => {
       const all = [...app.mainCanvasLayer.points, ...app.mainCanvasLayer.segments, ...app.mainCanvasLayer.shapes];
       return all.find(obj => obj.id === id);
@@ -62,7 +62,7 @@ describe('Shape basic', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [pt1.coordinates, pt2.coordinates] });
     // Manually link for test since we are mocking
     seg.vertexIds = [pt1.id, pt2.id];
-    
+
     // We need to ensure points are in the layer
     app.mainCanvasLayer.points = [pt1, pt2];
     app.mainCanvasLayer.segments = [seg];
@@ -81,12 +81,12 @@ describe('Shape basic', () => {
     const pt2 = new Point({ layer: 'main', coordinates: { x: 10, y: 0 }, type: 'vertex' });
     const pt3 = new Point({ layer: 'main', coordinates: { x: 0, y: 10 }, type: 'vertex' });
     app.mainCanvasLayer.points = [pt1, pt2, pt3];
-    
+
     const shape = new Shape({ layer: 'main', pointIds: [pt1.id, pt2.id, pt3.id] });
-    
+
     const center = shape.centerCoordinates;
-    expect(center.x).toBeCloseTo(10/3);
-    expect(center.y).toBeCloseTo(10/3);
+    expect(center.x).toBeCloseTo(10 / 3);
+    expect(center.y).toBeCloseTo(10 / 3);
   });
 
   it('contains works for Point', () => {
@@ -94,11 +94,11 @@ describe('Shape basic', () => {
     const pt2 = new Point({ layer: 'main', coordinates: { x: 10, y: 0 }, type: 'vertex' });
     const pt3 = new Point({ layer: 'main', coordinates: { x: 0, y: 10 }, type: 'vertex' });
     app.mainCanvasLayer.points = [pt1, pt2, pt3];
-    
+
     const shape = new Shape({ layer: 'main', pointIds: [pt1.id, pt2.id, pt3.id] });
-    
+
     expect(shape.contains(pt1)).toBe(true);
-    
+
     const otherPt = new Point({ layer: 'main', coordinates: { x: 100, y: 100 }, type: 'vertex' });
     expect(shape.contains(otherPt)).toBe(false);
   });
@@ -108,15 +108,15 @@ describe('Shape basic', () => {
     const pt2 = new Point({ layer: 'main', coordinates: { x: 10, y: 0 }, type: 'vertex' });
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [pt1.coordinates, pt2.coordinates] });
     seg.vertexIds = [pt1.id, pt2.id];
-    
+
     app.mainCanvasLayer.points = [pt1, pt2];
     app.mainCanvasLayer.segments = [seg];
-    
+
     const shape = new Shape({ layer: 'main', segmentIds: [seg.id], pointIds: [pt1.id, pt2.id] });
-    
+
     expect(shape.contains(seg)).toBe(true);
-    
-    const otherSeg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{x:0, y:0}, {x:0, y:10}] });
+
+    const otherSeg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 0, y: 10 }] });
     expect(shape.contains(otherSeg)).toBe(false);
   });
 
@@ -124,7 +124,7 @@ describe('Shape basic', () => {
     const pt1 = new Point({ layer: 'main', coordinates: { x: 0, y: 0 }, type: 'vertex' });
     app.mainCanvasLayer.points = [pt1];
     const shape = new Shape({ layer: 'main', pointIds: [pt1.id] });
-    
+
     expect(shape.contains(new Coordinates({ x: 0, y: 0 }))).toBe(true);
     expect(shape.contains(new Coordinates({ x: 10, y: 10 }))).toBe(false);
   });
@@ -189,12 +189,12 @@ describe('Shape basic', () => {
     const pt2 = new Point({ layer: 'main', coordinates: { x: 10, y: 0 }, type: 'vertex' });
     const pt3 = new Point({ layer: 'main', coordinates: { x: 10, y: 10 }, type: 'vertex' });
     const pt4 = new Point({ layer: 'main', coordinates: { x: 0, y: 10 }, type: 'vertex' });
-    
+
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [pt1.coordinates, pt2.coordinates] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [pt2.coordinates, pt3.coordinates] });
     const seg3 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [pt3.coordinates, pt4.coordinates] });
     const seg4 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [pt4.coordinates, pt1.coordinates] });
-    
+
     seg1.vertexIds = [pt1.id, pt2.id];
     seg2.vertexIds = [pt2.id, pt3.id];
     seg3.vertexIds = [pt3.id, pt4.id];
@@ -202,7 +202,7 @@ describe('Shape basic', () => {
 
     app.mainCanvasLayer.points = [pt1, pt2, pt3, pt4];
     app.mainCanvasLayer.segments = [seg1, seg2, seg3, seg4];
-    
+
     const shape1 = new Shape({ layer: 'main', segmentIds: [seg1.id, seg2.id, seg3.id, seg4.id], pointIds: [pt1.id, pt2.id, pt3.id, pt4.id] });
 
     // Shape 2: Square at 5,5 size 10 (overlaps)
@@ -236,9 +236,9 @@ describe('Shape basic', () => {
     seg.vertexIds = [pt1.id, pt2.id];
     app.mainCanvasLayer.points = [pt1, pt2];
     app.mainCanvasLayer.segments = [seg];
-    
+
     const shape = new Shape({ layer: 'main', segmentIds: [seg.id], pointIds: [pt1.id, pt2.id] });
-    
+
     const svg = shape.toSVG();
     expect(svg).toContain('<path');
     expect(svg).toContain('d="');

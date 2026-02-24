@@ -65,7 +65,7 @@ describe('CreateCircleTool', () => {
     beforeEach(() => {
         // Initialiser window.app pour que les composants y accèdent
         window.app = app;
-        
+
         // Reset mocks
         vi.clearAllMocks();
 

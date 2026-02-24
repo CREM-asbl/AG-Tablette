@@ -3,13 +3,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Unmock the service under test because it is mocked in setup.ts
 vi.unmock('@services/activity-sync');
 
+import * as firebaseInit from '../../src/firebase/firebase-init.js';
 import {
     getLastSyncInfo,
     isSyncInProgress,
     smartSync,
     syncActivitiesInBackground
 } from '../../src/services/activity-sync.js';
-import * as firebaseInit from '../../src/firebase/firebase-init.js';
 import * as indexeddbActivities from '../../src/utils/indexeddb-activities.js';
 
 // Mock dependencies

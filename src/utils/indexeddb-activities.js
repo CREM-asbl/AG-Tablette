@@ -39,7 +39,7 @@ export function openDB() {
 /**
  * Ferme la connexion à la base de données en toute sécurité
  * Gère les cas où closeDB(db) n'existe pas (fake-indexeddb en tests)
- * @param {IDBDatabase} db 
+ * @param {IDBDatabase} db
  */
 function closeDB(db) {
   if (db && typeof db.close === 'function') {

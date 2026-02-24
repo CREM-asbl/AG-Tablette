@@ -20,10 +20,9 @@ vi.mock('@controllers/Core/Tools/general', () => ({
 
 // Initialiser window.app après mock pour Point.js qui y accède directement
 import { app } from '@controllers/Core/App';
-window.app = app;
 import { Coordinates } from '@controllers/Core/Objects/Coordinates';
 import { Point } from '@controllers/Core/Objects/Point';
-import { findObjectById } from '@controllers/Core/Tools/general';
+window.app = app;
 
 const mockMainCanvasLayer = app.mainCanvasLayer;
 
@@ -169,14 +168,14 @@ describe('Point class', () => {
       name: 'Point'
     };
     mockMainCanvasLayer.shapes.push(shape);
-    
+
     const pt = new Point({
       layer: 'main',
       shapeId: 'shape1',
       type: 'vertex',
       idx: 0
     });
-    
+
     pt.computeTransformConstraint();
     expect(pt.transformConstraints.isFree).toBe(true);
   });
@@ -190,7 +189,7 @@ describe('Point class', () => {
       name: 'Regular'
     };
     mockMainCanvasLayer.shapes.push(shape);
-    
+
     // idx 2 is constructed in Regular polygon
     const pt = new Point({
       layer: 'main',
@@ -198,7 +197,7 @@ describe('Point class', () => {
       type: 'vertex',
       idx: 2
     });
-    
+
     pt.computeTransformConstraint();
     expect(pt.transformConstraints.isConstructed).toBe(true);
   });

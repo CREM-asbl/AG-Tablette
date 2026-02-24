@@ -16,11 +16,11 @@ vi.mock('@controllers/Core/Tools/general', () => ({
 
 // Initialiser window.app après mock pour Segment/Point qui y accèdent directement
 import { app } from '@controllers/Core/App';
-window.app = app;
 import { Coordinates } from '@controllers/Core/Objects/Coordinates';
-import { Segment } from '@controllers/Core/Objects/Segment';
 import { Point } from '@controllers/Core/Objects/Point';
+import { Segment } from '@controllers/Core/Objects/Segment';
 import { findObjectById } from '@controllers/Core/Tools/general';
+window.app = app;
 
 const mockMainCanvasLayer = app.mainCanvasLayer;
 
@@ -170,7 +170,7 @@ describe('Segment advanced', () => {
   it('intersectionWith returns intersection point', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 10 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 10 }, { x: 10, y: 0 }] });
-    
+
     const intersection = seg1.intersectionWith(seg2);
     expect(intersection).toHaveLength(1);
     expect(intersection[0].x).toBeCloseTo(5);
@@ -180,7 +180,7 @@ describe('Segment advanced', () => {
   it('intersectionWith returns null for parallel segments', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 1 }, { x: 10, y: 1 }] });
-    
+
     const intersection = seg1.intersectionWith(seg2);
     expect(intersection).toBeNull();
   });
@@ -188,35 +188,35 @@ describe('Segment advanced', () => {
   it('doesIntersect returns true if intersecting', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 10 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 10 }, { x: 10, y: 0 }] });
-    
+
     expect(seg1.doesIntersect(seg2)).toBe(true);
   });
 
   it('contains returns true for point on segment', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const vertex = seg.vertexes[0];
-    
+
     expect(seg.contains(vertex)).toBe(true);
   });
 
   it('contains returns false for point off segment', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const pt = new Point({ layer: 'main', coordinates: { x: 5, y: 5 } });
-    
+
     expect(seg.contains(pt)).toBe(false);
   });
 
   it('equal returns true for same segment', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
-    
+
     expect(seg1.equal(seg2)).toBe(true);
   });
 
   it('equal returns true for reversed segment', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 10, y: 0 }, { x: 0, y: 0 }] });
-    
+
     expect(seg1.equal(seg2)).toBe(true);
   });
 
@@ -240,17 +240,17 @@ describe('Segment advanced', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const v0Id = seg.vertexIds[0];
     const v1Id = seg.vertexIds[1];
-    
+
     seg.reverse();
-    
+
     expect(seg.vertexIds[0]).toBe(v1Id);
     expect(seg.vertexIds[1]).toBe(v0Id);
   });
 
   it('getSVGPath returns correct path for line', () => {
-    vi.spyOn(Coordinates.prototype, 'toCanvasCoordinates').mockImplementation(function() { return this; });
+    vi.spyOn(Coordinates.prototype, 'toCanvasCoordinates').mockImplementation(function () { return this; });
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
-    
+
     const path = seg.getSVGPath();
     expect(path).toContain('M 0 0');
     expect(path).toContain('L 10 0');
@@ -259,7 +259,7 @@ describe('Segment advanced', () => {
   it('addPoint adds a division point', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const pt = seg.addPoint(new Coordinates({ x: 5, y: 0 }), 0.5, seg.vertexIds[0], seg.vertexIds[1]);
-    
+
     expect(seg.divisionPointIds).toHaveLength(1);
     expect(pt.coordinates.x).toBeCloseTo(5);
     expect(pt.ratio).toBeCloseTo(0.5);
@@ -269,9 +269,9 @@ describe('Segment advanced', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const pt1 = seg.addPoint(new Coordinates({ x: 7, y: 0 }), 0.7, seg.vertexIds[0], seg.vertexIds[1]);
     const pt2 = seg.addPoint(new Coordinates({ x: 3, y: 0 }), 0.3, seg.vertexIds[0], seg.vertexIds[1]);
-    
+
     seg.sortDivisionPoints();
-    
+
     expect(seg.divisionPointIds[0]).toBe(pt2.id);
     expect(seg.divisionPointIds[1]).toBe(pt1.id);
   });
@@ -279,13 +279,13 @@ describe('Segment advanced', () => {
   it('deletePoint removes point', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const pt = seg.addPoint(new Coordinates({ x: 5, y: 0 }), 0.5, seg.vertexIds[0], seg.vertexIds[1]);
-    
+
     // Mock shape.pointIds because deletePoint tries to remove from shape
     const shape = { pointIds: [pt.id] };
     vi.spyOn(seg, 'shape', 'get').mockReturnValue(shape);
-    
+
     seg.deletePoint(pt);
-    
+
     expect(seg.divisionPointIds).toHaveLength(0);
     expect(shape.pointIds).toHaveLength(0);
   });
@@ -293,40 +293,40 @@ describe('Segment advanced', () => {
   it('isSubsegment returns true for subsegment', () => {
     const seg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const subseg = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 2, y: 0 }, { x: 8, y: 0 }] });
-    
+
     expect(seg.isSubsegment(subseg)).toBe(true);
   });
 
   it('isParalleleWith returns true for parallel segments', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 1 }, { x: 10, y: 1 }] });
-    
+
     expect(seg1.isParalleleWith(seg2)).toBe(true);
   });
 
   it('hasSameDirection returns true for same direction', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 1 }, { x: 10, y: 1 }] });
-    
+
     expect(seg1.hasSameDirection(seg2)).toBe(true);
   });
 
   it('hasSameDirection returns false for opposite direction', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 10, y: 1 }, { x: 0, y: 1 }] });
-    
+
     expect(seg1.hasSameDirection(seg2)).toBe(false);
   });
 
   it('getSVGPath returns correct path for arc', () => {
-    vi.spyOn(Coordinates.prototype, 'toCanvasCoordinates').mockImplementation(function() { return this; });
+    vi.spyOn(Coordinates.prototype, 'toCanvasCoordinates').mockImplementation(function () { return this; });
     const arc = new Segment({
       layer: 'main',
       createFromNothing: true,
       vertexCoordinates: [{ x: 10, y: 0 }, { x: 0, y: 10 }],
       arcCenterCoordinates: { x: 0, y: 0 }
     });
-    
+
     const path = arc.getSVGPath();
     expect(path).toContain('A 10 10');
   });
