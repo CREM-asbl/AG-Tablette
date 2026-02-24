@@ -1,4 +1,13 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": [
+    {
+      "bucket": "apprenti-geometre.appspot.com",
+      "rules": "storage.rules"
+    }
+  ],
   "hosting": {
     "source": ".",
     "ignore": [

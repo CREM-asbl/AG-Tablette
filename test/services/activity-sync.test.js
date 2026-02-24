@@ -43,7 +43,10 @@ describe('Activity Sync Service', () => {
         });
 
         // Firebase
-        firebaseInit.findAllFiles.mockResolvedValue([]);
+        firebaseInit.getFilesCount.mockResolvedValue(0);
+        firebaseInit.findAllFilesPaged.mockImplementation(async ({ onPage }) => {
+            // Par défaut, ne rien faire (pas de fichiers)
+        });
         firebaseInit.findAllThemes.mockResolvedValue([]);
         firebaseInit.getModulesDocFromTheme.mockResolvedValue([]);
         firebaseInit.readFileFromServer.mockResolvedValue({});
@@ -132,7 +135,7 @@ describe('Activity Sync Service', () => {
 
             const result = await smartSync();
             expect(result).toBe('recent');
-            expect(firebaseInit.findAllFiles).not.toHaveBeenCalled();
+            expect(firebaseInit.findAllFilesPaged).not.toHaveBeenCalled();
         });
 
         it('should proceed with sync if forced even if recent', async () => {
@@ -140,7 +143,7 @@ describe('Activity Sync Service', () => {
 
             const result = await smartSync({ force: true });
             expect(result).toBe('completed');
-            expect(firebaseInit.findAllFiles).toHaveBeenCalled();
+            expect(firebaseInit.findAllFilesPaged).toHaveBeenCalled();
         });
 
         it('should return "completed" after successful sync', async () => {
@@ -149,7 +152,7 @@ describe('Activity Sync Service', () => {
         });
 
         it('should return "error" if sync fails', async () => {
-            firebaseInit.findAllFiles.mockRejectedValue(new Error('Network Error'));
+            firebaseInit.getFilesCount.mockRejectedValue(new Error('Network Error'));
             const result = await smartSync();
             expect(result).toBe('error');
         });
@@ -159,19 +162,19 @@ describe('Activity Sync Service', () => {
         it('should not sync if offline', async () => {
             Object.defineProperty(navigator, 'onLine', { value: false });
             await syncActivitiesInBackground();
-            expect(firebaseInit.findAllFiles).not.toHaveBeenCalled();
+            expect(firebaseInit.findAllFilesPaged).not.toHaveBeenCalled();
         });
 
         it('should not sync if already in progress', async () => {
             mockSyncInProgress.value = true;
             await syncActivitiesInBackground();
-            expect(firebaseInit.findAllFiles).not.toHaveBeenCalled();
+            expect(firebaseInit.findAllFilesPaged).not.toHaveBeenCalled();
         });
 
         it('should not sync if recent sync available and not forced', async () => {
             indexeddbActivities.isRecentSyncAvailable.mockResolvedValue(true);
             await syncActivitiesInBackground();
-            expect(firebaseInit.findAllFiles).not.toHaveBeenCalled();
+            expect(firebaseInit.findAllFilesPaged).not.toHaveBeenCalled();
         });
 
         it('should sync files, themes and modules', async () => {
@@ -182,7 +185,10 @@ describe('Activity Sync Service', () => {
             const serverThemes = [{ id: 'theme1' }];
             const modules = [{ id: 'mod1' }];
 
-            firebaseInit.findAllFiles.mockResolvedValue(serverFiles);
+            firebaseInit.getFilesCount.mockResolvedValue(2);
+            firebaseInit.findAllFilesPaged.mockImplementation(async ({ onPage }) => {
+                await onPage(serverFiles);
+            });
             firebaseInit.findAllThemes.mockResolvedValue(serverThemes);
             firebaseInit.getModulesDocFromTheme.mockResolvedValue(modules);
 
@@ -208,7 +214,10 @@ describe('Activity Sync Service', () => {
 
         it('should skip files that are up to date locally', async () => {
             const serverFiles = [{ id: 'file1', version: 1 }];
-            firebaseInit.findAllFiles.mockResolvedValue(serverFiles);
+            firebaseInit.getFilesCount.mockResolvedValue(1);
+            firebaseInit.findAllFilesPaged.mockImplementation(async ({ onPage }) => {
+                await onPage(serverFiles);
+            });
             indexeddbActivities.getAllActivities.mockResolvedValue([
                 { id: 'file1', version: 1 }
             ]);
@@ -220,17 +229,16 @@ describe('Activity Sync Service', () => {
         });
 
         it('should retry on failure', async () => {
-            firebaseInit.findAllFiles
+            firebaseInit.getFilesCount
                 .mockRejectedValueOnce(new Error('Fail 1'))
-                .mockResolvedValue([]);
-
-            firebaseInit.findAllFiles.mockRejectedValue(new Error('Persistent Fail'));
+                .mockRejectedValueOnce(new Error('Fail 2'))
+                .mockRejectedValue(new Error('Persistent Fail'));
 
             await expect(syncActivitiesInBackground(true)).rejects.toThrow('Persistent Fail');
 
             // Should have tried multiple times (initial + retries)
             // CONFIG.RETRY_ATTEMPTS is 3, so 3 calls.
-            expect(firebaseInit.findAllFiles).toHaveBeenCalledTimes(3);
+            expect(firebaseInit.getFilesCount).toHaveBeenCalledTimes(3);
         }, 10000); // Increase timeout for retries
     });
 });

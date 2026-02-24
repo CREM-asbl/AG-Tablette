@@ -12,3 +12,6 @@ node_modules
 /blob-report/
 /playwright/.cache/
 coverage
+
+# Firebase Rules Backups (local only)
+backups/firebase-rules/
