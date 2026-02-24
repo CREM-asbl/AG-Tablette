@@ -182,7 +182,7 @@ class SavePopup extends LitElement {
             @change="${this._actionHandle}"
           />
           <label for="save_popup_permanent_hide"
-            >Cacher de façon permanente</label
+            >Masquer définitivement les objets cachés</label
           >
         </div>
       `;
