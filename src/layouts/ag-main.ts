@@ -10,7 +10,7 @@ import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import { createElem } from '../controllers/Core/Tools/general';
-import { activeTool, environmentConfig, filename, helpSelected, historyState } from '../store/appState';
+import { activeTool, filename, helpSelected, historyState } from '../store/appState';
 import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
 
@@ -18,16 +18,7 @@ if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
 initializeCachesFromIndexedDB().catch((error) => {
   console.warn("Erreur lors de l'initialisation des caches:", error);
 });
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/service-worker.js')
-      .then((registration) => { })
-      .catch((error) => {
-        console.error("Échec de l'enregistrement du Service Worker:", error);
-      });
-  });
-}
+
 
 @customElement('ag-main')
 class AGMain extends SignalWatcher(LitElement) {
@@ -128,7 +119,6 @@ class AGMain extends SignalWatcher(LitElement) {
   }
 
   addModules() {
-    console.log('ag-main addModules app', app, 'window.app', window.app);
     if (app?.environment?.name === 'Tangram') {
       import('../controllers/Tangram/TangramManager');
       return html`<tangram-manager></tangram-manager>`;

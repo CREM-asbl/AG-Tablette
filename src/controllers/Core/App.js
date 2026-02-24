@@ -136,7 +136,6 @@ export class App {
     this.stepSinceSave = false;
     /** @type {boolean} Indique si l'application a démarré */
     this.started = false;
-    console.log('App initialized', this);
     /** @type {boolean} Indique si l'application est en cours de chargement */
     this.appLoading = false;
     /** @type {number} Index pour la prochaine couleur de groupe à assigner */

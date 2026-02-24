@@ -16,7 +16,17 @@ self.addEventListener('install', _event => {
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    (async () => {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      );
+      await clients.claim();
+    })()
+  );
 });
 
 self.addEventListener('fetch', event => {
