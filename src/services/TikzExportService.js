@@ -262,8 +262,8 @@ const generatePointCode = (point, bounds) => {
     return '';
   }
 
-  // Ignorer les points invisibles ou cachés
-  if (point.visible === false) {
+  // Ignorer les points invisibles ou cachés (y compris les propriétés de géométrie)
+  if (point.visible === false || point.geometryIsVisible === false || point.geometryIsHidden === true) {
     return '';
   }
 
@@ -294,6 +294,7 @@ const generatePointCode = (point, bounds) => {
 
 /**
  * Génère le code TikZ pour un segment (avec normalisation préservant l'aspect ratio)
+ * Gère aussi les droites infinies et semi-infinies
  * @param {object} segment - L'objet segment
  * @param {object} shape - L'objet shape parent
  * @param {object} canvasLayer - La couche du canvas
@@ -325,6 +326,63 @@ const generateSegmentCode = (segment, shape, canvasLayer, bounds) => {
   const points = vertexPoints.join(' -- ');
   const optStr = getSegmentOptions(segment, shape);
 
+  // Gérer les droites infinies et semi-infinies
+  // Pour TikZ, on étend le segment jusqu'aux bords du canvas
+  if (segment.isInfinite || segment.isSemiInfinite) {
+    // Récupérer les points réels (pas normalisés) pour calculer la direction
+    const point1 = getPointById(segment.vertexIds[0], canvasLayer);
+    const point2 = getPointById(segment.vertexIds[1], canvasLayer);
+
+    if (!point1 || !point2 || !point1.coordinates || !point2.coordinates) {
+      return `  \\draw${optStr} ${points};`;
+    }
+
+    const dx = point2.coordinates.x - point1.coordinates.x;
+    const dy = point2.coordinates.y - point1.coordinates.y;
+    const length = Math.sqrt(dx * dx + dy * dy);
+    if (length === 0) {
+      return `  \\draw${optStr} ${points};`;
+    }
+
+    // Normaliser la direction
+    const dirX = dx / length;
+    const dirY = dy / length;
+
+    // Calculer les dimensions du canvas normalisées
+    const canvasWidth = (bounds.maxX - bounds.minX) * bounds.scale;
+    const canvasHeight = (bounds.maxY - bounds.minY) * bounds.scale;
+    const maxExtension = Math.max(canvasWidth, canvasHeight) * 2; // Extension suffisante
+
+    let start, end;
+
+    if (segment.isInfinite) {
+      // Droite infinie: étendre dans les deux directions
+      start = {
+        x: point1.coordinates.x - dirX * maxExtension / bounds.scale,
+        y: point1.coordinates.y - dirY * maxExtension / bounds.scale,
+      };
+      end = {
+        x: point2.coordinates.x + dirX * maxExtension / bounds.scale,
+        y: point2.coordinates.y + dirY * maxExtension / bounds.scale,
+      };
+    } else {
+      // Demi-droite: partir de point1 et étendre vers point2
+      start = point1.coordinates;
+      end = {
+        x: point2.coordinates.x + dirX * maxExtension / bounds.scale,
+        y: point2.coordinates.y + dirY * maxExtension / bounds.scale,
+      };
+    }
+
+    // Normaliser les coordonnées
+    const x1 = normalizeCoordinateWithAspectRatio(start.x, bounds.minX, bounds.maxX, bounds.scale, false);
+    const y1 = normalizeCoordinateWithAspectRatio(start.y, bounds.minY, bounds.maxY, bounds.scale, true);
+    const x2 = normalizeCoordinateWithAspectRatio(end.x, bounds.minX, bounds.maxX, bounds.scale, false);
+    const y2 = normalizeCoordinateWithAspectRatio(end.y, bounds.minY, bounds.maxY, bounds.scale, true);
+
+    return `  \\draw${optStr} (${formatNumber(x1)},${formatNumber(y1)}) -- (${formatNumber(x2)},${formatNumber(y2)});`;
+  }
+
   return `  \\draw${optStr} ${points};`;
 };
 
@@ -338,6 +396,15 @@ const generateSegmentCode = (segment, shape, canvasLayer, bounds) => {
 const generateShapeCode = (shape, _canvasLayer, bounds) => {
   if (!shape) {
     return '';
+  }
+
+  // Filtrer les formes cachées ou de contrainte (comme dans canvas-layer.js)
+  if (shape.geometryObject) {
+    if (shape.geometryObject.geometryIsVisible === false ||
+      shape.geometryObject.geometryIsHidden === true ||
+      shape.geometryObject.geometryIsConstaintDraw === true) {
+      return '';
+    }
   }
 
   // Vérifier si c'est un cercle (possède une méthode isCircle ou une propriété radius/arcCenterId)
@@ -533,15 +600,61 @@ const generateTikzFromCanvasLayer = (canvasLayer, bounds) => {
   }
 
   // Génération du code pour les points (y compris les sommets des formes)
+  tikzCode += '\n% Points (et sommets des figures)\n';
+
+  // Suivre les IDs des points déjà affichés pour éviter les doublons
+  const pointIdsDisplayed = new Set();
+
+  // D'abord afficher les points du canvasLayer
   if (canvasLayer.points && Array.isArray(canvasLayer.points)) {
-    tikzCode += '\n% Points (et sommets des figures)\n';
     canvasLayer.points.forEach((point) => {
-      if (point) {
-        // Afficher TOUS les points, y compris les sommets des formes
+      if (point && point.id) {
         const pointCode = generatePointCode(point, bounds);
         if (pointCode) {
           tikzCode += pointCode + '\n';
+          pointIdsDisplayed.add(point.id);
         }
+      }
+    });
+  }
+
+  // Ensuite afficher les sommets des formes qui ne sont pas déjà affichés
+  // (dans le cas où les sommets n'existent que dans shape.vertexes)
+  if (canvasLayer.shapes && Array.isArray(canvasLayer.shapes)) {
+    canvasLayer.shapes.forEach((shape) => {
+      // Filtrer les formes cachées ou de contrainte
+      if (shape && shape.geometryObject) {
+        if (shape.geometryObject.geometryIsVisible === false ||
+          shape.geometryObject.geometryIsHidden === true ||
+          shape.geometryObject.geometryIsConstaintDraw === true) {
+          return; // Skip cette forme
+        }
+      }
+
+      if (shape && shape.vertexes && Array.isArray(shape.vertexes)) {
+        shape.vertexes.forEach((vertex) => {
+          // Vérifier que ce sommet n'a pas déjà été affiché
+          if (vertex && vertex.id && !pointIdsDisplayed.has(vertex.id)) {
+            // Vérifier la visibilité du sommet (propriétés de géométrie)
+            if (vertex.geometryIsVisible === false || vertex.geometryIsHidden === true) {
+              return; // Skip ce sommet invisible
+            }
+
+            // Créer un point avec des valeurs par défaut si nécessaire
+            const vertexPoint = {
+              id: vertex.id,
+              coordinates: vertex.coordinates,
+              visible: vertex.visible !== undefined ? vertex.visible : true,
+              color: vertex.color || shape.strokeColor || '#000000',
+              size: vertex.size || 2,
+            };
+            const pointCode = generatePointCode(vertexPoint, bounds);
+            if (pointCode) {
+              tikzCode += pointCode + '\n';
+              pointIdsDisplayed.add(vertex.id);
+            }
+          }
+        });
       }
     });
   }
