@@ -4,11 +4,15 @@ import { initializeApp } from 'firebase/app';
 import {
   collection,
   doc,
+  getCountFromServer,
   getDoc,
   getDocs,
   initializeFirestore,
+  limit,
+  orderBy,
   persistentLocalCache,
   query,
+  startAfter,
   where,
 } from 'firebase/firestore';
 import { getPerformance } from 'firebase/performance';
@@ -29,6 +33,13 @@ const db = initializeFirestore(firebaseApp, {
   localCache: persistentLocalCache(),
 });
 const storage = getStorage(firebaseApp);
+
+const isDev = import.meta.env?.DEV;
+const logDevWarning = (message, error) => {
+  if (isDev) {
+    console.warn(message, error);
+  }
+};
 
 // Initialisation Firebase Performance
 let analytics = null;
@@ -118,7 +129,10 @@ export async function readFileFromServer(filename, options = {}) {
           return localActivity.data;
         }
       } catch (indexedDBError) {
-
+        logDevWarning(
+          '[firebase-init] IndexedDB read failed for activity cache:',
+          indexedDBError,
+        );
       }
     }
 
@@ -157,9 +171,11 @@ export async function readFileFromServer(filename, options = {}) {
     try {
       const version = jsonData.version || 1;
       await saveActivity(filename, jsonData, version);
-
     } catch (saveError) {
-
+      logDevWarning(
+        '[firebase-init] IndexedDB save failed for activity cache:',
+        saveError,
+      );
     }
 
     // Mettre en cache le contenu JSON plutôt que la réponse
@@ -180,7 +196,10 @@ export async function readFileFromServer(filename, options = {}) {
         return fallbackActivity.data;
       }
     } catch (fallbackError) {
-
+      logDevWarning(
+        '[firebase-init] IndexedDB fallback read failed:',
+        fallbackError,
+      );
     }
 
     throw error;
@@ -230,7 +249,7 @@ export async function getFileDocFromFilename(id) {
 
     return result;
   } catch (error) {
-
+    logDevWarning('[firebase-init] getFileDocFromFilename failed:', error);
     return null;
   }
 }
@@ -244,7 +263,7 @@ export async function findAllThemes() {
       return localThemes.map((t) => ({ id: t.id, ...t.data }));
     }
   } catch (err) {
-
+    logDevWarning('[firebase-init] IndexedDB read failed for themes:', err);
   }
 
   // Vérifier si on est en ligne avant d'essayer le serveur
@@ -272,14 +291,16 @@ export async function findAllThemes() {
       for (const theme of themesWithId) {
         await saveTheme(theme.id, theme);
       }
-
     } catch (saveError) {
-
+      logDevWarning(
+        '[firebase-init] IndexedDB save failed for themes:',
+        saveError,
+      );
     }
 
     return themesWithId;
   } catch (error) {
-
+    logDevWarning('[firebase-init] findAllThemes failed:', error);
     return [];
   }
 }
@@ -289,6 +310,45 @@ export async function findAllFiles() {
   const filesWithId = [];
   files.forEach((doc) => filesWithId.push({ id: doc.id, ...doc.data() }));
   return filesWithId;
+}
+
+export async function getFilesCount() {
+  try {
+    const snapshot = await getCountFromServer(collection(db, 'files'));
+    return snapshot.data().count;
+  } catch (error) {
+    logDevWarning('[firebase-init] getFilesCount failed:', error);
+    return null;
+  }
+}
+
+export async function findAllFilesPaged({ pageSize = 200, onPage } = {}) {
+  let lastDoc = null;
+  let totalFetched = 0;
+
+  while (true) {
+    const constraints = [orderBy('__name__'), limit(pageSize)];
+    if (lastDoc) constraints.push(startAfter(lastDoc));
+
+    const snapshot = await getDocs(
+      query(collection(db, 'files'), ...constraints),
+    );
+
+    if (snapshot.empty) break;
+
+    const filesWithId = [];
+    snapshot.forEach((doc) =>
+      filesWithId.push({ id: doc.id, ...doc.data() }),
+    );
+
+    totalFetched += filesWithId.length;
+    if (onPage) await onPage(filesWithId);
+
+    lastDoc = snapshot.docs[snapshot.docs.length - 1];
+    if (snapshot.size < pageSize) break;
+  }
+
+  return totalFetched;
 }
 
 export function getThemeDocFromThemeName(themeName) {
@@ -316,7 +376,10 @@ export async function debugFirebaseModules() {
       );
 
     } catch (permError) {
-
+      logDevWarning(
+        '[firebase-init] Permission check failed for modules collection:',
+        permError,
+      );
       return [];
     }
 
@@ -360,14 +423,18 @@ export async function debugFirebaseModules() {
       // Vérifier si la collection existe
       try {
         const collectionRef = collection(db, 'modules');
-
+        void collectionRef;
       } catch (collError) {
-
+        logDevWarning(
+          '[firebase-init] Collection check failed for modules:',
+          collError,
+        );
       }
 
       return [];
     }
   } catch (error) {
+    logDevWarning('[firebase-init] debugFirebaseModules failed:', error);
     return [];
   }
 }
@@ -381,6 +448,10 @@ function cleanDataForSerialization(obj) {
     // Utiliser JSON.parse(JSON.stringify()) pour supprimer les propriétés non sérialisables
     return JSON.parse(JSON.stringify(obj));
   } catch (error) {
+    logDevWarning(
+      '[firebase-init] Serialization cleanup failed, falling back:',
+      error,
+    );
 
     // En cas d'erreur, retourner un objet basique avec seulement les propriétés importantes
     return {
@@ -437,7 +508,7 @@ export async function getModulesDocFromTheme(themeDoc) {
       }
     }
   } catch (err) {
-
+    logDevWarning('[firebase-init] IndexedDB read failed for modules:', err);
   }
 
   // Vérifier si on est en ligne avant d'essayer le serveur
@@ -491,9 +562,11 @@ export async function getModulesDocFromTheme(themeDoc) {
           });
           await saveModule(module.id, cleanedModule);
         }
-
       } catch (saveError) {
-
+        logDevWarning(
+          '[firebase-init] IndexedDB save failed for modules:',
+          saveError,
+        );
       }
     } else {
 
@@ -501,7 +574,7 @@ export async function getModulesDocFromTheme(themeDoc) {
 
     return moduleDocsWithId;
   } catch (error) {
-
+    logDevWarning('[firebase-init] getModulesDocFromTheme failed:', error);
     return [];
   }
 }
@@ -601,7 +674,10 @@ export async function downloadFileZip(zipname, files) {
           data: new Uint8Array(fileData),
         };
       } catch (error) {
-
+        logDevWarning(
+          `[firebase-init] Download failed for file ${fileId}:`,
+          error,
+        );
         return null;
       }
     });
@@ -646,7 +722,7 @@ export async function downloadFileZip(zipname, files) {
       });
     });
   } catch (error) {
-
+    logDevWarning('[firebase-init] downloadFileZip failed:', error);
     throw error;
   }
 }

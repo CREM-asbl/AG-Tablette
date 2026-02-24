@@ -2,8 +2,9 @@
 // Gère la synchronisation en arrière-plan des fichiers d'activités
 
 import {
-  findAllFiles,
+  findAllFilesPaged,
   findAllThemes,
+  getFilesCount,
   getModulesDocFromTheme,
   readFileFromServer,
 } from '../firebase/firebase-init.js';
@@ -30,6 +31,8 @@ const CONFIG = {
   AUTO_SYNC_DELAY: 5000,
   RECONNECT_DELAY: 1000,
   SYNC_COOLDOWN: 24 * 60 * 60 * 1000, // 24 heures entre les synchronisations
+  FILE_PAGE_SIZE: 200,
+  MAX_METADATA_FILES: 2000,
   DEBUG:
     typeof window !== 'undefined' &&
     (window.location.hostname === 'localhost' ||
@@ -120,8 +123,8 @@ export async function syncActivitiesInBackground(forceSync = false) {
       );
 
       // Récupérer les données nécessaires
-      const [serverFiles, serverThemes] = await Promise.all([
-        findAllFiles(),
+      const [totalFilesCount, serverThemes] = await Promise.all([
+        getFilesCount(),
         findAllThemes(),
       ]);
 
@@ -130,63 +133,92 @@ export async function syncActivitiesInBackground(forceSync = false) {
         localActivities.map((activity) => [activity.id, activity]),
       );
 
+      const serverFilesMetadata = [];
+      let serverFilesTruncated = false;
+
       let addedCount = 0;
       let processedFiles = 0;
       let processedThemes = 0;
 
-      const totalFiles = serverFiles.length;
+      let totalFiles =
+        typeof totalFilesCount === 'number' ? totalFilesCount : null;
       const totalThemes = serverThemes.length;
 
       // Synchronisation des fichiers d'activités avec gestion de timeout
-      for (const serverFile of serverFiles) {
-        try {
-          const localActivity = localMap.get(serverFile.id);
-          const serverVersion = serverFile.version || 1;
-          const localVersion = localActivity?.version || 0;
+      await findAllFilesPaged({
+        pageSize: CONFIG.FILE_PAGE_SIZE,
+        onPage: async (serverFiles) => {
+          for (const serverFile of serverFiles) {
+            try {
+              const localActivity = localMap.get(serverFile.id);
+              const serverVersion = serverFile.version || 1;
+              const localVersion = localActivity?.version || 0;
 
-          if (!localActivity || serverVersion > localVersion) {
-            utils.log(
-              `Téléchargement ou mise à jour de l'activité: ${serverFile.id}`,
-            );
+              if (serverFilesMetadata.length < CONFIG.MAX_METADATA_FILES) {
+                serverFilesMetadata.push({
+                  id: serverFile.id,
+                  version: serverVersion,
+                });
+              } else {
+                serverFilesTruncated = true;
+              }
 
-            // Ajouter timeout pour éviter les blocages
-            const timeoutPromise = new Promise((_, reject) =>
-              setTimeout(() => reject(new Error('Timeout')), CONFIG.TIMEOUT),
-            );
+              if (!localActivity || serverVersion > localVersion) {
+                utils.log(
+                  `Téléchargement ou mise à jour de l'activité: ${serverFile.id}`,
+                );
 
-            const activityData = await Promise.race([
-              readFileFromServer(serverFile.id, { forceDownload: true }),
-              timeoutPromise,
-            ]);
+                // Ajouter timeout pour éviter les blocages
+                const timeoutPromise = new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error('Timeout')), CONFIG.TIMEOUT),
+                );
 
-            await saveActivity(serverFile.id, activityData, serverVersion);
-            addedCount++;
-          } else {
-            utils.log(
-              `Activité ${serverFile.id} déjà présente localement (version à jour)`,
-            );
+                const activityData = await Promise.race([
+                  readFileFromServer(serverFile.id, { forceDownload: true }),
+                  timeoutPromise,
+                ]);
+
+                await saveActivity(serverFile.id, activityData, serverVersion);
+                addedCount++;
+              } else {
+                utils.log(
+                  `Activité ${serverFile.id} déjà présente localement (version à jour)`,
+                );
+              }
+
+              processedFiles++;
+              const progressPercent = utils.calculateProgress(
+                processedFiles,
+                totalFiles ?? 1,
+                processedThemes,
+                totalThemes,
+              );
+              utils.log(
+                `Progression: ${progressPercent}% (${processedFiles}/${totalFiles ?? '?'} fichiers, ${processedThemes}/${totalThemes} thèmes)`,
+              );
+
+              // Mise à jour du signal de progression
+              setSyncProgress(progressPercent);
+            } catch (fileError) {
+              utils.warn(
+                `Erreur lors de la synchronisation de ${serverFile.id}:`,
+                fileError,
+              );
+              processedFiles++; // Compter quand même pour continuer la progression
+            }
           }
+        },
+      });
 
-          processedFiles++;
-          const progressPercent = utils.calculateProgress(
-            processedFiles,
-            totalFiles,
-            processedThemes,
-            totalThemes,
-          );
-          utils.log(
-            `Progression: ${progressPercent}% (${processedFiles}/${totalFiles} fichiers, ${processedThemes}/${totalThemes} thèmes)`,
-          );
-
-          // Mise à jour du signal de progression
-          setSyncProgress(progressPercent);
-        } catch (fileError) {
-          utils.warn(
-            `Erreur lors de la synchronisation de ${serverFile.id}:`,
-            fileError,
-          );
-          processedFiles++; // Compter quand même pour continuer la progression
-        }
+      if (totalFiles === null) {
+        totalFiles = processedFiles;
+        const progressPercent = utils.calculateProgress(
+          processedFiles,
+          totalFiles || 1,
+          processedThemes,
+          totalThemes,
+        );
+        setSyncProgress(progressPercent);
       }
 
 
@@ -240,17 +272,15 @@ export async function syncActivitiesInBackground(forceSync = false) {
       try {
         await saveSyncMetadata({
           lastSyncDate: Date.now(),
-          serverFiles: serverFiles.map((f) => ({
-            id: f.id,
-            version: f.version || 1,
-          })),
+          serverFiles: serverFilesMetadata,
+          serverFilesTruncated,
           serverThemes: serverThemes.map((t) => ({
             id: t.id,
             version: t.version || 1,
           })),
           expiryDate: Date.now() + CONFIG.SYNC_COOLDOWN,
           syncedFilesCount: addedCount,
-          totalFilesCount: serverFiles.length,
+          totalFilesCount: totalFiles ?? processedFiles,
           totalThemesCount: serverThemes.length,
         });
         utils.log('Métadonnées de synchronisation sauvegardées avec succès');
