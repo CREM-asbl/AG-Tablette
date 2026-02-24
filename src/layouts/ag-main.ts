@@ -5,7 +5,6 @@ import '@layouts/ag-menu';
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import '../components/accessibility-controls.ts';
 import '../components/sync-status-indicator.ts';
 import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
@@ -95,7 +94,6 @@ class AGMain extends SignalWatcher(LitElement) {
         <tool-ui-container></tool-ui-container>
       </div>
       <sync-status-indicator></sync-status-indicator>
-      <accessibility-controls></accessibility-controls>
       <notif-center></notif-center>
       <input
         id="fileSelector"
