@@ -1,6 +1,10 @@
 import lit from '@astrojs/lit';
 import { defineConfig } from 'astro/config';
 import serviceWorker from 'astrojs-service-worker';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,6 +13,19 @@ export default defineConfig({
   output: 'static',
   integrations: [lit(), serviceWorker()],
   vite: {
+    resolve: {
+      alias: {
+        '@components': resolve(__dirname, './src/components'),
+        '@controllers': resolve(__dirname, './src/controllers'),
+        '@store': resolve(__dirname, './src/store'),
+        '@styles': resolve(__dirname, './src/styles'),
+        '@utils': resolve(__dirname, './src/utils'),
+        '@services': resolve(__dirname, './src/services'),
+        '@layouts': resolve(__dirname, './src/layouts'),
+        '@pages': resolve(__dirname, './src/pages'),
+        '@types': resolve(__dirname, './src/types'),
+      },
+    },
     build: {
       rollupOptions: {
         output: {

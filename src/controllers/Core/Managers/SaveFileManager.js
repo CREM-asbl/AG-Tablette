@@ -1,3 +1,4 @@
+import { createTikzBlob } from '@services/TikzExportService';
 import { gridStore } from '@store/gridStore';
 import { kit } from '@store/kit';
 import { tools } from '@store/tools';
@@ -78,6 +79,10 @@ const configureSaveOptions = (environment, tangram, fileName) => {
     {
       description: 'Image vectorielle (*.svg)',
       accept: { 'image/svg+xml': ['.svg'] },
+    },
+    {
+      description: 'Code TikZ pour LaTeX (*.tikz)',
+      accept: { 'text/x-tikz': ['.tikz'] },
     },
   );
 
@@ -505,6 +510,60 @@ const saveToSvg = async (app, saveData, options, handle = null) => {
 };
 
 /**
+ * Sauvegarde le contenu en tant que fichier TikZ.
+ * @param {object} app - L'instance principale de l'application.
+ * @param {object} saveData - Les données de sauvegarde (non utilisées pour TikZ).
+ * @param {object} options - Les options de sauvegarde.
+ * @param {FileSystemFileHandle} [handle] - Le handle du fichier (optionnel, pour éviter le doublon).
+ * @returns {Promise<boolean>} - True si la sauvegarde a réussi.
+ */
+const saveToTikz = async (app, saveData, options, handle = null) => {
+  try {
+    const blob = createTikzBlob(app);
+
+    // Mettre à jour le nom du fichier avec la bonne extension
+    let fileName = options.suggestedName;
+    if (!fileName.endsWith('.tikz')) {
+      fileName = fileName.includes('.')
+        ? fileName.replace(/\.[^/.]+$/, '.tikz')
+        : `${fileName}.tikz`;
+    }
+
+    if (hasNativeFS && !handle) {
+      // Si pas de handle fourni, on demande à l'utilisateur
+      handle = await window.showSaveFilePicker({
+        suggestedName: fileName,
+        types: [
+          {
+            description: 'Code TikZ pour LaTeX (*.tikz)',
+            accept: { 'text/x-tikz': ['.tikz'] },
+          },
+        ],
+      });
+    }
+
+    if (handle) {
+      if (hasNativeFS) {
+        await writeFileNative(handle, blob);
+      } else {
+        const dataUrl = window.URL.createObjectURL(blob);
+        downloadFileFallback(fileName, dataUrl);
+      }
+    }
+
+    return true;
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      if (import.meta.env.DEV)
+        console.log("Sauvegarde TikZ annulée par l'utilisateur.");
+      return false;
+    }
+    console.error('Erreur lors de la sauvegarde TikZ:', error);
+    throw error;
+  }
+};
+
+/**
  * Traite la sauvegarde directement avec les options spécifiées (sans popup).
  * @param {object} handle - Le handle du fichier.
  * @param {object} app - L'instance principale de l'application.
@@ -522,6 +581,9 @@ const processSaveDirect = async (handle, app, detail, fileType) => {
         break;
       case 'svg':
         success = await saveToSvg(app, null, options, handle);
+        break;
+      case 'tikz':
+        success = await saveToTikz(app, null, options, handle);
         break;
       default: {
         const saveData = prepareSaveData(app, app.workspace, detail);
@@ -570,6 +632,9 @@ const processSave = async (handle, app, detail) => {
         break;
       case 'svg':
         success = await saveToSvg(app, null, options, handle);
+        break;
+      case 'tikz':
+        success = await saveToTikz(app, null, options, handle);
         break;
       default: {
         const saveData = prepareSaveData(app, app.workspace, detail);
