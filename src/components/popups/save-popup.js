@@ -45,7 +45,7 @@ class SavePopup extends LitElement {
       this.selectedFormat.indexOf('.'),
       -1,
     );
-    return ['.png', '.svg'].includes(extension);
+    return ['.png', '.svg', '.tikz'].includes(extension);
   }
 
   static styles = css`
