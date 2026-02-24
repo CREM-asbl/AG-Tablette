@@ -284,9 +284,10 @@ describe('SaveFileManager', () => {
     it('should always include PNG and SVG options', () => {
       const env = { name: 'Test', extensions: ['.test'] };
       const options = configureSaveOptions(env, {}, 'test');
-      expect(options.types).toHaveLength(3); // État + PNG + SVG
+      expect(options.types).toHaveLength(4); // État + PNG + SVG + TikZ
       expect(options.types[1].description).toBe('Image matricielle (*.png)');
       expect(options.types[2].description).toBe('Image vectorielle (*.svg)');
+      expect(options.types[3].description).toBe('Code TikZ pour LaTeX (*.tikz)');
     });
   });
 });

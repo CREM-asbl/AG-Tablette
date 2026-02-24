@@ -18,7 +18,9 @@ vi.mock('@controllers/Core/Tools/general', () => ({
   removeObjectById: vi.fn()
 }));
 
+// Initialiser window.app après mock pour Point.js qui y accède directement
 import { app } from '@controllers/Core/App';
+window.app = app;
 import { Coordinates } from '@controllers/Core/Objects/Coordinates';
 import { Point } from '@controllers/Core/Objects/Point';
 import { findObjectById } from '@controllers/Core/Tools/general';

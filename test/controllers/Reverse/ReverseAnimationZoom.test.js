@@ -39,6 +39,8 @@ describe('ReverseTool - Animation avec zoom', () => {
 
   beforeEach(async () => {
     const { app } = await import('../../../src/controllers/Core/App');
+    // Initialiser window.app pour que Shape/Point y accèdent
+    window.app = app;
 
     app.mainCanvasLayer.shapes = [];
     app.mainCanvasLayer.segments = [];

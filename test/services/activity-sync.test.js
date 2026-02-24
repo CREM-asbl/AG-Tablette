@@ -194,8 +194,8 @@ describe('Activity Sync Service', () => {
             await syncActivitiesInBackground(true);
 
             // Verify file sync
-            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file1');
-            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file2');
+            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file1', expect.objectContaining({ forceDownload: true }));
+            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file2', expect.objectContaining({ forceDownload: true }));
             expect(indexeddbActivities.saveActivity).toHaveBeenCalledTimes(2);
 
             // Verify theme/module sync

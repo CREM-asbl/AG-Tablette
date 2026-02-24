@@ -11,7 +11,16 @@ vi.mock('@controllers/Core/App', () => {
     const setState = vi.fn();
     const app = {
         tool: null,
+        mainCanvasLayer: {
+            points: [],
+            segments: [],
+            shapes: [],
+            removeAllObjects: vi.fn(),
+        },
         upperCanvasLayer: {
+            points: [],
+            segments: [],
+            shapes: [],
             removeAllObjects: vi.fn(),
         },
         workspace: {
@@ -33,6 +42,7 @@ vi.mock('@store/appState', () => ({
     appActions: {
         setToolState: vi.fn(),
         setCurrentStep: vi.fn(),
+        setToolUiState: vi.fn(),
     },
     activeTool: { get: vi.fn(() => 'createCircle') },
     currentStep: { get: vi.fn(() => 'start') },
@@ -53,6 +63,9 @@ describe('CreateCircleTool', () => {
     let tool;
 
     beforeEach(() => {
+        // Initialiser window.app pour que les composants y accèdent
+        window.app = app;
+        
         // Reset mocks
         vi.clearAllMocks();
 
@@ -84,8 +97,13 @@ describe('CreateCircleTool', () => {
 
     it('should start correctly', () => {
         tool.start();
-        expect(document.createElement).toHaveBeenCalledWith('shape-selector');
-        expect(document.querySelector).toHaveBeenCalledWith('body');
+        // The start() method calls appActions.setToolUiState with the shape-selector config
+        expect(appActions.setToolUiState).toHaveBeenCalledWith(expect.objectContaining({
+            name: 'shape-selector',
+            family: 'Arcs',
+            type: 'Geometry',
+            nextStep: 'drawFirstPoint',
+        }));
     });
 
     it('should initialize drawFirstPoint correctly', async () => {

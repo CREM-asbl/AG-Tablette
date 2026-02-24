@@ -35,6 +35,8 @@ describe('ReverseTool - Gestion du zoom pour cercles', () => {
   beforeEach(async () => {
     // Récupérer le mock d'app
     const { app } = await import('../../../src/controllers/Core/App');
+    // Initialiser window.app pour que Shape/Point y accèdent
+    window.app = app;
 
     // Réinitialiser les canvases
     app.mainCanvasLayer.shapes = [];

@@ -26,7 +26,9 @@ vi.mock('@controllers/GeometryTools/deleteShape', () => ({
   deleteChildren: vi.fn(),
 }));
 
+// Initialiser window.app après mock pour Point/Segment qui y accèdent directement
 import { app } from '@controllers/Core/App';
+window.app = app;
 import { Coordinates } from '@controllers/Core/Objects/Coordinates';
 import { Segment } from '@controllers/Core/Objects/Segment';
 import { Shape } from '@controllers/Core/Objects/Shapes/Shape';

@@ -37,6 +37,21 @@ export function openDB() {
 }
 
 /**
+ * Ferme la connexion à la base de données en toute sécurité
+ * Gère les cas où closeDB(db) n'existe pas (fake-indexeddb en tests)
+ * @param {IDBDatabase} db 
+ */
+function closeDB(db) {
+  if (db && typeof db.close === 'function') {
+    try {
+      closeDB(db);
+    } catch (err) {
+      // Ignore close errors - they shouldn't affect our operations
+    }
+  }
+}
+
+/**
  * Sauvegarde une activité avec gestion intelligente du cache
  * @param {string} id - Identifiant de l'activité
  * @param {Object} data - Données de l'activité
@@ -87,11 +102,11 @@ export async function saveActivity(id, data, version = 1) {
     request.onsuccess = () => {
       if (CACHE_CONFIG.ENABLE_METRICS) {
       }
-      db.close();
+      closeDB(db);
       resolve();
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -159,7 +174,7 @@ export async function saveTheme(id, data) {
       tx.onerror = () => reject(tx.error);
     });
   } finally {
-    db.close();
+    closeDB(db);
   }
 }
 
@@ -173,7 +188,7 @@ export async function saveModule(id, data) {
       tx.onerror = () => reject(tx.error);
     });
   } finally {
-    db.close();
+    closeDB(db);
   }
 }
 
@@ -213,11 +228,11 @@ export async function getActivity(id) {
           // Si la donnée n'est pas compressée (legacy), on la garde telle quelle
         }
       }
-      db.close();
+      closeDB(db);
       resolve(result || null);
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -251,11 +266,11 @@ export async function getTheme(id) {
       .objectStore(STORE_NAMES.themes)
       .get(id);
     request.onsuccess = () => {
-      db.close();
+      closeDB(db);
       resolve(request.result?.data || null);
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -269,11 +284,11 @@ export async function getModule(id) {
       .objectStore(STORE_NAMES.modules)
       .get(id);
     request.onsuccess = () => {
-      db.close();
+      closeDB(db);
       resolve(request.result?.data || null);
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -287,11 +302,11 @@ export async function getAllActivities() {
       .objectStore(STORE_NAMES.activities);
     const request = store.getAll();
     request.onsuccess = () => {
-      db.close();
+      closeDB(db);
       resolve(request.result);
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -305,11 +320,11 @@ export async function getAllThemes() {
       .objectStore(STORE_NAMES.themes);
     const request = store.getAll();
     request.onsuccess = () => {
-      db.close();
+      closeDB(db);
       resolve(request.result);
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -323,11 +338,11 @@ export async function getAllModules() {
       .objectStore(STORE_NAMES.modules);
     const request = store.getAll();
     request.onsuccess = () => {
-      db.close();
+      closeDB(db);
       resolve(request.result);
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -372,7 +387,14 @@ export async function saveSyncMetadata(metadata) {
       request.onerror = () => reject(request.error);
     });
   } finally {
-    db.close();
+    // closeDB(db) may not exist in fake-indexeddb (used in tests)
+    if (db && typeof db.close === 'function') {
+      try {
+        closeDB(db);
+      } catch (err) {
+        // Ignore close errors - they shouldn't affect the save operation
+      }
+    }
   }
 }
 
@@ -389,7 +411,7 @@ export async function getSyncMetadata() {
       .get(SYNC_CONFIG.METADATA_KEY);
     request.onsuccess = () => {
       const result = request.result;
-      db.close();
+      closeDB(db);
 
       // Vérifier si les métadonnées existent et ne sont pas expirées
       if (result && result.expiryDate && result.expiryDate > Date.now()) {
@@ -400,7 +422,7 @@ export async function getSyncMetadata() {
       }
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -447,20 +469,20 @@ export async function clearExpiredSyncMetadata() {
         // Métadonnées expirées, les supprimer
         const deleteRequest = store.delete(SYNC_CONFIG.METADATA_KEY);
         deleteRequest.onsuccess = () => {
-          db.close();
+          closeDB(db);
           resolve(true);
         };
         deleteRequest.onerror = () => {
-          db.close();
+          closeDB(db);
           reject(deleteRequest.error);
         };
       } else {
-        db.close();
+        closeDB(db);
         resolve(false);
       }
     };
     request.onerror = () => {
-      db.close();
+      closeDB(db);
       reject(request.error);
     };
   });
@@ -483,7 +505,7 @@ export async function getCacheStatistics() {
       request.onerror = () => reject(request.error);
     });
 
-    db.close();
+    closeDB(db);
 
     // Calculer les statistiques
     const now = Date.now();

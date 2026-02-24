@@ -51,6 +51,8 @@ vi.mock('@controllers/Core/App', () => ({
     history: {},
     canvasWidth: 800, // Nécessaire pour drawGridPoints
     canvasHeight: 600, // Nécessaire pour drawGridPoints
+    mainCanvasLayer: { points: [], segments: [], shapes: [] }, // Pour Point/Segment
+    secondCanvasLayer: { points: [], segments: [], shapes: [] }, // Pour canvas secondaire si besoin
     workspace: {
       lastKnownMouseCoordinates: { x: 0, y: 0 },
       zoomLevel: 1, // Nécessaire pour drawGridPoints

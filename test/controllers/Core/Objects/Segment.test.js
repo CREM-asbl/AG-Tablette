@@ -14,7 +14,9 @@ vi.mock('@controllers/Core/Tools/general', () => ({
   isAlmostInfinite: (n) => !isFinite(n) || Math.abs(n) > 1000000000
 }));
 
+// Initialiser window.app après mock pour Segment/Point qui y accèdent directement
 import { app } from '@controllers/Core/App';
+window.app = app;
 import { Coordinates } from '@controllers/Core/Objects/Coordinates';
 import { Segment } from '@controllers/Core/Objects/Segment';
 import { Point } from '@controllers/Core/Objects/Point';
