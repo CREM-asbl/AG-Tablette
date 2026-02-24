@@ -2,112 +2,112 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     // === Fonctions helper pour validation ===
-    
+
     function isValidString(value, minLength, maxLength) {
-      return value is string 
-             && value.size() >= minLength 
+      return value is string
+             && value.size() >= minLength
              && value.size() <= maxLength;
     }
-    
+
     function isValidTimestamp(value) {
       return value is timestamp || value is number;
     }
-    
+
     function hasValidStructure(requiredKeys) {
       return request.resource.data.keys().hasAll(requiredKeys);
     }
-    
+
     // === Collections publiques en lecture seule ===
-    
+
     // Activités (.agg files) - lecture publique, structure validée en écriture
     match /files/{fileId} {
       allow read: if true;
-      
+
       // Écriture admin uniquement avec validation stricte
       allow create, update: if false;  // Réservé aux admins via console
       allow delete: if false;
     }
-    
+
     // Thèmes - lecture publique, structure validée en écriture
     match /themes/{themeId} {
       allow read: if true;
-      
+
       // Écriture admin uniquement avec validation stricte
       allow create, update: if false;  // Réservé aux admins via console
       allow delete: if false;
     }
-    
+
     // Modules - lecture publique, structure validée en écriture
     match /modules/{moduleId} {
       allow read: if true;
-      
+
       // Écriture admin uniquement avec validation stricte
       allow create, update: if false;  // Réservé aux admins via console
       allow delete: if false;
     }
-    
+
     // === Rapports de bugs - écriture publique avec validation stricte ===
-    
+
     // Collection bugs - permet aux utilisateurs de rapporter des bugs
     match /bugs/{bugId} {
       allow read: if false; // Seuls les admins peuvent lire via console
-      
+
       // Création publique avec validation stricte
-      allow create: if 
+      allow create: if
         // Structure obligatoire
         hasValidStructure(['message', 'timestamp'])
-        
+
         // Validation du message
         && isValidString(request.resource.data.message, 10, 10000)
-        
+
         // Validation du timestamp
         && isValidTimestamp(request.resource.data.timestamp)
-        
+
         // Champs optionnels validés s'ils existent
-        && (!('userAgent' in request.resource.data) 
+        && (!('userAgent' in request.resource.data)
             || isValidString(request.resource.data.userAgent, 0, 500))
-        
-        && (!('url' in request.resource.data) 
+
+        && (!('url' in request.resource.data)
             || isValidString(request.resource.data.url, 0, 2000))
-        
-        && (!('stackTrace' in request.resource.data) 
+
+        && (!('stackTrace' in request.resource.data)
             || isValidString(request.resource.data.stackTrace, 0, 50000))
-        
-        && (!('severity' in request.resource.data) 
+
+        && (!('severity' in request.resource.data)
             || request.resource.data.severity in ['error', 'warning', 'info'])
-        
-        && (!('appVersion' in request.resource.data) 
+
+        && (!('appVersion' in request.resource.data)
             || isValidString(request.resource.data.appVersion, 0, 50))
-        
-        && (!('metadata' in request.resource.data) 
+
+        && (!('metadata' in request.resource.data)
             || request.resource.data.metadata is map
             || request.resource.data.metadata.size() <= 100)
-        
+
         // Limite de taille totale du document (1 MB max)
         && request.resource.size() < 1000000;
-      
+
       // Aucune modification/suppression autorisée
       allow update, delete: if false;
     }
-    
+
     // === Collections système (si ajoutées ultérieurement) ===
-    
+
     // Collection analytics (lecture seule pour l'app)
     match /analytics/{docId} {
       allow read: if false;  // Réservé au backend/admin
       allow write: if false;
     }
-    
+
     // Collection settings (lecture seule pour l'app)
     match /settings/{docId} {
       allow read: if false;  // Pour l'instant, pas de settings publics
       allow write: if false;
     }
-    
+
     // === Protection par défaut ===
-    
+
     // Toute autre collection non explicitement définie est BLOQUÉE
     match /{document=**} {
       allow read, write: if false;

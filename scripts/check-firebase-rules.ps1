@@ -55,11 +55,12 @@ Write-Host "   npm run deploy:storage-rules       # Storage uniquement`n" -Foreg
 # Optionnel : ouvrir les URLs dans le navigateur
 $response = Read-Host "Voulez-vous ouvrir les consoles Firebase dans le navigateur ? (O/N)"
 if ($response -eq "O" -or $response -eq "o") {
-    Write-Host "`n🌐 Ouverture des consoles...`n" -ForegroundColor Green
-    Start-Process "https://console.firebase.google.com/project/$PROJECT_ID/firestore/rules"
-    Start-Sleep -Seconds 1
-    Start-Process "https://console.firebase.google.com/project/$PROJECT_ID/storage/rules"
-    Write-Host "✅ Consoles ouvertes dans le navigateur`n" -ForegroundColor Green
-} else {
-    Write-Host "`n✅ Script terminé. Vérifiez manuellement les règles dans Firebase Console.`n" -ForegroundColor Green
+  Write-Host "`n🌐 Ouverture des consoles...`n" -ForegroundColor Green
+  Start-Process "https://console.firebase.google.com/project/$PROJECT_ID/firestore/rules"
+  Start-Sleep -Seconds 1
+  Start-Process "https://console.firebase.google.com/project/$PROJECT_ID/storage/rules"
+  Write-Host "✅ Consoles ouvertes dans le navigateur`n" -ForegroundColor Green
+}
+else {
+  Write-Host "`n✅ Script terminé. Vérifiez manuellement les règles dans Firebase Console.`n" -ForegroundColor Green
 }

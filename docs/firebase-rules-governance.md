@@ -270,29 +270,29 @@ allow delete: if false;
 
 **Validation complète des rapports de bugs :**
 ```javascript
-allow create: if 
+allow create: if
   // Structure obligatoire
   hasValidStructure(['message', 'timestamp'])
-  
+
   // Message valide (10 à 10000 caractères)
   && isValidString(request.resource.data.message, 10, 10000)
-  
+
   // Timestamp valide
   && isValidTimestamp(request.resource.data.timestamp)
-  
+
   // Champs optionnels validés s'ils existent
-  && (!('userAgent' in request.resource.data) 
+  && (!('userAgent' in request.resource.data)
       || isValidString(request.resource.data.userAgent, 0, 500))
-  
-  && (!('url' in request.resource.data) 
+
+  && (!('url' in request.resource.data)
       || isValidString(request.resource.data.url, 0, 2000))
-  
-  && (!('stackTrace' in request.resource.data) 
+
+  && (!('stackTrace' in request.resource.data)
       || isValidString(request.resource.data.stackTrace, 0, 50000))
-  
-  && (!('severity' in request.resource.data) 
+
+  && (!('severity' in request.resource.data)
       || request.resource.data.severity in ['error', 'warning', 'info'])
-  
+
   // Limite de taille totale (1MB max)
   && request.resource.size() < 1000000;
 ```
@@ -345,7 +345,7 @@ match /{allPaths=**} {
 match /activities/{fileName} {
   allow read: if true;
   allow write: if false;
-  
+
   // Préparé pour activation ultérieure :
   // allow create, update: if isValidFileExtension(fileName, ['agg'])
   //                        && isValidFileSize(50); // Max 50MB
@@ -357,7 +357,7 @@ match /activities/{fileName} {
 match /themes/{themeId}/{fileName} {
   allow read: if true;
   allow write: if false;
-  
+
   // Préparé pour activation :
   // allow create, update: if isValidFileExtension(fileName, ['jpg', 'jpeg', 'png', 'svg', 'webp', 'json'])
   //                        && isValidFileSize(10); // Max 10MB
@@ -369,7 +369,7 @@ match /themes/{themeId}/{fileName} {
 match /modules/{moduleId}/{fileName} {
   allow read: if true;
   allow write: if false;
-  
+
   // Préparé pour activation :
   // allow create, update: if isValidFileExtension(fileName, ['jpg', 'jpeg', 'png', 'svg', 'webp', 'json', 'agg', 'agl'])
   //                        && isValidFileSize(20); // Max 20MB
@@ -381,11 +381,11 @@ match /modules/{moduleId}/{fileName} {
 match /exports/{userId}/{fileName} {
   allow read: if true;
   allow write: if false;
-  
+
   // Préparé pour activation avec authentification :
   // allow create: if isValidFileExtension(fileName, ['tikz', 'tex', 'pdf'])
   //                && isValidFileSize(5)
-  //                && request.auth != null 
+  //                && request.auth != null
   //                && request.auth.uid == userId;
   // allow delete: if request.auth != null && request.auth.uid == userId;
 }

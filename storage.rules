@@ -2,35 +2,35 @@ rules_version = '2';
 
 service firebase.storage {
   match /b/{bucket}/o {
-    
+
     // === Fonctions helper pour validation ===
-    
+
     function isValidFileExtension(filename, allowedExtensions) {
       return filename.matches('.*\\.(' + allowedExtensions.join('|') + ')$');
     }
-    
+
     function isValidFileSize(maxSizeMB) {
       return request.resource.size < maxSizeMB * 1024 * 1024;
     }
-    
+
     // === Fichiers d'activités publics (.agg, .agl, .tikz) ===
-    
+
     // Lecture publique pour tous les fichiers d'activités
     match /{allPaths=**} {
       // Lecture publique sans authentification
       allow read: if true;
-      
+
       // Écriture réservée aux admins Firebase Console
       // Validation stricte si jamais activée pour d'autres usages
       allow write: if false;
     }
-    
+
     // === Règles spécifiques par type de fichier ===
-    
+
     // Dossier activities - fichiers .agg uniquement
     match /activities/{fileName} {
       allow read: if true;
-      
+
       // Si écriture activée ultérieurement, valider :
       allow write: if false;
       // Pour activer avec validation :
@@ -38,11 +38,11 @@ service firebase.storage {
       //                        && isValidFileSize(50); // Max 50MB
       // allow delete: if false;
     }
-    
+
     // Dossier themes - assets thématiques (images, configs)
     match /themes/{themeId}/{fileName} {
       allow read: if true;
-      
+
       // Si écriture activée ultérieurement, valider les formats d'images
       allow write: if false;
       // Pour activer avec validation :
@@ -50,11 +50,11 @@ service firebase.storage {
       //                        && isValidFileSize(10); // Max 10MB
       // allow delete: if false;
     }
-    
+
     // Dossier modules - assets des modules
     match /modules/{moduleId}/{fileName} {
       allow read: if true;
-      
+
       // Si écriture activée ultérieurement, valider les formats
       allow write: if false;
       // Pour activer avec validation :
@@ -62,29 +62,29 @@ service firebase.storage {
       //                        && isValidFileSize(20); // Max 20MB
       // allow delete: if false;
     }
-    
+
     // Dossier exports - exports TikZ (si utilisé)
     match /exports/{userId}/{fileName} {
       allow read: if true;
-      
+
       // Si écriture utilisateur activée ultérieurement
       allow write: if false;
       // Pour activer avec validation :
       // allow create: if isValidFileExtension(fileName, ['tikz', 'tex', 'pdf'])
       //                && isValidFileSize(5) // Max 5MB
-      //                && request.auth != null 
+      //                && request.auth != null
       //                && request.auth.uid == userId;
       // allow delete: if request.auth != null && request.auth.uid == userId;
     }
-    
+
     // === Protection contre les abus ===
-    
+
     // Dossier temp - fichiers temporaires (si utilisé)
     match /temp/{fileName} {
       allow read: if true;
       allow write: if false; // Pas d'upload temporaire public
     }
-    
+
     // Dossier admin - complètement protégé
     match /admin/{allPaths=**} {
       allow read, write: if false; // Réservé aux admins via console
