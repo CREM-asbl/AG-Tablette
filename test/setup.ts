@@ -61,6 +61,17 @@ vi.mock('@controllers/Core/App', () => ({
   },
 }));
 
+// Mock performanceMonitor from @core
+vi.mock('@core', () => ({
+  performanceMonitor: {
+    enable: vi.fn(),
+    disable: vi.fn(),
+    startMeasure: vi.fn((name) => ({ label: name })),
+    endMeasure: vi.fn(),
+  },
+  default: {},
+}));
+
 // Mock window.dev_mode
 Object.defineProperty(window, 'dev_mode', {
   value: true,

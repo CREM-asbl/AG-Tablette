@@ -1,0 +1,657 @@
+
+> test
+> vitest run
+
+
+[1m[46m RUN [49m[22m [36mv4.0.18 [39m[90mC:/Users/gunbl/Dev/ag-tablette[39m
+
+stderr | test/components/open-server-popup.test.ts
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+(node:13044) [DEP0151] DeprecationWarning: No "main" or "exports" field defined in the package.json for C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\semantic-dom-diff\ resolving the main entry point "index.js", imported from C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\testing\register-chai-plugins.js.
+Default "index" lookups for the main are deprecated for ES modules.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stderr | test/controllers/Core/Tools/automatic_adjustment.test.js > Automatic Adjustment Logic > should call getClosestGridPoint with canvas coords and convert result back to world coords
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/components/popups/grid-popup.test.ts > GridPopup component with Vitest and jsdom
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/components/popups/interactive-tutorial.test.ts > InteractiveTutorial component
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/components/popups/sync-settings-popup.test.ts > SyncSettingsPopup - Tests TDD
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/components/popups/interactive-tutorial.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 498[2mms[22m[39m
+ [32mÔ£ô[39m test/components/popups/grid-popup.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 562[2mms[22m[39m
+stderr | test/components/popups/sync-settings-popup.test.ts > SyncSettingsPopup - Tests TDD > Test 1: Gestion des erreurs r├®seau dans forceSync > devrait afficher un message d'erreur r├®seau appropri├®
+[SYNC] Erreur synchronisation: Error: Failed to fetch
+    at C:/Users/gunbl/Dev/ag-tablette/test/components/popups/sync-settings-popup.test.ts:89:28
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | test/components/popups/sync-settings-popup.test.ts > SyncSettingsPopup - Tests TDD > Test 1: Gestion des erreurs r├®seau dans forceSync > devrait g├®rer une erreur d'authentification
+[SYNC] Erreur synchronisation: Error: Unauthorized 401
+    at C:/Users/gunbl/Dev/ag-tablette/test/components/popups/sync-settings-popup.test.ts:108:25
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | test/components/popups/sync-settings-popup.test.ts > SyncSettingsPopup - Tests TDD > Test 1: Gestion des erreurs r├®seau dans forceSync > devrait g├®rer une erreur de timeout
+[SYNC] Erreur synchronisation: Error: Request timeout
+    at C:/Users/gunbl/Dev/ag-tablette/test/components/popups/sync-settings-popup.test.ts:126:28
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | test/components/popups/sync-settings-popup.test.ts > SyncSettingsPopup - Tests TDD > Test 1: Gestion des erreurs r├®seau dans forceSync > devrait g├®rer les erreurs non-Error (throw string, etc.)
+[SYNC] Erreur synchronisation: Une erreur inattendue
+
+stderr | test/services/activity-sync.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+[90mstdout[2m | test/controllers/Core/Tools/automatic_adjustment.test.js[2m > [22m[2mAutomatic Adjustment Logic[2m > [22m[2mshould call getClosestGridPoint with canvas coords and convert result back to world coords
+[22m[39m[SignalSyncService] Initialized - Shadow State active
+
+ [32mÔ£ô[39m test/controllers/Core/Tools/automatic_adjustment.test.js [2m([22m[2m2 tests[22m[2m)[22m[33m 1335[2mms[22m[39m
+     [33m[2mÔ£ô[22m[39m should call getClosestGridPoint with canvas coords and convert result back to world coords [33m 1325[2mms[22m[39m
+ [32mÔ£ô[39m test/services/bug-report.service.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 1146[2mms[22m[39m
+       [33m[2mÔ£ô[22m[39m devrait respecter le throttle global minIntervalMs [33m 1112[2mms[22m[39m
+stderr | test/services/activity-sync.test.js > Activity Sync Service > getLastSyncInfo > should handle errors gracefully
+[SYNC] Erreur lors de la r├®cup├®ration des informations de sync: Error: DB Error
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:111:47
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | test/services/activity-sync.test.js > Activity Sync Service > smartSync > should return "error" if sync fails
+[SYNC] Erreur lors de la synchronisation (tentative 1/3): Error: Network Error
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:156:45
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | Module.reportError (C:\Users\gunbl\Dev\ag-tablette\src\services\bug-report.service.ts:292:15)
+[BugReport] Erreur lors de l'envoi du rapport: Error: [vitest] No "getFirestore" export is defined on the "firebase/firestore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17)
+    at Object.get (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16)
+    at getDb (C:/Users/gunbl/Dev/ag-tablette/src/services/bug-report.service.ts:127:11)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at Module.reportError (C:/Users/gunbl/Dev/ag-tablette/src/services/bug-report.service.ts:245:16) {
+  codeFrame: 'vi.mock(import("firebase/firestore"), async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+
+ [32mÔ£ô[39m test/components/open-server-popup.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 396[2mms[22m[39m
+stderr | Module.reportError (C:\Users\gunbl\Dev\ag-tablette\src\services\bug-report.service.ts:292:15)
+[BugReport] Erreur lors de l'envoi du rapport: Error: [vitest] No "serverTimestamp" export is defined on the "firebase/firestore" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/startModuleRunner.DEj0jb3e.js:311:17)
+    at Object.get (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/startModuleRunner.DEj0jb3e.js:384:16)
+    at Module.reportError (C:/Users/gunbl/Dev/ag-tablette/src/services/bug-report.service.ts:246:33)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5) {
+  codeFrame: 'vi.mock(import("firebase/firestore"), async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+
+stderr | Module.reportError (C:\Users\gunbl\Dev\ag-tablette\src\services\bug-report.service.ts:292:15)
+[BugReport] Erreur lors de l'envoi du rapport: [FirebaseError: Function addDoc() called with invalid data. Unsupported field value: undefined (found in field workspaceSave.appVersion in document bugs/qIQmvQp17Ymjnw7hxcWn)] {
+  code: 'invalid-argument',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+
+stderr | test/services/activity-sync.test.js > Activity Sync Service > smartSync > should return "error" if sync fails
+[SYNC] Erreur lors de la synchronisation (tentative 2/3): Error: Network Error
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:156:45
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+ [32mÔ£ô[39m test/components/popups/sync-settings-popup.test.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 2838[2mms[22m[39m
+       [33m[2mÔ£ô[22m[39m ne devrait appeler forceSync qu'une fois malgr├® plusieurs clics rapides [33m 1114[2mms[22m[39m
+stderr | test/services/activity-sync.test.js > Activity Sync Service > smartSync > should return "error" if sync fails
+[SYNC] Erreur lors de la synchronisation (tentative 3/3): Error: Network Error
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:156:45
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+[SYNC] ├ëchec de la synchronisation apr├¿s 3 tentatives
+
+stderr | test/services/activity-sync.test.js > Activity Sync Service > smartSync > should return "error" if sync fails
+[SYNC] Erreur lors de la synchronisation intelligente: Error: Network Error
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:156:45
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | test/services/activity-sync.test.js > Activity Sync Service > syncActivitiesInBackground > should retry on failure
+[SYNC] Erreur lors de la synchronisation (tentative 1/3): Error: Fail 1
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:234:40
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | test/services/activity-sync.test.js > Activity Sync Service > syncActivitiesInBackground > should retry on failure
+[SYNC] Erreur lors de la synchronisation (tentative 2/3): Error: Fail 2
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:235:40
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+
+stderr | test/help-popup.test.ts > HelpPopup component with Vitest and jsdom
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/services/activity-sync.test.js > Activity Sync Service > syncActivitiesInBackground > should retry on failure
+[SYNC] Erreur lors de la synchronisation (tentative 3/3): Error: Persistent Fail
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/activity-sync.test.js:236:1
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+    at runTest (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:12)
+[SYNC] ├ëchec de la synchronisation apr├¿s 3 tentatives
+
+ [32mÔ£ô[39m test/services/activity-sync.test.js [2m([22m[2m16 tests[22m[2m)[22m[33m 4162[2mms[22m[39m
+       [33m[2mÔ£ô[22m[39m should return "error" if sync fails [33m 2030[2mms[22m[39m
+       [33m[2mÔ£ô[22m[39m should retry on failure [33m 2020[2mms[22m[39m
+ [32mÔ£ô[39m test/help-popup.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 311[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Managers/SelectManager.test.js [2m([22m[2m57 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+stderr | test/layouts/ag-menu.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+(node:23612) [DEP0151] DeprecationWarning: No "main" or "exports" field defined in the package.json for C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\semantic-dom-diff\ resolving the main entry point "index.js", imported from C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\testing\register-chai-plugins.js.
+Default "index" lookups for the main are deprecated for ES modules.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+stderr | test/store/syncState.test.ts
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2m├ëtat initial[2m > [22m[2mdoit avoir les valeurs par d├®faut correctes
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2m├ëtat initial[2m > [22m[2mgetSyncState doit retourner l'├®tat complet
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2m├ëtat initial[2m > [22m[2ml'├®tat initial doit ├¬tre coh├®rent apr├¿s plusieurs r├®initialisations
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit accepter des valeurs valides
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit normaliser les valeurs invalides
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit g├®rer les valeurs non num├®riques
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit arrondir les d├®cimales seulement si normalis├®es
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit ├®mettre un ├®v├®nement personnalis├®
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit g├®rer les progressions dans l'ordre
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncProgress[2m > [22m[2mdoit maintenir la visibilit├® pendant la progression
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit marquer la synchronisation comme termin├®e
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit masquer imm├®diatement si demand├®
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit ├®mettre un ├®v├®nement de completion
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2msetSyncCompleted[2m > [22m[2mdoit fonctionner m├¬me si aucune sync n'est en cours
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mshowSyncIndicator doit afficher l'indicateur
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mhideSyncIndicator doit masquer l'indicateur
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mhideSyncIndicator ne doit pas masquer pendant une sync sans force
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mhideSyncIndicator avec force doit masquer m├¬me pendant une sync
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion de la visibilit├®[2m > [22m[2mdoit ├®mettre des ├®v├®nements de visibilit├®
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mresetSyncState[2m > [22m[2mdoit r├®initialiser compl├¿tement l'├®tat
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mresetSyncState[2m > [22m[2mdoit ├®mettre un ├®v├®nement de reset
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mresetSyncState[2m > [22m[2mdoit ├¬tre idempotent
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion d'erreurs[2m > [22m[2msetSyncProgress doit g├®rer les erreurs de signal
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mGestion d'erreurs[2m > [22m[2mresetSyncState doit g├®rer les erreurs gracieusement
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mPerformance[2m > [22m[2mdoit supporter de nombreuses mises ├á jour rapides
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mPerformance[2m > [22m[2mdoit ├¬tre efficace avec des mises ├á jour r├®p├®titives
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mInt├®gration des signaux[2m > [22m[2mles signaux doivent ├¬tre r├®actifs
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mInt├®gration des signaux[2m > [22m[2mles signaux doivent maintenir la coh├®rence
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mInt├®gration des signaux[2m > [22m[2mles changements d'├®tat doivent ├¬tre atomiques
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mSc├®narios d'usage r├®els[2m > [22m[2msimulation compl├¿te de synchronisation
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mSc├®narios d'usage r├®els[2m > [22m[2minterruption de synchronisation
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mSc├®narios d'usage r├®els[2m > [22m[2msynchronisations multiples successives
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mValidation des ├®v├®nements[2m > [22m[2mtous les ├®v├®nements doivent ├¬tre ├®mis dans l'ordre correct
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mValidation des ├®v├®nements[2m > [22m[2mles d├®tails des ├®v├®nements doivent ├¬tre corrects
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mEdge cases[2m > [22m[2mdoit g├®rer les valeurs de progression extr├¬mes
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mEdge cases[2m > [22m[2mdoit g├®rer les appels concurrents
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+[90mstdout[2m | test/store/syncState.test.ts[2m > [22m[2mStore de synchronisation[2m > [22m[2mEdge cases[2m > [22m[2mdoit maintenir la coh├®rence avec des valeurs d├®cimales pr├®cises
+[22m[39m[SYNCSTATE] R├®initialisation de l'├®tat de synchronisation
+
+ [32mÔ£ô[39m test/store/syncState.test.ts [2m([22m[2m37 tests[22m[2m)[22m[32m 234[2mms[22m[39m
+ [32mÔ£ô[39m test/layouts/ag-menu.test.js [2m([22m[2m4 tests[22m[2m)[22m[33m 320[2mms[22m[39m
+stderr | test/store/kit.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/store/kit.test.js > Store Kit - Tests TDD > loadKit > devrait rejeter si le nom est invalide (null)
+Erreur lors du chargement du kit: Error: Nom de kit invalide
+    at loadKit (C:/Users/gunbl/Dev/ag-tablette/src/store/kit.js:26:13)
+    at C:/Users/gunbl/Dev/ag-tablette/test/store/kit.test.js:77:27
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+
+stderr | test/store/kit.test.js > Store Kit - Tests TDD > loadKit > devrait rejeter si le nom est invalide (non-string)
+Erreur lors du chargement du kit: Error: Nom de kit invalide
+    at loadKit (C:/Users/gunbl/Dev/ag-tablette/src/store/kit.js:26:13)
+    at C:/Users/gunbl/Dev/ag-tablette/test/store/kit.test.js:81:27
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+
+stderr | test/store/kit.test.js > Store Kit - Tests TDD > loadKit > devrait rejeter si le nom est vide
+Erreur lors du chargement du kit: Error: Nom de kit invalide
+    at loadKit (C:/Users/gunbl/Dev/ag-tablette/src/store/kit.js:26:13)
+    at C:/Users/gunbl/Dev/ag-tablette/test/store/kit.test.js:85:27
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+
+stderr | test/store/kit.test.js > Store Kit - Tests TDD > loadKit > devrait afficher une notification en cas d'erreur
+Erreur lors du chargement du kit: Error: Nom de kit invalide
+    at loadKit (C:/Users/gunbl/Dev/ag-tablette/src/store/kit.js:26:13)
+    at C:/Users/gunbl/Dev/ag-tablette/test/store/kit.test.js:92:22
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+    at trace (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/test.B8ej_ZHS.js:239:21)
+
+stderr | test/store/kit.test.js > Store Kit - Tests TDD > loadKit > devrait g├®rer un kit inexistant gracieusement
+Erreur lors du chargement du kit: Error: Unknown variable dynamic import: ./kits/kit-inexistant-xyz.json
+    at C:/Users/gunbl/Dev/ag-tablette/ vite/dynamic-import-helper.js:10:9
+    at new Promise (<anonymous>)
+    at __vite_ssr_export_default__ (C:/Users/gunbl/Dev/ag-tablette/ vite/dynamic-import-helper.js:6:10)
+    at loadKit (C:/Users/gunbl/Dev/ag-tablette/src/store/kit.js:29:62)
+    at C:/Users/gunbl/Dev/ag-tablette/test/store/kit.test.js:106:27
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+
+ [32mÔ£ô[39m test/store/kit.test.js [2m([22m[2m33 tests[22m[2m)[22m[32m 118[2mms[22m[39m
+ [32mÔ£ô[39m test/services/cache.service.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 115[2mms[22m[39m
+16:00:32 [vite] (client) warning: Duplicate key "href" in object literal
+271|          value: {
+272|            href: originalHref,
+273|            set href(value) {
+   |                ^
+274|              newLocation = value;
+275|            },
+
+  Plugin: vite:esbuild
+  File: C:/Users/gunbl/Dev/ag-tablette/test/sync-optimization.test.ts
+16:00:32 [vite] (client) warning: Duplicate key "href" in object literal
+302|            return {
+303|              href: originalHref,
+304|              set href(value) {
+   |                  ^
+305|                assignmentCalled = true;
+306|              }
+
+  Plugin: vite:esbuild
+  File: C:/Users/gunbl/Dev/ag-tablette/test/sync-optimization.test.ts
+stderr | test/sync-optimization.test.ts > Optimisations de Synchronisation > Synchronisation intelligente > devrait ├®viter la synchronisation si r├®cente
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/sync-optimization.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 246[2mms[22m[39m
+stderr | test/layouts/ag-main.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+(node:4872) [DEP0151] DeprecationWarning: No "main" or "exports" field defined in the package.json for C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\semantic-dom-diff\ resolving the main entry point "index.js", imported from C:\Users\gunbl\Dev\ag-tablette\node_modules\@open-wc\testing\register-chai-plugins.js.
+Default "index" lookups for the main are deprecated for ES modules.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ [32mÔ£ô[39m test/controllers/Core/Managers/ShapeManager.test.js [2m([22m[2m60 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+[90mstdout[2m | test/layouts/ag-main.test.js
+[22m[39mSyst├¿me de support hors ligne initialis├®
+
+ [32mÔ£ô[39m test/layouts/ag-main.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 151[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Managers/GroupManager.test.js [2m([22m[2m25 tests[22m[2m)[22m[32m 84[2mms[22m[39m
+[90mstdout[2m | test/utils/indexeddb-activities.test.js[2m > [22m[2mIndexedDB Activities Utils[2m > [22m[2msaveActivity & getActivity[2m > [22m[2mshould save and retrieve an activity
+[22m[39m[DEBUG] saveActivity config: [33mtrue[39m
+[DEBUG] compressedData type: string
+
+[90mstdout[2m | test/utils/indexeddb-activities.test.js[2m > [22m[2mIndexedDB Activities Utils[2m > [22m[2msaveActivity & getActivity[2m > [22m[2mshould handle compression if enabled
+[22m[39m[DEBUG] saveActivity config: [33mtrue[39m
+[DEBUG] compressedData type: string
+
+[90mstdout[2m | test/utils/indexeddb-activities.test.js[2m > [22m[2mIndexedDB Activities Utils[2m > [22m[2mCache Statistics[2m > [22m[2mshould return valid statistics
+[22m[39m[DEBUG] saveActivity config: [33mtrue[39m
+[DEBUG] compressedData type: string
+
+[90mstdout[2m | test/utils/indexeddb-activities.test.js[2m > [22m[2mIndexedDB Activities Utils[2m > [22m[2mCache Statistics[2m > [22m[2mshould return valid statistics
+[22m[39m[DEBUG] saveActivity config: [33mtrue[39m
+[DEBUG] compressedData type: string
+
+ [32mÔ£ô[39m test/utils/indexeddb-activities.test.js [2m([22m[2m12 tests[22m[2m)[22m[32m 75[2mms[22m[39m
+stderr | test/controllers/CreateTriangle/CreateTriangleTool.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/controllers/CreateTriangle/CreateTriangleTool.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 94[2mms[22m[39m
+stderr | test/components/canvas-layer.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/components/canvas-layer.test.js [2m([22m[2m20 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+stderr | test/components/canvas-layer-drawgridpoints.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/components/canvas-layer-drawgridpoints.test.js [2m([22m[2m12 tests[22m[2m)[22m[32m 106[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Managers/HistoryManager.test.js [2m([22m[2m37 tests[22m[2m)[22m[32m 77[2mms[22m[39m
+stderr | test/services/HelpSystem.test.js > HelpSystem Service > Gestion des erreurs > g├¿re gracieusement les fichiers manquants
+Erreur lors du chargement du tutoriel nonExistent: Error: Tutoriel non trouv├® pour l'outil: nonExistent
+    at HelpSystem.loadTutorialFile (C:/Users/gunbl/Dev/ag-tablette/src/services/HelpSystem.js:160:15)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at HelpSystem.getTutorial (C:/Users/gunbl/Dev/ag-tablette/src/services/HelpSystem.js:123:24)
+    at C:/Users/gunbl/Dev/ag-tablette/test/services/HelpSystem.test.js:223:22
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:20
+
+[90mstdout[2m | test/services/HelpSystem.test.js[2m > [22m[2mHelpSystem Service[2m > [22m[2mR├®cup├®ration de tous les tutoriels[2m > [22m[2mretourne tous les tutoriels disponibles
+[22m[39mManifest loaded: [33mtrue[39m object [
+  {
+    toolName: [32m'createPoint'[39m,
+    metadata: { title: [36m[Object][39m, category: [32m'creation'[39m }
+  },
+  {
+    toolName: [32m'createLine'[39m,
+    metadata: { title: [36m[Object][39m, category: [32m'creation'[39m }
+  }
+]
+
+ [32mÔ£ô[39m test/services/HelpSystem.test.js [2m([22m[2m15 tests[22m[2m)[22m[32m 69[2mms[22m[39m
+[90mstdout[2m | test/controllers/Core/Objects/Shape.test.js[2m > [22m[2mShape basic[2m > [22m[2moverlapsWith detects overlapping shapes
+[22m[39mshape intersects another
+
+ [32mÔ£ô[39m test/controllers/Core/Objects/Shape.test.js [2m([22m[2m13 tests[22m[2m)[22m[32m 45[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Objects/ShapeGroup.test.js [2m([22m[2m37 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Objects/Segment.test.js [2m([22m[2m30 tests[22m[2m)[22m[32m 41[2mms[22m[39m
+stderr | test/store/tools.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/store/tools.test.js [2m([22m[2m33 tests[22m[2m)[22m[32m 43[2mms[22m[39m
+stderr | test/controllers/Core/Managers/OpenFileManager.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/controllers/Core/Managers/OpenFileManager.test.js > OpenFileManager > parseJsonContent > should handle invalid JSON
+Erreur de parsing JSON: SyntaxError: Expected double-quoted property name in JSON at position 24 (line 1 column 25)
+    at JSON.parse (<anonymous>)
+    at Object.parseJsonContent (C:/Users/gunbl/Dev/ag-tablette/src/controllers/Core/Managers/OpenFileManager.js:327:25)
+    at C:/Users/gunbl/Dev/ag-tablette/test/controllers/Core/Managers/OpenFileManager.test.js:160:38
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:145:11
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:915:26
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1243:20
+    at new Promise (<anonymous>)
+    at runWithTimeout (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1209:10)
+    at file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/@vitest/runner/dist/index.js:1653:37
+    at Traces.$ (file:///C:/Users/gunbl/Dev/ag-tablette/node_modules/vitest/dist/chunks/traces.CCmnQaNT.js:142:27)
+
+ [32mÔ£ô[39m test/controllers/Core/Managers/OpenFileManager.test.js [2m([22m[2m11 tests[22m[2m)[22m[32m 39[2mms[22m[39m
+stderr | test/controllers/Reverse/ReverseZoom.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/controllers/Reverse/ReverseZoom.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 35[2mms[22m[39m
+stderr | test/controllers/Reverse/ReverseAnimationZoom.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+stderr | test/controllers/Core/Managers/SaveFileManager.test.js > SaveFileManager > validateAppState > should return false when environment is missing
+L'environnement n'est pas charg├®, la sauvegarde est annul├®e.
+
+stderr | test/controllers/Core/Managers/SaveFileManager.test.js > SaveFileManager > validateAppState
+Le kit de formes requis n'est pas charg├®, la sauvegarde est annul├®e.
+
+stderr | test/controllers/Core/Managers/SaveFileManager.test.js > SaveFileManager > prepareSaveData > should return null when app state is invalid
+L'environnement n'est pas charg├®, la sauvegarde est annul├®e.
+
+ [32mÔ£ô[39m test/controllers/Core/Managers/SaveFileManager.test.js [2m([22m[2m12 tests[22m[2m)[22m[32m 26[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Reverse/ReverseAnimationZoom.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+stderr | test/controllers/CreateCircle/CreateCircleTool.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/controllers/CreateCircle/CreateCircleTool.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 27[2mms[22m[39m
+stderr | test/controllers/Core/Objects/Workspace.test.js > Workspace - basiques > initFromObject avec type invalide appelle resetWorkspace
+Workspace: Donn├®es invalides pass├®es ├á initFromObject
+
+ [32mÔ£ô[39m test/controllers/Core/Objects/Workspace.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Objects/Point.test.js [2m([22m[2m13 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+stderr | test/components/canvas-layer-simple.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+[90mstdout[2m | test/components/canvas-layer-simple.test.js[2m > [22m[2mDrawGridPoints - Test isol├®[2m > [22m[2mshould call arc() when drawing square grid
+[22m[39mAvant appel drawGridPoints
+app.canvasWidth: [33m800[39m
+app.canvasHeight: [33m600[39m
+app.workspace.zoomLevel: [33m1[39m
+Apr├¿s appel drawGridPoints
+arc appel├®: [33m352[39m fois
+
+ [32mÔ£ô[39m test/components/canvas-layer-simple.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 22[2mms[22m[39m
+stderr | test/controllers/CreateIrregular/CreateIrregularTool.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/controllers/CreateIrregular/CreateIrregularTool.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/SaveFileManager.test.js [2m([22m[2m10 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+[90mstdout[2m | test/controllers/version-migration.test.js[2m > [22m[2mVersion Migration[2m > [22m[2mmigrateShapeScale[2m > [22m[2mshould scale workspace data correctly
+[22m[39mMigration d'├®chelle avec facteur 0.756 pour compatibilit├® avec les anciennes versions
+
+[90mstdout[2m | test/controllers/version-migration.test.js[2m > [22m[2mVersion Migration[2m > [22m[2mapplyMigrations[2m > [22m[2mshould apply migration to eligible files
+[22m[39mMigration d├®tect├®e pour Cubes v1.4.6 beta 1 - Application du facteur d'├®chelle 0.7559999999999999
+Migration d'├®chelle avec facteur 0.7559999999999999 pour compatibilit├® avec les anciennes versions
+
+ [32mÔ£ô[39m test/controllers/version-migration.test.js [2m([22m[2m7 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Core/Objects/Coordinates.test.js [2m([22m[2m11 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+stderr | test/services/SignalSyncService.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+[90mstdout[2m | test/services/SignalSyncService.test.js[2m > [22m[2mSignalSyncService Integration[2m > [22m[2mshould sync tool changes
+[22m[39m[SignalSyncService] Initialized - Shadow State active
+
+[90mstdout[2m | test/services/SignalSyncService.test.js[2m > [22m[2mSignalSyncService Integration[2m > [22m[2mshould sync viewport changes
+[22m[39m[SignalSyncService] Initialized - Shadow State active
+
+[90mstdout[2m | test/services/SignalSyncService.test.js[2m > [22m[2mSignalSyncService Integration[2m > [22m[2mshould sync settings changes
+[22m[39m[SignalSyncService] Initialized - Shadow State active
+
+[90mstdout[2m | test/services/SignalSyncService.test.js[2m > [22m[2mSignalSyncService Integration[2m > [22m[2mshould sync history changes
+[22m[39m[SignalSyncService] Initialized - Shadow State active
+
+ [32mÔ£ô[39m test/services/SignalSyncService.test.js [2m([22m[2m4 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32mÔ£ô[39m test/store/gridStore.test.js [2m([22m[2m10 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | test/controllers/Rotation/RotationIntegration.test.js[2m > [22m[2mRotation - Tests d'int├®gration selon le guide utilisateur[2m > [22m[2mSc├®nario complet selon le guide utilisateur[2m > [22m[2mdevrait reproduire le processus complet de rotation selon les sp├®cifications
+[22m[39mPoints de test:
+Point 0: (90, 90) -> (10.00, 90.00)
+Point 1: (110, 90) -> (10.00, 110.00)
+Point 2: (110, 110) -> (-10.00, 110.00)
+Point 3: (90, 110) -> (-10.00, 90.00)
+
+ [32mÔ£ô[39m test/controllers/Rotation/RotationIntegration.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+stderr | test/controllers/CreatePoint/CreatePointTool.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/controllers/CreatePoint/CreatePointTool.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32mÔ£ô[39m test/Coordinates/substract.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Rotation/RotationTool.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+stderr | test/controllers/CreateRegular/CreateRegularTool.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/Coordinates/equal.test.js [2m([22m[2m10 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/CreateRegular/CreateRegularTool.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+[90mstdout[2m | test/services/HelpSystem-simple.test.js[2m > [22m[2mSimple Fetch Mock Test[2m > [22m[2mtest mock fetch with manifest array
+[22m[39mResponse: { ok: [33mtrue[39m, json: [36m[AsyncFunction: json][39m }
+Data: [ { toolName: [32m'test'[39m, metadata: { title: [36m[Object][39m } } ]
+Is array? [33mtrue[39m
+Type: object
+
+ [32mÔ£ô[39m test/services/HelpSystem-simple.test.js [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+stderr | test/store/historyActions.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/store/historyActions.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32mÔ£ô[39m test/controllers/Rotation/RotationArcSelection.test.js [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32mÔ£ô[39m test/Coordinates/multiply.test.js [2m([22m[2m6 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+stderr | test/controllers/Move/MoveTool.test.js
+Lit is in dev mode. Not recommended for production! See https://lit.dev/msg/dev-mode for more information.
+
+ [32mÔ£ô[39m test/controllers/Move/MoveTool.test.js [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32mÔ£ô[39m test/Coordinates/add.test.js [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m53 passed[39m[22m[90m (53)[39m
+[2m      Tests [22m [1m[32m689 passed[39m[22m[90m (689)[39m
+[2m   Start at [22m 16:00:15
+[2m   Duration [22m 42.17s[2m (transform 8.64s, setup 11.10s, import 11.55s, tests 13.86s, environment 213.88s)[22m
+
