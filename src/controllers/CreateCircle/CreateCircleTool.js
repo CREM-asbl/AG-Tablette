@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -16,6 +17,7 @@ import { findObjectsByName } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createCircleHelpConfig } from './createCircle.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -52,7 +54,9 @@ export class CreateCircleTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    import('@components/shape-selector');
+    // Register help configuration
+    helpConfigRegistry.register(this.name, createCircleHelpConfig);
+
     import('@components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',

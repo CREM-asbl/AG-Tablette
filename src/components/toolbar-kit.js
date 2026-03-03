@@ -81,10 +81,29 @@ class ToolbarKit extends LitElement {
     });
 
     if (this.helpSelected) {
+      const requestedTool = event.target.name || 'create';
       window.dispatchEvent(
-        new CustomEvent('helpToolChosen', { detail: { toolname: 'create' } }),
+        new CustomEvent('helpToolChosen', {
+          detail: { toolname: requestedTool },
+        }),
       );
-      setState({ helpSelected: false });
+
+      // Sortir du mode aide et activer le contexte demandé.
+      if (requestedTool === 'create') {
+        setState({
+          helpSelected: false,
+          tool: {
+            name: 'create',
+            selectedFamily: event.target.title,
+            currentStep: 'start',
+          },
+        });
+      } else {
+        setState({
+          helpSelected: false,
+          tool: { name: requestedTool, currentStep: 'start' },
+        });
+      }
     } else if (!app.fullHistory.isRunning) {
       setState({
         tool: {

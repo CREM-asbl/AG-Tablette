@@ -1,4 +1,5 @@
 import { CreateTriangleTool } from '@controllers/CreateTriangle/CreateTriangleTool';
+import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock @lit-labs/signals
@@ -59,6 +60,7 @@ describe('CreateTriangleTool', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        helpConfigRegistry.clear();
 
         app.tool = {
             selectedTemplate: { name: 'EquilateralTriangle' },
@@ -96,6 +98,22 @@ describe('CreateTriangleTool', () => {
                 family: 'Triangles',
             })
         );
+        // Verify helpConfig is registered
+        expect(helpConfigRegistry.has('createTriangle')).toBe(true);
+    });
+
+    it('should register help config with correct structure', async () => {
+        tool.validateInput = vi.fn().mockReturnValue(true);
+
+        await tool.start();
+        const config = helpConfigRegistry.get('createTriangle');
+
+        expect(config).toBeDefined();
+        expect(typeof config.getStepConfig).toBe('function');
+
+        const startStep = config.getStepConfig({ currentStep: 'start' });
+        expect(startStep).toHaveProperty('target');
+        expect(startStep).toHaveProperty('text');
     });
 
     it('should initialize drawFirstPoint correctly', async () => {

@@ -1,5 +1,12 @@
 import { OpacityTool } from './OpacityTool';
 
+let _instance = null;
+
 export default {
-  tool: new OpacityTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new OpacityTool();
+    }
+    return _instance;
+  },
 };

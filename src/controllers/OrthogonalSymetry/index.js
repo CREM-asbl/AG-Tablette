@@ -1,5 +1,12 @@
 import { OrthogonalSymetryTool } from './OrthogonalSymetryTool';
 
+let _instance = null;
+
 export default {
-  tool: new OrthogonalSymetryTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new OrthogonalSymetryTool();
+    }
+    return _instance;
+  },
 };

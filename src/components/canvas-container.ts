@@ -1,6 +1,6 @@
+import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import { SignalWatcher } from '@lit-labs/signals';
 import { app, setState } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import { currentEnvironment, resetWorkspaceState } from '../store/appState';
@@ -10,8 +10,11 @@ class CanvasContainer extends SignalWatcher(LitElement) {
   @property({ type: Object }) cursorPos = Coordinates.nullCoordinates;
   @property({ type: Number }) cursorSize = 20;
   @property({ type: Boolean }) cursorShow = false;
+  @property({ type: Boolean }) helpFocused = false;
+  @property({ type: String }) helpText = '';
 
   private timeoutId: number | undefined;
+  private contextualGuideFocusListener: (event: CustomEvent) => void;
 
   private resizeHandler = () => {
     this.setCanvasSize();
@@ -52,6 +55,45 @@ class CanvasContainer extends SignalWatcher(LitElement) {
       background-color: white;
       box-sizing: border-box;
     }
+
+    :host(.help-highlight) {
+      z-index: 1460;
+      box-shadow:
+        0 0 0 3px rgba(102, 126, 234, 0.6),
+        0 0 0 38px rgba(102, 126, 234, 0.2);
+      border-radius: 10px;
+    }
+
+    .help-popover {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.3;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      border: 2px solid rgba(255, 255, 255, 0.28);
+      pointer-events: none;
+      z-index: 1470;
+      white-space: nowrap;
+      animation: helpPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes helpPulse {
+      0%,
+      100% {
+        transform: translateX(-50%) scale(1);
+      }
+      50% {
+        transform: translateX(-50%) scale(1.05);
+      }
+    }
+
     #invisibleCanvas {
       opacity: 0;
     }
@@ -65,9 +107,19 @@ class CanvasContainer extends SignalWatcher(LitElement) {
     }
   `;
   render() {
+    if (this.helpFocused) {
+      this.classList.add('help-highlight');
+    } else {
+      this.classList.remove('help-highlight');
+    }
+
     const environment = currentEnvironment.get();
 
     return html`
+      ${this.helpFocused && this.helpText
+        ? html`<div class="help-popover">${this.helpText}</div>`
+        : ''}
+
       <!-- for the paths -->
       <!-- <svg-layer id="svgLayer" .paths='\${this.paths}'></svg-layer> -->
 
@@ -115,6 +167,17 @@ class CanvasContainer extends SignalWatcher(LitElement) {
     window.addEventListener('mouse-click-changed', this.mouseClickHandler);
     window.addEventListener('show-cursor', this.showCursorHandler);
     window.addEventListener('new-window', this.newWindowHandler);
+
+    this.contextualGuideFocusListener = (event: CustomEvent) => {
+      const { active, target, text } = event.detail || {};
+      const focused = !!active && target === 'canvas-container';
+      this.helpFocused = focused;
+      this.helpText = focused ? text || '' : '';
+    };
+    window.addEventListener(
+      'contextual-guide-focus',
+      this.contextualGuideFocusListener as EventListener,
+    );
   }
 
   setCanvasSize() {
@@ -141,6 +204,10 @@ class CanvasContainer extends SignalWatcher(LitElement) {
     window.removeEventListener('mouse-click-changed', this.mouseClickHandler);
     window.removeEventListener('show-cursor', this.showCursorHandler);
     window.removeEventListener('new-window', this.newWindowHandler);
+    window.removeEventListener(
+      'contextual-guide-focus',
+      this.contextualGuideFocusListener as EventListener,
+    );
     if (this.timeoutId !== undefined) {
       window.clearTimeout(this.timeoutId);
     }

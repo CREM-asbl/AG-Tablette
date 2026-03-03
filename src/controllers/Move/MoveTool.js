@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -15,6 +16,7 @@ import {
   computeAllShapeTransform,
   computeConstructionSpec,
 } from '../GeometryTools/recomputeShape';
+import { moveHelpConfig } from './move.helpConfig';
 
 /**
  * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -54,6 +56,8 @@ export class MoveTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, moveHelpConfig);
+
     setTimeout(
       () =>
         setState({

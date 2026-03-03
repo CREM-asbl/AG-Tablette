@@ -1,5 +1,5 @@
 import { computed } from '@lit-labs/signals';
-import { activeTool, currentStep, createWatcher } from '../../../store/appState';
+import { activeTool, createWatcher, currentStep } from '../../../store/appState';
 import { app } from '../App';
 
 /**
@@ -15,6 +15,7 @@ export class Tool {
     this.name = name;
     this.title = title;
     this.type = type;
+    this.disposeWatcher = null;
 
     window.addEventListener('refreshStateUpper', () => {
       if (this.name === app.tool?.name) this.refreshStateUpper();
@@ -24,29 +25,61 @@ export class Tool {
 
     window.addEventListener('tool-updated', this.handler);
 
-    // Signal listener
-    const combinedSignal = computed(() => ({
-      toolName: activeTool.get(),
-      step: currentStep.get(),
-    }));
+    // Le watcher sera initialisé avec un délai pour éviter les problèmes de circularité
+    // Schedule initialization pour après le tirage des modules
+    Promise.resolve().then(() =>
+      // Attendre que tous les imports soient terminés
+      new Promise((resolve) => {
+        setTimeout(() => {
+          this._initializeWatcher();
+          resolve();
+        }, 50);
+      })
+    );
+  }
 
-    this.disposeWatcher = createWatcher(combinedSignal, (newValue) => {
-      const { toolName, step } = newValue;
+  /**
+   * Initialiser le watcher de façon sûre
+   */
+  _initializeWatcher() {
+    if (this.disposeWatcher) return;
 
-      if (toolName === this.name && step) {
-        // Sync legacy state to ensure App.js delegates events correctly
-        // and eventHandler uses the correct step.
-        if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step) {
-          app.tool = { ...(app.tool || {}), name: toolName, currentStep: step };
+    try {
+      const combinedSignal = computed(() => ({
+        toolName: activeTool.get(),
+        step: currentStep.get(),
+      }));
+
+      this.disposeWatcher = createWatcher(combinedSignal, (newValue) => {
+        const { toolName, step } = newValue;
+
+        if (toolName === this.name && step) {
+          // Sync legacy state to ensure App.js delegates events correctly
+          // and eventHandler uses the correct step.
+          if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step) {
+            app.tool = { ...(app.tool || {}), name: toolName, currentStep: step };
+          }
+
+          if (typeof this[step] === 'function') {
+            this[step]();
+          }
+        } else if (toolName !== this.name && this.name === app.tool?.name) {
+          this.end();
         }
-
-        if (typeof this[step] === 'function') {
-          this[step]();
-        }
-      } else if (toolName !== this.name && this.name === app.tool?.name) {
-        this.end();
+      });
+    } catch (error) {
+      // Silently ignore initialization failures - watcher is not critical
+      if (import.meta.env.DEV) {
+        console.warn(`[Tool] Failed to initialize watcher for ${this.name}:`, error);
       }
-    });
+    }
+  }
+
+  dispose() {
+    if (this.disposeWatcher) {
+      this.disposeWatcher();
+      this.disposeWatcher = null;
+    }
   }
 
   /**

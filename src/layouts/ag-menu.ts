@@ -41,8 +41,8 @@ class AGMenu extends SignalWatcher(LitElement) {
     // Subscribe to toolState to re-render when tool properties (like selectedFamily) change
     toolState.get();
     const currentTool = currentToolName ? { name: currentToolName, title: app.tool?.title, selectedFamily: app.tool?.selectedFamily } : null;
-    // Note: app.tool might still be needed for title/family if not in store yet, 
-    // but ideally we should get everything from store. 
+    // Note: app.tool might still be needed for title/family if not in store yet,
+    // but ideally we should get everything from store.
     // For now, we rely on activeTool for the name, but title might be missing if we don't look it up.
     // Let's look up the tool info from the tools store if possible, or keep using app.tool as fallback for properties not yet in signal.
     // Actually, appState.js has activeTool name. tools.js has the list of tools.
@@ -138,16 +138,6 @@ class AGMenu extends SignalWatcher(LitElement) {
       return;
     }
 
-    if (helpSelected.get()) {
-      window.dispatchEvent(
-        new CustomEvent('helpToolChosen', {
-          detail: { toolname: event.target.name },
-        }),
-      );
-      appActions.setHelpSelected(false);
-      return;
-    }
-
     const actions = {
       settings: () => {
         import('@components/popups/settings-popup');
@@ -177,8 +167,14 @@ class AGMenu extends SignalWatcher(LitElement) {
       },
       replay: () => window.dispatchEvent(new CustomEvent('start-browsing')),
       help: () => {
-        appActions.setHelpSelected(true);
-        return true;
+        // Clic bouton aide → afficher directement le popup de choix d'aide
+        const currentToolName = app.tool?.name || 'create';
+        window.dispatchEvent(
+          new CustomEvent('help-button-clicked', {
+            detail: { toolname: currentToolName },
+          }),
+        );
+        return false;
       },
     };
 

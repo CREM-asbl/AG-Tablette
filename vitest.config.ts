@@ -20,6 +20,7 @@ export default defineConfig({
     alias: {
       '@components': path.resolve(__dirname, './src/components'),
       '@controllers': path.resolve(__dirname, './src/controllers'),
+      '@core': path.resolve(__dirname, './src/core'),
       '@layouts': path.resolve(__dirname, './src/layouts'),
       '@services': path.resolve(__dirname, './src/services'),
       '@styles': path.resolve(__dirname, './src/styles'),

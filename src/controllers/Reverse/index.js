@@ -1,5 +1,12 @@
 import { ReverseTool } from './ReverseTool';
 
+let _instance = null;
+
 export default {
-  tool: new ReverseTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new ReverseTool();
+    }
+    return _instance;
+  },
 };

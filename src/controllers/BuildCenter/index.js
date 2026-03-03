@@ -1,5 +1,12 @@
 import { BuildCenterTool } from './BuildCenterTool';
 
+let _instance = null;
+
 export default {
-  tool: new BuildCenterTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new BuildCenterTool();
+    }
+    return _instance;
+  },
 };

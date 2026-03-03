@@ -61,8 +61,8 @@ class ToolbarSection extends LitElement {
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
           ${tools.map(
-            (tool) =>
-              html` <icon-button
+      (tool) =>
+        html` <icon-button
                 name="${tool.name}"
                 type="State"
                 title="${tool.title}"
@@ -72,7 +72,7 @@ class ToolbarSection extends LitElement {
                 @click="${this._actionHandle}"
               >
               </icon-button>`,
-          )}
+    )}
         </div>
       </template-toolbar>
     `;
@@ -86,12 +86,18 @@ class ToolbarSection extends LitElement {
     setTimeout(() => (this._pendingUpdate = false), 100);
 
     if (this.helpSelected) {
+      const requestedTool = event.target.name;
       window.dispatchEvent(
         new CustomEvent('helpToolChosen', {
-          detail: { toolname: event.target.name },
+          detail: { toolname: requestedTool },
         }),
       );
-      setState({ helpSelected: false });
+
+      // Sortir du mode aide et activer l'outil concerné immédiatement.
+      setState({
+        helpSelected: false,
+        tool: { name: requestedTool, currentStep: 'start' },
+      });
     } else if (!app.fullHistory.isRunning) {
       setState({ tool: { name: event.target.name, currentStep: 'start' } });
     }

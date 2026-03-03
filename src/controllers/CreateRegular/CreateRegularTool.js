@@ -1,5 +1,5 @@
 import { html } from 'lit';
-import './regular-popup';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -14,6 +14,8 @@ import {
   removeObjectById,
 } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { createRegularHelpConfig } from './createRegular.helpConfig';
+import './regular-popup';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -50,6 +52,13 @@ export class CreateRegularTool extends Tool {
    */
   start() {
     this.removeListeners();
+
+    helpConfigRegistry.register(this.name, createRegularHelpConfig);
+
+    // Le start peut être appelé deux fois par les mécanismes de state sync.
+    // On force une seule instance visible du popup.
+    const existingPopups = document.querySelectorAll('regular-popup');
+    existingPopups.forEach((popup) => popup.remove());
 
     createElem('regular-popup');
   }

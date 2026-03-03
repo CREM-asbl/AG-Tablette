@@ -1,5 +1,12 @@
 import { CreateQuadrilateralTool } from './CreateQuadrilateralTool';
 
+let _instance = null;
+
 export default {
-  tool: new CreateQuadrilateralTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new CreateQuadrilateralTool();
+    }
+    return _instance;
+  },
 };

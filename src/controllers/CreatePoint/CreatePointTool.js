@@ -1,7 +1,8 @@
 import points from '@controllers/Core/ShapesKits/points.json';
 import { html } from 'lit';
-import { app, setState } from '../Core/App';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -12,6 +13,7 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createPointHelpConfig } from './createPoint.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -49,6 +51,8 @@ export class CreatePointTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
+
+    helpConfigRegistry.register(this.name, createPointHelpConfig);
 
     import('@components/shape-selector');
     appActions.setToolUiState({

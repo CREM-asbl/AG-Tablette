@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -8,6 +9,7 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { createIrregularHelpConfig } from './createIrregular.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -41,6 +43,8 @@ export class CreateIrregularTool extends Tool {
   start() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
+
+    helpConfigRegistry.register(this.name, createIrregularHelpConfig);
 
     this.points = [];
     this.segments = [];

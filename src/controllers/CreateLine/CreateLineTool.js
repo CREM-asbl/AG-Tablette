@@ -1,6 +1,7 @@
 import { html } from 'lit';
-import { app, setState } from '../Core/App';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
@@ -15,6 +16,7 @@ import { Tool } from '../Core/States/Tool';
 import { findObjectById } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createLineHelpConfig } from './createLine.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -49,13 +51,12 @@ export class CreateLineTool extends Tool {
   }
 
   async start() {
-    console.log('[CreateLineTool] start() called', {
-      currentTool: app.tool,
-      selectedTemplate: app.tool?.selectedTemplate
-    });
     this.removeListeners();
     this.stopAnimation();
     this.geometryParentObjectId = null;
+
+    // Register help configuration
+    helpConfigRegistry.register(this.name, createLineHelpConfig);
 
     await import('@components/shape-selector');
 
@@ -68,7 +69,6 @@ export class CreateLineTool extends Tool {
       type: 'Geometry',
       nextStep: 'drawFirstPoint',
     };
-    console.log('[CreateLineTool] Setting toolUiState', uiState);
     appActions.setToolUiState(uiState);
   }
 

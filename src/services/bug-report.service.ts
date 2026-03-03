@@ -10,15 +10,8 @@
  * - Base légale: intérêt légitime (stabilité/qualité)
  */
 
-import { getApp, getApps, initializeApp } from 'firebase/app';
-import {
-  addDoc,
-  collection,
-  getFirestore,
-  initializeFirestore,
-  persistentLocalCache,
-  serverTimestamp,
-} from 'firebase/firestore';
+// Firebase imports are dynamic (lazy) to avoid circular chunk dependencies
+// They are loaded only when actually sending a report
 import config from '../firebase/firebase-config.json';
 
 export type Severity = 'S0' | 'S1' | 'S2' | 'S3';
@@ -127,8 +120,11 @@ export function shouldReport(fingerprint: string, severity: Severity): boolean {
 
 /**
  * Obtenir la connexion Firestore (réutilise l'app existante)
+ * Les imports Firebase sont chargés dynamiquement pour éviter les dépendances circulaires
  */
-function getDb() {
+async function getDb() {
+  const { getApp, getApps, initializeApp } = await import('firebase/app');
+  const { getFirestore, initializeFirestore, persistentLocalCache } = await import('firebase/firestore');
   const app = getApps().length > 0 ? getApp() : initializeApp(config);
   try {
     return getFirestore(app);
@@ -246,7 +242,8 @@ export async function reportError(
       return;
     }
 
-    const db = getDb();
+    const db = await getDb();
+    const { addDoc, collection, serverTimestamp } = await import('firebase/firestore');
     const ctx = collectContext();
 
     // Capturer la sauvegarde complète pour S0/S1 (critique)

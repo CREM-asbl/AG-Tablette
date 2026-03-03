@@ -1,5 +1,12 @@
 import { UngroupTool } from './UngroupTool';
 
+let _instance = null;
+
 export default {
-  tool: new UngroupTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new UngroupTool();
+    }
+    return _instance;
+  },
 };

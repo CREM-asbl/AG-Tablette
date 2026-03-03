@@ -10,7 +10,7 @@ import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import { createElem } from '../controllers/Core/Tools/general';
-import { activeTool, filename, helpSelected, historyState } from '../store/appState';
+import { activeTool, filename, historyState } from '../store/appState';
 import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
 
@@ -76,7 +76,6 @@ class AGMain extends SignalWatcher(LitElement) {
     const currentTool = currentToolName ? { name: currentToolName } : null;
     const history = historyState.get();
     const currentFilename = filename.get();
-    const isHelpSelected = helpSelected.get();
 
     // Update title
     const title = currentFilename || 'AG mobile';
@@ -152,11 +151,34 @@ class AGMain extends SignalWatcher(LitElement) {
     });
 
     this.addEventListener('touchstart', this.preventZoom);
-    window.addEventListener('helpToolChosen', (e) => {
-      import('@components/popups/help-popup');
-      const helpElem = createElem('help-popup');
+
+    // Clic bouton aide → afficher popup de choix mode d'aide
+    window.addEventListener('help-button-clicked', (e) => {
+      import('@components/popups/help-mode-chooser');
+      const chooserElem = createElem('help-mode-chooser');
       // @ts-ignore
-      helpElem.toolname = e.detail.toolname;
+      chooserElem.toolname = e.detail.toolname;
+    });
+
+    // Gestion du choix utilisateur : guide normal ou mode débutant contextuel
+    window.addEventListener('help-mode-choice', async (e) => {
+      const { choice, toolname } = e.detail;
+
+      if (choice === 'guide') {
+        // Mode normal : guide utilisateur
+        // Charger help-popup pour afficher le guide
+        import('@components/popups/help-popup');
+        const helpElem = createElem('help-popup');
+        // @ts-ignore
+        helpElem.toolname = toolname;
+      } else if (choice === 'contextual') {
+        // Mode débutant : aide contextuelle immédiate avec popovers + halo
+        // Charger directement contextual-guide si l'outil le supporte
+        await import('@components/popups/contextual-guide');
+        const guideElem = createElem('contextual-guide');
+        // @ts-ignore
+        guideElem.toolname = toolname;
+      }
     });
 
     window.onerror = (a, b, c, d, e) => {

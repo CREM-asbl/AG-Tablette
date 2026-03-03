@@ -1,5 +1,12 @@
 import { CutTool } from './CutTool';
 
+let _instance = null;
+
 export default {
-  tool: new CutTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new CutTool();
+    }
+    return _instance;
+  },
 };

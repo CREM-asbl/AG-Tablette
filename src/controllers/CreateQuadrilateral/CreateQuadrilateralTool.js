@@ -1,7 +1,8 @@
 import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
+import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { html } from 'lit';
-import { app, setState } from '../Core/App';
 import { appActions } from '../../store/appState';
+import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -12,6 +13,7 @@ import { Tool } from '../Core/States/Tool';
 import { findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createQuadrilateralHelpConfig } from './createQuadrilateral.helpConfig.js';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -54,7 +56,9 @@ export class CreateQuadrilateralTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    import('@components/shape-selector');
+    // Enregistrer la configuration d'aide contextuelle
+    helpConfigRegistry.register(this.name, createQuadrilateralHelpConfig);
+
     import('@components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',

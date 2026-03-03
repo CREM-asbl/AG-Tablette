@@ -44,7 +44,7 @@ export function openDB() {
 function closeDB(db) {
   if (db && typeof db.close === 'function') {
     try {
-      closeDB(db);
+      db.close();
     } catch (err) {
       // Ignore close errors - they shouldn't affect our operations
     }

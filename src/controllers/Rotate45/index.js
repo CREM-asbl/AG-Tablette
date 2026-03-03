@@ -1,5 +1,12 @@
 import { Rotate45Tool } from './Rotate45Tool';
 
+let _instance = null;
+
 export default {
-  tool: new Rotate45Tool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new Rotate45Tool();
+    }
+    return _instance;
+  },
 };

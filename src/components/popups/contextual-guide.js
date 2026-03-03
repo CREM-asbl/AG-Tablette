@@ -1,0 +1,200 @@
+import { helpConfigRegistry } from '@services/HelpConfigRegistry';
+import '@styles/popup-variables.css';
+import { css, html, LitElement } from 'lit';
+
+/**
+ * Contrôleur de guidage contextuel générique
+ * État machine pour progression d'aide contextualisée
+ * Architecture événementielle : broadcast 'contextual-guide-focus' vers composants UI
+ */
+class ContextualGuideController extends LitElement {
+  static properties = {
+    toolname: String,
+    currentStep: { state: true },
+    stepData: { state: true },
+    isVisible: { state: true },
+    isComplete: { state: true },
+  };
+
+  static styles = css`
+    :host {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1600;
+    }
+
+    /* Bouton fermer */
+    .close-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1501;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+      pointer-events: auto;
+    }
+
+    .close-btn:hover {
+      background: white;
+      transform: scale(1.1);
+    }
+
+    :host([hidden]) {
+      display: none;
+    }
+  `;
+
+  constructor() {
+    super();
+    this.toolname = '';
+    this.currentStep = null;
+    this.stepData = {};
+    this.isVisible = false;
+    this.isComplete = false;
+    this.updateLoop = null;
+    this.handleActionComplete = null;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    if (!this.toolname) {
+      // Tenter de récupérer depuis app global
+      this.toolname = window.app?.tool?.name || '';
+    }
+    this.startToolListener();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.cleanup();
+  }
+
+  startToolListener() {
+    if (!this.toolname) {
+      console.warn('[ContextualGuideController] toolname manquant');
+      return;
+    }
+
+    // Vérifier que cet outil a une config d'aide
+    if (!helpConfigRegistry.has(this.toolname)) {
+      console.warn(`[ContextualGuideController] Pas de config d'aide pour ${this.toolname}`);
+      this.close();
+      return;
+    }
+
+    // Boucle de polling pour état du tool
+    this.updateLoop = setInterval(() => {
+      const currentApp = window.app;
+      if (!currentApp?.tool || currentApp.tool.name !== this.toolname) return;
+
+      const newStep = currentApp.tool.currentStep || 'start';
+      const pointCount =
+        currentApp.tool.numberOfPointsDrawn ??
+        currentApp.tool.points?.length ??
+        0;
+      const stateData = {
+        numberOfPointsDrawn: pointCount,
+        pointCount,
+        selectedTemplate: currentApp.tool.selectedTemplate || null,
+      };
+
+      if (newStep !== this.currentStep || JSON.stringify(stateData) !== JSON.stringify(this.stepData)) {
+        this.currentStep = newStep;
+        this.stepData = { ...stateData };
+        this.updateGuide();
+      }
+    }, 100);
+
+    // Fermer après complétion
+    this.handleActionComplete = () => {
+      this.isComplete = true;
+      setTimeout(() => this.close(), 1500);
+    };
+    window.addEventListener('actions-executed', this.handleActionComplete);
+  }
+
+  updateGuide() {
+    const config = helpConfigRegistry.get(this.toolname);
+    if (!config) {
+      this.broadcastFocus({ active: false });
+      this.isVisible = false;
+      this.requestUpdate();
+      return;
+    }
+
+    const stepConfig = config.getStepConfig({
+      currentStep: this.currentStep,
+      ...this.stepData,
+    });
+
+    if (!stepConfig) {
+      this.broadcastFocus({ active: false });
+      this.isVisible = false;
+      this.requestUpdate();
+      return;
+    }
+
+    this.broadcastFocus({
+      active: true,
+      target: stepConfig.target,
+      text: stepConfig.text,
+      isComplete: this.isComplete,
+    });
+    this.isVisible = true;
+    this.requestUpdate();
+  }
+
+  broadcastFocus(detail) {
+    window.dispatchEvent(
+      new CustomEvent('contextual-guide-focus', { detail }),
+    );
+  }
+
+  close() {
+    this.cleanup();
+    this.remove();
+  }
+
+  cleanup() {
+    if (this.updateLoop) {
+      clearInterval(this.updateLoop);
+      this.updateLoop = null;
+    }
+    if (this.handleActionComplete) {
+      window.removeEventListener('actions-executed', this.handleActionComplete);
+      this.handleActionComplete = null;
+    }
+    this.broadcastFocus({ active: false });
+  }
+
+  render() {
+    if (!this.isVisible) {
+      return html``;
+    }
+
+    return html`
+      <!-- Bouton fermer -->
+      <button class="close-btn" @click="${() => this.close()}" title="Fermer le guidage">
+        ✕
+      </button>
+    `;
+  }
+}
+
+customElements.define('contextual-guide', ContextualGuideController);
+export { ContextualGuideController };
+

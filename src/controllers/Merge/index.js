@@ -1,5 +1,12 @@
 import { MergeTool } from './MergeTool';
 
+let _instance = null;
+
 export default {
-  tool: new MergeTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new MergeTool();
+    }
+    return _instance;
+  },
 };
