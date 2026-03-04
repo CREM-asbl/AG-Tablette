@@ -3,7 +3,7 @@
  * Remplace le StateManager custom pour éviter la duplication
  */
 
-import { signal, computed } from '@lit-labs/signals';
+import { computed, signal } from '@lit-labs/signals';
 
 const HELP_MODE_STORAGE_KEY = 'ag.help.beginnerModeEnabled';
 

@@ -61,8 +61,8 @@ class ToolbarSection extends LitElement {
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
           ${tools.map(
-                (tool) =>
-                  html` <icon-button
+      (tool) =>
+        html` <icon-button
                           name="${tool.name}"
                           type="State"
                           title="${tool.title}"

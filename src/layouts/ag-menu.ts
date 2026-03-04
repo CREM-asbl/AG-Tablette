@@ -93,7 +93,7 @@ class AGMenu extends SignalWatcher(LitElement) {
       { name: 'undo', title: 'Annuler', disabled: !history.canUndo },
       { name: 'redo', title: 'Refaire', disabled: !history.canRedo },
       { name: 'replay', title: 'Rejouer' },
-      { name: 'help', title: 'Aide', active: isHelpSelected },
+      { name: 'help', title: 'Aide' },
     ];
 
     return actions.map(

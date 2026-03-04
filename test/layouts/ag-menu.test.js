@@ -1,8 +1,7 @@
-import { html, fixture, expect } from '@open-wc/testing';
-import { appActions, historyState, helpSelected, activeTool } from '../../src/store/appState';
+import { expect, fixture, html } from '@open-wc/testing';
+import { beforeEach, describe, it, vi } from 'vitest';
+import { appActions, historyState } from '../../src/store/appState';
 import { tools } from '../../src/store/tools';
-import { kit } from '../../src/store/kit';
-import { vi, describe, it, beforeEach } from 'vitest';
 
 // Mock dependencies
 vi.mock('../../src/controllers/Core/App', () => ({
@@ -64,11 +63,11 @@ describe('ag-menu', () => {
         expect(redoBtn.hasAttribute('disabled')).to.be.false;
     });
 
-    it('should activate help button when helpSelected is true', async () => {
+    it('should keep help button not active even when helpSelected is true', async () => {
         appActions.setHelpSelected(true);
         await element.updateComplete;
 
         const helpBtn = element.shadowRoot.querySelector('icon-button[name="help"]');
-        expect(helpBtn.hasAttribute('active')).to.be.true;
+        expect(helpBtn.hasAttribute('active')).to.be.false;
     });
 });
