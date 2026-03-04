@@ -10,7 +10,7 @@ import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import { createElem } from '../controllers/Core/Tools/general';
-import { activeTool, filename, historyState } from '../store/appState';
+import { activeTool, appActions, filename, historyState } from '../store/appState';
 import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
 
@@ -165,6 +165,7 @@ class AGMain extends SignalWatcher(LitElement) {
       const { choice, toolname } = e.detail;
 
       if (choice === 'guide') {
+        appActions.setHelpSelected(false);
         // Mode normal : guide utilisateur
         // Charger help-popup pour afficher le guide
         import('@components/popups/help-popup');
@@ -172,6 +173,7 @@ class AGMain extends SignalWatcher(LitElement) {
         // @ts-ignore
         helpElem.toolname = toolname;
       } else if (choice === 'contextual') {
+        appActions.setHelpSelected(true);
         // Mode débutant : aide contextuelle immédiate avec popovers + halo
         // Charger directement contextual-guide si l'outil le supporte
         await import('@components/popups/contextual-guide');

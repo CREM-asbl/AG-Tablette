@@ -103,7 +103,6 @@ class AGMenu extends SignalWatcher(LitElement) {
           title="${action.title}"
           ?disabled="${action.disabled}"
           ?active="${action.active}"
-          ?helpanimation="${isHelpSelected}"
           @click="${this._actionHandle}"
         ></icon-button>
       `,

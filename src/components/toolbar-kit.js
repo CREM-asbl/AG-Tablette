@@ -60,7 +60,6 @@ class ToolbarKit extends LitElement {
                 type="Create"
                 title="${familyName}"
                 ?active="${familyName === this.selectedFamily}"
-                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -82,16 +81,8 @@ class ToolbarKit extends LitElement {
 
     if (this.helpSelected) {
       const requestedTool = event.target.name || 'create';
-      window.dispatchEvent(
-        new CustomEvent('helpToolChosen', {
-          detail: { toolname: requestedTool },
-        }),
-      );
-
-      // Sortir du mode aide et activer le contexte demandé.
       if (requestedTool === 'create') {
         setState({
-          helpSelected: false,
           tool: {
             name: 'create',
             selectedFamily: event.target.title,
@@ -100,10 +91,16 @@ class ToolbarKit extends LitElement {
         });
       } else {
         setState({
-          helpSelected: false,
           tool: { name: requestedTool, currentStep: 'start' },
         });
       }
+
+      // Keep beginner mode enabled and immediately show contextual guidance.
+      window.dispatchEvent(
+        new CustomEvent('help-mode-choice', {
+          detail: { choice: 'contextual', toolname: requestedTool },
+        }),
+      );
     } else if (!app.fullHistory.isRunning) {
       setState({
         tool: {

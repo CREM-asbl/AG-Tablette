@@ -61,17 +61,16 @@ class ToolbarSection extends LitElement {
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
           ${tools.map(
-      (tool) =>
-        html` <icon-button
-                name="${tool.name}"
-                type="State"
-                title="${tool.title}"
-                ?active="${tool.name === this.selected}"
-                ?helpanimation="${this.helpSelected}"
-                cantInteract="${this.helpSelected}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>`,
+                (tool) =>
+                  html` <icon-button
+                          name="${tool.name}"
+                          type="State"
+                          title="${tool.title}"
+                          ?active="${tool.name === this.selected}"
+                          cantInteract="${this.helpSelected}"
+                          @click="${this._actionHandle}"
+                        >
+                        </icon-button>`,
     )}
         </div>
       </template-toolbar>
@@ -87,17 +86,16 @@ class ToolbarSection extends LitElement {
 
     if (this.helpSelected) {
       const requestedTool = event.target.name;
-      window.dispatchEvent(
-        new CustomEvent('helpToolChosen', {
-          detail: { toolname: requestedTool },
-        }),
-      );
-
-      // Sortir du mode aide et activer l'outil concerné immédiatement.
       setState({
-        helpSelected: false,
         tool: { name: requestedTool, currentStep: 'start' },
       });
+
+      // Keep beginner mode enabled and immediately show contextual guidance.
+      window.dispatchEvent(
+        new CustomEvent('help-mode-choice', {
+          detail: { choice: 'contextual', toolname: requestedTool },
+        }),
+      );
     } else if (!app.fullHistory.isRunning) {
       setState({ tool: { name: event.target.name, currentStep: 'start' } });
     }

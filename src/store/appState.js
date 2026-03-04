@@ -5,6 +5,26 @@
 
 import { signal, computed } from '@lit-labs/signals';
 
+const HELP_MODE_STORAGE_KEY = 'ag.help.beginnerModeEnabled';
+
+const getInitialHelpSelected = () => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(HELP_MODE_STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const persistHelpSelected = (selected) => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(HELP_MODE_STORAGE_KEY, String(selected));
+  } catch {
+    // Silently ignore storage failures (private mode, quota, etc.)
+  }
+};
+
 // Signaux pour l'état de l'application
 export const appLoading = signal(false);
 export const appError = signal(null);
@@ -54,7 +74,7 @@ export const settings = signal({
 export const notifications = signal([]);
 export const dialogs = signal([]);
 export const filename = signal('');
-export const helpSelected = signal(false);
+export const helpSelected = signal(getInitialHelpSelected());
 export const historyState = signal({
   canUndo: false,
   canRedo: false,
@@ -134,6 +154,7 @@ export const appActions = {
 
   setHelpSelected: (selected) => {
     helpSelected.set(selected);
+    persistHelpSelected(selected);
   },
 
   setTangramState: (state) => {
@@ -437,7 +458,7 @@ export const resetWorkspaceState = () => {
   notifications.set([]);
   dialogs.set([]);
   filename.set('');
-  helpSelected.set(false);
+  // Keep help mode preference unchanged; it is an explicit user choice.
   tangramState.set({
     mode: null,
     level: null,
