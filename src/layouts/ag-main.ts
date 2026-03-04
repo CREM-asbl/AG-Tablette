@@ -168,14 +168,11 @@ class AGMain extends SignalWatcher(LitElement) {
       const { choice, toolname } = e.detail;
 
       if (choice === 'guide') {
-        // Mode normal : guide utilisateur
-        // Charger help-popup pour afficher le guide
-        import('@components/popups/help-popup');
-        const helpElem = document.createElement('help-popup');
-        // @ts-ignore
-        helpElem.toolname = toolname;
-        helpElem.style.display = 'block';
-        document.body.appendChild(helpElem);
+        // Mode normal : ouvrir le guide utilisateur en PDF
+        const { openPDFGuide } = await import('@services/PDFGuideService');
+        const environment = app.environment?.name || '';
+        const tool = toolname || app.tool?.name || '';
+        openPDFGuide(environment, tool);
       }
     });
 
