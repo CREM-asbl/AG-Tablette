@@ -27,32 +27,6 @@ class ContextualGuideController extends LitElement {
       z-index: 1600;
     }
 
-    /* Bouton fermer */
-    .close-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 1501;
-      background: rgba(255, 255, 255, 0.9);
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.5rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-      transition: all 0.2s ease;
-      pointer-events: auto;
-    }
-
-    .close-btn:hover {
-      background: white;
-      transform: scale(1.1);
-    }
-
     :host([hidden]) {
       display: none;
     }
@@ -186,12 +160,7 @@ class ContextualGuideController extends LitElement {
       return html``;
     }
 
-    return html`
-      <!-- Bouton fermer -->
-      <button class="close-btn" @click="${() => this.close()}" title="Fermer le guidage">
-        ✕
-      </button>
-    `;
+    return html``;
   }
 }
 

@@ -13,13 +13,13 @@ export {
   ValidationTypes,
   validationUtils,
   validator,
-  Validator,
+  Validator
 } from './ValidationSystem.js';
 
 export {
   performanceMonitor,
   smartCache,
-  SmartCache,
+  SmartCache
 } from './PerformanceSystem.js';
 
 // Imports pour utilisation interne
@@ -74,9 +74,9 @@ export const eventUtils = {
     const target = options.target || window;
     const wrappedHandler = options.once
       ? (event) => {
-          handler(event);
-          target.removeEventListener(type, wrappedHandler);
-        }
+        handler(event);
+        target.removeEventListener(type, wrappedHandler);
+      }
       : handler;
 
     target.addEventListener(type, wrappedHandler, options);

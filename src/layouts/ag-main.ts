@@ -1,6 +1,6 @@
 import '@components/canvas-container';
-import '@components/popups/notification';
 import '@components/popups/contextual-popover';
+import '@components/popups/notification';
 import { bugSend } from '@controllers/Bugs';
 import '@layouts/ag-menu';
 import { SignalWatcher } from '@lit-labs/signals';
@@ -10,7 +10,7 @@ import '../components/sync-status-indicator.ts';
 import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
-import { activeTool, appActions, filename, historyState } from '../store/appState';
+import { activeTool, filename, historyState } from '../store/appState';
 import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
 

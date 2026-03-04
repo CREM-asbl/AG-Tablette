@@ -85,16 +85,16 @@ class ToolbarSection extends LitElement {
     setTimeout(() => (this._pendingUpdate = false), 100);
 
     const toolName = event.target.name;
-    
+
     if (!app.fullHistory.isRunning) {
       setState({ tool: { name: toolName, currentStep: 'start' } });
-      
+
       // Si le mode débutant est activé, créer automatiquement le guide contextuel
       if (this.helpSelected) {
         // Supprimer les anciens guides
         const existingGuides = document.querySelectorAll('contextual-guide');
         existingGuides.forEach(guide => guide.remove());
-        
+
         // Créer le nouveau guide contextuel
         import('@components/popups/contextual-guide').then(() => {
           const guideElem = document.createElement('contextual-guide');

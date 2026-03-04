@@ -1,7 +1,7 @@
+import { SignalWatcher } from '@lit-labs/signals';
+import { appActions, helpSelected } from '@store/appState';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
-import { SignalWatcher } from '@lit-labs/signals';
-import { helpSelected, appActions } from '@store/appState';
 
 /**
  * Popup de choix d'aide
@@ -229,7 +229,7 @@ class HelpModeChooser extends SignalWatcher(LitElement) {
 
   render() {
     const isBeginnerMode = helpSelected.get();
-    
+
     return html`
       <div class="overlay"></div>
       <div class="help-mode-popup">
@@ -244,14 +244,14 @@ class HelpModeChooser extends SignalWatcher(LitElement) {
 
         <div class="button-container">
           <!-- Toggle mode débutant -->
-          <button 
-            class="btn-toggle ${isBeginnerMode ? 'active' : ''}" 
+          <button
+            class="btn-toggle ${isBeginnerMode ? 'active' : ''}"
             @click="${() => this.toggleBeginnerMode()}"
           >
             <span class="icon">${isBeginnerMode ? '✓' : '○'}</span>
             <span>${isBeginnerMode ? 'Désactiver le mode débutant' : 'Activer le mode débutant'}</span>
           </button>
-          
+
           <!-- Guide utilisateur -->
           <button class="btn-guide" @click="${() => this.chooseGuide()}">
             <span class="icon">📚</span>
@@ -265,3 +265,4 @@ class HelpModeChooser extends SignalWatcher(LitElement) {
 
 customElements.define('help-mode-chooser', HelpModeChooser);
 export { HelpModeChooser };
+

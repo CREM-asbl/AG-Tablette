@@ -94,7 +94,7 @@ class ToolbarKit extends LitElement {
         // Supprimer les anciens guides
         const existingGuides = document.querySelectorAll('contextual-guide');
         existingGuides.forEach(guide => guide.remove());
-        
+
         // Créer le nouveau guide contextuel pour 'create'
         import('@components/popups/contextual-guide').then(() => {
           const guideElem = document.createElement('contextual-guide');
