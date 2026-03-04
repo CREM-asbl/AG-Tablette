@@ -1,4 +1,5 @@
 import '@components/color-button';
+import '@components/popups/template-popup';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import { app, setState } from '../Core/App';

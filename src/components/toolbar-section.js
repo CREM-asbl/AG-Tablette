@@ -84,20 +84,25 @@ class ToolbarSection extends LitElement {
     this._pendingUpdate = true;
     setTimeout(() => (this._pendingUpdate = false), 100);
 
-    if (this.helpSelected) {
-      const requestedTool = event.target.name;
-      setState({
-        tool: { name: requestedTool, currentStep: 'start' },
-      });
-
-      // Keep beginner mode enabled and immediately show contextual guidance.
-      window.dispatchEvent(
-        new CustomEvent('help-mode-choice', {
-          detail: { choice: 'contextual', toolname: requestedTool },
-        }),
-      );
-    } else if (!app.fullHistory.isRunning) {
-      setState({ tool: { name: event.target.name, currentStep: 'start' } });
+    const toolName = event.target.name;
+    
+    if (!app.fullHistory.isRunning) {
+      setState({ tool: { name: toolName, currentStep: 'start' } });
+      
+      // Si le mode débutant est activé, créer automatiquement le guide contextuel
+      if (this.helpSelected) {
+        // Supprimer les anciens guides
+        const existingGuides = document.querySelectorAll('contextual-guide');
+        existingGuides.forEach(guide => guide.remove());
+        
+        // Créer le nouveau guide contextuel
+        import('@components/popups/contextual-guide').then(() => {
+          const guideElem = document.createElement('contextual-guide');
+          guideElem.toolname = toolName;
+          guideElem.style.display = 'block';
+          document.body.appendChild(guideElem);
+        });
+      }
     }
   }
 }

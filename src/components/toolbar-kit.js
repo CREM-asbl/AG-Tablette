@@ -80,27 +80,29 @@ class ToolbarKit extends LitElement {
     });
 
     if (this.helpSelected) {
-      const requestedTool = event.target.name || 'create';
-      if (requestedTool === 'create') {
-        setState({
-          tool: {
-            name: 'create',
-            selectedFamily: event.target.title,
-            currentStep: 'start',
-          },
-        });
-      } else {
-        setState({
-          tool: { name: requestedTool, currentStep: 'start' },
+      const shapeName = event.target.name || 'create';
+      setState({
+        tool: {
+          name: 'create',
+          selectedFamily: event.target.title,
+          currentStep: 'start',
+        },
+      });
+
+      // Si le mode débutant est activé, créer automatiquement le guide contextuel
+      if (this.helpSelected) {
+        // Supprimer les anciens guides
+        const existingGuides = document.querySelectorAll('contextual-guide');
+        existingGuides.forEach(guide => guide.remove());
+        
+        // Créer le nouveau guide contextuel pour 'create'
+        import('@components/popups/contextual-guide').then(() => {
+          const guideElem = document.createElement('contextual-guide');
+          guideElem.toolname = 'create';
+          guideElem.style.display = 'block';
+          document.body.appendChild(guideElem);
         });
       }
-
-      // Keep beginner mode enabled and immediately show contextual guidance.
-      window.dispatchEvent(
-        new CustomEvent('help-mode-choice', {
-          detail: { choice: 'contextual', toolname: requestedTool },
-        }),
-      );
     } else if (!app.fullHistory.isRunning) {
       setState({
         tool: {

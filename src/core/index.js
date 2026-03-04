@@ -226,6 +226,9 @@ export const moduleUtils = {
   extractToolMetadata: (module) => {
     if (module.default && module.default.tool) {
       const tool = module.default.tool;
+      if (import.meta.env.DEV) {
+        console.log(`[extractToolMetadata] Tool instance created/accessed: ${tool.name}`);
+      }
       return {
         name: tool.name,
         title: tool.title,

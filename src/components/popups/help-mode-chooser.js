@@ -1,13 +1,16 @@
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
+import { SignalWatcher } from '@lit-labs/signals';
+import { helpSelected, appActions } from '@store/appState';
 
 /**
  * Popup de choix d'aide
  * Permet à l'utilisateur de choisir entre :
  * 1. Consulter le guide utilisateur (mode normal)
  * 2. Activer le mode débutant (aide contextuelle avec popovers)
+ * 3. Désactiver le mode débutant
  */
-class HelpModeChooser extends LitElement {
+class HelpModeChooser extends SignalWatcher(LitElement) {
   static properties = {
     toolname: String,
   };
@@ -137,6 +140,58 @@ class HelpModeChooser extends LitElement {
       transform: translateY(0);
     }
 
+    .btn-toggle {
+      background: white;
+      color: #e74c3c;
+      border: 2px solid #e74c3c;
+    }
+
+    .btn-toggle:hover {
+      background: #ffebee;
+      transform: translateY(-2px);
+    }
+
+    .btn-toggle:active {
+      transform: translateY(0);
+    }
+
+    .btn-toggle.active {
+      background: #27ae60;
+      color: white;
+      border-color: #27ae60;
+    }
+
+    .btn-toggle.active:hover {
+      background: #229954;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: #f5f7ff;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .status-indicator.active {
+      background: #e8f5e9;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e74c3c;
+    }
+
+    .status-dot.active {
+      background: #27ae60;
+    }
+
     .icon {
       font-size: 18px;
     }
@@ -149,6 +204,7 @@ class HelpModeChooser extends LitElement {
   }
 
   chooseGuide() {
+    // Ouvrir le guide utilisateur
     window.dispatchEvent(
       new CustomEvent('help-mode-choice', {
         detail: { choice: 'guide', toolname: this.toolname },
@@ -157,13 +213,14 @@ class HelpModeChooser extends LitElement {
     this.close();
   }
 
-  chooseContextual() {
-    window.dispatchEvent(
-      new CustomEvent('help-mode-choice', {
-        detail: { choice: 'contextual', toolname: this.toolname },
-      }),
-    );
-    this.close();
+  toggleBeginnerMode() {
+    // Toggle le mode débutant
+    appActions.setHelpSelected(!helpSelected.get());
+    // Fermer tous les guides contextuels existants
+    const existingGuides = document.querySelectorAll('contextual-guide');
+    existingGuides.forEach(guide => guide.remove());
+    // Pas besoin de fermer le popup, l'utilisateur peut voir le changement d'état
+    this.requestUpdate();
   }
 
   close() {
@@ -171,20 +228,34 @@ class HelpModeChooser extends LitElement {
   }
 
   render() {
+    const isBeginnerMode = helpSelected.get();
+    
     return html`
       <div class="overlay"></div>
       <div class="help-mode-popup">
-        <h2 class="title">Mode d'aide</h2>
-        <p class="subtitle">Comment voulez-vous apprendre à utiliser cet outil ?</p>
+        <h2 class="title">Aide</h2>
+        <p class="subtitle">Gérez vos préférences d'assistance</p>
+
+        <!-- Statut du mode débutant -->
+        <div class="status-indicator ${isBeginnerMode ? 'active' : ''}">
+          <span class="status-dot ${isBeginnerMode ? 'active' : ''}"></span>
+          <span>${isBeginnerMode ? 'Mode débutant activé' : 'Mode débutant désactivé'}</span>
+        </div>
 
         <div class="button-container">
+          <!-- Toggle mode débutant -->
+          <button 
+            class="btn-toggle ${isBeginnerMode ? 'active' : ''}" 
+            @click="${() => this.toggleBeginnerMode()}"
+          >
+            <span class="icon">${isBeginnerMode ? '✓' : '○'}</span>
+            <span>${isBeginnerMode ? 'Désactiver le mode débutant' : 'Activer le mode débutant'}</span>
+          </button>
+          
+          <!-- Guide utilisateur -->
           <button class="btn-guide" @click="${() => this.chooseGuide()}">
             <span class="icon">📚</span>
             <span>Consulter le guide utilisateur</span>
-          </button>
-          <button class="btn-contextual" @click="${() => this.chooseContextual()}">
-            <span class="icon">🎯</span>
-            <span>Activer le mode débutant</span>
           </button>
         </div>
       </div>

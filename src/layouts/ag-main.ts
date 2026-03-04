@@ -1,5 +1,6 @@
 import '@components/canvas-container';
 import '@components/popups/notification';
+import '@components/popups/contextual-popover';
 import { bugSend } from '@controllers/Bugs';
 import '@layouts/ag-menu';
 import { SignalWatcher } from '@lit-labs/signals';
@@ -9,7 +10,6 @@ import '../components/sync-status-indicator.ts';
 import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
-import { createElem } from '../controllers/Core/Tools/general';
 import { activeTool, appActions, filename, historyState } from '../store/appState';
 import { initializeCachesFromIndexedDB } from '../store/notions';
 import '../utils/offline-init.js';
@@ -93,6 +93,7 @@ class AGMain extends SignalWatcher(LitElement) {
         <tool-ui-container></tool-ui-container>
       </div>
       <sync-status-indicator></sync-status-indicator>
+      <contextual-popover></contextual-popover>
       <notif-center></notif-center>
       <input
         id="fileSelector"
@@ -155,9 +156,11 @@ class AGMain extends SignalWatcher(LitElement) {
     // Clic bouton aide → afficher popup de choix mode d'aide
     window.addEventListener('help-button-clicked', (e) => {
       import('@components/popups/help-mode-chooser');
-      const chooserElem = createElem('help-mode-chooser');
+      const chooserElem = document.createElement('help-mode-chooser');
       // @ts-ignore
       chooserElem.toolname = e.detail.toolname;
+      chooserElem.style.display = 'block';
+      document.body.appendChild(chooserElem);
     });
 
     // Gestion du choix utilisateur : guide normal ou mode débutant contextuel
@@ -165,21 +168,14 @@ class AGMain extends SignalWatcher(LitElement) {
       const { choice, toolname } = e.detail;
 
       if (choice === 'guide') {
-        appActions.setHelpSelected(false);
         // Mode normal : guide utilisateur
         // Charger help-popup pour afficher le guide
         import('@components/popups/help-popup');
-        const helpElem = createElem('help-popup');
+        const helpElem = document.createElement('help-popup');
         // @ts-ignore
         helpElem.toolname = toolname;
-      } else if (choice === 'contextual') {
-        appActions.setHelpSelected(true);
-        // Mode débutant : aide contextuelle immédiate avec popovers + halo
-        // Charger directement contextual-guide si l'outil le supporte
-        await import('@components/popups/contextual-guide');
-        const guideElem = createElem('contextual-guide');
-        // @ts-ignore
-        guideElem.toolname = toolname;
+        helpElem.style.display = 'block';
+        document.body.appendChild(helpElem);
       }
     });
 

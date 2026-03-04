@@ -1,5 +1,4 @@
 import { html } from 'lit';
-import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -9,7 +8,6 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
-import { divideHelpConfig } from './divide.helpConfig';
 
 /**
  * Découper un segment (ou partie de segment) en X parties (ajoute X-1 points)
@@ -61,13 +59,17 @@ export class DivideTool extends Tool {
   }
 
   start() {
-    helpConfigRegistry.register(this.name, divideHelpConfig);
-
+    if (import.meta.env.DEV) {
+      console.log('[DivideTool] start() appelée');
+    }
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
     const popup = document.createElement('divide-popup');
     popup.parts = app.settings.numberOfDivisionParts;
     document.querySelector('body').appendChild(popup);
+    if (import.meta.env.DEV) {
+      console.log('[DivideTool] divide-popup créé et ajouté au DOM');
+    }
   }
 
   selectObject() {

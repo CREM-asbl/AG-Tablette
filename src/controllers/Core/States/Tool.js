@@ -143,6 +143,9 @@ export class Tool {
       if (!app.tool) {
         this.end();
       } else if (app.tool.name === this.name) {
+        if (import.meta.env.DEV) {
+          console.log(`[Tool.eventHandler] ${this.name} - tool-updated, currentStep: ${app.tool.currentStep}`);
+        }
         this[app.tool.currentStep]();
       } else if (app.tool.currentStep === 'start') {
         this.end();

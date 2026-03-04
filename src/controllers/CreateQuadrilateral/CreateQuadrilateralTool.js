@@ -1,5 +1,4 @@
 import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
-import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { html } from 'lit';
 import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
@@ -13,7 +12,6 @@ import { Tool } from '../Core/States/Tool';
 import { findObjectsByName, removeObjectById } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
-import { createQuadrilateralHelpConfig } from './createQuadrilateral.helpConfig.js';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -55,9 +53,6 @@ export class CreateQuadrilateralTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
-
-    // Enregistrer la configuration d'aide contextuelle
-    helpConfigRegistry.register(this.name, createQuadrilateralHelpConfig);
 
     import('@components/shape-selector');
     appActions.setToolUiState({
