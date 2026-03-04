@@ -144,9 +144,6 @@ La migration vers une approche TDD a nécessité la mise en place d'un nouvel en
         *   Mock de `@controllers/Core/App.js` avec `vi.doMock` pour simuler les dépendances de `app`.
         *   Stub des méthodes `showModal` et `close` de `HTMLDialogElement.prototype` car elles ne sont pas entièrement implémentées dans `jsdom`.
         *   Importation dynamique du composant après la mise en place des mocks.
-    *   **`test/help-popup.test.ts` :**
-        *   Adaptation similaire à `grid-popup.test.ts`.
-        *   Mock de `@controllers/Core/App` et `src/store/tools.js` (chemin corrigé).
     *   **Tests pour `Coordinates` (`test/Coordinates/*.test.js`) :**
         *   Conversion de la syntaxe d'assertion Chai vers Vitest (`expect(...).to.equal` devient `expect(...).toBe` ou `toEqual`).
         *   Correction des imports (ajout de l'extension `.js`).
@@ -162,18 +159,14 @@ La migration vers une approche TDD a nécessité la mise en place d'un nouvel en
 *   **Erreurs de résolution d'alias (`@store/tools`) :**
     *   **Problème :** Les tests pour `Coordinates` échouaient car `src/controllers/Core/App.js` importait `@store/tools` et l'alias `@store` n'était pas initialement configuré dans `vitest.config.ts`.
     *   **Solution :** Ajout de l'alias `'@store': path.resolve(__dirname, './src/store')` à `vitest.config.ts`.
-*   **`TypeError: Cannot read properties of undefined (reading 'type')` dans `help-popup.js` :**
-    *   **Problème :** Le composant tentait d'accéder à `tool.type` sans vérifier si `tool` (résultat de `this.tools.find(...)`) était défini, notamment si `toolname` n'était pas fourni ou ne correspondait à aucun outil.
-    *   **Solution :** Modification de la méthode `render` dans `help-popup.js` pour vérifier l'existence de `tool` avant d'accéder à ses propriétés et pour gérer correctement les cas où `toolname` est absent ou invalide.
-*   **Chemin de mock incorrect pour `store/tools` dans `help-popup.test.ts` :**
-    *   **Problème :** Le chemin utilisé dans `vi.doMock` pour `store/tools` n'était pas correctement résolu par rapport à l'emplacement du fichier de test.
-    *   **Solution :** Correction du chemin en `vi.doMock('../src/store/tools.js', ...)` pour pointer correctement vers le module à mocker depuis `test/help-popup.test.ts`.
 *   **Échecs des tests pour `Coordinates.equal` :**
     *   **Problème :** La logique de comparaison avec tolérance utilisait un opérateur strict `<` et certains cas de test n'étaient pas alignés avec cette logique ou la logique elle-même nécessitait un ajustement.
     *   **Solution :** Changement de l'opérateur en `<=` dans `Coordinates.equal` et ajustement d'un cas de test pour correspondre à cette logique plus inclusive.
 *   **Conflits avec les tests Playwright :**
     *   **Problème :** Vitest tentait d'exécuter les fichiers de test Playwright, causant des erreurs.
     *   **Solution :** Ajout des dossiers `tests/` et `tests-examples/` à la section `exclude` de `vitest.config.ts`.
+
+**Note :** L'ancien système d'aide basé sur `help-popup.js` avec images statiques a été remplacé par un système d'ouverture directe du PDF Mode_emploi.pdf avec navigation contextuelle vers les pages appropriées.
 
 ## Début de la Migration TDD pour la Gestion d'État du Module Grid
 

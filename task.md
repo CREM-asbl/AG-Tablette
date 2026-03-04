@@ -28,7 +28,6 @@
     - [x] Améliorer mocks IndexedDB dans test/setup.ts (fake-indexeddb installé)
     - [x] Valider que fake-indexeddb résout les tests IndexedDB
     - [x] Corriger canvas-layer.test.js (résolu par fake-indexeddb)
-    - [x] Corriger help-popup.test.ts (résolu par fake-indexeddb)
     - [x] Corriger sync-optimization.test.ts (résolu par fake-indexeddb)
     - [x] Corriger cache.service.test.ts (résolu par fake-indexeddb)
     - [x] Corriger ag-main.test.js (mise à jour pour Signals)
@@ -37,6 +36,11 @@
 - [x] Corriger les erreurs eqeqeq (Audit Recommendations) ✅
     - [x] Analyser les erreurs avec configuration stricte (9 erreurs trouvées, toutes des null checks valides)
     - [x] Confirmer la conformité avec la règle 'smart' (aucune action requise)
+- [x] Remplacer le système d'aide par ouverture PDF ✅
+    - [x] Créer PDFGuideService avec navigation contextuelle
+    - [x] Supprimer help-popup.js et ses tests
+    - [x] Supprimer les assets images help (48 fichiers webp)
+    - [x] Nettoyer les références dans notification.js
 - [ ] Améliorer la couverture de tests (Objectif: 40%)
 - [x] Analyse du bundle (Optimisation) ✅
     - [x] Rapport généré dans `docs/bundle-analysis.md`

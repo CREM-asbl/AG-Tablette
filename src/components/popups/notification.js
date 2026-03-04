@@ -1,4 +1,3 @@
-import { createElem } from '@controllers/Core/Tools/utils';
 import { css, html, LitElement } from 'lit';
 
 export class Notification extends LitElement {
@@ -61,7 +60,7 @@ export class Notification extends LitElement {
   }
 
   render() {
-    return html`<div @click="${() => this.showHelp()}">${this.title}</div> `;
+    return html`<div>${this.title}</div> `;
   }
 
   show(message = this.title, showTime = 3) {
@@ -104,11 +103,6 @@ export class Notification extends LitElement {
     this.closeAnimFrameId = window.requestAnimationFrame(() =>
       this.closeAnimation(opacity),
     );
-  }
-
-  showHelp() {
-    import('./help-popup');
-    createElem('help-popup');
   }
 }
 customElements.define('notif-center', Notification);
