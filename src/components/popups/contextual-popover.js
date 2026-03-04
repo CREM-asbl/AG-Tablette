@@ -15,8 +15,10 @@ class ContextualPopover extends LitElement {
   static styles = css`
     :host {
       position: fixed;
-      z-index: 1500;
+      z-index: 9999;
       pointer-events: none;
+      top: 0;
+      left: 0;
     }
 
     .popover {
@@ -29,7 +31,8 @@ class ContextualPopover extends LitElement {
       font-size: 16px;
       line-height: 1.5;
       animation: slideIn 0.3s ease-out;
-      position: relative;
+      position: fixed;
+      z-index: 9999;
     }
 
     @keyframes slideIn {
@@ -129,8 +132,10 @@ class ContextualPopover extends LitElement {
     this.target = target;
     this.isVisible = true;
 
-    // Attendre que le DOM soit mis à jour pour calculer la position
-    requestAnimationFrame(() => this._updatePosition());
+    // Attendre que le DOM soit mis à jour et que le dialog soit complètement rendu
+    requestAnimationFrame(() => {
+      setTimeout(() => this._updatePosition(), 50);
+    });
   }
 
   _updatePosition() {
@@ -150,7 +155,29 @@ class ContextualPopover extends LitElement {
       return;
     }
 
-    const targetRect = targetElement.getBoundingClientRect();
+    // Pour les Web Components avec un dialog dans le shadowDOM (ex: divide-popup -> template-popup -> dialog),
+    // accéder au dialog visible plutôt qu'au composant lui-même
+    let targetRect;
+    if (targetElement.shadowRoot) {
+      // Essayer de trouver un dialog direct dans le shadowRoot
+      let dialogElement = targetElement.shadowRoot.querySelector('dialog');
+
+      // Sinon, essayer de le chercher dans les Web Components enfants (ex: template-popup)
+      if (!dialogElement) {
+        const templatePopup = targetElement.shadowRoot.querySelector('template-popup');
+        if (templatePopup && templatePopup.shadowRoot) {
+          dialogElement = templatePopup.shadowRoot.querySelector('dialog');
+        }
+      }
+
+      if (dialogElement) {
+        targetRect = dialogElement.getBoundingClientRect();
+      } else {
+        targetRect = targetElement.getBoundingClientRect();
+      }
+    } else {
+      targetRect = targetElement.getBoundingClientRect();
+    }
     const popoverWidth = 300; // Max width du popover
     const popoverHeight = 100; // Estimation de la hauteur
     const gap = 16; // Espace entre le popover et l'élément
@@ -195,7 +222,7 @@ class ContextualPopover extends LitElement {
     return html`
       <div
         class="popover"
-        style="position: fixed; top: ${this.position.top}px; left: ${this.position.left}px;"
+        style="top: ${this.position.top}px; left: ${this.position.left}px;"
       >
         ${this.text}
         <div class="arrow ${this.position.arrowClass}"></div>
