@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
@@ -6,6 +7,7 @@ import { Shape } from '../Core/Objects/Shapes/Shape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import { showHelpConfig } from './show.helpConfig';
 
 /**
  * Monter des objets.
@@ -24,6 +26,8 @@ export class ShowTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, showHelpConfig);
+
     setTimeout(
       () =>
         setState({

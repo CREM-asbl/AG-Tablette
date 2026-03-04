@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -6,6 +7,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById } from '../Core/Tools/general';
+import { cutHelpConfig } from './cut.helpConfig';
 
 /**
  * Découper une figure
@@ -48,6 +50,8 @@ export class CutTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, cutHelpConfig);
+
     setTimeout(
       () =>
         setState({

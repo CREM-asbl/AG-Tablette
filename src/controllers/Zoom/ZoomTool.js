@@ -1,6 +1,8 @@
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
+import { zoomHelpConfig } from './zoom.helpConfig';
 
 /**
  * Calcule le niveau de zoom en appliquant les limites min et max.
@@ -59,6 +61,8 @@ export class ZoomTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, zoomHelpConfig);
+
     this.removeListeners();
     if (app.tool.mode === 'touch') {
       this.touchMoveId = app.addListener('canvasTouchMove', this.handler);

@@ -1,7 +1,9 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
+import { translateHelpConfig } from './translate.helpConfig';
 
 /**
  * Faire translater le plan
@@ -35,6 +37,8 @@ export class TranslateTool extends Tool {
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, translateHelpConfig);
+
     setTimeout(
       () =>
         setState({

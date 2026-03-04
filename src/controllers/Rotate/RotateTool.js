@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -16,6 +17,7 @@ import {
   computeAllShapeTransform,
   computeConstructionSpec,
 } from '../GeometryTools/recomputeShape';
+import { rotateHelpConfig } from './rotate.helpConfig';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -60,6 +62,8 @@ export class RotateTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, rotateHelpConfig);
+
     setTimeout(
       () =>
         setState({

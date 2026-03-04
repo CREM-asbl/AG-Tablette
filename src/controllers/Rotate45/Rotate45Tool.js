@@ -1,7 +1,9 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
+import { rotate45HelpConfig } from './rotate45.helpConfig';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -37,6 +39,8 @@ export class Rotate45Tool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, rotate45HelpConfig);
+
     setTimeout(
       () =>
         setState({

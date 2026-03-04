@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -13,6 +14,7 @@ import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import { copyHelpConfig } from './copy.helpConfig';
 
 /**
  * Dupliquer une figure
@@ -62,6 +64,8 @@ export class CopyTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, copyHelpConfig);
+
     setTimeout(
       () =>
         setState({

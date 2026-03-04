@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -13,6 +14,7 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { duplicateHelpConfig } from './duplicate.helpConfig';
 
 /**
  * Dupliquer une figure
@@ -60,6 +62,8 @@ export class DuplicateTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, duplicateHelpConfig);
+
     setTimeout(
       () =>
         setState({

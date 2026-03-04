@@ -1,9 +1,11 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, getAverageColor } from '../Core/Tools/general';
+import { mergeHelpConfig } from './merge.helpConfig';
 
 /**
  * Fusionner 2 figures en une nouvelle figure
@@ -49,6 +51,8 @@ export class MergeTool extends Tool {
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, mergeHelpConfig);
+
     setTimeout(
       () =>
         setState({

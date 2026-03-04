@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -10,6 +11,7 @@ import {
   deleteChildrenOfDivisionPoint,
   deleteSubDivisionPoints,
 } from '../GeometryTools/deleteShape';
+import { deleteHelpConfig } from './delete.helpConfig';
 
 /**
  * Supprimer une figure (et supprime le groupe dont la figure faisait partie s'il
@@ -39,6 +41,8 @@ export class DeleteTool extends Tool {
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, deleteHelpConfig);
+
     setTimeout(
       () =>
         setState({

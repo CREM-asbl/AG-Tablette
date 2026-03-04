@@ -1,10 +1,12 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shapes/Shape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import { hideHelpConfig } from './hide.helpConfig';
 
 /**
  * Cacher des objets.
@@ -23,6 +25,8 @@ export class HideTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, hideHelpConfig);
+
     setTimeout(
       () =>
         setState({

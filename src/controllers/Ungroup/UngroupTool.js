@@ -1,7 +1,9 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Tool } from '../Core/States/Tool';
+import { ungroupHelpConfig } from './ungroup.helpConfig';
 
 /**
  * Supprimer un groupe (ne supprime pas les figures).
@@ -31,6 +33,8 @@ export class UngroupTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, ungroupHelpConfig);
+
     setTimeout(
       () =>
         setState({

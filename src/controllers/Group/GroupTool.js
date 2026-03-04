@@ -1,8 +1,10 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { Tool } from '../Core/States/Tool';
+import { groupHelpConfig } from './group.helpConfig';
 
 /**
  * Grouper des figures.
@@ -57,6 +59,8 @@ export class GroupTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, groupHelpConfig);
+
     setTimeout(
       () =>
         setState({

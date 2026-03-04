@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -16,6 +17,7 @@ import {
   projectionOnConstraints,
   recomputeAllVisibilities,
 } from '../GeometryTools/recomputeShape';
+import { transformHelpConfig } from './transform.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -56,6 +58,8 @@ export class TransformTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, transformHelpConfig);
+
     app.mainCanvasLayer.editingShapeIds = [];
     app.upperCanvasLayer.removeAllObjects();
 
