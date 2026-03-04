@@ -1,7 +1,9 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
+import { buildCenterHelpConfig } from './buildCenter.helpConfig';
 
 /**
  * Construire le centre d'une figure (l'afficher)
@@ -31,6 +33,8 @@ export class BuildCenterTool extends Tool {
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, buildCenterHelpConfig);
+
     setTimeout(
       () =>
         setState({

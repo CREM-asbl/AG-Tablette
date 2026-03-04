@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -6,6 +7,7 @@ import { Segment } from '../Core/Objects/Segment';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Shape } from '../Core/Objects/Shapes/Shape';
 import { Tool } from '../Core/States/Tool';
+import { colorHelpConfig } from './color.helpConfig';
 
 /**
  * Modifier la couleur
@@ -32,6 +34,8 @@ export class ColorTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, colorHelpConfig);
+
     setTimeout(
       () =>
         setState({

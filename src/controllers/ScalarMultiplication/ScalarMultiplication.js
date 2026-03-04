@@ -1,9 +1,11 @@
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { Tool } from '../Core/States/Tool';
 import { createElem, findObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { scalarMultiplicationHelpConfig } from './scalarMultiplication.helpConfig';
 
 /**
  * Monter des objets.
@@ -22,6 +24,8 @@ export class ScalarMultiplicationTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, scalarMultiplicationHelpConfig);
+
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 

@@ -1,3 +1,4 @@
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -12,6 +13,7 @@ import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
+import { orthogonalSymetryHelpConfig } from './orthogonalSymetry.helpConfig';
 
 export class OrthogonalSymetryTool extends Tool {
   constructor() {
@@ -19,6 +21,8 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, orthogonalSymetryHelpConfig);
+
     this.removeListeners();
     this.duration = app.settings.geometryTransformationAnimation
       ? app.settings.geometryTransformationAnimationDuration

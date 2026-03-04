@@ -1,13 +1,15 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { getFamily } from '../../store/kit';
 import { app, setState } from '../Core/App';
-import { appActions } from '../../store/appState';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { CubeShape } from '../Core/Objects/Shapes/CubeShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { createHelpConfig } from './create.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -50,6 +52,8 @@ export class CreateTool extends Tool {
    * @param  {String} family Nom de la famille sélectionnée
    */
   start() {
+    helpConfigRegistry.register(this.name, createHelpConfig);
+
     // S'assurer que l'outil précédent soit complètement arrêté
     app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();

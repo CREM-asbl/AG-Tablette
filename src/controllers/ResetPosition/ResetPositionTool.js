@@ -1,7 +1,9 @@
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
+import { resetPositionHelpConfig } from './resetPosition.helpConfig';
 
 /**
  *
@@ -12,6 +14,8 @@ export class ResetPositionTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, resetPositionHelpConfig);
+
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 

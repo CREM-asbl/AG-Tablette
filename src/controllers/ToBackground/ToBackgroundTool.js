@@ -1,8 +1,10 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
 import { findIndexById } from '../Core/Tools/general';
+import { toBackgroundHelpConfig } from './toBackground.helpConfig';
 
 /**
  * Déplacer une figure derrière toutes les autres.
@@ -29,6 +31,8 @@ export class ToBackgroundTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, toBackgroundHelpConfig);
+
     setTimeout(
       () =>
         setState({

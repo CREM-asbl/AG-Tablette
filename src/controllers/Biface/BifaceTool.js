@@ -1,8 +1,10 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Text } from '../Core/Objects/Text';
 import { Tool } from '../Core/States/Tool';
+import { bifaceHelpConfig } from './biface.helpConfig';
 
 /**
  * Rendre une shape biface
@@ -31,6 +33,8 @@ export class BifaceTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, bifaceHelpConfig);
+
     setTimeout(
       () =>
         setState({

@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -18,6 +19,7 @@ import {
   computeAllShapeTransform,
   computeConstructionSpec,
 } from '../GeometryTools/recomputeShape';
+import { reverseHelpConfig } from './reverse.helpConfig';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -78,6 +80,8 @@ export class ReverseTool extends Tool {
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, reverseHelpConfig);
+
     setTimeout(
       () =>
         setState({

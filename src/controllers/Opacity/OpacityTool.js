@@ -1,9 +1,11 @@
 import { html } from 'lit';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
 import './opacity-popup';
+import { opacityHelpConfig } from './opacity.helpConfig';
 
 /**
  * Modifier l'opacité d'une figure
@@ -39,6 +41,8 @@ export class OpacityTool extends Tool {
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, opacityHelpConfig);
+
     this.removeListeners();
 
     createElem('opacity-popup');
