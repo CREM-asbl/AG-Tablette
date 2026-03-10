@@ -16,7 +16,7 @@ export const createIrregularHelpConfig = {
    * @returns {{target: string, text: string} | null}
    */
   getStepConfig: (state) => {
-    const { currentStep, pointCount = 0 } = state;
+    const { currentStep, numberOfPointsDrawn = 0 } = state;
 
     if (currentStep === 'start') {
       return {
@@ -26,7 +26,7 @@ export const createIrregularHelpConfig = {
     }
 
     if (currentStep === 'drawPoint') {
-      if (pointCount <= 0) {
+      if (numberOfPointsDrawn <= 0) {
         return {
           target: 'canvas-container',
           text: '🎯 Place le 1er point du polygone',
@@ -34,12 +34,12 @@ export const createIrregularHelpConfig = {
       }
       return {
         target: 'canvas-container',
-        text: `🎯 Place le ${pointCount + 1}e point`,
+        text: `🎯 Place le ${numberOfPointsDrawn + 1}e point`,
       };
     }
 
     if (currentStep === 'animatePoint') {
-      if (pointCount >= 3) {
+      if (numberOfPointsDrawn >= 3) {
         return {
           target: 'canvas-container',
           text: '✅ Reviens près du 1er point pour fermer le polygone',

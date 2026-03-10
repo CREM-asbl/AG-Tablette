@@ -77,7 +77,7 @@ export class CreateQuadrilateralTool extends Tool {
     setTimeout(
       () =>
         setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
         }),
       50,
     );
@@ -167,7 +167,7 @@ export class CreateQuadrilateralTool extends Tool {
       });
     }
     setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
     });
   }
 
@@ -272,7 +272,7 @@ export class CreateQuadrilateralTool extends Tool {
           }),
         );
         setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
         });
         return;
       }
@@ -282,12 +282,12 @@ export class CreateQuadrilateralTool extends Tool {
       this.stopAnimation();
       this.executeAction();
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint', numberOfPointsDrawn: 0 },
       });
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
     }
   }

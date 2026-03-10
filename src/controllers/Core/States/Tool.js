@@ -1,5 +1,5 @@
 import { computed } from '@lit-labs/signals';
-import { activeTool, createWatcher, currentStep } from '../../../store/appState';
+import { activeTool, createWatcher, currentStep, toolState } from '../../../store/appState';
 import { app } from '../App';
 
 /**
@@ -57,7 +57,8 @@ export class Tool {
           // Sync legacy state to ensure App.js delegates events correctly
           // and eventHandler uses the correct step.
           if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step) {
-            app.tool = { ...(app.tool || {}), name: toolName, currentStep: step };
+            const extraState = toolState.get() || {};
+            app.tool = { ...(app.tool || {}), ...extraState, name: toolName, currentStep: step };
           }
 
           if (typeof this[step] === 'function') {

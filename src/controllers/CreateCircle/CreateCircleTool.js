@@ -79,7 +79,7 @@ export class CreateCircleTool extends Tool {
 
     setTimeout(
       () => {
-        appActions.setToolState({ currentStep: 'drawPoint' });
+        appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
         appActions.setCurrentStep('drawPoint');
       },
       50,
@@ -271,7 +271,7 @@ export class CreateCircleTool extends Tool {
           fillOpacity: 0,
         });
       }
-      appActions.setToolState({ currentStep: 'animatePoint' });
+      appActions.setToolState({ currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
       appActions.setCurrentStep('animatePoint');
     }
   }
@@ -322,7 +322,7 @@ export class CreateCircleTool extends Tool {
       }
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      appActions.setToolState({ currentStep: 'drawPoint' });
+      appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
       appActions.setCurrentStep('drawPoint');
     }
   }

@@ -15,7 +15,7 @@ export const createLineHelpConfig = {
    * @returns {{target: string, text: string} | null}
    */
   getStepConfig: (state) => {
-    const { currentStep, pointCount = 0 } = state;
+    const { currentStep, numberOfPointsDrawn = 0 } = state;
 
     // Étape initiale - sélection du type de ligne
     if (currentStep === 'start') {
@@ -33,7 +33,7 @@ export const createLineHelpConfig = {
       ];
       return {
         target: 'canvas-container',
-        text: pointLabels[pointCount] || pointLabels[0],
+        text: pointLabels[numberOfPointsDrawn] || pointLabels[0],
       };
     }
 
@@ -45,7 +45,7 @@ export const createLineHelpConfig = {
       ];
       return {
         target: 'canvas-container',
-        text: adjustLabels[pointCount] || adjustLabels[0],
+        text: adjustLabels[numberOfPointsDrawn] || adjustLabels[0],
       };
     }
 

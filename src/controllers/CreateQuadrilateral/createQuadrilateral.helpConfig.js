@@ -17,7 +17,7 @@ export const createQuadrilateralHelpConfig = {
    * @returns {{target: string, text: string} | null}
    */
   getStepConfig: (state) => {
-    const { currentStep, numberOfPointsDrawn = 0, pointCount = 0 } = state;
+    const { currentStep, numberOfPointsDrawn = 0 } = state;
 
     // Étape initiale - sélection du type de quadrilatère
     if (currentStep === 'start') {
@@ -37,7 +37,7 @@ export const createQuadrilateralHelpConfig = {
       ];
       return {
         target: 'canvas-container',
-        text: pointLabels[pointCount] || pointLabels[0],
+        text: pointLabels[numberOfPointsDrawn] || pointLabels[0],
       };
     }
 
@@ -51,7 +51,7 @@ export const createQuadrilateralHelpConfig = {
       ];
       return {
         target: 'canvas-container',
-        text: adjustLabels[pointCount] || adjustLabels[0],
+        text: adjustLabels[numberOfPointsDrawn - 1] || adjustLabels[0],
       };
     }
 

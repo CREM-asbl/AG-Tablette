@@ -88,7 +88,7 @@ export class CreateLineTool extends Tool {
       setTimeout(
         () =>
           setState({
-            tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+            tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
           }),
         50,
       );
@@ -156,7 +156,7 @@ export class CreateLineTool extends Tool {
     });
 
     setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
     });
   }
 
@@ -268,7 +268,7 @@ export class CreateLineTool extends Tool {
         });
       }
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
     }
   }
@@ -296,7 +296,7 @@ export class CreateLineTool extends Tool {
         type: 'info',
       });
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
       return;
     }
@@ -306,12 +306,12 @@ export class CreateLineTool extends Tool {
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint', numberOfPointsDrawn: 0 },
       });
     } else {
       this.stopAnimation();
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
     }
   }

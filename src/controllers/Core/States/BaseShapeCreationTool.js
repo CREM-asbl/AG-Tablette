@@ -73,7 +73,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       await this.loadShapeDefinition();
 
       this.resetDrawingState();
-      appActions.setToolState({ currentStep: 'drawPoint' });
+      appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
       appActions.setCurrentStep('drawPoint');
     } catch (error) {
       console.error('Erreur lors du chargement de la définition:', error);
@@ -150,7 +150,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
 
     this.addPointToShape(newCoordinates);
     this.updateShapePreview();
-    appActions.setToolState({ currentStep: 'animatePoint' });
+    appActions.setToolState({ currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('animatePoint');
   }
 
@@ -230,7 +230,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       type: 'info',
     });
     this.rollbackLastPoint();
-    appActions.setToolState({ currentStep: 'drawPoint' });
+    appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('drawPoint');
   }
 
@@ -253,7 +253,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   continueDrawing() {
     this.getConstraints(this.numberOfPointsDrawn);
-    appActions.setToolState({ currentStep: 'drawPoint' });
+    appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('drawPoint');
   }
 

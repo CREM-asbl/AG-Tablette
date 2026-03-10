@@ -55,7 +55,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     setTimeout(
       () =>
         setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
         }),
       50,
     );
@@ -147,7 +147,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       });
     }
     setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
     });
   }
 
@@ -210,7 +210,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
           }),
         );
         setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
         });
         return;
       }
@@ -221,11 +221,11 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint', numberOfPointsDrawn: 0 },
       });
     } else {
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
     }
   }

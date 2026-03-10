@@ -24,6 +24,7 @@ export class CreateIrregularTool extends Tool {
 
     // listen-canvas-click
     this.points = [];
+    this.numberOfPointsDrawn = 0;
 
     this.shapeId = null;
   }
@@ -48,11 +49,12 @@ export class CreateIrregularTool extends Tool {
 
     this.points = [];
     this.segments = [];
+    this.numberOfPointsDrawn = 0;
 
     setTimeout(
       () =>
         setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
         }),
       50,
     );
@@ -92,6 +94,7 @@ export class CreateIrregularTool extends Tool {
         size: 2,
       }),
     );
+    this.numberOfPointsDrawn++;
     if (this.points.length > 1) {
       const seg = new Segment({
         layer: 'upper',
@@ -110,7 +113,7 @@ export class CreateIrregularTool extends Tool {
       });
     }
     setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
     });
   }
 
@@ -127,7 +130,7 @@ export class CreateIrregularTool extends Tool {
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+        tool: { ...app.tool, name: this.name, currentStep: 'start', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
     } else {
       setState({
