@@ -20,14 +20,14 @@ export const rotationHelpConfig = {
     if (currentStep === 'start' || currentStep === 'selectFirstReference') {
       return {
         target: 'canvas-container',
-        text: 'Selectionne le centre de rotation',
+        text: 'Sélectionne le centre de rotation ou le centre (d\'une rotation précédente)',
       };
     }
 
     if (currentStep === 'selectReference') {
       return {
         target: 'canvas-container',
-        text: 'Definis la reference d\'angle (point ou arc)',
+        text: 'Sélectionne l\'angle (point, arc ou secteur) ou l\'angle (d\'une rotation précédente)',
       };
     }
 

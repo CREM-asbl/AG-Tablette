@@ -19,14 +19,20 @@ export const orthogonalSymetryHelpConfig = {
     if (currentStep === 'start' || currentStep === 'selectFirstReference') {
       return {
         target: 'canvas-container',
-        text: 'Definis l\'axe de symetrie (2 points ou une droite)',
+        text: 'Sélectionne (place) le premier point de l\'axe, une droite ou un axe (d\'une symétrie précédente)',
       };
     }
 
     if (currentStep === 'selectReference') {
+      if (state.numberOfPointsDrawn === 1) {
+        return {
+          target: 'canvas-container',
+          text: 'Sélectionne (place) le second point de l\'axe',
+        };
+      }
       return {
         target: 'canvas-container',
-        text: 'Selectionne le second point de l\'axe',
+        text: 'Sélectionne (place) le premier point de l\'axe, une droite ou un axe (d\'une symétrie précédente)',
       };
     }
 

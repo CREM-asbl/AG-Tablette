@@ -214,6 +214,7 @@ export class OrthogonalSymetryTool extends Tool {
             ...app.tool,
             name: this.name,
             currentStep: 'animateFirstRefPoint',
+            numberOfPointsDrawn: this.pointsDrawn.length,
           },
         });
       }
@@ -244,6 +245,7 @@ export class OrthogonalSymetryTool extends Tool {
           name: this.name,
           currentStep: 'animateSecondRefPoint',
           referenceShapeId: referenceShape.id,
+          numberOfPointsDrawn: this.pointsDrawn.length,
         },
       });
     }
@@ -265,7 +267,12 @@ export class OrthogonalSymetryTool extends Tool {
         elementIds: [this.firstReference.id],
       });
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectReference' },
+        tool: {
+          ...app.tool,
+          name: this.name,
+          currentStep: 'selectReference',
+          numberOfPointsDrawn: this.pointsDrawn.length,
+        },
       });
     } else {
       const coord = app.workspace.lastKnownMouseCoordinates;
@@ -277,7 +284,12 @@ export class OrthogonalSymetryTool extends Tool {
       }
       this.characteristicElements.elementIds.push(this.secondReference.id);
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+        tool: {
+          ...app.tool,
+          name: this.name,
+          currentStep: 'selectObject',
+          numberOfPointsDrawn: this.pointsDrawn.length,
+        },
       });
     }
   }

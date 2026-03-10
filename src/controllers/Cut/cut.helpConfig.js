@@ -12,21 +12,21 @@ export const cutHelpConfig = {
     if (currentStep === 'start' || currentStep === 'listen') {
       return {
         target: 'canvas-container',
-        text: 'Selectionne le premier point de decoupe',
+        text: 'Sélectionne le premier point de découpe',
       };
     }
 
     if (currentStep === 'selectSecondPoint') {
       return {
         target: 'canvas-container',
-        text: 'Selectionne le point central (optionnel)',
+        text: 'Sélectionne le centre (optionnel) ou le second point de découpe',
       };
     }
 
     if (currentStep === 'selectThirdPoint') {
       return {
         target: 'canvas-container',
-        text: 'Selectionne le second point de decoupe',
+        text: 'Sélectionne le second point de découpe',
       };
     }
 

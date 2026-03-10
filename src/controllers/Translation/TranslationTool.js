@@ -218,6 +218,7 @@ export class TranslationTool extends Tool {
             ...app.tool,
             name: this.name,
             currentStep: 'animateFirstRefPoint',
+            numberOfPointsDrawn: this.pointsDrawn.length,
           },
         });
       }
@@ -247,6 +248,7 @@ export class TranslationTool extends Tool {
           name: this.name,
           currentStep: 'animateSecondRefPoint',
           referenceShapeId: referenceShape.id,
+          numberOfPointsDrawn: this.pointsDrawn.length,
         },
       });
     }
@@ -264,7 +266,12 @@ export class TranslationTool extends Tool {
         elementIds: [reference.id],
       });
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectReference' },
+        tool: {
+          ...app.tool,
+          name: this.name,
+          currentStep: 'selectReference',
+          numberOfPointsDrawn: this.pointsDrawn.length,
+        },
       });
     } else {
       const coord = app.workspace.lastKnownMouseCoordinates;
@@ -276,7 +283,12 @@ export class TranslationTool extends Tool {
       }
       this.characteristicElements.elementIds.push(this.secondReference.id);
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+        tool: {
+          ...app.tool,
+          name: this.name,
+          currentStep: 'selectObject',
+          numberOfPointsDrawn: this.pointsDrawn.length,
+        },
       });
     }
   }

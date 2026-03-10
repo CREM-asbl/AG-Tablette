@@ -19,14 +19,20 @@ export const translationHelpConfig = {
     if (currentStep === 'start' || currentStep === 'selectFirstReference') {
       return {
         target: 'canvas-container',
-        text: 'Definis le vecteur de translation',
+        text: 'Sélectionne (place) le premier point du vecteur, un segment ou un vecteur (d\'une translation précédente)',
       };
     }
 
     if (currentStep === 'selectReference') {
+      if (state.numberOfPointsDrawn === 1) {
+        return {
+          target: 'canvas-container',
+          text: 'Sélectionne (place) le second point du vecteur',
+        };
+      }
       return {
         target: 'canvas-container',
-        text: 'Selectionne le second point de reference',
+        text: 'Sélectionne (place) le premier point du vecteur, un segment ou un vecteur',
       };
     }
 
