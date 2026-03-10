@@ -12,6 +12,7 @@ export class Notification extends LitElement {
       :host {
         display: none;
         position: fixed;
+        z-index: 10000;
         top: 10px;
         right: 10px;
         border-radius: 7px;
