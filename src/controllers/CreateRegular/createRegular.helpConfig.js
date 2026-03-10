@@ -30,7 +30,7 @@ export const createRegularHelpConfig = {
     if (currentStep === 'drawFirstPoint') {
       return {
         target: 'canvas-container',
-        text: '🎯 Place le centre du polygone',
+        text: '🎯 Place le premier point du polygone',
       };
     }
 
