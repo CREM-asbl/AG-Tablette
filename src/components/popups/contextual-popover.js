@@ -111,6 +111,11 @@ class ContextualPopover extends LitElement {
       border-right-color: #38a169;
     }
 
+    /* Pas de flèche */
+    .arrow-none {
+      display: none;
+    }
+
     :host([hidden]) {
       display: none;
     }
@@ -143,7 +148,9 @@ class ContextualPopover extends LitElement {
   _handleFocus(event) {
     const { active, target, text, isComplete } = event.detail;
 
-    if (!active || !target || !text) {
+    // Ignorer si le target est déjà géré en interne par les composants majeurs
+    const internalTargets = ['canvas-container', 'shape-selector'];
+    if (!active || !target || !text || internalTargets.includes(target)) {
       this.isVisible = false;
       return;
     }
@@ -151,16 +158,19 @@ class ContextualPopover extends LitElement {
     this.text = text;
     this.target = target;
     this.isComplete = !!isComplete;
+    
+    // Calculer la position avant de l'afficher pour éviter le flash à (0,0)
+    this._updatePosition();
     this.isVisible = true;
 
-    // Attendre que le DOM soit mis à jour et que le dialog soit complètement rendu
+    // Recalculer après un court délai pour s'assurer que le DOM est stabilisé
     requestAnimationFrame(() => {
       setTimeout(() => this._updatePosition(), 50);
     });
   }
 
   _updatePosition() {
-    if (!this.isVisible || !this.target) return;
+    if (!this.target) return;
 
     // Récupérer l'élément cible
     let targetElement;
@@ -224,11 +234,16 @@ class ContextualPopover extends LitElement {
       top = Math.max(10, Math.min(targetRect.top + targetRect.height / 2 - popoverHeight / 2, viewportHeight - popoverHeight - 10));
       left = targetRect.right + gap;
       arrowClass = 'arrow-left';
-    } else {
+    } else if (targetRect.left > popoverWidth + gap) {
       // À gauche de l'élément
       top = Math.max(10, Math.min(targetRect.top + targetRect.height / 2 - popoverHeight / 2, viewportHeight - popoverHeight - 10));
       left = targetRect.left - popoverWidth - gap;
       arrowClass = 'arrow-right';
+    } else {
+      // Pas d'espace suffisant autour (élément large type canvas) -> On place à l'intérieur en haut
+      top = Math.max(10, targetRect.top + gap);
+      left = Math.max(10, Math.min(targetRect.left + targetRect.width / 2 - popoverWidth / 2, viewportWidth - popoverWidth - 10));
+      arrowClass = 'arrow-none';
     }
 
     this.position = { top, left, arrowClass };
