@@ -73,7 +73,12 @@ class ContextualGuideController extends LitElement {
     // Boucle de polling pour état du tool
     this.updateLoop = setInterval(() => {
       const currentApp = window.app;
-      if (!currentApp?.tool || currentApp.tool.name !== this.toolname) return;
+      
+      // Auto-fermeture si l'outil change ou n'existe plus
+      if (!currentApp?.tool || currentApp.tool.name !== this.toolname) {
+        this.close();
+        return;
+      }
 
       const newStep = currentApp.tool.currentStep || 'start';
       const pointCount =
@@ -93,10 +98,18 @@ class ContextualGuideController extends LitElement {
       }
     }, 100);
 
-    // Fermer après complétion
+    // Feedback visuel temporaire après complétion d'une action
     this.handleActionComplete = () => {
       this.isComplete = true;
-      setTimeout(() => this.close(), 1500);
+      this.updateGuide();
+      
+      // Réinitialiser le flag de complétion après 1,5s pour permettre la suite du guidage
+      setTimeout(() => {
+        if (this.updateLoop) { // Vérifier si le guide n'a pas été fermé entre temps
+          this.isComplete = false;
+          this.updateGuide();
+        }
+      }, 1500);
     };
     window.addEventListener('actions-executed', this.handleActionComplete);
   }

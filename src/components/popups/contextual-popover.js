@@ -10,6 +10,7 @@ class ContextualPopover extends LitElement {
     text: { state: true },
     target: { state: true },
     position: { state: true },
+    isComplete: { state: true },
   };
 
   static styles = css`
@@ -30,9 +31,14 @@ class ContextualPopover extends LitElement {
       max-width: 300px;
       font-size: 16px;
       line-height: 1.5;
+      transition: background 0.3s ease;
       animation: slideIn 0.3s ease-out;
       position: fixed;
       z-index: 9999;
+    }
+
+    .popover.complete {
+      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
     }
 
     @keyframes slideIn {
@@ -50,6 +56,7 @@ class ContextualPopover extends LitElement {
       position: absolute;
       width: 0;
       height: 0;
+      transition: border-color 0.3s ease;
     }
 
     /* Flèche pointant vers le bas (popover au-dessus de l'élément) */
@@ -61,6 +68,9 @@ class ContextualPopover extends LitElement {
       border-right: 10px solid transparent;
       border-top: 10px solid #667eea;
     }
+    .popover.complete .arrow-bottom {
+      border-top-color: #48bb78;
+    }
 
     /* Flèche pointant vers le haut (popover en-dessous de l'élément) */
     .arrow-top {
@@ -70,6 +80,9 @@ class ContextualPopover extends LitElement {
       border-left: 10px solid transparent;
       border-right: 10px solid transparent;
       border-bottom: 10px solid #764ba2;
+    }
+    .popover.complete .arrow-top {
+      border-bottom-color: #38a169;
     }
 
     /* Flèche pointant vers la droite (popover à gauche de l'élément) */
@@ -81,6 +94,9 @@ class ContextualPopover extends LitElement {
       border-bottom: 10px solid transparent;
       border-left: 10px solid #667eea;
     }
+    .popover.complete .arrow-right {
+      border-left-color: #48bb78;
+    }
 
     /* Flèche pointant vers la gauche (popover à droite de l'élément) */
     .arrow-left {
@@ -90,6 +106,9 @@ class ContextualPopover extends LitElement {
       border-top: 10px solid transparent;
       border-bottom: 10px solid transparent;
       border-right: 10px solid #764ba2;
+    }
+    .popover.complete .arrow-left {
+      border-right-color: #38a169;
     }
 
     :host([hidden]) {
@@ -102,6 +121,7 @@ class ContextualPopover extends LitElement {
     this.isVisible = false;
     this.text = '';
     this.target = null;
+    this.isComplete = false;
     this.position = { top: 0, left: 0, arrowClass: 'arrow-bottom' };
     this._updatePositionBound = this._updatePosition.bind(this);
   }
@@ -121,7 +141,7 @@ class ContextualPopover extends LitElement {
   }
 
   _handleFocus(event) {
-    const { active, target, text } = event.detail;
+    const { active, target, text, isComplete } = event.detail;
 
     if (!active || !target || !text) {
       this.isVisible = false;
@@ -130,6 +150,7 @@ class ContextualPopover extends LitElement {
 
     this.text = text;
     this.target = target;
+    this.isComplete = !!isComplete;
     this.isVisible = true;
 
     // Attendre que le DOM soit mis à jour et que le dialog soit complètement rendu
@@ -221,10 +242,10 @@ class ContextualPopover extends LitElement {
 
     return html`
       <div
-        class="popover"
+        class="popover ${this.isComplete ? 'complete' : ''}"
         style="top: ${this.position.top}px; left: ${this.position.left}px;"
       >
-        ${this.text}
+        ${this.isComplete ? '✨ ' : ''}${this.text}
         <div class="arrow ${this.position.arrowClass}"></div>
       </div>
     `;
