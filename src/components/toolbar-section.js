@@ -67,7 +67,7 @@ class ToolbarSection extends LitElement {
                           type="State"
                           title="${tool.title}"
                           ?active="${tool.name === this.selected}"
-                          cantInteract="${this.helpSelected}"
+                          cantInteract="${tool.name === 'color' ? false : this.helpSelected}"
                           @click="${this._actionHandle}"
                         >
                         </icon-button>`,

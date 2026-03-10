@@ -65,7 +65,7 @@ class IconButton extends LitElement {
     const src = this.type
       ? `/images/${this.type}/${name}.svg`
       : `/images/${name}.svg`;
-    if (this.name === 'color' && this.cantInteract !== 'true') {
+    if (this.name === 'color') {
       return html`
         <button style="background-image:url('${src}');">
           <input

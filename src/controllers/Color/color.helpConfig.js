@@ -11,7 +11,7 @@ export const colorHelpConfig = {
     if (currentStep === 'start' || currentStep === 'listen') {
       return {
         target: 'canvas-container',
-        text: 'Clique pour colorier, appui long pour recolorer les contours',
+        text: 'Touche la forme pour colorier, appui long pour recolorer les contours',
       };
     }
 

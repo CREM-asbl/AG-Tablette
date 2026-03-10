@@ -30,7 +30,7 @@ export class ShapeSelector extends LitElement {
       right: 0;
       left: 250px;
       padding: 4px;
-      z-index: 1200;
+      z-index: 10001;
     }
 
     .container {
