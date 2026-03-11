@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -17,21 +17,7 @@ export class TranslateTool extends Tool {
     this.startClickCoordinates = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez l'écran n'importe où dans la zone de dessin, et faites glissez
-        votre doigt sans le relacher, pour faire glisser le plan entier.
-      </p>
-    `;
-  }
+  
 
   /**
    * initialiser l'état

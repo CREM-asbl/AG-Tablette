@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { appActions } from '../../store/appState';
 import { getFamily } from '../../store/kit';
 import { app, setState } from '../Core/App';
@@ -26,24 +26,7 @@ export class CreateTool extends Tool {
     this.shapeToCreate = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir sélectionné une famille de figures dans le menu, vous devez
-        appuyer sur une des figures dans le menu qui apparaît en bas de l'écran.
-        Appuyez ensuite sur l'écran pour ajouter une figure.<br /><br />
-        <b>Note:</b> vous pouvez appuyer sur l'écran puis bouger votre doigt
-        sans le relacher, pour positionner plus précisément la nouvelle figure.
-      </p>
-    `;
-  }
+  
 
   /**
    * (ré-)initialiser l'état

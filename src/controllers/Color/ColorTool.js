@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -17,21 +17,7 @@ export class ColorTool extends Tool {
     super('color', 'Colorier', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        <!-- Après avoir choisi une couleur, touchez une figure pour en colorier les
-        bords. -->
-      </p>
-    `;
-  }
+  
 
   start() {
     helpConfigRegistry.register(this.name, colorHelpConfig);

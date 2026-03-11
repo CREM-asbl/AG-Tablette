@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -13,21 +13,7 @@ export class BuildCenterTool extends Tool {
     super('buildCenter', 'Construire le centre', 'operation');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une figure pour construire son centre. Si le centre était déjà
-        construit, cela va supprimer le centre.
-      </p>
-    `;
-  }
+  
 
   /**
    * initialiser l'état

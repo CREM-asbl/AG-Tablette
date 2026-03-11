@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -33,30 +33,7 @@ export class DivideTool extends Tool {
     this.numberOfParts = 2;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        diviser un segment d'une figure en plusieurs parties (délimitées par des
-        points).<br />
-        Après avoir choisit en combien de partie vous souhaitez diviser le
-        segment, touchez le segment que vous souhaitez diviser.<br />
-        Il est également possible de sélectionner deux points situés sur le même
-        segment, afin de diviser le segment formé par ces deux points.<br /><br />
-
-        <b>Note:</b> il est également possible de diviser un arc de cercle, soit
-        en touchant l'arc lui-même, soit en sélectionnant deux points situés sur
-        cet arc. Dans ce dernier cas, la division est effectuée dans le sens
-        horlogique.
-      </p>
-    `;
-  }
+  
 
   start() {
     if (import.meta.env.DEV) {

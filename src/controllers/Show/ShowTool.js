@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -17,13 +17,7 @@ export class ShowTool extends Tool {
     super('show', 'Montrer', 'tool');
   }
 
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
-  }
+  
 
   start() {
     helpConfigRegistry.register(this.name, showHelpConfig);

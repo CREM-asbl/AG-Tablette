@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -59,22 +59,7 @@ export class ReverseTool extends Tool {
     this.requestAnimFrameId = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour retourner une figure, touchez-là, puis touchez un des axes de
-        symétrie apparus sur la figure pour la retourner selon cet axe de
-        symétrie.
-      </p>
-    `;
-  }
+  
 
   /**
    * initialiser l'état

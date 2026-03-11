@@ -1,5 +1,5 @@
 import points from '@controllers/Core/ShapesKits/points.json';
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
@@ -35,17 +35,7 @@ export class CreatePointTool extends Tool {
     this.geometryParentObjectId1 = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
-  }
+  
 
   start() {
     app.upperCanvasLayer.removeAllObjects();

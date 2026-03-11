@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -43,23 +43,7 @@ export class RotateTool extends Tool {
     this.involvedShapes = [];
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une figure, puis glissez votre doigt sans relacher la figure
-        pour la faire tourner. La figure tourne autour de son centre, qui est
-        affiché lors de la rotation. Faites tournez votre doigt autour de ce
-        centre pour faire tourner la figure.
-      </p>
-    `;
-  }
+  
 
   start() {
     helpConfigRegistry.register(this.name, rotateHelpConfig);

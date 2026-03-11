@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -29,34 +29,7 @@ export class GroupTool extends Tool {
     ];
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        figurer des groupes de figures, qui sont alors solidaires. Une figure ne
-        peut appartenir qu'à un seul groupe.
-        <br />
-        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
-        figure appartenant à un groupe.<br /><br />
-
-        Pour créer un nouveau groupe, touchez deux figures n'appartenant pas à
-        un groupe. Toutes les figures touchées par la suite seront ajoutées à ce
-        groupe.<br /><br />
-
-        Pour ajouter une figure à un groupe, touchez une des figures appartenant
-        à ce groupe, puis touchez la figure que vous souhaitez ajouter.<br /><br />
-
-        Pour fusionner deux groupes, touchez une des figures appartenant au
-        premier groupe, puis touchez une des figures de l'autre groupe.
-      </p>
-    `;
-  }
+  
 
   start() {
     helpConfigRegistry.register(this.name, groupHelpConfig);

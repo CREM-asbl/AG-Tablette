@@ -20,9 +20,6 @@ export interface IGeometryTool {
   // Méthodes de rendu
   refreshStateUpper(): void;
 
-  // Méthodes d'aide
-  getHelpText(): string;
-
   // Exécution des actions
   executeAction(): void | Promise<void>;
 }

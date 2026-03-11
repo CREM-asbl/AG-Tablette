@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -22,20 +22,7 @@ export class DeleteTool extends Tool {
     super('delete', 'Supprimer', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une figure pour la supprimer de l'espace de travail.
-      </p>
-    `;
-  }
+  
 
   /**
    * initialiser l'état

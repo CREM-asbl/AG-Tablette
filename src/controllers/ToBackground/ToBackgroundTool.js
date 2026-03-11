@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -14,21 +14,7 @@ export class ToBackgroundTool extends Tool {
     super('toBackground', 'Arrière-plan', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        placer une figure derrière toutes les autres.<br />
-        Touchez une figure pour la placer en arrière-plan.
-      </p>
-    `;
-  }
+  
 
   start() {
     helpConfigRegistry.register(this.name, toBackgroundHelpConfig);

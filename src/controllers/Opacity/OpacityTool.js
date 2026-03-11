@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -19,23 +19,7 @@ export class OpacityTool extends Tool {
     this.opacity = 0.7;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        définir pour chaque figure si elle est transparente, semi-transparente
-        ou complètement opaque.<br />
-        Après avoir choisit l'une de ces 3 options dans le menu, touchez une
-        figure pour lui appliquer la modification.
-      </p>
-    `;
-  }
+  
 
   /**
    * initialiser l'état

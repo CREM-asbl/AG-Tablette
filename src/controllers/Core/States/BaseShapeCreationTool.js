@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { appActions } from '../../../store/appState';
 import { app } from '../../Core/App';
 import { SelectManager } from '../../Core/Managers/SelectManager';
@@ -22,15 +22,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     this.shapeDefinition = null;
   }
 
-  /**
-   * Aide standardisée pour tous les outils de création
-   */
-  getHelpText() {
-    return html`
-      <h3>${this.title}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${this.title}"</b>.</p>
-    `;
-  }
+  
 
   /**
    * Démarrage standardisé avec sélecteur de forme

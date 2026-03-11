@@ -1,4 +1,3 @@
-import { html } from 'lit';
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -20,22 +19,6 @@ export class Rotate45Tool extends Tool {
       elle-même
     */
     this.involvedShapes = [];
-  }
-
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Cliquez sur une figure pour la faire tourner de 45° dans le sens
-        horloger.
-      </p>
-    `;
   }
 
   start() {

@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -38,22 +38,7 @@ export class MoveTool extends Tool {
     this.involvedShapes = [];
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour déplacer une figure, touchez la figure et glissez votre doigt sans
-        le relacher. Relachez ensuite votre doigt une fois que la figure est
-        correctement positionnée.
-      </p>
-    `;
-  }
+  
 
   start() {
     helpConfigRegistry.register(this.name, moveHelpConfig);

@@ -1,4 +1,4 @@
-import { html } from 'lit';
+
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -24,30 +24,7 @@ export class CutTool extends Tool {
     this.drawColor = '#E90CC8';
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        découper une figure en deux nouvelles figures, tout en laissant la
-        figure d'origine intacte.<br /><br />
-
-        Pour découper une figure, touchez un premier sommet de la figure, puis
-        éventuellement le centre de la figure (non obligatoire), et enfin un
-        second sommet de la figure.<br /><br />
-
-        <b>Note:</b> il n'est pas toujours possible de découper une figure en
-        sélectionnant deux sommets quelconques. La ligne de découpe doit en
-        effet rester à l'intérieur de la figure, sans quoi la découpe ne sera
-        pas réalisée.
-      </p>
-    `;
-  }
+  
 
   start() {
     helpConfigRegistry.register(this.name, cutHelpConfig);
