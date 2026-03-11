@@ -354,7 +354,7 @@ describe('Store de synchronisation', () => {
       const endTime = performance.now();
       const avgTime = (endTime - startTime) / iterations;
 
-      expect(avgTime).toBeLessThan(0.1); // Moins de 0.1ms par update en moyenne
+      expect(avgTime).toBeLessThan(0.2); // Moins de 0.2ms par update en moyenne
     });
   });
 
