@@ -129,6 +129,8 @@ export class ShapeSelector extends LitElement {
     this.selectedTemplate = this.templatesNames.find(
       (template) => template.name === event.target.name,
     );
+    appActions.setSelectedTemplate(this.selectedTemplate);
+    appActions.setCurrentStep(this.nextStep);
     setState({
       tool: {
         ...app.tool,

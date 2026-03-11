@@ -190,7 +190,14 @@ export const appActions = {
   setCurrentStep: (step) => {
     currentStep.set(step);
     window.dispatchEvent(
-      new CustomEvent('tool:step-changed', { detail: { step } }),
+      new CustomEvent('tool-step-changed', { detail: { step } }),
+    );
+  },
+
+  setSelectedTemplate: (template) => {
+    selectedTemplate.set(template);
+    window.dispatchEvent(
+      new CustomEvent('tool-template-changed', { detail: { template } }),
     );
   },
 

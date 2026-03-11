@@ -1,5 +1,5 @@
 import { computed } from '@lit-labs/signals';
-import { activeTool, createWatcher, currentStep, toolState } from '../../../store/appState';
+import { activeTool, createWatcher, currentStep, selectedTemplate, toolState } from '../../../store/appState';
 import { app } from '../App';
 
 /**
@@ -48,17 +48,18 @@ export class Tool {
       const combinedSignal = computed(() => ({
         toolName: activeTool.get(),
         step: currentStep.get(),
+        template: selectedTemplate.get(),
       }));
 
       this.disposeWatcher = createWatcher(combinedSignal, (newValue) => {
-        const { toolName, step } = newValue;
+        const { toolName, step, template } = newValue;
 
         if (toolName === this.name && step) {
           // Sync legacy state to ensure App.js delegates events correctly
           // and eventHandler uses the correct step.
-          if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step) {
+          if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step || app.tool.selectedTemplate !== template) {
             const extraState = toolState.get() || {};
-            app.tool = { ...(app.tool || {}), ...extraState, name: toolName, currentStep: step };
+            app.tool = { ...(app.tool || {}), ...extraState, name: toolName, currentStep: step, selectedTemplate: template };
           }
 
           if (typeof this[step] === 'function') {

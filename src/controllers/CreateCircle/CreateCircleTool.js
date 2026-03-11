@@ -48,6 +48,7 @@ export class CreateCircleTool extends Tool {
     helpConfigRegistry.register(this.name, createCircleHelpConfig);
 
     import('@components/shape-selector');
+    appActions.setSelectedTemplate(app.tool.selectedTemplate);
     appActions.setToolUiState({
       name: 'shape-selector',
       family: 'Arcs',
