@@ -31,4 +31,26 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - **Résultat :** Un code base plus propre et moderne.
 
 ---
+## Avancement de la Migration
+
+### Phase 1 : Couverture des tests (TERMINÉ)
+- [x] Modules critiques > 60% de couverture.
+
+### Phase 2 : Migration des Composants UI (TERMINÉ)
+- [x] `ag-menu.ts`
+- [x] `ag-app.ts`
+- [x] Popups principaux.
+
+### Phase 3 : Migration des Outils (EN COURS)
+- [x] **DeleteTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **ColorTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **MoveTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [ ] **RotateTool** : Prochaine étape.
+- [ ] **CreateCircleTool** : En attente.
+
+### État de la Couverture E2E
+- [x] Tests de base pour Delete, Color, Move dans `tests/`.
+- [ ] Étendre à tous les outils de la barre d'outils.
+
+---
 *Ce document sera maintenu à jour pour refléter l'avancement de la migration.*

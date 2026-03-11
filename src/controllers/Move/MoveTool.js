@@ -17,6 +17,7 @@ import {
   computeConstructionSpec,
 } from '../GeometryTools/recomputeShape';
 import { moveHelpConfig } from './move.helpConfig';
+import { appActions } from '../../store/appState';
 
 /**
  * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -43,11 +44,15 @@ export class MoveTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, moveHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('listen');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+        });
+      },
       50,
     );
   }
@@ -60,6 +65,8 @@ export class MoveTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
+    appActions.setCurrentStep('listen');
+
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
     app.workspace.selectionConstraints.shapes.blacklist =
@@ -69,6 +76,7 @@ export class MoveTool extends Tool {
 
   move() {
     this.removeListeners();
+    appActions.setCurrentStep('move');
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -138,6 +146,7 @@ export class MoveTool extends Tool {
       );
     });
 
+    appActions.setCurrentStep('move');
     setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();
   }
@@ -145,6 +154,7 @@ export class MoveTool extends Tool {
   canvasMouseUp() {
     if (app.tool.currentStep !== 'move') return;
     this.executeAction();
+    appActions.setCurrentStep('listen');
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 

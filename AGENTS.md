@@ -167,6 +167,8 @@ class Tool {
 ## 🔄 Historique des décisions importantes
 
 ### Dernières modifications majeures
+- **Migration Signals** : Migration réussie des outils `DeleteTool`, `ColorTool` et `MoveTool` vers une architecture pilotée par les signaux (`appActions`).
+- **Tests E2E** : Introduction des premiers tests Playwright fonctionnels pour valider les outils (`tests/*.spec.js`).
 - **Migration dev mode** : Remplacement `window.dev_mode` par `import.meta.env.DEV`
 - **Nettoyage console.log** : Suppression massive + nouvelle politique simplifiée
 - **Politique logging** : Simplification - logs debug autorisés, suppression manuelle avant prod
@@ -177,6 +179,7 @@ class Tool {
 - **Lit Elements** : Conservé pour compatibilité et performance
 - **Firebase** : Backend managé pour faciliter maintenance
 - **Modularité** : Architecture controller pour faciliter les tests
+- **Signals** : Utilisation de `@lit-labs/signals` pour un état réactif et découplé de la logique impérative.
 
 ## 🎯 Guidelines pour les futures interventions IA
 
@@ -184,12 +187,12 @@ class Tool {
 1. **Lire ce fichier** en priorité
 2. **Analyser l'impact** sur l'architecture existante
 3. **Respecter les patterns** établis
-4. **Tester localement** avec `npm run test:all`
+4. **Tester localement** avec `npm run test:all` (ou Vitest + Playwright séparément)
 
 ### 🚦 Évolution du state management
-> **Note (novembre 2025)** : Pour les futurs développements, la gestion d'état doit progressivement migrer vers un système basé sur **Signal** (state management réactif). Toute nouvelle fonctionnalité ou refactorisation majeure doit privilégier l'usage de Signal pour la gestion d'état, en cohérence avec l'architecture existante et de façon incrémentale.
+> **Note (mars 2026)** : La migration vers les Signals est en cours. Les outils migrés utilisent désormais `appActions` pour mettre à jour l'état réactif. La compatibilité descendante est assurée par un double appel à `setState` le temps que tous les managers legacy soient migrés.
 
-> **⚠️ PRÉREQUIS MIGRATION** : Avant toute migration vers Signal, la couverture des tests des modules critiques doit atteindre **60% minimum**. Voir `docs/test-coverage-plan.md` pour le plan détaillé. État actuel : 20.4% global, modules critiques entre 0% et 93%.
+> **⚠️ PRÉREQUIS MIGRATION** : La couverture des tests des modules critiques a dépassé les 60%, autorisant la migration active des outils. Chaque migration doit suivre le cycle : Test Caractérisation (E2E) -> TDD (Unit) -> Migration -> Vérification.
 
 ### Pour les nouveaux outils géométriques
 1. Créer un dossier `controllers/[NomOutil]/`

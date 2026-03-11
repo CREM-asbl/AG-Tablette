@@ -1,5 +1,5 @@
 import { appActions } from '@store/appState';
-import { MoveTool } from '@controllers/Move/MoveTool';
+import { ColorTool } from '@controllers/Color/ColorTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -11,21 +11,17 @@ vi.mock('@lit-labs/signals', () => ({
 vi.mock('@controllers/Core/App', () => {
   const setState = vi.fn();
   const app = {
-    tool: { name: 'move', currentStep: 'start' },
-    upperCanvasLayer: {
-      removeAllObjects: vi.fn(),
-    },
-    mainCanvasLayer: {
-      editingShapeIds: [],
-      shapes: [],
-    },
+    tool: { name: 'color', currentStep: 'start' },
     workspace: {
       lastKnownMouseCoordinates: { x: 0, y: 0 },
-    },
-    fastSelectionConstraints: {
-      mousedown_all_shape: {
-        shapes: {}
+      selectionConstraints: {
+        shapes: {},
+        points: {},
+        segments: {}
       }
+    },
+    settings: {
+      shapesDrawColor: '#ff0000',
     },
     addListener: vi.fn(),
     removeListener: vi.fn(),
@@ -34,9 +30,9 @@ vi.mock('@controllers/Core/App', () => {
 });
 
 vi.mock('@store/appState', () => ({
-  activeTool: { get: vi.fn(() => 'move') },
-  currentStep: { get: vi.fn(() => 'start') },
-  createWatcher: vi.fn(() => vi.fn()),
+  activeTool: { get: vi.fn(() => 'color'), set: vi.fn() },
+  currentStep: { get: vi.fn(() => 'start'), set: vi.fn() },
+  toolState: { get: vi.fn(() => ({})), set: vi.fn() },
   appActions: {
     setActiveTool: vi.fn(),
     setCurrentStep: vi.fn(),
@@ -44,18 +40,18 @@ vi.mock('@store/appState', () => ({
   },
 }));
 
-describe('MoveTool - Signal Migration', () => {
+describe('ColorTool - Signal Migration', () => {
   let tool;
 
   beforeEach(() => {
     vi.clearAllMocks();
     helpConfigRegistry.clear();
-    tool = new MoveTool();
+    tool = new ColorTool();
   });
 
   it('registers help config in start()', () => {
     tool.start();
-    expect(helpConfigRegistry.has('move')).toBe(true);
+    expect(helpConfigRegistry.has('color')).toBe(true);
   });
 
   it('updates signals in start()', async () => {
@@ -63,7 +59,7 @@ describe('MoveTool - Signal Migration', () => {
     tool.start();
     vi.advanceTimersByTime(100);
     
-    expect(appActions.setActiveTool).toHaveBeenCalledWith('move');
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('color');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
   });
 

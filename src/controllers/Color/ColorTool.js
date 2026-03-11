@@ -1,4 +1,5 @@
 
+import { appActions } from '../../store/appState';
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -22,18 +23,23 @@ export class ColorTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, colorHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('listen');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+        });
+      },
       50,
     );
   }
 
   listen() {
-    this.mustPreventNextClick = false;
     this.removeListeners();
+    appActions.setCurrentStep('listen');
+    this.mustPreventNextClick = false;
     this.longPressId = app.addListener('canvasLongPress', this.handler);
     this.mouseClickId = app.addListener('canvasClick', this.handler);
   }
@@ -93,6 +99,7 @@ export class ColorTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
+    appActions.setCurrentStep('listen');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'listen' },
     });

@@ -1,5 +1,5 @@
 import { appActions } from '@store/appState';
-import { MoveTool } from '@controllers/Move/MoveTool';
+import { DeleteTool } from '@controllers/Delete/DeleteTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -11,21 +11,20 @@ vi.mock('@lit-labs/signals', () => ({
 vi.mock('@controllers/Core/App', () => {
   const setState = vi.fn();
   const app = {
-    tool: { name: 'move', currentStep: 'start' },
+    tool: { name: 'delete', currentStep: 'start' },
     upperCanvasLayer: {
       removeAllObjects: vi.fn(),
     },
-    mainCanvasLayer: {
-      editingShapeIds: [],
-      shapes: [],
-    },
     workspace: {
       lastKnownMouseCoordinates: { x: 0, y: 0 },
-    },
-    fastSelectionConstraints: {
-      mousedown_all_shape: {
-        shapes: {}
+      selectionConstraints: {
+        shapes: {},
+        points: {},
+        segments: {}
       }
+    },
+    settings: {
+      temporaryDrawColor: '#ff0000',
     },
     addListener: vi.fn(),
     removeListener: vi.fn(),
@@ -34,9 +33,9 @@ vi.mock('@controllers/Core/App', () => {
 });
 
 vi.mock('@store/appState', () => ({
-  activeTool: { get: vi.fn(() => 'move') },
-  currentStep: { get: vi.fn(() => 'start') },
-  createWatcher: vi.fn(() => vi.fn()),
+  activeTool: { get: vi.fn(() => 'delete'), set: vi.fn() },
+  currentStep: { get: vi.fn(() => 'start'), set: vi.fn() },
+  toolState: { get: vi.fn(() => ({})), set: vi.fn() },
   appActions: {
     setActiveTool: vi.fn(),
     setCurrentStep: vi.fn(),
@@ -44,18 +43,18 @@ vi.mock('@store/appState', () => ({
   },
 }));
 
-describe('MoveTool - Signal Migration', () => {
+describe('DeleteTool - Signal Migration', () => {
   let tool;
 
   beforeEach(() => {
     vi.clearAllMocks();
     helpConfigRegistry.clear();
-    tool = new MoveTool();
+    tool = new DeleteTool();
   });
 
   it('registers help config in start()', () => {
     tool.start();
-    expect(helpConfigRegistry.has('move')).toBe(true);
+    expect(helpConfigRegistry.has('delete')).toBe(true);
   });
 
   it('updates signals in start()', async () => {
@@ -63,7 +62,7 @@ describe('MoveTool - Signal Migration', () => {
     tool.start();
     vi.advanceTimersByTime(100);
     
-    expect(appActions.setActiveTool).toHaveBeenCalledWith('move');
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('delete');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
   });
 

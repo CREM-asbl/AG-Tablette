@@ -1,4 +1,5 @@
 
+import { appActions } from '../../store/appState';
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -30,11 +31,15 @@ export class DeleteTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, deleteHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('listen');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+        });
+      },
       50,
     );
   }
@@ -42,6 +47,7 @@ export class DeleteTool extends Tool {
   listen() {
     this.removeListeners();
 
+    appActions.setCurrentStep('listen');
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -78,6 +84,7 @@ export class DeleteTool extends Tool {
       this.mode = 'divisionPoint';
     }
     this.executeAction();
+    appActions.setCurrentStep('listen');
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
