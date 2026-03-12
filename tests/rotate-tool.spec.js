@@ -5,7 +5,7 @@ test('Rotate tool should change shape rotation', async ({ page }) => {
   await page.goto('http://localhost:4324');
   
   // Select Geometry environment
-  await page.click('#Geometrie');
+  await page.getByText('Géométrie').click();
   await expect(page.locator('ag-menu')).toBeVisible();
   
   // Create a Segment

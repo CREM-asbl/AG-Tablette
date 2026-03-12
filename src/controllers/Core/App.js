@@ -1,6 +1,5 @@
 import { signal } from '@lit-labs/signals';
 import { resetToolsVisibility, tools } from '@store/tools';
-import { initBugReporting } from '../../services/bug-report.service';
 import { resetKitVisibility } from '../../store/kit';
 import './Managers/HistoryManager'; // Import to register event listeners
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
@@ -228,17 +227,8 @@ export const app = new App();
 if (typeof window !== 'undefined') window.app = app;
 
 // Initialiser le service de rapportage de bugs
-// Différé via setTimeout pour éviter un accès TDZ dû aux chunks circulaires
-// (utils → controllers → utils : les exports de utils ne sont pas encore initialisés)
-// queueMicrotask ne suffit pas car les microtasks s'exécutent entre les évaluations de modules circulaires
-setTimeout(() => {
-  initBugReporting({
-    mode: import.meta.env.DEV ? 'off' : 'silent',
-    sampleRate: 0.2, // 20% des erreurs S2/S3
-    maxPerSession: 10,
-    minIntervalMs: 5000,
-  });
-}, 0);
+// Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ
+// liées aux dépendances circulaires des chunks controllers/utils.
 
 //Préparation à un state-changed plus général
 //Ceci permettra aussi de réduire le nombre de listener par la suite
@@ -280,7 +270,6 @@ export const setState = (update) => {
 };
 
 // Initialisation du service de synchronisation Signal
-// Différé via setTimeout pour éviter TDZ (circular chunk: utils → controllers → utils)
-import { signalSyncService } from '../../services/SignalSyncService';
-setTimeout(() => signalSyncService.init(app), 0);
+// Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ
+// liées aux dépendances circulaires des chunks controllers/utils.
 

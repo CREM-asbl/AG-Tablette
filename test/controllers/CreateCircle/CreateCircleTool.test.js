@@ -43,15 +43,12 @@ vi.mock('@store/appState', () => ({
         setToolState: vi.fn(),
         setCurrentStep: vi.fn(),
         setToolUiState: vi.fn(),
+        setSelectedTemplate: vi.fn(),
+        setActiveTool: vi.fn(),
     },
     activeTool: { get: vi.fn(() => 'createCircle') },
     currentStep: { get: vi.fn(() => 'start') },
     createWatcher: vi.fn((signal, cb) => {
-        // Simulate immediate callback execution for testing
-        // In real app, this happens on change.
-        // For test, we want to verify subscription.
-        // We can simulate a change by calling the callback manually if needed,
-        // but for now just returning the dispose function is enough to avoid errors.
         return vi.fn();
     }),
 }));

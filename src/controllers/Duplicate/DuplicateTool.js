@@ -1,6 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -42,11 +43,11 @@ export class DuplicateTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, duplicateHelpConfig);
 
+    appActions.setActiveTool(this.name);
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
@@ -71,6 +72,10 @@ export class DuplicateTool extends Tool {
     constraints.priority = ['points', 'shapes', 'segments'];
     app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    if (app.tool.currentStep !== 'listen') {
+      appActions.setCurrentStep('listen');
+    }
   }
 
   selectSegment() {
@@ -81,12 +86,20 @@ export class DuplicateTool extends Tool {
     constraints.eventType = 'mousedown';
     app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    if (app.tool.currentStep !== 'selectSegment') {
+      appActions.setCurrentStep('selectSegment');
+    }
   }
 
   move() {
     this.removeListeners();
 
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+
+    if (app.tool.currentStep !== 'move') {
+      appActions.setCurrentStep('move');
+    }
   }
 
   end() {
@@ -106,9 +119,7 @@ export class DuplicateTool extends Tool {
       this.mode = 'point';
       this.segment = object;
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-      });
+      appActions.setCurrentStep('listen');
     } else if (object instanceof Segment) {
       this.mode = 'segment';
 
@@ -130,7 +141,7 @@ export class DuplicateTool extends Tool {
 
       this.drawingShapes = [newShape];
 
-      setState({ tool: { ...app.tool, currentStep: 'move' } });
+      appActions.setCurrentStep('move');
       this.animate();
     } else if (object.name === 'PointOnLine') {
       this.involvedPoint = object;
@@ -140,14 +151,14 @@ export class DuplicateTool extends Tool {
         color: app.settings.referenceDrawColor,
         size: 2,
       });
-      setState({ tool: { ...app.tool, currentStep: 'selectSegment' } });
+      appActions.setCurrentStep('selectSegment');
     } else {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
         if (currentShape.name === 'Vector') {
-          this.dispatchEvent(new CustomEvent('show-notif', {
+          window.dispatchEvent(new CustomEvent('show-notif', {
             detail: {
               message:
                 'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.',
@@ -189,7 +200,7 @@ export class DuplicateTool extends Tool {
         return newShape;
       });
 
-      setState({ tool: { ...app.tool, currentStep: 'move' } });
+      appActions.setCurrentStep('move');
       this.animate();
     }
   }
@@ -202,7 +213,7 @@ export class DuplicateTool extends Tool {
       .add(this.translateOffset);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    appActions.setCurrentStep('listen');
   }
 
   refreshStateUpper() {

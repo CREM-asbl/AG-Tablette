@@ -5,7 +5,7 @@ test('Duplicate tool should duplicate a shape', async ({ page }) => {
   await page.goto('http://localhost:4324');
   
   // Select Geometry environment
-  await page.click('#Geometrie');
+  await page.getByText('Géométrie').click();
   await expect(page.locator('ag-menu')).toBeVisible({ timeout: 30000 });
   
   // Create a Segment
@@ -16,6 +16,7 @@ test('Duplicate tool should duplicate a shape', async ({ page }) => {
   
   const canvasContainer = page.locator('canvas-container');
   const box = await canvasContainer.boundingBox();
+  if (!box) throw new Error('Canvas box not found');
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
   

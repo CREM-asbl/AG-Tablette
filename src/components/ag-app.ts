@@ -1,10 +1,12 @@
-import { html, LitElement } from 'lit';
 import { SignalWatcher } from '@lit-labs/signals';
+import { html, LitElement } from 'lit';
 import '../controllers/auto-launch';
 import '../controllers/backbutton-manager';
 import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../controllers/Core/Manifest';
+import { initBugReporting } from '../services/bug-report.service';
+import { signalSyncService } from '../services/SignalSyncService';
 import { appLoading, currentEnvironment } from '../store/appState';
 import './tool-ui-container';
 // import { openFileFromServer } from '../firebase/firebase-init'; // Moved to dynamic import
@@ -20,7 +22,26 @@ export class App extends SignalWatcher(LitElement) {
 
   constructor() {
     super();
+    this.initCoreServices();
     this.parseURL();
+  }
+
+  initCoreServices() {
+    const globalWindow = window as Window & {
+      __agCoreServicesInitialized?: boolean;
+    };
+
+    if (globalWindow.__agCoreServicesInitialized) return;
+    globalWindow.__agCoreServicesInitialized = true;
+
+    initBugReporting({
+      mode: import.meta.env.DEV ? 'off' : 'silent',
+      sampleRate: 0.2,
+      maxPerSession: 10,
+      minIntervalMs: 5000,
+    });
+
+    signalSyncService.init(app);
   }
 
   async parseURL() {

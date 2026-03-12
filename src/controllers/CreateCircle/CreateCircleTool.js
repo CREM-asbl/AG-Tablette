@@ -290,9 +290,7 @@ export class CreateCircleTool extends Tool {
           detail: { message: 'Veuillez placer le point autre part.' },
         }),
       );
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-      });
+      appActions.setCurrentStep('drawPoint');
       return;
     }
 

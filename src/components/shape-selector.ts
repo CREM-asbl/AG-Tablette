@@ -116,7 +116,7 @@ export class ShapeSelector extends LitElement {
                 type="${this.type}"
                 title="${template.title}"
                 ?active="${template.name === this.selectedTemplate?.name}"
-                @click="${this._clickHandle}"
+                @click="${() => this._clickHandle(template)}"
               >
               </icon-button>`,
         )}
@@ -125,19 +125,19 @@ export class ShapeSelector extends LitElement {
     `;
   }
 
-  _clickHandle(event) {
-    this.selectedTemplate = this.templatesNames.find(
-      (template) => template.name === event.target.name,
-    );
+  _clickHandle(template) {
+    this.selectedTemplate = template;
     appActions.setSelectedTemplate(this.selectedTemplate);
     appActions.setCurrentStep(this.nextStep);
-    setState({
-      tool: {
-        ...app.tool,
-        selectedTemplate: this.selectedTemplate,
-        currentStep: this.nextStep,
-      },
-    });
+    if (app.tool) {
+      setState({
+        tool: {
+          ...app.tool,
+          selectedTemplate: this.selectedTemplate,
+          currentStep: this.nextStep,
+        },
+      });
+    }
   }
 
   connectedCallback() {

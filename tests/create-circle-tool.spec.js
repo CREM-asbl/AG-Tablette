@@ -9,7 +9,7 @@ test('Create Circle tool should create a circle', async ({ page }) => {
   await page.goto('http://localhost:4324');
   
   // Select Geometry environment
-  await page.click('#Geometrie');
+  await page.getByText('Géométrie').click();
   await expect(page.locator('ag-menu')).toBeVisible({ timeout: 30000 });
   
   // Select Create Circle tool
