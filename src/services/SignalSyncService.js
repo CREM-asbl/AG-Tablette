@@ -72,7 +72,9 @@ export class SignalSyncService {
     }
     appActions.updateSettings(app.settings);
 
-    console.log('[SignalSyncService] Initialized - Shadow State active');
+    if (import.meta.env.DEV) {
+      console.log('[SignalSyncService] Initialized - Shadow State active');
+    }
   }
 
   syncViewport() {

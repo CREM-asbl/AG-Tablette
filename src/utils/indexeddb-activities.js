@@ -65,11 +65,9 @@ export async function saveActivity(id, data, version = 1) {
 
   // Préparer les données avec métadonnées
   const now = Date.now();
-  console.log('[DEBUG] saveActivity config:', CACHE_CONFIG.COMPRESSION_ENABLED);
   const compressedData = CACHE_CONFIG.COMPRESSION_ENABLED
     ? compressToUTF16(JSON.stringify(data))
     : JSON.stringify(data);
-  console.log('[DEBUG] compressedData type:', typeof compressedData);
 
   const activityRecord = {
     id,
