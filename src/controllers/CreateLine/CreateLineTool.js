@@ -48,6 +48,8 @@ export class CreateLineTool extends Tool {
     // Register help configuration
     helpConfigRegistry.register(this.name, createLineHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     await import('@components/shape-selector');
 
     // Utiliser le signal pour afficher le sélecteur de forme
@@ -76,22 +78,26 @@ export class CreateLineTool extends Tool {
     ) {
       app.upperCanvasLayer.removeAllObjects();
       setTimeout(
-        () =>
+        () => {
+          appActions.setCurrentStep('drawPoint');
           setState({
             tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
-          }),
+          });
+        },
         50,
       );
     } else {
       setTimeout(
-        () =>
+        () => {
+          appActions.setCurrentStep('selectReference');
           setState({
             tool: {
               ...app.tool,
               name: this.name,
               currentStep: 'selectReference',
             },
-          }),
+          });
+        },
         50,
       );
     }
@@ -145,6 +151,7 @@ export class CreateLineTool extends Tool {
       strokeWidth: 2,
     });
 
+    appActions.setCurrentStep('drawPoint');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
     });
@@ -257,6 +264,7 @@ export class CreateLineTool extends Tool {
           seg.shapeId = shape.id;
         });
       }
+      appActions.setCurrentStep('animatePoint');
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
@@ -285,6 +293,7 @@ export class CreateLineTool extends Tool {
         message: 'Veuillez placer le point autre part.',
         type: 'info',
       });
+      appActions.setCurrentStep('drawPoint');
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });
@@ -295,11 +304,13 @@ export class CreateLineTool extends Tool {
       this.stopAnimation();
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
+      appActions.setCurrentStep('drawFirstPoint');
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint', numberOfPointsDrawn: 0 },
       });
     } else {
       this.stopAnimation();
+      appActions.setCurrentStep('drawPoint');
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
       });

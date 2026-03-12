@@ -54,6 +54,9 @@ export class RotateTool extends Tool {
     setTimeout(
       () => {
         appActions.setCurrentStep('listen');
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+        });
       },
       50,
     );
@@ -65,9 +68,7 @@ export class RotateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    if (app.tool.currentStep !== 'listen') {
-      appActions.setCurrentStep('listen');
-    }
+    appActions.setCurrentStep('listen');
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
@@ -78,9 +79,7 @@ export class RotateTool extends Tool {
 
   rotate() {
     this.removeListeners();
-    if (app.tool.currentStep !== 'rotate') {
-      appActions.setCurrentStep('rotate');
-    }
+    appActions.setCurrentStep('rotate');
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -180,6 +179,7 @@ export class RotateTool extends Tool {
     });
 
     appActions.setCurrentStep('rotate');
+    setState({ tool: { ...app.tool, currentStep: 'rotate' } });
     this.animate();
   }
 
@@ -188,6 +188,7 @@ export class RotateTool extends Tool {
 
     this.executeAction();
     appActions.setCurrentStep('listen');
+    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   /**

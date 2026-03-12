@@ -44,6 +44,8 @@ export class CreatePointTool extends Tool {
 
     helpConfigRegistry.register(this.name, createPointHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     import('@components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',
@@ -96,6 +98,7 @@ export class CreatePointTool extends Tool {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     if (app.tool.currentStep === 'drawPoint') {
       this.geometryParentObjectId1 = segment.id;
+      appActions.setCurrentStep('selectSecondSegment');
       setState({
         tool: {
           ...app.tool,
@@ -105,13 +108,10 @@ export class CreatePointTool extends Tool {
       });
     } else {
       if (this.geometryParentObjectId1 === segment.id) {
-        window.dispatchEvent(
-          new CustomEvent('show-notif', {
-            detail: {
-              message: 'Veuillez sélectionner deux objets différents.',
-            },
-          }),
-        );
+        appActions.addNotification({
+          message: 'Veuillez sélectionner deux objets différents.',
+          type: 'info',
+        });
         return;
       }
       this.geometryParentObjectId2 = segment.id;
@@ -123,6 +123,7 @@ export class CreatePointTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
+      appActions.setCurrentStep('drawPoint');
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
       });
@@ -147,6 +148,7 @@ export class CreatePointTool extends Tool {
       size: 2,
     });
 
+    appActions.setCurrentStep('animatePoint');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
     });
@@ -155,6 +157,7 @@ export class CreatePointTool extends Tool {
   canvasMouseUp() {
     this.stopAnimation();
     this.executeAction();
+    appActions.setCurrentStep('drawPoint');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
     });

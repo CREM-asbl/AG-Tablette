@@ -2,66 +2,64 @@ import { test, expect } from '@playwright/test';
 
 test('Create Circle tool should create a circle', async ({ page }) => {
   test.setTimeout(60000);
-  // Capture console logs
-  page.on('console', msg => console.log('BROWSER:', msg.text()));
-  page.on('pageerror', err => console.log('BROWSER ERROR:', err.message));
+  
+  // Capture console logs pour le debug
+  page.on('console', msg => {
+    if (msg.type() === 'error' || msg.text().includes('BROWSER')) {
+      console.log(`[BROWSER ${msg.type()}] ${msg.text()}`);
+    }
+  });
 
   await page.goto('http://localhost:4324');
   
-  // Select Geometry environment
+  // 1. Charger l'environnement Géométrie
   await page.getByText('Géométrie').click();
   await expect(page.locator('ag-menu')).toBeVisible({ timeout: 30000 });
   
-  // Select Create Circle tool
+  // 2. Sélectionner l'outil de création de cercle
   const circleButton = page.locator('ag-menu icon-button[name="createCircle"]');
   await circleButton.click();
-  await page.waitForTimeout(500);
+  await expect(page.locator('shape-selector')).toBeVisible();
   
-  // Select Circle template in shape-selector
+  // 3. Sélectionner le template "Cercle" (centre-rayon)
   const circleTemplate = page.locator('shape-selector icon-button[name="Circle"]');
   await circleTemplate.click({ force: true });
-  await page.waitForTimeout(1000);
   
+  // ATTENTE CRITIQUE : L'outil doit être prêt (currentStep: drawPoint)
+  await expect.poll(() => page.evaluate(() => window.app.tool?.currentStep), {
+    message: "L'outil n'est pas passé en mode dessin après sélection du template",
+    timeout: 5000
+  }).toBe('drawPoint');
+
   const canvasContainer = page.locator('canvas-container');
   const box = await canvasContainer.boundingBox();
   if (!box) throw new Error('Canvas box not found');
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
   
-  // Verify tool state
-  const toolState = await page.evaluate(() => {
-    return {
-      name: window.app.tool?.name,
-      step: window.app.tool?.currentStep,
-      template: window.app.tool?.selectedTemplate?.name,
-      numberOfPointsDrawn: window.app.tool?.numberOfPointsDrawn
-    };
-  });
-  console.log('Tool state after selection:', JSON.stringify(toolState));
-
-  // Click center
-  await page.mouse.click(x, y);
-  await page.waitForTimeout(500);
+  // 4. Cliquer pour placer le centre
+  // Utilisation d'un delay pour laisser le temps au watcher de traiter les signaux
+  await page.mouse.move(x, y);
+  await page.mouse.click(x, y, { delay: 100 });
   
-  // Check if first point created in upper layer
-  const upperPointCount = await page.evaluate(() => window.app.upperCanvasLayer.points.length);
-  console.log('Upper point count after first click:', upperPointCount);
+  // Vérifier que le premier point est bien pris en compte (retour à drawPoint pour le 2ème point)
+  await expect.poll(() => page.evaluate(() => window.app.tool?.currentStep), {
+    message: "L'outil n'est pas prêt pour le second point",
+    timeout: 5000
+  }).toBe('drawPoint');
 
-  // Click radius point
-  // We click a bit further to avoid magnetism issues
-  await page.mouse.click(x + 100, y);
+  // 5. Cliquer pour définir le rayon
+  await page.mouse.move(x + 150, y);
+  await page.mouse.click(x + 150, y, { delay: 100 });
   
-  // Wait for shape to appear in main layer (up to 5s)
+  // 6. Vérifier la création finale du cercle dans la couche principale
   await page.waitForFunction(() => {
     return window.app.mainCanvasLayer.shapes.some(s => s.name === 'Circle');
-  }, { timeout: 5000 }).catch(() => console.log('Timeout waiting for circle'));
+  }, { timeout: 10000 });
   
-  // Verify shape created
-  const shapes = await page.evaluate(() => 
+  const finalShapes = await page.evaluate(() => 
     window.app.mainCanvasLayer.shapes.map(s => ({ name: s.name, id: s.id }))
   );
-  console.log('Final shapes:', JSON.stringify(shapes));
   
-  const circle = shapes.find(s => s.name === 'Circle');
-  expect(circle).toBeDefined();
+  expect(finalShapes.some(s => s.name === 'Circle')).toBe(true);
 });

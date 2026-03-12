@@ -72,6 +72,7 @@ export class CreateCircleTool extends Tool {
       () => {
         appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
         appActions.setCurrentStep('drawPoint');
+        setState({ tool: { ...app.tool, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
       },
       50,
     );
@@ -264,6 +265,7 @@ export class CreateCircleTool extends Tool {
       }
       appActions.setToolState({ currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
       appActions.setCurrentStep('animatePoint');
+      setState({ tool: { ...app.tool, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
     }
   }
 
@@ -291,6 +293,7 @@ export class CreateCircleTool extends Tool {
         }),
       );
       appActions.setCurrentStep('drawPoint');
+      setState({ tool: { ...app.tool, currentStep: 'drawPoint' } });
       return;
     }
 
@@ -302,17 +305,20 @@ export class CreateCircleTool extends Tool {
         this.stopAnimation();
         appActions.setToolState({ currentStep: 'showArrow' });
         appActions.setCurrentStep('showArrow');
+        setState({ tool: { ...app.tool, currentStep: 'showArrow' } });
       } else {
         this.stopAnimation();
         this.executeAction();
         app.upperCanvasLayer.removeAllObjects();
         appActions.setToolState({ currentStep: 'drawFirstPoint' });
         appActions.setCurrentStep('drawFirstPoint');
+        setState({ tool: { ...app.tool, currentStep: 'drawFirstPoint' } });
       }
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
       appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
       appActions.setCurrentStep('drawPoint');
+      setState({ tool: { ...app.tool, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
     }
   }
 
@@ -337,6 +343,7 @@ export class CreateCircleTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     appActions.setToolState({ currentStep: 'drawFirstPoint' });
     appActions.setCurrentStep('drawFirstPoint');
+    setState({ tool: { ...app.tool, currentStep: 'drawFirstPoint' } });
   }
 
   adjustPoint(point) {

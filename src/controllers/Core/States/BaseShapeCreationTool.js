@@ -1,6 +1,6 @@
 
 import { appActions } from '../../../store/appState';
-import { app } from '../../Core/App';
+import { app, setState } from '../../Core/App';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Coordinates } from '../../Core/Objects/Coordinates';
 import { Point } from '../../Core/Objects/Point';
@@ -67,6 +67,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       this.resetDrawingState();
       appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
       appActions.setCurrentStep('drawPoint');
+      setState({ tool: { ...app.tool, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
     } catch (error) {
       console.error('Erreur lors du chargement de la définition:', error);
       this.showErrorNotification("Erreur lors de l'initialisation");
@@ -144,6 +145,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     this.updateShapePreview();
     appActions.setToolState({ currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('animatePoint');
+    setState({ tool: { ...app.tool, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
   }
 
   /**
@@ -224,6 +226,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     this.rollbackLastPoint();
     appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('drawPoint');
+    setState({ tool: { ...app.tool, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
   }
 
   /**
@@ -247,6 +250,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     this.getConstraints(this.numberOfPointsDrawn);
     appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('drawPoint');
+    setState({ tool: { ...app.tool, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
   }
 
   /**
@@ -259,6 +263,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       await this.executeAction();
       appActions.setToolState({ currentStep: 'drawFirstPoint' });
       appActions.setCurrentStep('drawFirstPoint');
+      setState({ tool: { ...app.tool, currentStep: 'drawFirstPoint' } });
     }, 'création de forme');
   }
 

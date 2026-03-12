@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -34,18 +35,23 @@ export class CreateIrregularTool extends Tool {
   start() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
+    this.stopAnimation();
 
     helpConfigRegistry.register(this.name, createIrregularHelpConfig);
+
+    appActions.setActiveTool(this.name);
 
     this.points = [];
     this.segments = [];
     this.numberOfPointsDrawn = 0;
 
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('drawPoint');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
-        }),
+        });
+      },
       50,
     );
   }
@@ -58,6 +64,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   animatePoint() {
+    this.removeListeners();
     this.animate();
 
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
@@ -102,6 +109,7 @@ export class CreateIrregularTool extends Tool {
         fillOpacity: 0,
       });
     }
+    appActions.setCurrentStep('animatePoint');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
     });
@@ -119,10 +127,12 @@ export class CreateIrregularTool extends Tool {
 
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
+      appActions.setCurrentStep('start');
       setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'start', numberOfPointsDrawn: this.numberOfPointsDrawn },
+        tool: { ...app.tool, name: this.name, currentStep: 'start', numberOfPointsDrawn: 0 },
       });
     } else {
+      appActions.setCurrentStep('drawPoint');
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
       });
@@ -203,7 +213,7 @@ export class CreateIrregularTool extends Tool {
     const shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTemplate,
+      name: 'IrregularPolygon',
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),
