@@ -1,5 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -29,14 +30,10 @@ export class OrthogonalSymetryTool extends Tool {
       : 0.001;
 
     setTimeout(
-      () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectFirstReference',
-          },
-        }),
+      () => {
+        appActions.setActiveTool(this.name);
+        appActions.setCurrentStep('selectFirstReference');
+      },
       50,
     );
   }
@@ -52,14 +49,9 @@ export class OrthogonalSymetryTool extends Tool {
     this.characteristicElements = null;
 
     setTimeout(
-      () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectReference',
-          },
-        }),
+      () => {
+        appActions.setCurrentStep('selectReference');
+      },
       50,
     );
   }
@@ -171,14 +163,10 @@ export class OrthogonalSymetryTool extends Tool {
             });
           }
           referenceShape.segments[0].isInfinite = true;
-          setState({
-            tool: {
-              ...app.tool,
-              name: this.name,
-              currentStep: 'selectObject',
-              referenceShapeId: referenceShape.id,
-            },
+          appActions.setToolState({
+            referenceShapeId: referenceShape.id,
           });
+          appActions.setCurrentStep('selectObject');
         } else {
           this.characteristicElements = new CharacteristicElements({
             type: 'axis',
@@ -191,14 +179,10 @@ export class OrthogonalSymetryTool extends Tool {
             strokeWidth: 2,
           });
           referenceShape.segments[0].isInfinite = true;
-          setState({
-            tool: {
-              ...app.tool,
-              name: this.name,
-              currentStep: 'selectObject',
-              referenceShapeId: referenceShape.id,
-            },
+          appActions.setToolState({
+            referenceShapeId: referenceShape.id,
           });
+          appActions.setCurrentStep('selectObject');
         }
       } else {
         this.pointsDrawn.push(
@@ -209,14 +193,10 @@ export class OrthogonalSymetryTool extends Tool {
             size: 2,
           }),
         );
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'animateFirstRefPoint',
-            numberOfPointsDrawn: this.pointsDrawn.length,
-          },
+        appActions.setToolState({
+          numberOfPointsDrawn: this.pointsDrawn.length,
         });
+        appActions.setCurrentStep('animateFirstRefPoint');
       }
     } else {
       this.pointsDrawn.push(
@@ -239,15 +219,11 @@ export class OrthogonalSymetryTool extends Tool {
         strokeColor: app.settings.referenceDrawColor,
         strokeWidth: 2,
       });
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'animateSecondRefPoint',
-          referenceShapeId: referenceShape.id,
-          numberOfPointsDrawn: this.pointsDrawn.length,
-        },
+      appActions.setToolState({
+        referenceShapeId: referenceShape.id,
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
+      appActions.setCurrentStep('animateSecondRefPoint');
     }
   }
 
@@ -266,14 +242,10 @@ export class OrthogonalSymetryTool extends Tool {
         type: 'two-points',
         elementIds: [this.firstReference.id],
       });
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'selectReference',
-          numberOfPointsDrawn: this.pointsDrawn.length,
-        },
+      appActions.setToolState({
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
+      appActions.setCurrentStep('selectReference');
     } else {
       const coord = app.workspace.lastKnownMouseCoordinates;
       const object = SelectManager.selectObject(coord);
@@ -283,14 +255,10 @@ export class OrthogonalSymetryTool extends Tool {
         this.secondReference = this.pointsDrawn[1];
       }
       this.characteristicElements.elementIds.push(this.secondReference.id);
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'selectObject',
-          numberOfPointsDrawn: this.pointsDrawn.length,
-        },
+      appActions.setToolState({
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
+      appActions.setCurrentStep('selectObject');
     }
   }
 
@@ -316,12 +284,7 @@ export class OrthogonalSymetryTool extends Tool {
           }),
         }),
     );
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: 'ortho',
-      },
-    });
+    appActions.setCurrentStep('ortho');
   }
 
   animate() {
@@ -356,9 +319,7 @@ export class OrthogonalSymetryTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'orthogonalSymetry') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
+      appActions.setCurrentStep('selectObject');
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>

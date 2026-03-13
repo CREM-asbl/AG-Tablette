@@ -29,8 +29,9 @@
     - [x] Ajouter des attentes explicites sur les signaux d'état (`app.tool.currentStep`) pour synchroniser les interactions du test avec la logique de l'application ✅
     - [x] Augmenter les timeouts pour une meilleure fiabilité sur tous les navigateurs ✅
 - [ ] Poursuivre la migration vers les Signals (Next steps) <!-- id: 7 -->
-    - [ ] Migrer `DuplicateTool` (partiellement fait, à finaliser avec tests unitaires complets)
-    - [ ] Migrer les outils de symétrie (`CentralSymetry`, `OrthogonalSymetry`)
+    - [x] Migrer `CentralSymetryTool` ✅
+    - [x] Migrer `OrthogonalSymetryTool` ✅
+    - [x] Migrer `DuplicateTool` (complété avec addShape fix) ✅
     - [ ] Migrer les outils de découpe et division (`Cut`, `Divide`)
 - [ ] Refactorisation des pages Astro restantes <!-- id: 8 -->
     - [ ] budgets/update/[id].astro

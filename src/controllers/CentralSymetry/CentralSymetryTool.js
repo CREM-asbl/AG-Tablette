@@ -1,5 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -29,14 +30,10 @@ export class CentralSymetryTool extends Tool {
       : 0.001;
 
     setTimeout(
-      () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectCharacteristicElement',
-          },
-        }),
+      () => {
+        appActions.setActiveTool(this.name);
+        appActions.setCurrentStep('selectCharacteristicElement');
+      },
       50,
     );
   }
@@ -102,13 +99,7 @@ export class CentralSymetryTool extends Tool {
       color: app.settings.referenceDrawColor,
       size: 2,
     });
-    setState({
-      tool: {
-        ...app.tool,
-        name: this.name,
-        currentStep: 'animateCharacteristicElement',
-      },
-    });
+    appActions.setCurrentStep('animateCharacteristicElement');
   }
 
   canvasMouseUp() {
@@ -136,9 +127,7 @@ export class CentralSymetryTool extends Tool {
         });
       }
     }
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-    });
+    appActions.setCurrentStep('selectObject');
   }
 
   objectSelected(object) {
@@ -160,12 +149,7 @@ export class CentralSymetryTool extends Tool {
           }),
         }),
     );
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: 'central',
-      },
-    });
+    appActions.setCurrentStep('central');
   }
 
   animate() {
@@ -189,9 +173,7 @@ export class CentralSymetryTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'centralSymetry') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
+      appActions.setCurrentStep('selectObject');
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
