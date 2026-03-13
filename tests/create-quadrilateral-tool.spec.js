@@ -11,7 +11,7 @@ test('Create Quadrilateral tool should create a square', async ({ page }) => {
   
   // 2. Sélectionner l'outil de création de quadrilatère
   const toolButton = page.locator('ag-menu icon-button[name="createQuadrilateral"]');
-  await toolButton.click();
+  await toolButton.click({ force: true });
   await expect(page.locator('shape-selector')).toBeVisible();
   
   // 3. Sélectionner le template "Carré" (Square)

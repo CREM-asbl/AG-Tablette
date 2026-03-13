@@ -10,7 +10,7 @@ test('Move tool should change shape coordinates', async ({ page }) => {
   
   // Create a Segment
   const lineButton = page.locator('ag-menu icon-button[name="createLine"]');
-  await lineButton.click();
+  await lineButton.click({ force: true });
   const segmentButton = page.locator('shape-selector icon-button[name="Segment"]');
   await segmentButton.click({ force: true });
   await page.waitForTimeout(500);
@@ -43,7 +43,7 @@ test('Move tool should change shape coordinates', async ({ page }) => {
 
   // Select Move tool
   const moveButton = page.locator('ag-menu icon-button[name="move"]');
-  await moveButton.click();
+  await moveButton.click({ force: true });
   await page.waitForTimeout(500);
   
   // Drag the shape

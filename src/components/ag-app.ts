@@ -1,5 +1,5 @@
 import { SignalWatcher } from '@lit-labs/signals';
-import { html, LitElement } from 'lit';
+import { html, LitElement, css } from 'lit';
 import '../controllers/auto-launch';
 import '../controllers/backbutton-manager';
 import { app } from '../controllers/Core/App';
@@ -9,7 +9,8 @@ import { initBugReporting } from '../services/bug-report.service';
 import { signalSyncService } from '../services/SignalSyncService';
 import { appLoading, currentEnvironment } from '../store/appState';
 import './tool-ui-container';
-// import { openFileFromServer } from '../firebase/firebase-init'; // Moved to dynamic import
+import './ag-environnements';
+import '../layouts/ag-main';
 
 /**
  * fix device-height != screen-height on pwa
@@ -19,6 +20,16 @@ if (document.body.clientHeight > screen.height) {
 }
 
 export class App extends SignalWatcher(LitElement) {
+  static styles = css`
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+  `;
 
   constructor() {
     super();
@@ -66,11 +77,9 @@ export class App extends SignalWatcher(LitElement) {
 
     if (environmentSelected) {
       history.pushState({}, 'main page');
-      import('@layouts/ag-main');
       app.appLoading = false;
       return html`<ag-main></ag-main>`;
     } else if (!isLoading) {
-      import('./ag-environnements');
       return html`<ag-environnements></ag-environnements>`;
     }
     if (isLoading) {

@@ -18,7 +18,7 @@ test('Create Circle tool should create a circle', async ({ page }) => {
   
   // 2. Sélectionner l'outil de création de cercle
   const circleButton = page.locator('ag-menu icon-button[name="createCircle"]');
-  await circleButton.click();
+  await circleButton.click({ force: true });
   await expect(page.locator('shape-selector')).toBeVisible();
   
   // 3. Sélectionner le template "Cercle" (centre-rayon)

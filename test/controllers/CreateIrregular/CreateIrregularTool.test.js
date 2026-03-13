@@ -1,9 +1,13 @@
 import { CreateIrregularTool } from '@controllers/CreateIrregular/CreateIrregularTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { app, setState } from '@controllers/Core/App';
+import { appActions } from '@store/appState';
+import { SelectManager } from '@controllers/Core/Managers/SelectManager';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),
+  signal: vi.fn((val) => ({ get: () => val, set: vi.fn() })),
 }));
 
 vi.mock('@controllers/Core/App', () => {
@@ -14,12 +18,12 @@ vi.mock('@controllers/Core/App', () => {
       removeAllObjects: vi.fn(),
     },
     workspace: {
-      lastKnownMouseCoordinates: { x: 0, y: 0 },
+      lastKnownMouseCoordinates: { x: 10, y: 10 },
     },
     settings: {
       temporaryDrawColor: '#ff0000',
     },
-    addListener: vi.fn(),
+    addListener: vi.fn(() => 'listener-id'),
     removeListener: vi.fn(),
   };
   return { app, setState };
@@ -29,9 +33,49 @@ vi.mock('@store/appState', () => ({
   activeTool: { get: vi.fn(() => 'createIrregularPolygon') },
   currentStep: { get: vi.fn(() => 'start') },
   createWatcher: vi.fn(() => vi.fn()),
+  appActions: {
+    setActiveTool: vi.fn(),
+    setCurrentStep: vi.fn(),
+    addNotification: vi.fn(),
+  },
 }));
 
-import { app, setState } from '@controllers/Core/App';
+vi.mock('@controllers/Core/Objects/Point', () => ({
+  Point: class {
+    constructor(props) {
+      this.id = 'p' + Math.random();
+      this.coordinates = props.coordinates;
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/Segment', () => ({
+  Segment: class {
+    constructor(props) {
+      this.id = 'seg' + Math.random();
+      this.vertexIds = props.vertexIds;
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/Shapes/RegularShape', () => ({
+  RegularShape: class {
+    constructor() {
+      this.vertexes = [];
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Managers/SelectManager', () => ({
+  SelectManager: {
+    areCoordinatesInMagnetismDistance: vi.fn(() => false),
+    getEmptySelectionConstraints: vi.fn(() => ({ points: {}, segments: {} })),
+  },
+}));
+
+vi.mock('@controllers/GeometryTools/general', () => ({
+  linkNewlyCreatedPoint: vi.fn(),
+}));
 
 describe('CreateIrregularTool', () => {
   let tool;
@@ -47,24 +91,32 @@ describe('CreateIrregularTool', () => {
     expect(helpConfigRegistry.has('createIrregularPolygon')).toBe(true);
   });
 
-  it('switches to drawPoint after start timeout', () => {
-    vi.useFakeTimers();
+  it('adds points on mouse down', () => {
+    tool.start(); // Correctly initialize tool state (points, segments)
+    tool.canvasMouseDown();
+    expect(tool.points.length).toBe(1);
+    expect(tool.numberOfPointsDrawn).toBe(1);
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('animatePoint');
+    
+    // Add second point
+    tool.canvasMouseDown();
+    expect(tool.points.length).toBe(2);
+    expect(tool.segments.length).toBe(1);
+  });
 
+  it('completes shape when clicking near first point', () => {
     tool.start();
-
-    expect(app.upperCanvasLayer.removeAllObjects).toHaveBeenCalledTimes(1);
-
-    vi.runAllTimers();
-
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({
-        tool: expect.objectContaining({
-          name: 'createIrregularPolygon',
-          currentStep: 'drawPoint',
-        }),
-      }),
-    );
-
-    vi.useRealTimers();
+    tool.points = [
+        { id: 'p1', coordinates: { x: 0, y: 0 } },
+        { id: 'p2', coordinates: { x: 100, y: 0 } },
+        { id: 'p3', coordinates: { x: 0, y: 100 } },
+    ];
+    
+    vi.mocked(SelectManager.areCoordinatesInMagnetismDistance).mockReturnValue(true);
+    
+    tool.canvasMouseUp();
+    
+    expect(app.upperCanvasLayer.removeAllObjects).toHaveBeenCalled();
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('start');
   });
 });

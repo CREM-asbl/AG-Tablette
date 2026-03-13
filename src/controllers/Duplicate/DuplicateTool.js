@@ -369,6 +369,7 @@ export class DuplicateTool extends Tool {
           shapesList[0].centerCoordinates,
         );
         newShape.translate(transformation.translation);
+        ShapeManager.addShape(newShape);
       });
 
       //Si nécessaire, créer le userGroup

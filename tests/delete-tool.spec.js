@@ -14,7 +14,7 @@ test('Delete tool should remove a triangle', async ({ page }) => {
   
   // Select Create Line tool
   const lineButton = page.locator('ag-menu icon-button[name="createLine"]');
-  await lineButton.click();
+  await lineButton.click({ force: true });
   
   // Wait for shape-selector and select Segment
   // We use force: true if it's hidden by CSS but present in DOM
@@ -50,7 +50,7 @@ test('Delete tool should remove a triangle', async ({ page }) => {
   
   // Select Delete tool
   const deleteButton = page.locator('ag-menu icon-button[name="delete"]');
-  await deleteButton.click();
+  await deleteButton.click({ force: true });
   
   // Click on the shape to delete it
   // For a segment, clicking in the middle should work

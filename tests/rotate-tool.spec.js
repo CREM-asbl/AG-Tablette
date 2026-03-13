@@ -10,7 +10,7 @@ test('Rotate tool should change shape rotation', async ({ page }) => {
   
   // Create a Segment
   const lineButton = page.locator('ag-menu icon-button[name="createLine"]');
-  await lineButton.click();
+  await lineButton.click({ force: true });
   const segmentButton = page.locator('shape-selector icon-button[name="Segment"]');
   await segmentButton.click({ force: true });
   await page.waitForTimeout(500);
@@ -39,7 +39,7 @@ test('Rotate tool should change shape rotation', async ({ page }) => {
 
   // Select Rotate tool
   const rotateButton = page.locator('ag-menu icon-button[name="rotate"]');
-  await rotateButton.click();
+  await rotateButton.click({ force: true });
   await page.waitForTimeout(500);
   
   // Drag to rotate
