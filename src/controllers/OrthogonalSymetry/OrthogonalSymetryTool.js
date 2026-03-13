@@ -29,13 +29,8 @@ export class OrthogonalSymetryTool extends Tool {
       ? app.settings.geometryTransformationAnimationDuration
       : 0.001;
 
-    setTimeout(
-      () => {
-        appActions.setActiveTool(this.name);
-        appActions.setCurrentStep('selectFirstReference');
-      },
-      50,
-    );
+    appActions.setActiveTool(this.name);
+    this.selectFirstReference();
   }
 
   selectFirstReference() {
@@ -43,17 +38,14 @@ export class OrthogonalSymetryTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
+    this.referenceShapeId = null;
     this.showLastCharacteristicElements();
 
     this.pointsDrawn = [];
     this.characteristicElements = null;
 
-    setTimeout(
-      () => {
-        appActions.setCurrentStep('selectReference');
-      },
-      50,
-    );
+    appActions.setCurrentStep('selectReference');
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   selectReference() {
@@ -68,7 +60,6 @@ export class OrthogonalSymetryTool extends Tool {
       shapesToDelete.forEach((s) => removeObjectById(s.id));
     }
 
-    // this.setSelectionConstraints();
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
 
@@ -102,7 +93,10 @@ export class OrthogonalSymetryTool extends Tool {
 
     const shapesToDelete = [];
     app.upperCanvasLayer.shapes.forEach((s) => {
-      if (s.geometryObject?.geometryIsCharacteristicElements)
+      if (
+        s.geometryObject?.geometryIsCharacteristicElements &&
+        s.id != this.referenceShapeId
+      )
         shapesToDelete.push(s);
     });
     shapesToDelete.forEach((s) => removeObjectById(s.id));
@@ -125,7 +119,7 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   get referenceShape() {
-    return findObjectById(app.tool.referenceShapeId);
+    return findObjectById(app.tool.referenceShapeId || this.referenceShapeId);
   }
 
   canvasMouseDown() {
@@ -151,6 +145,11 @@ export class OrthogonalSymetryTool extends Tool {
               layer: 'upper',
               strokeColor: app.settings.referenceDrawColor,
               strokeWidth: 2,
+              geometryObject: new GeometryObject({
+                geometryIsCharacteristicElements: true,
+                geometryTransformationCharacteristicElements:
+                  this.characteristicElements,
+              }),
             });
           } else {
             const firstPoint = this.characteristicElements.firstElement;
@@ -160,13 +159,20 @@ export class OrthogonalSymetryTool extends Tool {
               layer: 'upper',
               strokeColor: app.settings.referenceDrawColor,
               strokeWidth: 2,
+              geometryObject: new GeometryObject({
+                geometryIsCharacteristicElements: true,
+                geometryTransformationCharacteristicElements:
+                  this.characteristicElements,
+              }),
             });
           }
           referenceShape.segments[0].isInfinite = true;
+          this.referenceShapeId = referenceShape.id;
           appActions.setToolState({
             referenceShapeId: referenceShape.id,
           });
           appActions.setCurrentStep('selectObject');
+          window.dispatchEvent(new CustomEvent('refreshUpper'));
         } else {
           this.characteristicElements = new CharacteristicElements({
             type: 'axis',
@@ -177,12 +183,19 @@ export class OrthogonalSymetryTool extends Tool {
             layer: 'upper',
             strokeColor: app.settings.referenceDrawColor,
             strokeWidth: 2,
+            geometryObject: new GeometryObject({
+              geometryIsCharacteristicElements: true,
+              geometryTransformationCharacteristicElements:
+                this.characteristicElements,
+            }),
           });
           referenceShape.segments[0].isInfinite = true;
+          this.referenceShapeId = referenceShape.id;
           appActions.setToolState({
             referenceShapeId: referenceShape.id,
           });
           appActions.setCurrentStep('selectObject');
+          window.dispatchEvent(new CustomEvent('refreshUpper'));
         }
       } else {
         this.pointsDrawn.push(
@@ -218,7 +231,11 @@ export class OrthogonalSymetryTool extends Tool {
         pointIds: this.pointsDrawn.map((pt) => pt.id),
         strokeColor: app.settings.referenceDrawColor,
         strokeWidth: 2,
+        geometryObject: new GeometryObject({
+          geometryIsCharacteristicElements: true,
+        }),
       });
+      this.referenceShapeId = referenceShape.id;
       appActions.setToolState({
         referenceShapeId: referenceShape.id,
         numberOfPointsDrawn: this.pointsDrawn.length,
@@ -246,7 +263,7 @@ export class OrthogonalSymetryTool extends Tool {
         numberOfPointsDrawn: this.pointsDrawn.length,
       });
       appActions.setCurrentStep('selectReference');
-    } else {
+    } else if (app.tool.currentStep === 'animateSecondRefPoint') {
       const coord = app.workspace.lastKnownMouseCoordinates;
       const object = SelectManager.selectObject(coord);
       if (object) {
@@ -259,6 +276,7 @@ export class OrthogonalSymetryTool extends Tool {
         numberOfPointsDrawn: this.pointsDrawn.length,
       });
       appActions.setCurrentStep('selectObject');
+      window.dispatchEvent(new CustomEvent('refreshUpper'));
     }
   }
 
@@ -273,9 +291,6 @@ export class OrthogonalSymetryTool extends Tool {
           layer: 'upper',
           path: s.getSVGPath('no scale', false),
           id: undefined,
-          // divisionPointInfos: s.divisionPoints.map((dp) => {
-          //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
-          // }),
           segmentsColor: s.segments.map((seg) => {
             return seg.color;
           }),
@@ -395,9 +410,6 @@ export class OrthogonalSymetryTool extends Tool {
         id: undefined,
         familyName: 'transformation',
         path: s.getSVGPath('no scale', false),
-        // divisionPointInfos: s.divisionPoints.map((dp) => {
-        //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
-        // }),
         segmentsColor: s.segments.map((seg) => {
           return seg.color;
         }),
@@ -454,16 +466,9 @@ export class OrthogonalSymetryTool extends Tool {
     });
   }
 
-  /**
-   * Calcule les nouvelles coordonnées d'un point lors de l'animation d'une symétrie axiale
-   * @param  {Point} point    le point
-   * @param  {Object} axe      L'axe de symétrie
-   * @return {Point}          Nouvelles coordonnées
-   */
   computePointPosition(point, selectedAxis) {
     const center = selectedAxis.projectionOnSegment(point);
 
-    //Calculer la nouvelle position du point à partir de l'ancienne et de la projection.
     point.coordinates = point.coordinates.add(
       center.substract(point.coordinates).multiply(2),
     );
