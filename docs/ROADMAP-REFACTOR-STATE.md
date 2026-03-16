@@ -45,7 +45,8 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **DeleteTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
 - [x] **ColorTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
 - [x] **MoveTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
-- [ ] **RotateTool** : Prochaine étape.
+- [x] **RotationTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [ ] **RotateTool** : Couplage legacy/signaux encore partiel à finaliser.
 - [ ] **CreateCircleTool** : En attente.
 
 ### État de la Couverture E2E

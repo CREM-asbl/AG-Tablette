@@ -1,4 +1,5 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -25,6 +26,19 @@ export class RotationTool extends Tool {
     super('rotation', 'Rotation', 'transformation');
   }
 
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
   start() {
     helpConfigRegistry.register(this.name, rotationHelpConfig);
 
@@ -33,14 +47,14 @@ export class RotationTool extends Tool {
       ? app.settings.geometryTransformationAnimationDuration
       : 0.001;
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
       () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectFirstReference',
-          },
+        this.updateToolStep('selectFirstReference', {
+          clockwise: undefined,
+          numberOfPointsDrawn: 0,
+          referenceShapeId: undefined,
         }),
       50,
     );
@@ -58,12 +72,10 @@ export class RotationTool extends Tool {
 
     setTimeout(
       () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectReference',
-          },
+        this.updateToolStep('selectReference', {
+          clockwise: undefined,
+          numberOfPointsDrawn: 0,
+          referenceShapeId: undefined,
         }),
       50,
     );
@@ -239,13 +251,9 @@ export class RotationTool extends Tool {
             referenceShape.vertexes[1].coordinates,
           );
         this.angle *= -1;
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectObject',
-            referenceShapeId: referenceShape.id,
-          },
+        this.updateToolStep('selectObject', {
+          numberOfPointsDrawn: this.pointsDrawn.length,
+          referenceShapeId: referenceShape.id,
         });
         this.characteristicElements.elementIds[0] = firstElementId;
         return;
@@ -259,8 +267,8 @@ export class RotationTool extends Tool {
         size: 2,
       }),
     );
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animateRefPoint' },
+    this.updateToolStep('animateRefPoint', {
+      numberOfPointsDrawn: this.pointsDrawn.length,
     });
   }
 
@@ -281,8 +289,8 @@ export class RotationTool extends Tool {
       });
     }
     if (this.pointsDrawn.length < 4) {
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectReference' },
+      this.updateToolStep('selectReference', {
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
     } else {
       this.angle =
@@ -381,8 +389,8 @@ export class RotationTool extends Tool {
         strokeWidth: 2,
       });
 
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectDirection' },
+      this.updateToolStep('selectDirection', {
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
     }
   }
@@ -423,8 +431,9 @@ export class RotationTool extends Tool {
       this.characteristicElements.elementIds[2],
     );
 
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+    this.updateToolStep('selectObject', {
+      clockwise: this.clockwise,
+      numberOfPointsDrawn: this.pointsDrawn.length,
     });
   }
 
@@ -450,11 +459,10 @@ export class RotationTool extends Tool {
           }),
         }),
     );
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: 'rot',
-      },
+    this.updateToolStep('rot', {
+      clockwise: this.clockwise,
+      numberOfPointsDrawn: this.pointsDrawn?.length,
+      referenceShapeId: app.tool.referenceShapeId,
     });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
@@ -499,8 +507,10 @@ export class RotationTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'rotation') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      this.updateToolStep('selectObject', {
+        clockwise: this.clockwise,
+        numberOfPointsDrawn: this.pointsDrawn?.length,
+        referenceShapeId: app.tool.referenceShapeId,
       });
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
