@@ -155,6 +155,45 @@ export class OrthogonalSymetryTool extends Tool {
         typeof candidate.isArc === 'function' &&
         typeof candidate.getSVGPath === 'function';
 
+      const getDistanceToSegment = (segment, point) => {
+        if (!segment || typeof segment.projectionOnSegment !== 'function') {
+          return Number.POSITIVE_INFINITY;
+        }
+        const projected = segment.projectionOnSegment(point);
+        if (!projected) return Number.POSITIVE_INFINITY;
+        if (typeof projected.dist === 'function') {
+          return projected.dist(point);
+        }
+        const dx = (projected.x ?? 0) - (point.x ?? 0);
+        const dy = (projected.y ?? 0) - (point.y ?? 0);
+        return Math.sqrt(dx * dx + dy * dy);
+      };
+
+      const findNearestSegment = (point) => {
+        const zoomLevel = app.workspace.zoomLevel || 1;
+        const maxDistance = 30 / zoomLevel;
+
+        const upperSegments = app.upperCanvasLayer.shapes
+          .flatMap((shape) => shape.segments || [])
+          .filter(isSegmentLike);
+        const mainSegments = app.mainCanvasLayer.shapes
+          .flatMap((shape) => shape.segments || [])
+          .filter(isSegmentLike);
+
+        const allSegments = [...upperSegments, ...mainSegments];
+        let bestSegment = null;
+        let bestDistance = Number.POSITIVE_INFINITY;
+        allSegments.forEach((segment) => {
+          const distance = getDistanceToSegment(segment, point);
+          if (distance < bestDistance) {
+            bestDistance = distance;
+            bestSegment = segment;
+          }
+        });
+
+        return bestDistance <= maxDistance ? bestSegment : null;
+      };
+
       let selectedSegment =
         isSegmentLike(object)
           ? object
@@ -165,7 +204,12 @@ export class OrthogonalSymetryTool extends Tool {
           SelectManager.getEmptySelectionConstraints().segments;
         segmentConstraints.canSelect = true;
         segmentConstraints.blockHidden = true;
+        segmentConstraints.canSelectFromUpper = true;
         selectedSegment = SelectManager.selectSegment(coord, segmentConstraints);
+      }
+
+      if (!selectedSegment) {
+        selectedSegment = findNearestSegment(coord);
       }
 
       if (selectedSegment && !selectedSegment.isArc()) {

@@ -1,4 +1,5 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -22,6 +23,19 @@ export class TranslationTool extends Tool {
     super('translation', 'Translation', 'transformation');
   }
 
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
   start() {
     helpConfigRegistry.register(this.name, translationHelpConfig);
 
@@ -30,15 +44,10 @@ export class TranslationTool extends Tool {
       ? app.settings.geometryTransformationAnimationDuration
       : 0.001;
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectFirstReference',
-          },
-        }),
+      () => this.updateToolStep('selectFirstReference'),
       50,
     );
   }
@@ -54,14 +63,7 @@ export class TranslationTool extends Tool {
     this.characteristicElements = null;
 
     setTimeout(
-      () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectReference',
-          },
-        }),
+      () => this.updateToolStep('selectReference'),
       50,
     );
   }
@@ -178,13 +180,8 @@ export class TranslationTool extends Tool {
               strokeWidth: 2,
             });
           }
-          setState({
-            tool: {
-              ...app.tool,
-              name: this.name,
-              currentStep: 'selectObject',
-              referenceShapeId: referenceShape.id,
-            },
+          this.updateToolStep('selectObject', {
+            referenceShapeId: referenceShape.id,
           });
         } else {
           this.characteristicElements = new CharacteristicElements({
@@ -197,13 +194,8 @@ export class TranslationTool extends Tool {
             strokeColor: app.settings.referenceDrawColor,
             strokeWidth: 2,
           });
-          setState({
-            tool: {
-              ...app.tool,
-              name: this.name,
-              currentStep: 'selectObject',
-              referenceShapeId: referenceShape.id,
-            },
+          this.updateToolStep('selectObject', {
+            referenceShapeId: referenceShape.id,
           });
         }
       } else {
@@ -215,13 +207,8 @@ export class TranslationTool extends Tool {
             size: 2,
           }),
         );
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'animateFirstRefPoint',
-            numberOfPointsDrawn: this.pointsDrawn.length,
-          },
+        this.updateToolStep('animateFirstRefPoint', {
+          numberOfPointsDrawn: this.pointsDrawn.length,
         });
       }
     } else {
@@ -244,14 +231,9 @@ export class TranslationTool extends Tool {
         strokeColor: app.settings.referenceDrawColor,
         strokeWidth: 2,
       });
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'animateSecondRefPoint',
-          referenceShapeId: referenceShape.id,
-          numberOfPointsDrawn: this.pointsDrawn.length,
-        },
+      this.updateToolStep('animateSecondRefPoint', {
+        referenceShapeId: referenceShape.id,
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
     }
   }
@@ -267,13 +249,8 @@ export class TranslationTool extends Tool {
         type: 'two-points',
         elementIds: [reference.id],
       });
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'selectReference',
-          numberOfPointsDrawn: this.pointsDrawn.length,
-        },
+      this.updateToolStep('selectReference', {
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
     } else {
       const coord = app.workspace.lastKnownMouseCoordinates;
@@ -284,13 +261,8 @@ export class TranslationTool extends Tool {
         this.secondReference = this.pointsDrawn[1];
       }
       this.characteristicElements.elementIds.push(this.secondReference.id);
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'selectObject',
-          numberOfPointsDrawn: this.pointsDrawn.length,
-        },
+      this.updateToolStep('selectObject', {
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
     }
   }
@@ -314,11 +286,9 @@ export class TranslationTool extends Tool {
           }),
         }),
     );
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: 'trans',
-      },
+    this.updateToolStep('trans', {
+      referenceShapeId: app.tool.referenceShapeId,
+      numberOfPointsDrawn: this.pointsDrawn?.length,
     });
   }
 
@@ -367,8 +337,9 @@ export class TranslationTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'translation') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      this.updateToolStep('selectObject', {
+        referenceShapeId: app.tool.referenceShapeId,
+        numberOfPointsDrawn: this.pointsDrawn?.length,
       });
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));

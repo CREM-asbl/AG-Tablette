@@ -73,7 +73,7 @@ export class ReverseTool extends Tool {
     });
   }
 
-  
+
 
   /**
    * initialiser l'état

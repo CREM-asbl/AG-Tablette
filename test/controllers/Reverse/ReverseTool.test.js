@@ -1,11 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { app, setState } from '@controllers/Core/App';
 import { ReverseTool } from '@controllers/Reverse/ReverseTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { appActions } from '@store/appState';
-import { app, setState } from '@controllers/Core/App';
-import { ShapeManager } from '@controllers/Core/Managers/ShapeManager';
-import { Coordinates } from '@controllers/Core/Objects/Coordinates';
-import * as generalTools from '@controllers/Core/Tools/general';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),
@@ -42,7 +39,7 @@ vi.mock('@controllers/Core/App', () => {
       shapes: [],
     },
     fastSelectionConstraints: {
-        click_all_shape: { shapes: {} }
+      click_all_shape: { shapes: {} }
     },
     addListener: vi.fn(() => 'listener-id'),
     removeListener: vi.fn(),
@@ -91,24 +88,24 @@ vi.mock('@controllers/GeometryTools/recomputeShape', () => ({
 }));
 
 vi.mock('@controllers/Core/Objects/Shapes/LineShape', () => ({
-    LineShape: class {
-        constructor(props) {
-            this.id = 'ls-' + Math.random();
-            this.segments = [{ getAngleWithHorizontal: () => 0, projectionOnSegment: vi.fn(() => ({x:0, y:0})) }];
-        }
+  LineShape: class {
+    constructor(props) {
+      this.id = 'ls-' + Math.random();
+      this.segments = [{ getAngleWithHorizontal: () => 0, projectionOnSegment: vi.fn(() => ({ x: 0, y: 0 })) }];
     }
+  }
 }));
 
 vi.mock('@controllers/Core/Objects/Shapes/Shape', () => ({
-    Shape: class {}
+  Shape: class { }
 }));
 
 vi.mock('@controllers/Core/Objects/Segment', () => ({
-    Segment: class {}
+  Segment: class { }
 }));
 
-import { Shape } from '@controllers/Core/Objects/Shapes/Shape';
 import { Segment } from '@controllers/Core/Objects/Segment';
+import { Shape } from '@controllers/Core/Objects/Shapes/Shape';
 
 describe('ReverseTool', () => {
   let tool;
@@ -142,19 +139,19 @@ describe('ReverseTool', () => {
     const mockShape = new Shape();
     mockShape.id = 's1';
     mockShape.geometryObject = {
-        geometryMultipliedChildShapeIds: []
+      geometryMultipliedChildShapeIds: []
     };
     app.tool.currentStep = 'listen';
-    
+
     tool.objectSelected(mockShape);
-    
+
     expect(tool.involvedShapes).toContain(mockShape);
     expect(appActions.setToolState).toHaveBeenCalledWith({
       selectedShapeId: 's1',
     });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectAxis');
     expect(setState).toHaveBeenCalledWith(expect.objectContaining({
-        tool: expect.objectContaining({ currentStep: 'selectAxis' })
+      tool: expect.objectContaining({ currentStep: 'selectAxis' })
     }));
   });
 
@@ -162,24 +159,24 @@ describe('ReverseTool', () => {
     const mockSegment = new Segment();
     mockSegment.getAngleWithHorizontal = vi.fn(() => 0);
     mockSegment.projectionOnSegment = vi.fn(() => ({ x: 0, y: 0 }));
-    
-    const mockShapeToMove = { 
-        segments: [], 
-        points: [{ coordinates: createMockCoords(0, 0) }],
-        reverse: vi.fn()
+
+    const mockShapeToMove = {
+      segments: [],
+      points: [{ coordinates: createMockCoords(0, 0) }],
+      reverse: vi.fn()
     };
     tool.shapesToMove = [mockShapeToMove];
     app.tool.currentStep = 'selectAxis';
-    
+
     tool.objectSelected(mockSegment);
-    
+
     expect(tool.axisAngle).toBe(0);
     expect(appActions.setToolState).toHaveBeenCalledWith({
       axisAngle: 0,
     });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('reverse');
     expect(setState).toHaveBeenCalledWith(expect.objectContaining({
-        tool: expect.objectContaining({ currentStep: 'reverse' })
+      tool: expect.objectContaining({ currentStep: 'reverse' })
     }));
   });
 });
