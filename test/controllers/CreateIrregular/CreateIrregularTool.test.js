@@ -1,9 +1,9 @@
+import { app } from '@controllers/Core/App';
+import { SelectManager } from '@controllers/Core/Managers/SelectManager';
 import { CreateIrregularTool } from '@controllers/CreateIrregular/CreateIrregularTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { app, setState } from '@controllers/Core/App';
 import { appActions } from '@store/appState';
-import { SelectManager } from '@controllers/Core/Managers/SelectManager';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),
@@ -32,9 +32,12 @@ vi.mock('@controllers/Core/App', () => {
 vi.mock('@store/appState', () => ({
   activeTool: { get: vi.fn(() => 'createIrregularPolygon') },
   currentStep: { get: vi.fn(() => 'start') },
+  selectedTemplate: { get: vi.fn(() => null) },
+  toolState: { get: vi.fn(() => ({})) },
   createWatcher: vi.fn(() => vi.fn()),
   appActions: {
     setActiveTool: vi.fn(),
+    setToolState: vi.fn(),
     setCurrentStep: vi.fn(),
     addNotification: vi.fn(),
   },
@@ -87,8 +90,13 @@ describe('CreateIrregularTool', () => {
   });
 
   it('registers help config in start()', () => {
+    vi.useFakeTimers();
     tool.start();
+    vi.advanceTimersByTime(100);
     expect(helpConfigRegistry.has('createIrregularPolygon')).toBe(true);
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('createIrregularPolygon');
+    expect(appActions.setToolState).toHaveBeenCalledWith({ numberOfPointsDrawn: 0 });
+    vi.useRealTimers();
   });
 
   it('adds points on mouse down', () => {
@@ -96,8 +104,9 @@ describe('CreateIrregularTool', () => {
     tool.canvasMouseDown();
     expect(tool.points.length).toBe(1);
     expect(tool.numberOfPointsDrawn).toBe(1);
+    expect(appActions.setToolState).toHaveBeenCalledWith({ numberOfPointsDrawn: 1 });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('animatePoint');
-    
+
     // Add second point
     tool.canvasMouseDown();
     expect(tool.points.length).toBe(2);
@@ -107,16 +116,17 @@ describe('CreateIrregularTool', () => {
   it('completes shape when clicking near first point', () => {
     tool.start();
     tool.points = [
-        { id: 'p1', coordinates: { x: 0, y: 0 } },
-        { id: 'p2', coordinates: { x: 100, y: 0 } },
-        { id: 'p3', coordinates: { x: 0, y: 100 } },
+      { id: 'p1', coordinates: { x: 0, y: 0 } },
+      { id: 'p2', coordinates: { x: 100, y: 0 } },
+      { id: 'p3', coordinates: { x: 0, y: 100 } },
     ];
-    
+
     vi.mocked(SelectManager.areCoordinatesInMagnetismDistance).mockReturnValue(true);
-    
+
     tool.canvasMouseUp();
-    
+
     expect(app.upperCanvasLayer.removeAllObjects).toHaveBeenCalled();
+    expect(appActions.setToolState).toHaveBeenCalledWith({ numberOfPointsDrawn: 0 });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('start');
   });
 });

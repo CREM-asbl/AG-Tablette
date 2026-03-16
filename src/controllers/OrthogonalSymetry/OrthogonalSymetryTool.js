@@ -148,12 +148,17 @@ export class OrthogonalSymetryTool extends Tool {
       app.workspace.selectionConstraints.eventType = 'click';
       app.workspace.selectionConstraints.segments.canSelect = true;
       app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
-      app.workspace.selectionConstraints.points.canSelect = true;
+      app.workspace.selectionConstraints.points.canSelect = false;
       const object = SelectManager.selectObject(coord);
+      const isSegmentLike = (candidate) =>
+        !!candidate &&
+        typeof candidate.isArc === 'function' &&
+        typeof candidate.getSVGPath === 'function';
+
       let selectedSegment =
-        object instanceof Segment
+        isSegmentLike(object)
           ? object
-          : object?.segments?.find((seg) => seg instanceof Segment) || null;
+          : object?.segments?.find((seg) => isSegmentLike(seg)) || null;
 
       if (!selectedSegment && typeof SelectManager.selectSegment === 'function') {
         const segmentConstraints =

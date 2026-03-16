@@ -30,7 +30,20 @@ export class CreateIrregularTool extends Tool {
     this.shapeId = null;
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
+
 
   start() {
     app.upperCanvasLayer.removeAllObjects();
@@ -46,12 +59,10 @@ export class CreateIrregularTool extends Tool {
     this.numberOfPointsDrawn = 0;
 
     setTimeout(
-      () => {
-        appActions.setCurrentStep('drawPoint');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
-        });
-      },
+      () =>
+        this.updateToolStep('drawPoint', {
+          numberOfPointsDrawn: this.numberOfPointsDrawn,
+        }),
       50,
     );
   }
@@ -109,9 +120,8 @@ export class CreateIrregularTool extends Tool {
         fillOpacity: 0,
       });
     }
-    appActions.setCurrentStep('animatePoint');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
+    this.updateToolStep('animatePoint', {
+      numberOfPointsDrawn: this.numberOfPointsDrawn,
     });
   }
 
@@ -127,14 +137,12 @@ export class CreateIrregularTool extends Tool {
 
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
-      appActions.setCurrentStep('start');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'start', numberOfPointsDrawn: 0 },
+      this.updateToolStep('start', {
+        numberOfPointsDrawn: 0,
       });
     } else {
-      appActions.setCurrentStep('drawPoint');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
     }
   }

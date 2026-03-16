@@ -50,6 +50,7 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **CreatePointTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **CreateRegularTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **CreateLineTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **CreateIrregularTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **RotationTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **RotateTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
 - [x] **CreateCircleTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
