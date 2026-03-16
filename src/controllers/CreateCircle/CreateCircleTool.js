@@ -38,7 +38,20 @@ export class CreateCircleTool extends Tool {
     this.clockwise = undefined;
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
+
 
   start() {
     this.removeListeners();
@@ -47,6 +60,7 @@ export class CreateCircleTool extends Tool {
     // Register help configuration
     helpConfigRegistry.register(this.name, createCircleHelpConfig);
 
+    appActions.setActiveTool(this.name);
     import('@components/shape-selector');
     appActions.setSelectedTemplate(app.tool.selectedTemplate);
     appActions.setToolUiState({
@@ -67,13 +81,13 @@ export class CreateCircleTool extends Tool {
     this.points = [];
     this.segments = [];
     this.numberOfPointsDrawn = 0;
+    this.clockwise = undefined;
 
     setTimeout(
-      () => {
-        appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
-        appActions.setCurrentStep('drawPoint');
-        setState({ tool: { ...app.tool, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
-      },
+      () =>
+        this.updateToolStep('drawPoint', {
+          numberOfPointsDrawn: this.numberOfPointsDrawn,
+        }),
       50,
     );
   }
@@ -263,9 +277,9 @@ export class CreateCircleTool extends Tool {
           fillOpacity: 0,
         });
       }
-      appActions.setToolState({ currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
-      appActions.setCurrentStep('animatePoint');
-      setState({ tool: { ...app.tool, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
+      this.updateToolStep('animatePoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
+      });
     }
   }
 
@@ -292,8 +306,9 @@ export class CreateCircleTool extends Tool {
           detail: { message: 'Veuillez placer le point autre part.' },
         }),
       );
-      appActions.setCurrentStep('drawPoint');
-      setState({ tool: { ...app.tool, currentStep: 'drawPoint' } });
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
+      });
       return;
     }
 
@@ -303,22 +318,20 @@ export class CreateCircleTool extends Tool {
         app.tool.selectedTemplate.name === 'CircleArc'
       ) {
         this.stopAnimation();
-        appActions.setToolState({ currentStep: 'showArrow' });
-        appActions.setCurrentStep('showArrow');
-        setState({ tool: { ...app.tool, currentStep: 'showArrow' } });
+        this.updateToolStep('showArrow', {
+          numberOfPointsDrawn: this.numberOfPointsDrawn,
+        });
       } else {
         this.stopAnimation();
         this.executeAction();
         app.upperCanvasLayer.removeAllObjects();
-        appActions.setToolState({ currentStep: 'drawFirstPoint' });
-        appActions.setCurrentStep('drawFirstPoint');
-        setState({ tool: { ...app.tool, currentStep: 'drawFirstPoint' } });
+        this.updateToolStep('drawFirstPoint');
       }
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
-      appActions.setCurrentStep('drawPoint');
-      setState({ tool: { ...app.tool, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn } });
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
+      });
     }
   }
 
@@ -341,9 +354,7 @@ export class CreateCircleTool extends Tool {
     this.clockwise = isAngleInside;
     this.executeAction();
     app.upperCanvasLayer.removeAllObjects();
-    appActions.setToolState({ currentStep: 'drawFirstPoint' });
-    appActions.setCurrentStep('drawFirstPoint');
-    setState({ tool: { ...app.tool, currentStep: 'drawFirstPoint' } });
+    this.updateToolStep('drawFirstPoint');
   }
 
   adjustPoint(point) {

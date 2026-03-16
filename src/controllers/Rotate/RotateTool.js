@@ -1,6 +1,6 @@
 
-import { appActions } from '../../store/appState';
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -44,7 +44,20 @@ export class RotateTool extends Tool {
     this.involvedShapes = [];
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
+
 
   start() {
     helpConfigRegistry.register(this.name, rotateHelpConfig);
@@ -52,12 +65,7 @@ export class RotateTool extends Tool {
     appActions.setActiveTool(this.name);
 
     setTimeout(
-      () => {
-        appActions.setCurrentStep('listen');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        });
-      },
+      () => this.updateToolStep('listen'),
       50,
     );
   }
@@ -68,7 +76,7 @@ export class RotateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    appActions.setCurrentStep('listen');
+    this.updateToolStep('listen');
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
@@ -79,7 +87,7 @@ export class RotateTool extends Tool {
 
   rotate() {
     this.removeListeners();
-    appActions.setCurrentStep('rotate');
+    this.updateToolStep('rotate');
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -178,8 +186,7 @@ export class RotateTool extends Tool {
       );
     });
 
-    appActions.setCurrentStep('rotate');
-    setState({ tool: { ...app.tool, currentStep: 'rotate' } });
+    this.updateToolStep('rotate');
     this.animate();
   }
 
@@ -187,8 +194,7 @@ export class RotateTool extends Tool {
     if (app.tool.currentStep !== 'rotate') return;
 
     this.executeAction();
-    appActions.setCurrentStep('listen');
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   /**

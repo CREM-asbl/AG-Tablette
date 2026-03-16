@@ -1,12 +1,9 @@
-import { appActions } from '@store/appState';
+import { app } from '@controllers/Core/App';
+import * as generalTools from '@controllers/Core/Tools/general';
 import { RotateTool } from '@controllers/Rotate/RotateTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
+import { appActions } from '@store/appState';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { app, setState } from '@controllers/Core/App';
-import { ShapeManager } from '@controllers/Core/Managers/ShapeManager';
-import * as shapesTools from '@controllers/Core/Tools/shapesTools';
-import * as generalTools from '@controllers/Core/Tools/general';
-import { Coordinates } from '@controllers/Core/Objects/Coordinates';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),
@@ -44,7 +41,9 @@ vi.mock('@controllers/Core/App', () => {
 vi.mock('@store/appState', () => ({
   activeTool: { get: vi.fn(() => 'rotate'), set: vi.fn() },
   currentStep: { get: vi.fn(() => 'start'), set: vi.fn() },
+  selectedTemplate: { get: vi.fn(() => null), set: vi.fn() },
   toolState: { get: vi.fn(() => ({})), set: vi.fn() },
+  createWatcher: vi.fn(() => vi.fn()),
   appActions: {
     setActiveTool: vi.fn(),
     setCurrentStep: vi.fn(),
@@ -86,7 +85,7 @@ vi.mock('@controllers/Core/Tools/automatic_adjustment', () => ({
 // Mock Point
 vi.mock('@controllers/Core/Objects/Point', () => ({
   Point: class {
-    constructor() {}
+    constructor() { }
   }
 }));
 
@@ -108,52 +107,55 @@ describe('RotateTool', () => {
     vi.useFakeTimers();
     tool.start();
     vi.advanceTimersByTime(100);
-    
+
     expect(appActions.setActiveTool).toHaveBeenCalledWith('rotate');
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
     vi.useRealTimers();
   });
 
   it('handles object selection', () => {
-    const mockShape = { 
-      id: 's1', 
+    const mockShape = {
+      id: 's1',
       centerCoordinates: { angleWith: vi.fn(() => 0) },
-      geometryObject: { 
+      geometryObject: {
         geometryTransformationName: null,
-        geometryMultipliedChildShapeIds: [] 
+        geometryMultipliedChildShapeIds: []
       },
     };
     app.tool.currentStep = 'listen';
-    
+
     tool.objectSelected(mockShape);
-    
+
     expect(tool.selectedShape).toBe(mockShape);
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('rotate');
   });
 
   it('executes rotate on mouse up', () => {
-    const mockShape = { 
-      id: 's1', 
+    const mockShape = {
+      id: 's1',
       centerCoordinates: { x: 0, y: 0 },
       points: [{ coordinates: { x: 0, y: 0 } }],
       rotate: vi.fn(),
       translate: vi.fn(),
     };
     const mockUpperShape = { id: 's1_upper', points: [{ coordinates: { x: 5, y: 5 } }] };
-    
+
     tool.selectedShape = mockShape;
     tool.shapesToMove = [mockUpperShape];
     app.mainCanvasLayer.editingShapeIds = ['s1'];
     app.tool.currentStep = 'rotate';
-    
+
     generalTools.findObjectById.mockImplementation((id) => {
       if (id === 's1') return mockShape;
       return null;
     });
-    
+
     tool.canvasMouseUp();
-    
+
     expect(mockShape.rotate).toHaveBeenCalled();
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
   });
 });
