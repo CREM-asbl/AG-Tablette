@@ -36,7 +36,20 @@ export class CreateRegularTool extends Tool {
     this.numberOfPoints = 4;
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
+
 
   /**
    * (ré-)initialiser l'état
@@ -55,9 +68,8 @@ export class CreateRegularTool extends Tool {
     existingPopups.forEach((popup) => popup.remove());
 
     createElem('regular-popup');
-    
-    appActions.setCurrentStep('drawFirstPoint');
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' } });
+
+    this.updateToolStep('drawFirstPoint');
   }
 
   drawFirstPoint() {
@@ -70,7 +82,6 @@ export class CreateRegularTool extends Tool {
 
   animateFirstPoint() {
     this.removeListeners();
-    this.animate();
 
     const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
@@ -81,6 +92,8 @@ export class CreateRegularTool extends Tool {
       color: app.settings.temporaryDrawColor,
       size: 2,
     });
+
+    this.animate();
 
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
@@ -94,7 +107,6 @@ export class CreateRegularTool extends Tool {
 
   animateSecondPoint() {
     this.removeListeners();
-    this.animate();
 
     const newCoordinates = new Coordinates(
       app.workspace.lastKnownMouseCoordinates,
@@ -105,6 +117,8 @@ export class CreateRegularTool extends Tool {
       color: app.settings.temporaryDrawColor,
       size: 2,
     });
+
+    this.animate();
 
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
@@ -135,11 +149,9 @@ export class CreateRegularTool extends Tool {
 
   canvasMouseDown() {
     if (app.tool.currentStep === 'drawFirstPoint') {
-      appActions.setCurrentStep('animateFirstPoint');
-      setState({ tool: { ...app.tool, currentStep: 'animateFirstPoint' } });
+      this.updateToolStep('animateFirstPoint');
     } else {
-      appActions.setCurrentStep('animateSecondPoint');
-      setState({ tool: { ...app.tool, currentStep: 'animateSecondPoint' } });
+      this.updateToolStep('animateSecondPoint');
     }
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -151,8 +163,7 @@ export class CreateRegularTool extends Tool {
       this.adjustPoint(this.firstPoint);
       window.dispatchEvent(new CustomEvent('refreshUpper'));
 
-      appActions.setCurrentStep('drawSecondPoint');
-      setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
+      this.updateToolStep('drawSecondPoint');
     } else {
       this.stopAnimation();
       if (
@@ -186,10 +197,7 @@ export class CreateRegularTool extends Tool {
       }
       this.adjustPoint(this.secondPoint);
       this.executeAction();
-      appActions.setCurrentStep('drawFirstPoint');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
-      });
+      this.updateToolStep('drawFirstPoint');
     }
   }
 
@@ -233,11 +241,13 @@ export class CreateRegularTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep === 'animateFirstPoint') {
+      if (!this.firstPoint) return;
       this.firstPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.firstPoint);
     } else if (app.tool.currentStep === 'animateSecondPoint') {
+      if (!this.firstPoint || !this.secondPoint) return;
       this.secondPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );

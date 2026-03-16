@@ -35,7 +35,20 @@ export class CreatePointTool extends Tool {
     this.geometryParentObjectId1 = null;
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
+
 
   start() {
     app.upperCanvasLayer.removeAllObjects();
@@ -98,14 +111,7 @@ export class CreatePointTool extends Tool {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     if (app.tool.currentStep === 'drawPoint') {
       this.geometryParentObjectId1 = segment.id;
-      appActions.setCurrentStep('selectSecondSegment');
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'selectSecondSegment',
-        },
-      });
+      this.updateToolStep('selectSecondSegment');
     } else {
       if (this.geometryParentObjectId1 === segment.id) {
         appActions.addNotification({
@@ -123,10 +129,7 @@ export class CreatePointTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
-      appActions.setCurrentStep('drawPoint');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-      });
+      this.updateToolStep('drawPoint');
     }, 200);
   }
 
@@ -148,19 +151,13 @@ export class CreatePointTool extends Tool {
       size: 2,
     });
 
-    appActions.setCurrentStep('animatePoint');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
-    });
+    this.updateToolStep('animatePoint');
   }
 
   canvasMouseUp() {
     this.stopAnimation();
     this.executeAction();
-    appActions.setCurrentStep('drawPoint');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-    });
+    this.updateToolStep('drawPoint');
   }
 
   adjustPoint(point) {

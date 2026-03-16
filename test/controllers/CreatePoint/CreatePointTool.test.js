@@ -1,10 +1,9 @@
+import { app } from '@controllers/Core/App';
+import * as generalTools from '@controllers/Core/Tools/general';
 import { CreatePointTool } from '@controllers/CreatePoint/CreatePointTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { app, setState } from '@controllers/Core/App';
 import { appActions } from '@store/appState';
-import { Coordinates } from '@controllers/Core/Objects/Coordinates';
-import * as generalTools from '@controllers/Core/Tools/general';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),
@@ -40,10 +39,13 @@ vi.mock('@controllers/Core/App', () => {
 vi.mock('@store/appState', () => ({
   activeTool: { get: vi.fn(() => 'createPoint') },
   currentStep: { get: vi.fn(() => 'start') },
+  selectedTemplate: { get: vi.fn(() => ({ name: 'Point' })) },
+  toolState: { get: vi.fn(() => ({})) },
   createWatcher: vi.fn(() => vi.fn()),
   appActions: {
     setToolUiState: vi.fn(),
     setActiveTool: vi.fn(),
+    setToolState: vi.fn(),
     setCurrentStep: vi.fn(),
     addNotification: vi.fn(),
   },
@@ -100,6 +102,7 @@ describe('CreatePointTool', () => {
   it('registers help config in start()', () => {
     tool.start();
     expect(helpConfigRegistry.has('createPoint')).toBe(true);
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('createPoint');
     expect(appActions.setToolUiState).toHaveBeenCalled();
   });
 
@@ -112,10 +115,12 @@ describe('CreatePointTool', () => {
     // Mouse down
     tool.canvasMouseDown();
     expect(tool.point).toBeDefined();
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('animatePoint');
-    
+
     // Mouse up
     tool.canvasMouseUp();
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
   });
 
@@ -123,18 +128,18 @@ describe('CreatePointTool', () => {
     app.tool.selectedTemplate.name = 'PointOnIntersection';
     const mockSeg1 = { id: 'seg1', shape: { geometryObject: { geometryChildShapeIds: [] } }, intersectionWith: () => [{ x: 5, y: 5 }] };
     const mockSeg2 = { id: 'seg2', shape: { geometryObject: { geometryChildShapeIds: [] } } };
-    
+
     vi.mocked(generalTools.findObjectById).mockImplementation((id) => {
-        if (id === 'seg1') return mockSeg1;
-        if (id === 'seg2') return mockSeg2;
-        return null;
+      if (id === 'seg1') return mockSeg1;
+      if (id === 'seg2') return mockSeg2;
+      return null;
     });
 
     tool.geometryParentObjectId1 = 'seg1';
     tool.geometryParentObjectId2 = 'seg2';
-    
+
     tool._executeAction();
-    
+
     expect(mockSeg1.shape.geometryObject.geometryChildShapeIds).toContain('s1');
   });
 });

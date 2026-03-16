@@ -38,6 +38,19 @@ export class CreateLineTool extends Tool {
     this.geometryParentObjectId = null;
   }
 
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
   
 
   async start() {
@@ -77,29 +90,11 @@ export class CreateLineTool extends Tool {
       !app.tool.selectedTemplate.name.startsWith('Perpendicular')
     ) {
       app.upperCanvasLayer.removeAllObjects();
-      setTimeout(
-        () => {
-          appActions.setCurrentStep('drawPoint');
-          setState({
-            tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
-          });
-        },
-        50,
-      );
+      setTimeout(() => this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
+      }), 50);
     } else {
-      setTimeout(
-        () => {
-          appActions.setCurrentStep('selectReference');
-          setState({
-            tool: {
-              ...app.tool,
-              name: this.name,
-              currentStep: 'selectReference',
-            },
-          });
-        },
-        50,
-      );
+      setTimeout(() => this.updateToolStep('selectReference'), 50);
     }
   }
 
@@ -151,9 +146,8 @@ export class CreateLineTool extends Tool {
       strokeWidth: 2,
     });
 
-    appActions.setCurrentStep('drawPoint');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
+    this.updateToolStep('drawPoint', {
+      numberOfPointsDrawn: this.numberOfPointsDrawn,
     });
   }
 
@@ -264,9 +258,8 @@ export class CreateLineTool extends Tool {
           seg.shapeId = shape.id;
         });
       }
-      appActions.setCurrentStep('animatePoint');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
+      this.updateToolStep('animatePoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
     }
   }
@@ -293,9 +286,8 @@ export class CreateLineTool extends Tool {
         message: 'Veuillez placer le point autre part.',
         type: 'info',
       });
-      appActions.setCurrentStep('drawPoint');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
       return;
     }
@@ -304,15 +296,13 @@ export class CreateLineTool extends Tool {
       this.stopAnimation();
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
-      appActions.setCurrentStep('drawFirstPoint');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint', numberOfPointsDrawn: 0 },
+      this.updateToolStep('drawFirstPoint', {
+        numberOfPointsDrawn: 0,
       });
     } else {
       this.stopAnimation();
-      appActions.setCurrentStep('drawPoint');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn },
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
     }
   }

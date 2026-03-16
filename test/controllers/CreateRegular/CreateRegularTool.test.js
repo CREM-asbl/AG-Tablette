@@ -1,11 +1,9 @@
+import { app } from '@controllers/Core/App';
+import * as generalTools from '@controllers/Core/Tools/general';
 import { CreateRegularTool } from '@controllers/CreateRegular/CreateRegularTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { app, setState } from '@controllers/Core/App';
 import { appActions } from '@store/appState';
-import { SelectManager } from '@controllers/Core/Managers/SelectManager';
-import { Coordinates } from '@controllers/Core/Objects/Coordinates';
-import * as generalTools from '@controllers/Core/Tools/general';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),
@@ -25,7 +23,7 @@ vi.mock('@controllers/Core/App', () => {
       removeAllObjects: vi.fn(),
     },
     gridCanvasLayer: {
-        getClosestGridPoint: vi.fn(),
+      getClosestGridPoint: vi.fn(),
     },
     workspace: {
       lastKnownMouseCoordinates: { x: 10, y: 10 },
@@ -39,10 +37,13 @@ vi.mock('@controllers/Core/App', () => {
 vi.mock('@store/appState', () => ({
   activeTool: { get: vi.fn(() => 'createRegularPolygon') },
   currentStep: { get: vi.fn(() => 'start') },
+  selectedTemplate: { get: vi.fn(() => null) },
+  toolState: { get: vi.fn(() => ({})) },
   createWatcher: vi.fn(() => vi.fn()),
   appActions: {
     setActiveTool: vi.fn(),
     setCurrentStep: vi.fn(),
+    setToolState: vi.fn(),
     addNotification: vi.fn(),
   },
 }));
@@ -71,7 +72,7 @@ vi.mock('@controllers/Core/Objects/Shapes/RegularShape', () => ({
 
 vi.mock('@controllers/Core/Objects/Shapes/GeometryObject', () => ({
   GeometryObject: class {
-    constructor() {}
+    constructor() { }
   }
 }));
 
@@ -109,8 +110,8 @@ describe('CreateRegularTool', () => {
 
   const createMockPoint = (x, y) => ({
     coordinates: {
-        x, y,
-        toCanvasCoordinates: vi.fn(() => ({ x, y }))
+      x, y,
+      toCanvasCoordinates: vi.fn(() => ({ x, y }))
     },
     adjustedOn: null
   });
@@ -119,14 +120,17 @@ describe('CreateRegularTool', () => {
     document.querySelectorAll = vi.fn(() => []);
     tool.start();
     expect(helpConfigRegistry.has('createRegularPolygon')).toBe(true);
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('createRegularPolygon');
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(generalTools.createElem).toHaveBeenCalledWith('regular-popup');
   });
 
   it('handles first point creation', () => {
     app.tool.currentStep = 'animateFirstPoint';
     tool.firstPoint = createMockPoint(0, 0);
-    
+
     tool.canvasMouseUp();
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawSecondPoint');
   });
 
@@ -135,18 +139,19 @@ describe('CreateRegularTool', () => {
     tool.secondPoint = createMockPoint(100, 0);
     tool.shapeDrawnId = 's-drawn';
     app.tool.currentStep = 'animateSecondPoint';
-    
-    const mockShapeDrawn = { 
-        getSVGPath: () => 'M 0 0', 
-        vertexes: [{}, {}], 
-        centerCoordinates: { x: 50, y: 50 },
-        rotate: vi.fn(),
-        translate: vi.fn(),
+
+    const mockShapeDrawn = {
+      getSVGPath: () => 'M 0 0',
+      vertexes: [{}, {}],
+      centerCoordinates: { x: 50, y: 50 },
+      rotate: vi.fn(),
+      translate: vi.fn(),
     };
     vi.mocked(generalTools.findObjectById).mockReturnValue(mockShapeDrawn);
-    
+
     tool.canvasMouseUp();
-    
+
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawFirstPoint');
   });
 });
