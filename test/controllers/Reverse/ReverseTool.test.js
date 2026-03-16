@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReverseTool } from '@controllers/Reverse/ReverseTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
+import { appActions } from '@store/appState';
 import { app, setState } from '@controllers/Core/App';
 import { ShapeManager } from '@controllers/Core/Managers/ShapeManager';
 import { Coordinates } from '@controllers/Core/Objects/Coordinates';
@@ -127,8 +128,14 @@ describe('ReverseTool', () => {
   });
 
   it('registers help config in start()', () => {
+    vi.useFakeTimers();
     tool.start();
+    vi.advanceTimersByTime(100);
     expect(helpConfigRegistry.has('reverse')).toBe(true);
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('reverse');
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
+    vi.useRealTimers();
   });
 
   it('handles shape selection and switches to selectAxis', () => {
@@ -142,6 +149,10 @@ describe('ReverseTool', () => {
     tool.objectSelected(mockShape);
     
     expect(tool.involvedShapes).toContain(mockShape);
+    expect(appActions.setToolState).toHaveBeenCalledWith({
+      selectedShapeId: 's1',
+    });
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectAxis');
     expect(setState).toHaveBeenCalledWith(expect.objectContaining({
         tool: expect.objectContaining({ currentStep: 'selectAxis' })
     }));
@@ -163,6 +174,10 @@ describe('ReverseTool', () => {
     tool.objectSelected(mockSegment);
     
     expect(tool.axisAngle).toBe(0);
+    expect(appActions.setToolState).toHaveBeenCalledWith({
+      axisAngle: 0,
+    });
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('reverse');
     expect(setState).toHaveBeenCalledWith(expect.objectContaining({
         tool: expect.objectContaining({ currentStep: 'reverse' })
     }));

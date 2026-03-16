@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -59,6 +60,19 @@ export class ReverseTool extends Tool {
     this.requestAnimFrameId = null;
   }
 
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
   
 
   /**
@@ -67,13 +81,9 @@ export class ReverseTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, reverseHelpConfig);
 
-    setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
-      50,
-    );
+    appActions.setActiveTool(this.name);
+
+    setTimeout(() => this.updateToolStep('listen'), 50);
   }
 
   listen() {
@@ -215,12 +225,8 @@ export class ReverseTool extends Tool {
         this.involvedShapes.push(...shapesToAdd);
       }
 
-      setState({
-        tool: {
-          ...app.tool,
-          currentStep: 'selectAxis',
-          selectedShapeId: selectedShape.id,
-        },
+      this.updateToolStep('selectAxis', {
+        selectedShapeId: selectedShape.id,
       });
     } else if (
       app.tool.currentStep === 'selectAxis' &&
@@ -297,12 +303,8 @@ export class ReverseTool extends Tool {
 
       this.axes.forEach((axis) => removeObjectById(axis.id));
 
-      setState({
-        tool: {
-          ...app.tool,
-          currentStep: 'reverse',
-          axisAngle: this.axisAngle,
-        },
+      this.updateToolStep('reverse', {
+        axisAngle: this.axisAngle,
       });
     }
   }
@@ -375,8 +377,9 @@ export class ReverseTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'reverse') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+      this.updateToolStep('listen', {
+        axisAngle: app.tool.axisAngle,
+        selectedShapeId: app.tool.selectedShapeId,
       });
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));

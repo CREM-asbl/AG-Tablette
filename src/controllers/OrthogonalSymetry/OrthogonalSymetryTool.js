@@ -145,7 +145,7 @@ export class OrthogonalSymetryTool extends Tool {
     const coord = app.workspace.lastKnownMouseCoordinates;
     if (this.pointsDrawn.length === 0) {
       window.dispatchEvent(new CustomEvent('reset-selection-constraints'));
-      app.workspace.selectionConstraints.eventType = 'click';
+      app.workspace.selectionConstraints.eventType = 'mousedown';
       app.workspace.selectionConstraints.segments.canSelect = true;
       app.workspace.selectionConstraints.segments.canSelectFromUpper = true;
       app.workspace.selectionConstraints.points.canSelect = false;
