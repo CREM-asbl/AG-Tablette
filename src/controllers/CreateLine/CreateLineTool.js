@@ -51,7 +51,7 @@ export class CreateLineTool extends Tool {
     });
   }
 
-  
+
 
   async start() {
     this.removeListeners();

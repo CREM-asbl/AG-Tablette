@@ -1,8 +1,8 @@
+import { app } from '@controllers/Core/App';
 import { CreateLineTool } from '@controllers/CreateLine/CreateLineTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { app } from '@controllers/Core/App';
 import { appActions } from '@store/appState';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),

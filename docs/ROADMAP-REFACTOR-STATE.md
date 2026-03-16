@@ -46,6 +46,7 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **ColorTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
 - [x] **MoveTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
 - [x] **DuplicateTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **CentralSymetryTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **CreatePointTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **CreateRegularTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **CreateLineTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.

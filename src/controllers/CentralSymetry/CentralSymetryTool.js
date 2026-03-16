@@ -1,6 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -21,6 +21,19 @@ export class CentralSymetryTool extends Tool {
     super('centralSymetry', 'Symétrie centrale', 'transformation');
   }
 
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
   start() {
     helpConfigRegistry.register(this.name, centralSymetryHelpConfig);
 
@@ -32,7 +45,7 @@ export class CentralSymetryTool extends Tool {
     setTimeout(
       () => {
         appActions.setActiveTool(this.name);
-        appActions.setCurrentStep('selectCharacteristicElement');
+        this.updateToolStep('selectCharacteristicElement');
       },
       50,
     );
@@ -100,7 +113,7 @@ export class CentralSymetryTool extends Tool {
       color: app.settings.referenceDrawColor,
       size: 2,
     });
-    appActions.setCurrentStep('animateCharacteristicElement');
+    this.updateToolStep('animateCharacteristicElement');
   }
 
   canvasMouseUp() {
@@ -128,7 +141,7 @@ export class CentralSymetryTool extends Tool {
         });
       }
     }
-    appActions.setCurrentStep('selectObject');
+    this.updateToolStep('selectObject');
   }
 
   objectSelected(object) {
@@ -150,7 +163,7 @@ export class CentralSymetryTool extends Tool {
           }),
         }),
     );
-    appActions.setCurrentStep('central');
+    this.updateToolStep('central');
   }
 
   animate() {
@@ -174,7 +187,7 @@ export class CentralSymetryTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'centralSymetry') {
       this.executeAction();
-      appActions.setCurrentStep('selectObject');
+      this.updateToolStep('selectObject');
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
