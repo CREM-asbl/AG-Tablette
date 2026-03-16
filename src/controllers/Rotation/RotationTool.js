@@ -175,11 +175,19 @@ export class RotationTool extends Tool {
                 (pt) =>
                   new Point({
                     ...pt,
-                    id: null,
+                    id: undefined,
                     shapeId: undefined,
+                    segmentIds: [],
                     layer: 'upper',
                   }),
               );
+            if (
+              !points[0]?.coordinates ||
+              !points[1]?.coordinates ||
+              !points[2]?.coordinates
+            ) {
+              return;
+            }
             const radius = points[0].coordinates.dist(points[2].coordinates);
             const angle = points[2].coordinates.angleWith(
               points[1].coordinates,
