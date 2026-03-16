@@ -129,6 +129,8 @@ export class RotationTool extends Tool {
   rot() {
     this.removeListeners();
 
+    this.progress = 0;
+    this.lastProgress = 0;
     this.startTime = Date.now();
     this.animate();
   }
@@ -450,16 +452,28 @@ export class RotationTool extends Tool {
   }
 
   animate() {
-    if (app.tool.currentStep === 'animateRefPoint') {
+    const step = app.tool.currentStep;
+
+    if (step === 'animateRefPoint') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
         this.animate(),
       );
       return;
     }
+
+    // Ignore stale frames once the tool left rotation animation.
+    if (step !== 'rot') return;
+
+    const rotationCenter = this.characteristicElements?.firstElement;
+    if (
+      !rotationCenter?.coordinates ||
+      !Array.isArray(this.drawingShapes) ||
+      typeof this.angle !== 'number'
+    ) return;
+
     this.lastProgress = this.progress || 0;
     if (this.lastProgress === 0) {
-      const rotationCenter = this.characteristicElements.firstElement;
       this.drawingShapes.forEach((s) =>
         s.points.forEach((point) => {
           point.startCoordinates = new Coordinates(point.coordinates);
@@ -638,10 +652,12 @@ export class RotationTool extends Tool {
   }
 
   showLastCharacteristicElements(typeOfObjectToShow) {
+    app.workspace.ensureCharacteristicElementsFromShapes?.('rotation');
     if (typeOfObjectToShow === 'rotationCenter') {
       const allRotationCenters =
         app.workspace.rotationLastCharacteristicElements
           .map((lastElements) => lastElements.firstElement)
+          .filter((element) => !!element?.coordinates)
           .filter(
             (element, index, elements) => elements.indexOf(element) === index,
           );
@@ -665,9 +681,17 @@ export class RotationTool extends Tool {
           let points;
           if (characteristicElement.type === 'arc') {
             const arc = findObjectById(characteristicElement.elementIds[1]);
+            if (!arc?.vertexes?.[0] || !arc?.vertexes?.[1] || !arc?.arcCenter)
+              return;
             points = [...arc.vertexes, arc.arcCenter];
           } else {
             points = characteristicElement.elements.slice(1);
+            if (
+              !points[0]?.coordinates ||
+              !points[1]?.coordinates ||
+              !points[2]?.coordinates
+            )
+              return;
             // shape.points[0].color = app.settings.referenceDrawColor;
             // shape.points[0].size = 2;
             // shape.points[1].color = app.settings.referenceDrawColor;

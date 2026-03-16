@@ -49,6 +49,7 @@ export class CentralSymetryTool extends Tool {
     this.characteristicElements = null;
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   animateCharacteristicElement() {
@@ -286,9 +287,11 @@ export class CentralSymetryTool extends Tool {
   }
 
   showLastCharacteristicElements() {
+    app.workspace.ensureCharacteristicElementsFromShapes?.('centralSymetry');
     app.workspace.centralSymetryLastCharacteristicElements.forEach(
       (characteristicElement) => {
         const point = findObjectById(characteristicElement.elementIds[0]);
+        if (!point?.coordinates) return;
         const shape = new SinglePointShape({
           layer: 'upper',
           path: `M ${point.coordinates.x} ${point.coordinates.y}`,

@@ -1,6 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -29,8 +29,17 @@ export class OrthogonalSymetryTool extends Tool {
       ? app.settings.geometryTransformationAnimationDuration
       : 0.001;
 
-    appActions.setActiveTool(this.name);
-    this.selectFirstReference();
+    setTimeout(
+      () =>
+        setState({
+          tool: {
+            ...app.tool,
+            name: this.name,
+            currentStep: 'selectFirstReference',
+          },
+        }),
+      50,
+    );
   }
 
   selectFirstReference() {
@@ -44,8 +53,17 @@ export class OrthogonalSymetryTool extends Tool {
     this.pointsDrawn = [];
     this.characteristicElements = null;
 
-    appActions.setCurrentStep('selectReference');
-    window.dispatchEvent(new CustomEvent('refreshUpper'));
+    setTimeout(
+      () =>
+        setState({
+          tool: {
+            ...app.tool,
+            name: this.name,
+            currentStep: 'selectReference',
+          },
+        }),
+      50,
+    );
   }
 
   selectReference() {
@@ -483,13 +501,28 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   showLastCharacteristicElements() {
+    app.workspace.ensureCharacteristicElementsFromShapes?.('orthogonalSymetry');
     app.workspace.orthogonalSymetryLastCharacteristicElements.forEach(
       (characteristicElement) => {
-        if (characteristicElement.type === 'axis') {
-          const axis = findObjectById(characteristicElement.elementIds[0]);
+        const firstElement = findObjectById(characteristicElement.elementIds[0]);
+        const secondElement = findObjectById(
+          characteristicElement.elementIds[1],
+        );
+
+        // Legacy data can miss `type: 'axis'` but still store a single linear element id.
+        const hasSingleLinearReference =
+          !!firstElement?.points?.[0] &&
+          !!firstElement?.points?.[1] &&
+          characteristicElement.elementIds.length <= 1;
+
+        if (characteristicElement.type === 'axis' || hasSingleLinearReference) {
+          const linearElement = firstElement;
+          if (!linearElement?.points?.[0] || !linearElement?.points?.[1]) {
+            return;
+          }
           const coordinates = [
-            axis.points[0].coordinates,
-            axis.points[1].coordinates,
+            linearElement.points[0].coordinates,
+            linearElement.points[1].coordinates,
           ];
           const shape = new LineShape({
             layer: 'upper',
@@ -506,12 +539,11 @@ export class OrthogonalSymetryTool extends Tool {
           });
           shape.segments[0].isInfinite = true;
         } else {
-          const firstPoint = findObjectById(
-            characteristicElement.elementIds[0],
-          );
-          const secondPoint = findObjectById(
-            characteristicElement.elementIds[1],
-          );
+          const firstPoint = firstElement;
+          const secondPoint = secondElement;
+          if (!firstPoint?.coordinates || !secondPoint?.coordinates) {
+            return;
+          }
 
           const shape = new LineShape({
             layer: 'upper',
@@ -526,6 +558,7 @@ export class OrthogonalSymetryTool extends Tool {
                 characteristicElement,
             }),
           });
+          shape.segments[0].isInfinite = true;
           shape.points[0].color = app.settings.referenceDrawColor2;
           shape.points[0].size = 2;
           shape.points[1].color = app.settings.referenceDrawColor2;
