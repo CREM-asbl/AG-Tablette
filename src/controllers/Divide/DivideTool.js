@@ -1,4 +1,5 @@
 
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -33,7 +34,20 @@ export class DivideTool extends Tool {
     this.numberOfParts = 2;
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
+
 
   start() {
     if (import.meta.env.DEV) {
@@ -154,18 +168,14 @@ export class DivideTool extends Tool {
           });
 
           this.mode = 'segment';
-          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          this.updateToolStep('divide');
         }
       } else {
         this.firstPointIds = object.map((pt) => pt.id);
 
         this.setSelectionConstraints();
-        setState({
-          tool: {
-            ...app.tool,
-            currentStep: 'selectSecondPoint',
-            firstPointIds: this.firstPointIds,
-          },
+        this.updateToolStep('selectSecondPoint', {
+          firstPointIds: this.firstPointIds,
         });
       }
     } else if (app.tool.currentStep === 'selectSecondPoint') {
@@ -176,7 +186,7 @@ export class DivideTool extends Tool {
         // pt1 == object => désélectionner le point.
         removeObjectById(app.upperCanvasLayer.points[0].id);
 
-        setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
+        this.updateToolStep('selectObject');
       } else {
         const pointsToDivide = [];
         const firstPoints = this.firstPointIds.map((ptId) =>
@@ -343,20 +353,16 @@ export class DivideTool extends Tool {
         this.mode = 'twoPoints';
         this.pointsToDivide = pointsToDivide;
         if (mustChooseArc) {
-          setState({
-            tool: { ...app.tool, currentStep: 'chooseArcDirection' },
-          });
+          this.updateToolStep('chooseArcDirection');
         } else {
-          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          this.updateToolStep('divide');
         }
       }
     } else if (app.tool.currentStep === 'chooseArcDirection') {
       this.arcDirectionCounterclockwise = object.counterclockwise;
-      setState({ tool: { ...app.tool, currentStep: 'divide' } });
+      this.updateToolStep('divide');
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
+      this.updateToolStep('selectObject');
       return;
     }
 
@@ -370,9 +376,7 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
+      this.updateToolStep('selectObject');
     }, 200);
   }
 

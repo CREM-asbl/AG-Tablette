@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test('Translation tool should create a translated copy', async ({ page }) => {
   test.setTimeout(60000);

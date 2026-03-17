@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { app } from '../../../src/controllers/Core/App';
+import { SelectManager } from '../../../src/controllers/Core/Managers/SelectManager';
 import { TranslationTool } from '../../../src/controllers/Translation/TranslationTool';
 import { helpConfigRegistry } from '../../../src/services/HelpConfigRegistry';
-import { app } from '../../../src/controllers/Core/App';
 import { appActions } from '../../../src/store/appState';
-import { SelectManager } from '../../../src/controllers/Core/Managers/SelectManager';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),

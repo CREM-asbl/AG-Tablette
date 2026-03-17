@@ -2,6 +2,7 @@ import '@components/color-button';
 import '@components/popups/template-popup';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { range } from '../Core/Tools/general';
 
@@ -44,8 +45,18 @@ class DividePopup extends LitElement {
     }
   `;
 
+  constructor() {
+    super();
+    this.parts = Number(app.settings.numberOfDivisionParts) || 2;
+    this.handleStateChanged = () => {
+      this.parts = Number(app.settings.numberOfDivisionParts) || 2;
+    };
+    this.handleClosePopup = () => this.submitAndClose();
+  }
+
 
   render() {
+    const selectedParts = Number(this.parts) || 2;
     return html`
       <template-popup>
         <h2 slot="title">Diviser</h2>
@@ -55,7 +66,7 @@ class DividePopup extends LitElement {
             <select @change="${this.changeNumberOfParts}">
               ${range(2, 9).map(
       (x) =>
-        html` <option value="${x}" ?selected="${this.parts === x}">
+        html` <option value="${x}" ?selected="${selectedParts === x}">
                     ${x}
                   </option>`,
     )}
@@ -75,20 +86,28 @@ class DividePopup extends LitElement {
   }
 
   firstUpdated() {
-    window.addEventListener(
-      'state-changed',
-      () => (this.parts = app.settings.numberOfDivisionParts),
-    );
-    window.addEventListener('close-popup', this.submitAndClose.bind(this));
+    window.addEventListener('state-changed', this.handleStateChanged);
+    window.addEventListener('close-popup', this.handleClosePopup);
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('state-changed', this.handleStateChanged);
+    window.removeEventListener('close-popup', this.handleClosePopup);
+    super.disconnectedCallback();
   }
 
   changeNumberOfParts(event) {
+    const numberOfDivisionParts = Number(event.target.value);
+    this.parts = numberOfDivisionParts;
     setState({
-      settings: { ...app.settings, numberOfDivisionParts: event.target.value },
+      settings: { ...app.settings, numberOfDivisionParts },
     });
   }
 
   submit() {
+    appActions.setActiveTool('divide');
+    appActions.setToolState({});
+    appActions.setCurrentStep('selectObject');
     setState({
       tool: { ...app.tool, name: 'divide', currentStep: 'selectObject' },
     });
