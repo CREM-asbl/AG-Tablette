@@ -1,5 +1,6 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
+import { appActions } from '../../store/appState';
 import { app, changes, setState } from '../Core/App';
 
 class ZoomMenu extends SignalWatcher(LitElement) {
@@ -116,6 +117,10 @@ class ZoomMenu extends SignalWatcher(LitElement) {
     const zoom = this.getZoomFromPosition(sliderPos);
 
     const step = applyZoom ? 'execute' : 'zoom';
+
+    appActions.setActiveTool(app.tool?.name || 'zoom');
+    appActions.setToolState({ zoomLevel: zoom });
+    appActions.setCurrentStep(step);
 
     setState({
       tool: {

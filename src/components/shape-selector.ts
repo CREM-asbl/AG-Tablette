@@ -125,19 +125,23 @@ export class ShapeSelector extends LitElement {
     `;
   }
 
-  _clickHandle(template) {
-    this.selectedTemplate = template;
-    appActions.setSelectedTemplate(this.selectedTemplate);
+  private updateSelectionState(template) {
+    appActions.setSelectedTemplate(template);
     appActions.setCurrentStep(this.nextStep);
     if (app.tool) {
       setState({
         tool: {
           ...app.tool,
-          selectedTemplate: this.selectedTemplate,
+          selectedTemplate: template,
           currentStep: this.nextStep,
         },
       });
     }
+  }
+
+  _clickHandle(template) {
+    this.selectedTemplate = template;
+    this.updateSelectionState(this.selectedTemplate);
   }
 
   connectedCallback() {

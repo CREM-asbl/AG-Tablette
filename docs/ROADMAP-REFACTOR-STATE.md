@@ -40,6 +40,8 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] `ag-menu.ts`
 - [x] `ag-app.ts`
 - [x] Popups principaux.
+- [x] `zoom-menu.js` (pilotage de l'état zoom via `appActions`, fallback legacy conservé).
+- [x] `shape-selector.ts` (sélection de template pilotée par `appActions`, fallback legacy conservé).
 
 ### Phase 3 : Migration des Outils (EN COURS)
 - [x] **DeleteTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
@@ -58,6 +60,8 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **RotationTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
 - [x] **RotateTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
 - [x] **CreateCircleTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **CreateTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **ZoomTool** : Migré vers `appActions` pour les transitions wheel/touch (avec fallback `setState`). Validé par tests unitaires ciblés.
 
 ### État de la Couverture E2E
 - [x] Tests de base pour Delete, Color, Move dans `tests/`.

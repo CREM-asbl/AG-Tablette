@@ -26,7 +26,21 @@ export class CreateTool extends Tool {
     this.shapeToCreate = null;
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setActiveTool(this.name);
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({
+      tool: {
+        ...app.tool,
+        ...extraState,
+        name: this.name,
+        currentStep: step,
+      },
+    });
+  }
+
+
 
   /**
    * (ré-)initialiser l'état
@@ -90,16 +104,15 @@ export class CreateTool extends Tool {
 
     // Force reset de l'état de l'outil pour s'assurer qu'aucun ancien outil n'est actif
     if (app.tool.name !== 'create') {
-      setState({ tool: { name: 'create', currentStep: 'start' } });
+      this.updateToolStep('start');
       return;
     }
 
     const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
     if (shapeTemplates.length === 1) {
       const selectedTemplate = shapeTemplates[0];
-      setState({
-        tool: { ...app.tool, currentStep: 'listen', selectedTemplate },
-      });
+      appActions.setSelectedTemplate(selectedTemplate);
+      this.updateToolStep('listen', { selectedTemplate });
     } else if (!this.shapesList) {
       import('../../components/shape-selector');
       appActions.setToolUiState({
@@ -141,7 +154,7 @@ export class CreateTool extends Tool {
 
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
-    setState({ tool: { ...app.tool, currentStep: 'move' } });
+    this.updateToolStep('move');
     this.animate();
   }
 
@@ -151,7 +164,7 @@ export class CreateTool extends Tool {
     this.executeAction();
     // Nettoyer l'upperCanvasLayer après la création pour éviter les contours de groupe résiduels
     app.upperCanvasLayer.removeAllObjects();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   refreshStateUpper() {
