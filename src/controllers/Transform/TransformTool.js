@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -45,10 +46,12 @@ export class TransformTool extends Tool {
     this.line = null;
   }
 
-  
+
 
   start() {
     helpConfigRegistry.register(this.name, transformHelpConfig);
+
+    appActions.setActiveTool(this.name);
 
     app.mainCanvasLayer.editingShapeIds = [];
     app.upperCanvasLayer.removeAllObjects();
@@ -60,15 +63,18 @@ export class TransformTool extends Tool {
     this.line = null;
 
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('selectPoint');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
-        }),
+        });
+      },
       50,
     );
   }
 
   selectPoint() {
+    appActions.setCurrentStep('selectPoint');
     this.removeListeners();
     this.constraintsDrawn = false;
     app.mainCanvasLayer.editingShapeIds = [];
@@ -84,6 +90,7 @@ export class TransformTool extends Tool {
   }
 
   transform() {
+    appActions.setCurrentStep('transform');
     this.removeListeners();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
     this.animate();
@@ -257,6 +264,7 @@ export class TransformTool extends Tool {
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'transform' },
     });
+    appActions.setCurrentStep('transform');
   }
 
   createTree(index, tree) {
@@ -364,6 +372,7 @@ export class TransformTool extends Tool {
   canvasMouseUp() {
     this.stopAnimation();
     this.executeAction();
+    appActions.setCurrentStep('selectPoint');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
     });
