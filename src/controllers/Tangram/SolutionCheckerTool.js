@@ -1,4 +1,5 @@
 import { html, LitElement } from 'lit';
+import { appActions } from '../../store/appState';
 import { tools } from '../../store/tools';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -93,6 +94,7 @@ export class SolutionCheckerTool extends LitElement {
     setState({
       tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
     });
+    appActions.setTangramState({ isSilhouetteShown, level });
 
     if (app.history.startSituation === null) {
       setState({
@@ -167,6 +169,7 @@ export class SolutionCheckerTool extends LitElement {
           app.tool.name !== 'solveChecker' &&
           app.tool.name !== 'verifySolution'
         ) {
+          appActions.setTangramState({ currentStep: 'uncheck' });
           setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
         }
       }
@@ -189,8 +192,10 @@ export class SolutionCheckerTool extends LitElement {
       (shape) => shape.name === 'tangramChecker',
     );
     const index = solutionShapes.findIndex((s) => object.id === s.id);
-    if (index === -1)
+    if (index === -1) {
+      appActions.setTangramState({ currentStep: 'uncheck' });
       setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
+    }
   }
 
   eraseSolution() {

@@ -85,6 +85,7 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **OpenFileManager** : Synchronisation `settings`/`filename`/`history`/`tangram` vers `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
 - [x] **FullHistoryManager** : Synchronisation `tool`/`settings`/`tangram` vers `appActions` (fallback `setState` conservé). Validé par tests unitaires ciblés.
 - [x] **Tool** : Garde-fou pendant `fullHistory.isRunning` pour éviter l'exécution des étapes de prévisualisation lors de la relecture. Validé par tests unitaires ciblés.
+- [x] **Tangram/state-menu** : Transition `check/uncheck` synchronisée vers `appActions.setTangramState` (fallback `setState` conservé). Validé par tests unitaires ciblés.
 
 ### État de la Couverture E2E
 - [x] Tests de base pour Delete, Color, Move dans `tests/`.

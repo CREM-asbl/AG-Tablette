@@ -1,5 +1,6 @@
 import '@components/popups/template-popup';
 import { css, html, LitElement } from 'lit';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 
 class StateMenu extends LitElement {
@@ -34,6 +35,7 @@ class StateMenu extends LitElement {
   clickHandler() {
     if (!app.fullHistory.isRunning) {
       const value = this.check ? 'uncheck' : 'check';
+      appActions.setTangramState({ currentStep: value });
       setState({ tangram: { ...app.tangram, currentStep: value } });
     }
   }
