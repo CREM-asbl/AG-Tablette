@@ -116,8 +116,12 @@ export class SolutionCheckerTool extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.tangramListener = app.addListener(
+    this.tangramLegacyListener = app.addListener(
       'tangram-changed',
+      this.handler.bind(this),
+    );
+    this.tangramSignalListener = app.addListener(
+      'tangram:state-changed',
       this.handler.bind(this),
     );
     this.objectSelectedId = app.addListener(
@@ -131,7 +135,8 @@ export class SolutionCheckerTool extends LitElement {
     this.stateMenu.close();
     closeForbiddenCanvas();
     app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('tangram-changed', this.tangramListener);
+    app.removeListener('tangram-changed', this.tangramLegacyListener);
+    app.removeListener('tangram:state-changed', this.tangramSignalListener);
   }
 
   check() {

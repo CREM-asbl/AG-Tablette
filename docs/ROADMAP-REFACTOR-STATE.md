@@ -88,6 +88,7 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **Tangram/state-menu** : Transition `check/uncheck` synchronisée vers `appActions.setTangramState` (fallback `setState` conservé). Validé par tests unitaires ciblés.
 - [x] **SolutionCheckerTool (Tangram)** : Écoute de `tangram:state-changed` + pilotage de `currentStep` via `tangramState` prioritaire (fallback legacy conservé). Validé par tests unitaires ciblés.
 - [x] **SilhouetteCreatorTool (Tangram)** : Synchronisation du `currentStep` initial vers `appActions.setTangramState` (fallback `setState` history conservé). Validé par tests unitaires ciblés.
+- [x] **SolutionCheckerTool (Tangram) - listeners** : Abonnement/désabonnement explicite à `tangram:state-changed` en plus de `tangram-changed`. Validé par tests unitaires ciblés.
 
 ### État de la Couverture E2E
 - [x] Tests de base pour Delete, Color, Move dans `tests/`.

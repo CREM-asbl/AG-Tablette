@@ -10,6 +10,8 @@ const {
     tangram: { currentStep: 'start', level: 1 },
     fullHistory: { isRunning: false },
     tool: { name: 'otherTool', currentStep: 'start' },
+    addListener: vi.fn((eventName) => `${eventName}-id`),
+    removeListener: vi.fn(),
     mainCanvasLayer: { shapes: [{ id: 'shape-1', name: 'tangramChecker' }] },
     workspace: { limited: false },
     tangramCanvasLayer: {
@@ -119,6 +121,24 @@ describe('SolutionCheckerTool', () => {
     appMock.tangram.currentStep = 'start';
     appMock.mainCanvasLayer.shapes = [{ id: 'shape-1', name: 'tangramChecker' }];
     tangramStateMock.get.mockReturnValue({ currentStep: 'start' });
+  });
+
+  it('s abonne et se desabonne aux evenements tangram legacy + signaux', () => {
+    const tool = new SolutionCheckerTool();
+    tool.stateMenu = { close: vi.fn() };
+
+    tool.connectedCallback();
+
+    expect(appMock.addListener).toHaveBeenCalledWith('tangram-changed', expect.any(Function));
+    expect(appMock.addListener).toHaveBeenCalledWith('tangram:state-changed', expect.any(Function));
+    expect(appMock.addListener).toHaveBeenCalledWith('objectSelected', expect.any(Function));
+
+    tool.disconnectedCallback();
+
+    expect(appMock.removeListener).toHaveBeenCalledWith('tangram-changed', 'tangram-changed-id');
+    expect(appMock.removeListener).toHaveBeenCalledWith('tangram:state-changed', 'tangram:state-changed-id');
+    expect(appMock.removeListener).toHaveBeenCalledWith('objectSelected', 'objectSelected-id');
+    expect(tool.stateMenu.close).toHaveBeenCalledTimes(1);
   });
 
   it('declenche check sur evenement tangram:state-changed', () => {
