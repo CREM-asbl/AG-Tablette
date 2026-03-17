@@ -17,7 +17,7 @@ export class HideTool extends Tool {
     super('hide', 'Cacher', 'tool');
   }
 
-  
+
 
   start() {
     helpConfigRegistry.register(this.name, hideHelpConfig);

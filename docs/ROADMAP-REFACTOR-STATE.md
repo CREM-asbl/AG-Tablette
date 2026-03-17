@@ -71,6 +71,8 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **GroupTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
 - [x] **ShowTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
 - [x] **HideTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **MergeTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **OpacityTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
 
 ### État de la Couverture E2E
 - [x] Tests de base pour Delete, Color, Move dans `tests/`.

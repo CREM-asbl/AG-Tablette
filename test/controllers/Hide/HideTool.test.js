@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { HideTool } from '@controllers/Hide/HideTool';
 import { app, setState } from '@controllers/Core/App';
-import { appActions } from '@store/appState';
+import { HideTool } from '@controllers/Hide/HideTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
+import { appActions } from '@store/appState';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@lit-labs/signals', () => ({
   computed: vi.fn((cb) => ({ get: cb })),
@@ -50,11 +50,11 @@ vi.mock('@controllers/Core/Managers/ShapeManager', () => ({
 }));
 
 vi.mock('@controllers/Core/Objects/Shapes/Shape', () => ({
-  Shape: class {},
+  Shape: class { },
 }));
 
 vi.mock('@controllers/Core/Objects/Shapes/SinglePointShape', () => ({
-  SinglePointShape: class {},
+  SinglePointShape: class { },
 }));
 
 vi.mock('@controllers/Core/Tools/general', () => ({

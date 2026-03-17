@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
@@ -19,13 +20,15 @@ export class OpacityTool extends Tool {
     this.opacity = 0.7;
   }
 
-  
+
 
   /**
    * initialiser l'état
    */
   start() {
     helpConfigRegistry.register(this.name, opacityHelpConfig);
+
+    appActions.setActiveTool(this.name);
 
     this.removeListeners();
 
@@ -57,6 +60,7 @@ export class OpacityTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
+    appActions.setCurrentStep('selectObject');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
     });

@@ -18,7 +18,7 @@ export class ShowTool extends Tool {
     super('show', 'Montrer', 'tool');
   }
 
-  
+
 
   start() {
     helpConfigRegistry.register(this.name, showHelpConfig);
