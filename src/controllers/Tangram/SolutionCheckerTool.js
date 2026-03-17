@@ -1,5 +1,5 @@
 import { html, LitElement } from 'lit';
-import { appActions } from '../../store/appState';
+import { appActions, tangramState } from '../../store/appState';
 import { tools } from '../../store/tools';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -155,8 +155,10 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   handler(event) {
+    const currentTangramStep = tangramState.get().currentStep || app.tangram.currentStep;
+
     if (this.stateMenu)
-      this.stateMenu.check = app.tangram.currentStep === 'check';
+      this.stateMenu.check = currentTangramStep === 'check';
 
     if (event.type === 'tool-updated') {
       if (app.tool?.name === this.name) {
@@ -176,11 +178,11 @@ export class SolutionCheckerTool extends LitElement {
     }
 
     if (
-      event.type === 'tangram-changed' &&
-      ['check', 'uncheck'].includes(app.tangram.currentStep) &&
+      ['tangram-changed', 'tangram:state-changed'].includes(event.type) &&
+      ['check', 'uncheck'].includes(currentTangramStep) &&
       !app.fullHistory.isRunning
     ) {
-      this[app.tangram.currentStep]();
+      this[currentTangramStep]();
     }
 
     if (event.type === 'objectSelected')
