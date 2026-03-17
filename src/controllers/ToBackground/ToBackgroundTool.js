@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
@@ -14,16 +15,20 @@ export class ToBackgroundTool extends Tool {
     super('toBackground', 'Arrière-plan', 'tool');
   }
 
-  
+
 
   start() {
     helpConfigRegistry.register(this.name, toBackgroundHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('listen');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+        });
+      },
       50,
     );
   }
@@ -53,6 +58,7 @@ export class ToBackgroundTool extends Tool {
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
     this.executeAction();
+    appActions.setCurrentStep('listen');
 
     // window.dispatchEvent(new CustomEvent('refresh'));
   }

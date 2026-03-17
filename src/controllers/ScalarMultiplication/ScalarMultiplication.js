@@ -1,4 +1,5 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
@@ -26,6 +27,8 @@ export class ScalarMultiplicationTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, scalarMultiplicationHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
 
@@ -36,6 +39,8 @@ export class ScalarMultiplicationTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
+
+    appActions.setCurrentStep('selectObject');
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
@@ -75,6 +80,7 @@ export class ScalarMultiplicationTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
+      appActions.setCurrentStep('selectObject');
       setState({
         tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
       });
