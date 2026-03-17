@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Tool } from '../Core/States/Tool';
@@ -13,16 +14,24 @@ export class UngroupTool extends Tool {
     super('ungroup', 'Dégrouper', 'tool');
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
+  }
+
+
 
   start() {
     helpConfigRegistry.register(this.name, ungroupHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        this.updateToolStep('listen');
+        this.listen();
+      },
       50,
     );
   }
@@ -63,6 +72,8 @@ export class UngroupTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -81,9 +92,7 @@ export class UngroupTool extends Tool {
     this.userGroup = GroupManager.getShapeGroup(shape);
     if (this.userGroup) {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-      });
+      this.updateToolStep('listen');
     } else {
       window.dispatchEvent(
         new CustomEvent('show-notif', {

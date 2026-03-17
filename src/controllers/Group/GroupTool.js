@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
@@ -29,16 +30,24 @@ export class GroupTool extends Tool {
     ];
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
+  }
+
+
 
   start() {
     helpConfigRegistry.register(this.name, groupHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        this.updateToolStep('listen');
+        this.listen();
+      },
       50,
     );
   }
@@ -76,6 +85,8 @@ export class GroupTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   selectSecondShape() {
@@ -104,7 +115,7 @@ export class GroupTool extends Tool {
       const userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
-        setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
+        this.updateToolStep('fillGroup');
       } else {
         this.firstShapeId = shape.id;
         new shape.constructor({
@@ -127,7 +138,7 @@ export class GroupTool extends Tool {
             return pt.color;
           }),
         });
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
+        this.updateToolStep('selectSecondShape');
       }
     } else if (app.tool.currentStep === 'selectSecondShape') {
       const userGroup = GroupManager.getShapeGroup(shape);
@@ -147,9 +158,7 @@ export class GroupTool extends Tool {
         this.group = GroupManager.getShapeGroup(shape);
       }
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' },
-      });
+      this.updateToolStep('fillGroup');
     } else {
       // fillGroup
       this.secondGroup = GroupManager.getShapeGroup(shape);
@@ -178,9 +187,7 @@ export class GroupTool extends Tool {
         this.firstShapeId = shape.id;
       }
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' },
-      });
+      this.updateToolStep('fillGroup');
     }
   }
 

@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
@@ -13,7 +14,14 @@ export class BuildCenterTool extends Tool {
     super('buildCenter', 'Construire le centre', 'operation');
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setActiveTool(this.name);
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
+  }
+
+
 
   /**
    * initialiser l'état
@@ -22,10 +30,7 @@ export class BuildCenterTool extends Tool {
     helpConfigRegistry.register(this.name, buildCenterHelpConfig);
 
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => this.updateToolStep('listen'),
       50,
     );
   }
@@ -64,7 +69,7 @@ export class BuildCenterTool extends Tool {
       return;
     }
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   _executeAction() {

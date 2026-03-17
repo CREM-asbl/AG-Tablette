@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -39,16 +40,20 @@ export class CopyTool extends Tool {
     this.shapeMoved = 0;
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setActiveTool(this.name);
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
+  }
+
+
 
   start() {
     helpConfigRegistry.register(this.name, copyHelpConfig);
 
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => this.updateToolStep('listen'),
       50,
     );
   }
@@ -167,7 +172,7 @@ export class CopyTool extends Tool {
       this.shapesToMove = this.drawingShapes;
     }
 
-    setState({ tool: { ...app.tool, currentStep: 'move' } });
+    this.updateToolStep('move');
     this.animate();
   }
 
@@ -179,7 +184,7 @@ export class CopyTool extends Tool {
       .add(this.translateOffset);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   refreshStateUpper() {

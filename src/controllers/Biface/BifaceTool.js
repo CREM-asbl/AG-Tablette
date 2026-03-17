@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Text } from '../Core/Objects/Text';
@@ -14,16 +15,24 @@ export class BifaceTool extends Tool {
     super('biface', 'Biface', 'tool');
   }
 
-  
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
+  }
+
+
 
   start() {
     helpConfigRegistry.register(this.name, bifaceHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        this.updateToolStep('listen');
+        this.listen();
+      },
       50,
     );
   }
@@ -47,6 +56,8 @@ export class BifaceTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -67,7 +78,7 @@ export class BifaceTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   _executeAction() {
