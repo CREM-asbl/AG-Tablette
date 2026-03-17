@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
@@ -22,11 +23,15 @@ export class ShowTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, showHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('listen');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+        });
+      },
       50,
     );
   }
@@ -68,6 +73,7 @@ export class ShowTool extends Tool {
     }
 
     this.executeAction();
+    appActions.setCurrentStep('listen');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'listen' },
     });
