@@ -607,6 +607,11 @@ export const parseFile = async (fileContent, filename) => {
       // Appliquer les migrations nécessaires pour la compatibilité entre versions
       applyMigrations(saveObject);
 
+      // Désactiver l'outil courant avant de charger un nouvel état
+      // pour éviter qu'un outil précédent reste actif après ouverture.
+      setState({ tool: null });
+      appActions.setActiveTool(null);
+
       // Chargement du workspace
       const WorkspaceManagerModule = await import(
         '@controllers/Core/Managers/WorkspaceManager.js'
