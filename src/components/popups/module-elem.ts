@@ -9,7 +9,6 @@ class ModuleElem extends SignalWatcher(LitElement) {
   @property({ type: Array }) files = [];
   @property({ type: String }) fileNames = '';
   @property({ type: Boolean }) loaded = false;
-  @state() private isOpen = false;
   @state() private fileNamesList: string[] = [];
 
   static styles = css`
@@ -86,12 +85,10 @@ class ModuleElem extends SignalWatcher(LitElement) {
   `;
 
   firstUpdated() {
-    this.isOpen = selectedSequence.get() === this.title;
-
     // Toujours vérifier le cache au démarrage, même si le composant n'est pas ouvert
     this.checkCache();
 
-    if (this.isOpen) {
+    if (selectedSequence.get() === this.title) {
       this.loadFiles();
       this.scrollIntoViewIfNeeded();
     }
@@ -105,7 +102,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
 
   // Méthode pour faire défiler vers cet élément s'il est ouvert
   scrollIntoViewIfNeeded() {
-    if (this.isOpen) {
+    if (selectedSequence.get() === this.title) {
       setTimeout(() => {
         this.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
@@ -162,18 +159,14 @@ class ModuleElem extends SignalWatcher(LitElement) {
     // Empêcher le comportement par défaut pour gérer manuellement l'état
     e.preventDefault();
 
-    this.isOpen = !this.isOpen;
-    if (this.isOpen) {
+    const isSelected = selectedSequence.get() === this.title;
+    const willOpen = !isSelected;
+
+    if (willOpen) {
       this.loadFiles();
       this.scrollIntoViewIfNeeded();
     }
     toggleSequence(this.title);
-
-    // Mettre à jour manuellement l'état ouvert/fermé de l'élément details
-    const details = e.target.closest('details');
-    if (details) {
-      details.open = this.isOpen;
-    }
   }
 
   async loadFiles() {
@@ -236,12 +229,9 @@ class ModuleElem extends SignalWatcher(LitElement) {
 
   updated() {
     const isSelected = selectedSequence.get() === this.title;
-    // Ne mettre à jour isOpen que si sa valeur a changé
-    if (this.isOpen !== isSelected) {
-      this.isOpen = isSelected;
-      if (this.isOpen) {
-        this.scrollIntoViewIfNeeded();
-      }
+
+    if (isSelected) {
+      this.scrollIntoViewIfNeeded();
     }
 
     if (isSelected && !this.loaded) {

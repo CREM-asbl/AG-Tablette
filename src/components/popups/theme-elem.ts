@@ -14,7 +14,6 @@ class ThemeElem extends SignalWatcher(LitElement) {
   @property({ type: Array }) modules = [];
   @property({ type: String }) moduleNames = '';
   @property({ type: Boolean }) loaded = false;
-  @state() private isOpen = false;
   @state() private moduleNamesList: string[] = [];
 
   static styles = css`
@@ -121,8 +120,7 @@ class ThemeElem extends SignalWatcher(LitElement) {
   }
 
   firstUpdated() {
-    this.isOpen = selectedNotion.get() === this.title;
-    if (this.isOpen) {
+    if (selectedNotion.get() === this.title) {
       this.loadModules();
     }
     if (typeof this.moduleNames === 'string') {
@@ -132,11 +130,6 @@ class ThemeElem extends SignalWatcher(LitElement) {
 
   updated() {
     const isSelected = selectedNotion.get() === this.title;
-    // Ne mettre à jour isOpen que si sa valeur a changé
-    if (this.isOpen !== isSelected) {
-      this.isOpen = isSelected;
-    }
-
     if (isSelected && !this.loaded) {
       this.loadModules();
     }
@@ -146,17 +139,11 @@ class ThemeElem extends SignalWatcher(LitElement) {
     // Empêcher le comportement par défaut pour gérer manuellement l'état
     e.preventDefault();
 
-    this.isOpen = !this.isOpen;
-    if (this.isOpen) {
+    const isSelected = selectedNotion.get() === this.title;
+    if (!isSelected) {
       this.loadModules();
     }
     toggleNotion(this.title);
-
-    // Mettre à jour manuellement l'état ouvert/fermé de l'élément details
-    const details = e.target.closest('details');
-    if (details) {
-      details.open = this.isOpen;
-    }
   }
 
   async loadModules() {

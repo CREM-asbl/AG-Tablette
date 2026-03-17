@@ -52,6 +52,43 @@ function closeDB(db) {
 }
 
 /**
+ * Tente de parser le payload d'une activité en gérant les formats legacy.
+ * @param {Object} record - Enregistrement brut IndexedDB
+ * @returns {Object|null} Données parsées ou null si invalide
+ */
+function parseActivityPayload(record) {
+  if (!record) return null;
+
+  if (typeof record.data === 'object' && record.data !== null) {
+    return record.data;
+  }
+
+  const candidates = [];
+
+  if (record.compressed) {
+    candidates.push(decompressFromUTF16(record.data));
+    candidates.push(record.data);
+  } else {
+    candidates.push(record.data);
+    candidates.push(decompressFromUTF16(record.data));
+  }
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    if (typeof candidate === 'object') return candidate;
+    if (typeof candidate !== 'string') continue;
+
+    try {
+      return JSON.parse(candidate);
+    } catch {
+      // On continue avec le prochain candidat
+    }
+  }
+
+  return null;
+}
+
+/**
  * Sauvegarde une activité avec gestion intelligente du cache
  * @param {string} id - Identifiant de l'activité
  * @param {Object} data - Données de l'activité
@@ -208,22 +245,22 @@ export async function getActivity(id) {
         // Clone pour la mise à jour des métadonnées (garder la version compressée)
         const recordForUpdate = { ...result };
 
-        try {
-          // Décompression si nécessaire
-          const rawData = result.compressed
-            ? decompressFromUTF16(result.data)
-            : result.data;
-
-          result.data =
-            typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+        const parsedPayload = parseActivityPayload(result);
+        if (parsedPayload !== null) {
+          result.data = parsedPayload;
 
           // Mettre à jour les métadonnées d'accès (async, ne pas attendre)
           if (CACHE_CONFIG.ENABLE_METRICS) {
             updateAccessMetadata(store, id, recordForUpdate);
           }
-        } catch (e) {
-          console.warn(`[CACHE] Erreur décompression activité ${id}:`, e);
-          // Si la donnée n'est pas compressée (legacy), on la garde telle quelle
+        } else {
+          console.warn(
+            `[CACHE] Données invalides pour activité ${id}, suppression du cache local.`,
+          );
+          store.delete(id);
+          closeDB(db);
+          resolve(null);
+          return;
         }
       }
       closeDB(db);
