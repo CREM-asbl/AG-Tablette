@@ -1,3 +1,4 @@
+import { appActions } from '../../../store/appState';
 import { app, setState } from '../App';
 import { Coordinates } from '../Objects/Coordinates';
 import { Tool } from './Tool';
@@ -90,6 +91,11 @@ export class BaseGeometryTool extends Tool {
    */
   safeSetState(newStep, additionalData = {}) {
     try {
+      appActions.setCurrentStep(newStep);
+      if (Object.keys(additionalData).length > 0) {
+        appActions.setToolState(additionalData);
+      }
+
       setState({
         tool: {
           ...app.tool,

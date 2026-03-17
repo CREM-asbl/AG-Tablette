@@ -15,6 +15,14 @@ vi.mock('@/store/gridStore', () => ({
   },
 }));
 
+vi.mock('../../../../src/store/appState', () => ({
+  appActions: {
+    setHistoryState: vi.fn(),
+    updateSettings: vi.fn(),
+    setTangramState: vi.fn(),
+  },
+}));
+
 vi.mock('@controllers/Core/Managers/FullHistoryManager', () => ({
   FullHistoryManager: {
     addStep: vi.fn(),
@@ -62,6 +70,7 @@ vi.mock('@controllers/Core/App', () => {
 // Import de HistoryManager (après les mocks)
 import { setState } from '@controllers/Core/App';
 import { HistoryManager } from '@controllers/Core/Managers/HistoryManager.js';
+import { appActions } from '../../../../src/store/appState';
 
 describe('HistoryManager - Tests TDD', () => {
   beforeEach(() => {
@@ -188,6 +197,8 @@ describe('HistoryManager - Tests TDD', () => {
       expect(FullHistoryManager.addStep).toHaveBeenCalledWith('add-fullstep', {
         detail: { name: 'Annuler' },
       });
+      expect(appActions.setHistoryState).toHaveBeenCalled();
+      expect(appActions.updateSettings).toHaveBeenCalled();
     });
   });
 
@@ -256,6 +267,8 @@ describe('HistoryManager - Tests TDD', () => {
       expect(FullHistoryManager.addStep).toHaveBeenCalledWith('add-fullstep', {
         detail: { name: 'Refaire' },
       });
+      expect(appActions.setHistoryState).toHaveBeenCalled();
+      expect(appActions.updateSettings).toHaveBeenCalled();
     });
   });
 
@@ -357,6 +370,7 @@ describe('HistoryManager - Tests TDD', () => {
 
       expect(saveDataSpy).toHaveBeenCalled();
       expect(setState).toHaveBeenCalled();
+      expect(appActions.setHistoryState).toHaveBeenCalled();
 
       // Vérifier que setState a été appelé avec un historique mis à jour
       const setStateCall = setState.mock.calls[setState.mock.calls.length - 1][0];

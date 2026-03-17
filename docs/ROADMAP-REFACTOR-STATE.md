@@ -79,6 +79,8 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **Rotate45Tool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
 - [x] **TransformTool** : Transitions d'état migrées vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
 - [x] **CutTool** : Transitions d'état principales migrées vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **BaseGeometryTool** : `safeSetState` synchronisé avec `appActions` (fallback `setState` conservé). Validé par tests unitaires ciblés.
+- [x] **HistoryManager** : Synchronisation `undo`/`redo`/`addStep` avec `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
 
 ### État de la Couverture E2E
 - [x] Tests de base pour Delete, Color, Move dans `tests/`.

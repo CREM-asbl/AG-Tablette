@@ -1,3 +1,4 @@
+import { appActions } from '../../../store/appState';
 import { gridStore } from '../../../store/gridStore';
 import { app, setState } from '../App';
 import { FullHistoryManager } from './FullHistoryManager';
@@ -112,6 +113,16 @@ export class HistoryManager {
       settings: settingsForApp,
       tangram,
     });
+    appActions.setHistoryState({
+      canUndo: index !== -1,
+      canRedo: index < app.history.steps.length - 1,
+      size: app.history.steps.length,
+      currentIndex: index,
+    });
+    appActions.updateSettings(settingsForApp);
+    if (tangram) {
+      appActions.setTangramState(tangram);
+    }
     FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Annuler' } });
   }
 
@@ -175,6 +186,16 @@ export class HistoryManager {
       settings: settingsForApp,
       tangram,
     });
+    appActions.setHistoryState({
+      canUndo: index !== -1,
+      canRedo: index < app.history.steps.length - 1,
+      size: app.history.steps.length,
+      currentIndex: index,
+    });
+    appActions.updateSettings(settingsForApp);
+    if (tangram) {
+      appActions.setTangramState(tangram);
+    }
     FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Refaire' } });
   }
 
@@ -193,6 +214,12 @@ export class HistoryManager {
 
     HistoryManager.reduceSize(steps, index);
     setState({ history: { ...app.history, steps, index } });
+    appActions.setHistoryState({
+      canUndo: index !== -1,
+      canRedo: index < steps.length - 1,
+      size: steps.length,
+      currentIndex: index,
+    });
   }
 
   static saveData() {

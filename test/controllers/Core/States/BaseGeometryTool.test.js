@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BaseGeometryTool } from '../../../../src/controllers/Core/States/BaseGeometryTool';
 import { app, setState } from '../../../../src/controllers/Core/App';
+import { BaseGeometryTool } from '../../../../src/controllers/Core/States/BaseGeometryTool';
+import { appActions } from '../../../../src/store/appState';
 
 vi.mock('../../../../src/controllers/Core/App', () => {
     const setState = vi.fn();
@@ -27,6 +28,13 @@ vi.mock('../../../../src/controllers/Core/Objects/Coordinates', () => ({
     }
 }));
 
+vi.mock('../../../../src/store/appState', () => ({
+    appActions: {
+        setCurrentStep: vi.fn(),
+        setToolState: vi.fn(),
+    },
+}));
+
 describe('BaseGeometryTool', () => {
     let tool;
 
@@ -37,7 +45,7 @@ describe('BaseGeometryTool', () => {
 
     it('validates input correctly', () => {
         expect(tool.validateInput('test')).toBe(true);
-        
+
         const originalWorkspace = app.workspace;
         app.workspace = null;
         expect(tool.validateInput('test')).toBe(false);
@@ -60,6 +68,8 @@ describe('BaseGeometryTool', () => {
 
     it('sets state safely', () => {
         tool.safeSetState('new-step', { extra: 'data' });
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('new-step');
+        expect(appActions.setToolState).toHaveBeenCalledWith({ extra: 'data' });
         expect(setState).toHaveBeenCalledWith(expect.objectContaining({
             tool: expect.objectContaining({ currentStep: 'new-step', extra: 'data' })
         }));
