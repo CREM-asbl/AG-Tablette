@@ -2,6 +2,8 @@ import { computed } from '@lit-labs/signals';
 import { activeTool, createWatcher, currentStep, selectedTemplate, toolState } from '../../../store/appState';
 import { app } from '../App';
 
+const REPLAY_ALLOWED_TOOL_TYPES = new Set(['move', 'transformation']);
+
 /**
  * Cette classe abstraite représente un état possible de l'application
  */
@@ -60,6 +62,13 @@ export class Tool {
           if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step || app.tool.selectedTemplate !== template) {
             const extraState = toolState.get() || {};
             app.tool = { ...(app.tool || {}), ...extraState, name: toolName, currentStep: step, selectedTemplate: template };
+          }
+
+          if (
+            app.fullHistory?.isRunning &&
+            !REPLAY_ALLOWED_TOOL_TYPES.has(this.type)
+          ) {
+            return;
           }
 
           if (typeof this[step] === 'function') {
@@ -145,6 +154,12 @@ export class Tool {
       if (!app.tool) {
         this.end();
       } else if (app.tool.name === this.name) {
+        if (
+          app.fullHistory?.isRunning &&
+          !REPLAY_ALLOWED_TOOL_TYPES.has(this.type)
+        ) {
+          return;
+        }
         if (import.meta.env.DEV) {
           console.log(`[Tool.eventHandler] ${this.name} - tool-updated, currentStep: ${app.tool.currentStep}`);
         }

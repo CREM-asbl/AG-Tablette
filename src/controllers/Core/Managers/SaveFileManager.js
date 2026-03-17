@@ -1,4 +1,5 @@
 import { createTikzBlob } from '@services/TikzExportService';
+import { appActions } from '@store/appState';
 import { gridStore } from '@store/gridStore';
 import { kit } from '@store/kit';
 import { tools } from '@store/tools';
@@ -597,6 +598,7 @@ const processSaveDirect = async (handle, app, detail, fileType) => {
     }
 
     if (success) {
+      appActions.setFilename(handle.name);
       setState({ filename: handle.name, stepSinceSave: false });
       window.dispatchEvent(
         new CustomEvent('show-notif', {
@@ -653,6 +655,7 @@ const processSave = async (handle, app, detail) => {
     }
 
     if (success) {
+      appActions.setFilename(handle.name);
       setState({ filename: handle.name, stepSinceSave: false });
       window.dispatchEvent(
         new CustomEvent('show-notif', {

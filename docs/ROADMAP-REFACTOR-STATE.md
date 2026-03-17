@@ -81,6 +81,10 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] **CutTool** : Transitions d'état principales migrées vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
 - [x] **BaseGeometryTool** : `safeSetState` synchronisé avec `appActions` (fallback `setState` conservé). Validé par tests unitaires ciblés.
 - [x] **HistoryManager** : Synchronisation `undo`/`redo`/`addStep` avec `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
+- [x] **SaveFileManager** : Synchronisation du `filename` vers `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
+- [x] **OpenFileManager** : Synchronisation `settings`/`filename`/`history`/`tangram` vers `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
+- [x] **FullHistoryManager** : Synchronisation `tool`/`settings`/`tangram` vers `appActions` (fallback `setState` conservé). Validé par tests unitaires ciblés.
+- [x] **Tool** : Garde-fou pendant `fullHistory.isRunning` pour éviter l'exécution des étapes de prévisualisation lors de la relecture. Validé par tests unitaires ciblés.
 
 ### État de la Couverture E2E
 - [x] Tests de base pour Delete, Color, Move dans `tests/`.

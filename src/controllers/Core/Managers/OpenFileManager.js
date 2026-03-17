@@ -340,11 +340,14 @@ export const parseJsonContent = (fileContent) => {
  */
 export const processSettings = (saveObject, appInstance, gridStoreInstance) => {
   if (saveObject.settings) {
+    const mergedSettings = {
+      ...saveObject.settings,
+      ...DEFAULT_SETTINGS,
+    };
+
+    appActions.updateSettings(mergedSettings);
     setState({
-      settings: {
-        ...saveObject.settings,
-        ...DEFAULT_SETTINGS,
-      },
+      settings: mergedSettings,
     });
   } else {
     appInstance.resetSettings();
@@ -389,6 +392,20 @@ export const processHistory = (saveObject, appInstance, environmentName) => {
   }
 };
 
+const syncHistorySignal = (history) => {
+  if (!history) return;
+
+  const index = typeof history.index === 'number' ? history.index : -1;
+  const stepsLength = Array.isArray(history.steps) ? history.steps.length : 0;
+
+  appActions.setHistoryState({
+    canUndo: index !== -1,
+    canRedo: index < stepsLength - 1,
+    size: stepsLength,
+    currentIndex: index,
+  });
+};
+
 /**
  * Traite l'historique spécifique à Tangram (fonction avec effets)
  * @param {Object} saveObject - L'objet de sauvegarde
@@ -396,26 +413,33 @@ export const processHistory = (saveObject, appInstance, environmentName) => {
  */
 export const processTangramHistory = (saveObject, appInstance) => {
   if (saveObject.history) {
-    setState({
-      history: {
-        ...saveObject.history,
-        startSituation: {
-          ...saveObject.history.startSituation,
-          tangram: {
-            isSilhouetteShown: true,
-            currentStep: 'start',
-          },
+    const nextHistory = {
+      ...saveObject.history,
+      startSituation: {
+        ...saveObject.history.startSituation,
+        tangram: {
+          isSilhouetteShown: true,
+          currentStep: 'start',
         },
       },
-    });
-  } else {
+    };
+
     setState({
-      history: {
-        ...appInstance.defaultState.history,
-        startSituation: null,
-        startSettings: { ...appInstance.settings },
-      },
+      history: nextHistory,
     });
+    syncHistorySignal(nextHistory);
+    appActions.setTangramState({ isSilhouetteShown: true });
+  } else {
+    const nextHistory = {
+      ...appInstance.defaultState.history,
+      startSituation: null,
+      startSettings: { ...appInstance.settings },
+    };
+
+    setState({
+      history: nextHistory,
+    });
+    syncHistorySignal(nextHistory);
   }
 };
 
@@ -426,19 +450,24 @@ export const processTangramHistory = (saveObject, appInstance) => {
  */
 export const processDefaultHistory = (saveObject, appInstance) => {
   if (saveObject.history) {
+    const nextHistory = { ...saveObject.history };
     setState({
-      history: { ...saveObject.history },
+      history: nextHistory,
     });
+    syncHistorySignal(nextHistory);
   } else {
-    setState({
-      history: {
-        ...appInstance.defaultState.history,
-        startSituation: {
-          ...appInstance.workspace.data,
-        },
-        startSettings: { ...appInstance.settings },
+    const nextHistory = {
+      ...appInstance.defaultState.history,
+      startSituation: {
+        ...appInstance.workspace.data,
       },
+      startSettings: { ...appInstance.settings },
+    };
+
+    setState({
+      history: nextHistory,
     });
+    syncHistorySignal(nextHistory);
   }
 };
 
@@ -600,6 +629,7 @@ export const parseFile = async (fileContent, filename) => {
       processVisibility(saveObject, setToolsVisibility, setFamiliesVisibility);
 
       // Finalisation
+      appActions.setFilename(filename);
       setState({ filename });
 
       // Enregistrer métriques personnalisées

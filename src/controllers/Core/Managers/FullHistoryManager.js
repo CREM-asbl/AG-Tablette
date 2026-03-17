@@ -1,7 +1,23 @@
+import { appActions } from '../../../store/appState';
 import { app, setState } from '../App';
 import { Coordinates } from '../Objects/Coordinates';
 import { createElem } from '../Tools/utils';
 import { SelectManager } from './SelectManager';
+
+const syncToolState = (toolDetail) => {
+  if (!toolDetail) return;
+
+  appActions.setActiveTool(toolDetail.name || null);
+
+  if (typeof toolDetail.currentStep !== 'undefined') {
+    appActions.setCurrentStep(toolDetail.currentStep);
+  }
+
+  const { name, currentStep, ...extraState } = toolDetail;
+  if (Object.keys(extraState).length > 0) {
+    appActions.setToolState(extraState);
+  }
+};
 
 /**
  * Représente l'historique complet d'un espace de travail.
@@ -83,6 +99,7 @@ export class FullHistoryManager {
   static setWorkspaceToStartSituation() {
     app.workspace.initFromObject(app.history.startSituation);
     setState({ settings: { ...app.history.startSettings } });
+    appActions.updateSettings({ ...app.history.startSettings });
   }
 
   static moveTo(actionIndex, isForSingleActionPlaying = false) {
@@ -107,6 +124,7 @@ export class FullHistoryManager {
         gridSize: data.settings.gridSize,
       };
       setState({ settings });
+      appActions.updateSettings(settings);
     } else {
       FullHistoryManager.setWorkspaceToStartSituation();
     }
@@ -167,6 +185,9 @@ export class FullHistoryManager {
         const data = detail.data;
         app.workspace.initFromObject(data);
         setState({ tangram: { ...data.tangram } });
+        if (data.tangram) {
+          appActions.setTangramState({ ...data.tangram });
+        }
       }, FullHistoryManager.nextTime + 30);
       if (app.fullHistory.numberOfActions + 1 === app.fullHistory.actionIndex)
         setTimeout(
@@ -176,9 +197,11 @@ export class FullHistoryManager {
       return true;
     } else if (type === 'tool-changed' || type === 'tool-updated') {
       setState({ tool: { ...detail } });
+      syncToolState(detail);
     } else if (type === 'settings-changed') {
       FullHistoryManager.nextTime = 1 * 1000;
       setState({ settings: { ...detail } });
+      appActions.updateSettings({ ...detail });
     } else if (type === 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
     } else if (type === 'mouse-coordinates-changed') {
