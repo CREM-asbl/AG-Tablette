@@ -1,5 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
@@ -17,7 +18,7 @@ export class TranslateTool extends Tool {
     this.startClickCoordinates = null;
   }
 
-  
+
 
   /**
    * initialiser l'état
@@ -25,11 +26,15 @@ export class TranslateTool extends Tool {
   start() {
     helpConfigRegistry.register(this.name, translateHelpConfig);
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
+      () => {
+        appActions.setCurrentStep('listen');
         setState({
           tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+        });
+      },
       50,
     );
   }
@@ -62,6 +67,7 @@ export class TranslateTool extends Tool {
     );
     this.startOffset = new Coordinates(app.workspace.translateOffset);
 
+    appActions.setCurrentStep('translate');
     setState({ tool: { ...app.tool, currentStep: 'translate' } });
   }
 
@@ -82,6 +88,7 @@ export class TranslateTool extends Tool {
     if (app.tool.currentStep !== 'translate') return;
 
     this.executeAction();
+    appActions.setCurrentStep('listen');
     setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
