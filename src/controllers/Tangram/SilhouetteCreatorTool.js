@@ -1,5 +1,6 @@
 import { tools } from '@store/tools';
 import { LitElement } from 'lit';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
@@ -37,6 +38,7 @@ export class SilhouetteCreatorTool extends LitElement {
         },
       },
     });
+    appActions.setTangramState({ currentStep: 'start' });
     window.addEventListener('actions-executed', this.verifyOverlappingShapes);
     window.addEventListener('create-silhouette', this.createSilhouette);
   }
