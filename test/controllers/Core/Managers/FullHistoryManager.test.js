@@ -95,6 +95,30 @@ describe('FullHistoryManager', () => {
     });
   });
 
+  it('keeps animation step payload on tool-updated replay', () => {
+    app.fullHistory.steps = [
+      {
+        type: 'tool-updated',
+        detail: {
+          name: 'move',
+          currentStep: 'move',
+          selectedShapeId: 'shape-1',
+        },
+      },
+    ];
+
+    FullHistoryManager.executeStep(0);
+
+    expect(setState).toHaveBeenCalledWith({
+      tool: { ...app.fullHistory.steps[0].detail },
+    });
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('move');
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('move');
+    expect(appActions.setToolState).toHaveBeenCalledWith({
+      selectedShapeId: 'shape-1',
+    });
+  });
+
   it('syncs appActions on settings-changed step', () => {
     app.fullHistory.steps = [
       {
