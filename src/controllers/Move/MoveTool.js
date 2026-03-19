@@ -1,6 +1,6 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
@@ -49,9 +49,6 @@ export class MoveTool extends Tool {
     setTimeout(
       () => {
         appActions.setCurrentStep('listen');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        });
       },
       50,
     );
@@ -147,7 +144,6 @@ export class MoveTool extends Tool {
     });
 
     appActions.setCurrentStep('move');
-    setState({ tool: { ...app.tool, currentStep: 'move' } });
     this.animate();
   }
 
@@ -155,7 +151,6 @@ export class MoveTool extends Tool {
     if (app.tool.currentStep !== 'move') return;
     this.executeAction();
     appActions.setCurrentStep('listen');
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   /**

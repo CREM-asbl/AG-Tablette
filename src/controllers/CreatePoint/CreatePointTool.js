@@ -2,7 +2,7 @@ import points from '@controllers/Core/ShapesKits/points.json';
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -36,16 +36,10 @@ export class CreatePointTool extends Tool {
   }
 
   updateToolStep(step, extraState = {}) {
-    appActions.setToolState(extraState);
+    if (Object.keys(extraState).length > 0) {
+      appActions.setToolState(extraState);
+    }
     appActions.setCurrentStep(step);
-    setState({
-      tool: {
-        ...app.tool,
-        ...extraState,
-        name: this.name,
-        currentStep: step,
-      },
-    });
   }
 
 

@@ -1,5 +1,5 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';

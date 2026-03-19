@@ -1,6 +1,6 @@
 
 import { appActions } from '../../../store/appState';
-import { app, setState } from '../../Core/App';
+import { app } from '../../Core/App';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Coordinates } from '../../Core/Objects/Coordinates';
 import { Point } from '../../Core/Objects/Point';

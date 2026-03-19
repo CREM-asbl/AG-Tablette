@@ -1,7 +1,7 @@
 
 import { appActions } from '../../store/appState';
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
@@ -28,9 +28,6 @@ export class ColorTool extends Tool {
     setTimeout(
       () => {
         appActions.setCurrentStep('listen');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        });
       },
       50,
     );
@@ -100,9 +97,6 @@ export class ColorTool extends Tool {
 
     this.executeAction();
     appActions.setCurrentStep('listen');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-    });
   }
 
   _executeAction() {
