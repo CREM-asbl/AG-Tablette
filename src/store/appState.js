@@ -421,21 +421,46 @@ export const historyActions = {
 /**
  * Utilitaires pour surveiller les changements
  */
+const watchers = new Set();
+let rafId = null;
+
+function runWatchers() {
+  for (const watcher of watchers) {
+    watcher.check();
+  }
+  if (watchers.size > 0) {
+    rafId = requestAnimationFrame(runWatchers);
+  } else {
+    rafId = null;
+  }
+}
+
 export const createWatcher = (signalToWatch, callback) => {
   let lastValue = signalToWatch.get();
 
-  const checkForChanges = () => {
-    const currentValue = signalToWatch.get();
-    if (currentValue !== lastValue) {
-      callback(currentValue, lastValue);
-      lastValue = currentValue;
-    }
+  const watcher = {
+    check: () => {
+      try {
+        const currentValue = signalToWatch.get();
+        if (currentValue !== lastValue) {
+          const old = lastValue;
+          lastValue = currentValue;
+          callback(currentValue, old);
+        }
+      } catch (e) {
+        console.error('Watcher error:', e);
+      }
+    },
   };
 
-  // Vérifier les changements sur le prochain tick
-  const intervalId = setInterval(checkForChanges, 0);
+  watchers.add(watcher);
+  if (!rafId) {
+    rafId = requestAnimationFrame(runWatchers);
+  }
 
-  return () => clearInterval(intervalId);
+  return () => {
+    watchers.delete(watcher);
+  };
 };
 
 /**

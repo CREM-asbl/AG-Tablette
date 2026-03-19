@@ -95,15 +95,6 @@ export class BaseGeometryTool extends Tool {
       if (Object.keys(additionalData).length > 0) {
         appActions.setToolState(additionalData);
       }
-
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: newStep,
-          ...additionalData,
-        },
-      });
     } catch (error) {
       console.error("Erreur lors du changement d'état:", error);
       this.showErrorNotification("Erreur lors du changement d'état");

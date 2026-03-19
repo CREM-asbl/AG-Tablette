@@ -19,8 +19,6 @@ export class ResetPositionTool extends Tool {
 
     appActions.setActiveTool(this.name);
     appActions.setCurrentStep('listen');
-
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   listen() {
@@ -42,9 +40,6 @@ export class ResetPositionTool extends Tool {
 
     this.executeAction();
     appActions.setCurrentStep('listen');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-    });
   }
 
   _executeAction() {

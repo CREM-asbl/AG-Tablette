@@ -17,7 +17,8 @@ export class Tool {
     this.name = name;
     this.title = title;
     this.type = type;
-    this.disposeWatcher = null;
+    this.isActive = false;
+    this._executingStep = null;
 
     window.addEventListener('refreshStateUpper', () => {
       if (this.name === app.tool?.name) this.refreshStateUpper();
@@ -26,77 +27,16 @@ export class Tool {
     this.handler = (event) => this.eventHandler(event);
 
     window.addEventListener('tool-updated', this.handler);
-
-    // Le watcher sera initialisé avec un délai pour éviter les problèmes de circularité
-    // Schedule initialization pour après le tirage des modules
-    Promise.resolve().then(() =>
-      // Attendre que tous les imports soient terminés
-      new Promise((resolve) => {
-        setTimeout(() => {
-          this._initializeWatcher();
-          resolve();
-        }, 50);
-      })
-    );
-  }
-
-  /**
-   * Initialiser le watcher de façon sûre
-   */
-  _initializeWatcher() {
-    if (this.disposeWatcher) return;
-
-    try {
-      const combinedSignal = computed(() => ({
-        toolName: activeTool.get(),
-        step: currentStep.get(),
-        template: selectedTemplate.get(),
-      }));
-
-      this.disposeWatcher = createWatcher(combinedSignal, (newValue) => {
-        const { toolName, step, template } = newValue;
-
-        if (toolName === this.name && step) {
-          // Sync legacy state to ensure App.js delegates events correctly
-          // and eventHandler uses the correct step.
-          if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step || app.tool.selectedTemplate !== template) {
-            const extraState = toolState.get() || {};
-            app.tool = { ...(app.tool || {}), ...extraState, name: toolName, currentStep: step, selectedTemplate: template };
-          }
-
-          if (
-            app.fullHistory?.isRunning &&
-            !REPLAY_ALLOWED_TOOL_TYPES.has(this.type)
-          ) {
-            return;
-          }
-
-          if (typeof this[step] === 'function') {
-            this[step]();
-          }
-        } else if (toolName !== this.name && this.name === app.tool?.name) {
-          this.end();
-        }
-      });
-    } catch (error) {
-      // Silently ignore initialization failures - watcher is not critical
-      if (import.meta.env.DEV) {
-        console.warn(`[Tool] Failed to initialize watcher for ${this.name}:`, error);
-      }
-    }
   }
 
   dispose() {
-    if (this.disposeWatcher) {
-      this.disposeWatcher();
-      this.disposeWatcher = null;
-    }
+    window.removeEventListener('tool-updated', this.handler);
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  refreshStateUpper() { }
+  refreshStateUpper() {}
 
   /**
    * Exécuter les actions liée à l'état.
@@ -151,20 +91,41 @@ export class Tool {
 
   eventHandler(event) {
     if (event.type === 'tool-updated') {
-      if (!app.tool) {
-        this.end();
-      } else if (app.tool.name === this.name) {
+      const tool = app.tool;
+      if (!tool) {
+        if (this.isActive) {
+          this.isActive = false;
+          this.end();
+        }
+        return;
+      }
+
+      if (tool.name === this.name) {
+        this.isActive = true;
+        const step = tool.currentStep;
+
+        if (!step) return;
+
+        // Garde-fou contre la récursion synchrone de la même étape
+        if (this._executingStep === step) return;
+
         if (
           app.fullHistory?.isRunning &&
           !REPLAY_ALLOWED_TOOL_TYPES.has(this.type)
         ) {
           return;
         }
-        if (import.meta.env.DEV) {
-          console.log(`[Tool.eventHandler] ${this.name} - tool-updated, currentStep: ${app.tool.currentStep}`);
+
+        if (typeof this[step] === 'function') {
+          try {
+            this._executingStep = step;
+            this[step]();
+          } finally {
+            this._executingStep = null;
+          }
         }
-        this[app.tool.currentStep]();
-      } else if (app.tool.currentStep === 'start') {
+      } else if (this.isActive) {
+        this.isActive = false;
         this.end();
       }
     } else {

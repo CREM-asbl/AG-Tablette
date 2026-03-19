@@ -36,9 +36,6 @@ export class DeleteTool extends Tool {
     setTimeout(
       () => {
         appActions.setCurrentStep('listen');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        });
       },
       50,
     );
@@ -85,7 +82,6 @@ export class DeleteTool extends Tool {
     }
     this.executeAction();
     appActions.setCurrentStep('listen');
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   _executeAction() {

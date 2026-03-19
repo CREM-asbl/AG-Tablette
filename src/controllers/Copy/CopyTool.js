@@ -44,7 +44,6 @@ export class CopyTool extends Tool {
     appActions.setActiveTool(this.name);
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
-    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
   }
 
 

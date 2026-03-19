@@ -17,7 +17,6 @@ export class UngroupTool extends Tool {
   updateToolStep(step, extraState = {}) {
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
-    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
   }
 
 

@@ -31,9 +31,6 @@ export class TranslateTool extends Tool {
     setTimeout(
       () => {
         appActions.setCurrentStep('listen');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        });
       },
       50,
     );
@@ -68,7 +65,6 @@ export class TranslateTool extends Tool {
     this.startOffset = new Coordinates(app.workspace.translateOffset);
 
     appActions.setCurrentStep('translate');
-    setState({ tool: { ...app.tool, currentStep: 'translate' } });
   }
 
   canvasMouseMove() {
@@ -89,7 +85,6 @@ export class TranslateTool extends Tool {
 
     this.executeAction();
     appActions.setCurrentStep('listen');
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
   }
 
   _executeAction() {
