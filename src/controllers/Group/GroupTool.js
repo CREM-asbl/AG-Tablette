@@ -41,14 +41,8 @@ export class GroupTool extends Tool {
     helpConfigRegistry.register(this.name, groupHelpConfig);
 
     appActions.setActiveTool(this.name);
-
-    setTimeout(
-      () => {
-        this.updateToolStep('listen');
-        this.listen();
-      },
-      50,
-    );
+    this.updateToolStep('listen');
+    this.listen();
   }
 
   listen() {

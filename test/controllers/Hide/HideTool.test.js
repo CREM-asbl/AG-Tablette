@@ -73,19 +73,11 @@ describe('HideTool', () => {
   });
 
   it('registers help config and sets signal state in start()', () => {
-    vi.useFakeTimers();
-
     tool.start();
-    vi.advanceTimersByTime(100);
 
     expect(helpConfigRegistry.has('hide')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('hide');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'hide', currentStep: 'listen' },
-    });
-
-    vi.useRealTimers();
   });
 
   it('returns to listen step after object selection', () => {
@@ -95,8 +87,5 @@ describe('HideTool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'hide', currentStep: 'listen' },
-    });
   });
 });

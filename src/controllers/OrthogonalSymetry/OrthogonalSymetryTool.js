@@ -1,6 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -22,7 +22,9 @@ export class OrthogonalSymetryTool extends Tool {
   }
 
   updateToolStep(step, extraState = {}) {
-    appActions.setToolState(extraState);
+    if (Object.keys(extraState).length > 0) {
+      appActions.setToolState(extraState);
+    }
     appActions.setCurrentStep(step);
   }
 

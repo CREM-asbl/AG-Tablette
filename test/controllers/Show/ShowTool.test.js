@@ -81,19 +81,11 @@ describe('ShowTool', () => {
   });
 
   it('registers help config and sets signal state in start()', () => {
-    vi.useFakeTimers();
-
     tool.start();
-    vi.advanceTimersByTime(100);
 
     expect(helpConfigRegistry.has('show')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('show');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'show', currentStep: 'listen' },
-    });
-
-    vi.useRealTimers();
   });
 
   it('returns to listen step after object selection', () => {
@@ -103,8 +95,5 @@ describe('ShowTool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'show', currentStep: 'listen' },
-    });
   });
 });

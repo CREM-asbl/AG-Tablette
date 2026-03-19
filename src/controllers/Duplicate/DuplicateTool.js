@@ -39,19 +39,11 @@ export class DuplicateTool extends Tool {
   }
 
   updateToolStep(step, extraState = {}) {
-    appActions.setToolState(extraState);
+    if (Object.keys(extraState).length > 0) {
+      appActions.setToolState(extraState);
+    }
     appActions.setCurrentStep(step);
-    setState({
-      tool: {
-        ...app.tool,
-        ...extraState,
-        name: this.name,
-        currentStep: step,
-      },
-    });
   }
-
-
 
   start() {
     helpConfigRegistry.register(this.name, duplicateHelpConfig);

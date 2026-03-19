@@ -23,16 +23,7 @@ export class HideTool extends Tool {
     helpConfigRegistry.register(this.name, hideHelpConfig);
 
     appActions.setActiveTool(this.name);
-
-    setTimeout(
-      () => {
-        appActions.setCurrentStep('listen');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        });
-      },
-      50,
-    );
+    appActions.setCurrentStep('listen');
   }
 
   listen() {
@@ -67,9 +58,6 @@ export class HideTool extends Tool {
 
     this.executeAction();
     appActions.setCurrentStep('listen');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-    });
   }
 
   _executeAction() {

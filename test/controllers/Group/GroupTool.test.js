@@ -77,17 +77,13 @@ describe('GroupTool', () => {
     tool = new GroupTool();
   });
 
-  it('start() déclenche updateToolStep("listen") via setTimeout', () => {
-    vi.useFakeTimers();
+  it('start() déclenche updateToolStep("listen") et listen()', () => {
+    tool.listen = vi.fn();
     tool.start();
-    vi.runAllTimers();
-    vi.useRealTimers();
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('group');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
+    expect(tool.listen).toHaveBeenCalled();
   });
 
   it('objectSelected() en step listen avec groupe existant → fillGroup', async () => {
@@ -99,9 +95,6 @@ describe('GroupTool', () => {
     tool.objectSelected({ id: 'id1' });
 
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('fillGroup');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'fillGroup' }) }),
-    );
   });
 
   it('objectSelected() en step listen sans groupe → selectSecondShape', async () => {
@@ -120,9 +113,6 @@ describe('GroupTool', () => {
     tool.objectSelected(mockShape);
 
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectSecondShape');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'selectSecondShape' }) }),
-    );
   });
 
   it('objectSelected() en step fillGroup appelle updateToolStep("fillGroup")', async () => {
@@ -134,8 +124,5 @@ describe('GroupTool', () => {
     tool.objectSelected({ id: 'id2' });
 
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('fillGroup');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'fillGroup' }) }),
-    );
   });
 });
