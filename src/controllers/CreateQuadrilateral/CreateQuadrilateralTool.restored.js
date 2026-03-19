@@ -1,7 +1,7 @@
 import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
 import { html } from 'lit';
-import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -49,12 +49,7 @@ export class CreateQuadrilateralTool extends Tool {
     `;
   }
 
-  async start() {
-    // Enregistrer l'aide contextuelle
-    const { helpConfigRegistry } = await import('../../services/HelpConfigRegistry');
-    const { createQuadrilateralHelpConfig } = await import('./createQuadrilateral.helpConfig');
-    helpConfigRegistry.register(this.name, createQuadrilateralHelpConfig);
-
+  start() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();

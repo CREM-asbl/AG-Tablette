@@ -5,6 +5,7 @@ import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Coordinates } from '../../Core/Objects/Coordinates';
 import { Point } from '../../Core/Objects/Point';
 import { Segment } from '../../Core/Objects/Segment';
+import { RegularShape } from '../../Core/Objects/Shapes/RegularShape';
 import { BaseGeometryTool } from '../../Core/States/BaseGeometryTool';
 import { findObjectsByName, removeObjectById } from '../../Core/Tools/general';
 
@@ -20,9 +21,10 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     this.templatesImport = templatesImport;
     this.selectedTemplate = null;
     this.shapeDefinition = null;
+    this.previewShapeId = null;
   }
 
-  
+
 
   /**
    * Démarrage standardisé avec sélecteur de forme
@@ -87,6 +89,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    * Réinitialisation de l'état de dessin
    */
   resetDrawingState() {
+    this.clearPreviewShape();
     this.points = [];
     this.segments = [];
     this.numberOfPointsDrawn = 0;
@@ -141,9 +144,60 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     }
 
     this.addPointToShape(newCoordinates);
-    this.updateShapePreview();
+    this.syncPreviewFromCurrentState();
     appActions.setToolState({ currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('animatePoint');
+  }
+
+  clearPreviewShape() {
+    if (this.previewShapeId) {
+      removeObjectById(this.previewShapeId);
+      this.previewShapeId = null;
+    }
+  }
+
+  ensureClosedPreviewSegment() {
+    if (this.points.length < 3) return;
+
+    // Un contour fermé comporte autant de segments que de points.
+    if (this.segments.length < this.points.length) {
+      const closingSegment = new Segment({
+        layer: 'upper',
+        vertexIds: [this.points[this.points.length - 1].id, this.points[0].id],
+      });
+      this.segments.push(closingSegment);
+    }
+  }
+
+  renderPreviewShape() {
+    if (this.points.length < 2 || this.segments.length < 1) return;
+
+    this.clearPreviewShape();
+
+    const shape = new RegularShape({
+      layer: 'upper',
+      segmentIds: this.segments.map((seg) => seg.id),
+      pointIds: this.points.map((pt) => pt.id),
+      strokeColor: app.settings.temporaryDrawColor,
+      fillOpacity: 0,
+    });
+
+    this.segments.forEach((seg, idx) => {
+      seg.idx = idx;
+      seg.shapeId = shape.id;
+    });
+
+    this.previewShapeId = shape.id;
+  }
+
+  syncPreviewFromCurrentState() {
+    this.refreshShapePreview();
+
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
+      this.ensureClosedPreviewSegment();
+    }
+
+    this.renderPreviewShape();
   }
 
   /**
@@ -236,7 +290,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       if (this.segments.length > 0) {
         this.segments.pop();
       }
-      this.refreshShapePreview();
+      this.syncPreviewFromCurrentState();
     }
   }
 
@@ -257,6 +311,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
 
     this.safeExecuteAction(async () => {
       await this.executeAction();
+      this.clearPreviewShape();
       appActions.setToolState({ currentStep: 'drawFirstPoint' });
       appActions.setCurrentStep('drawFirstPoint');
     }, 'création de forme');
@@ -387,7 +442,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       if (newCoordinates && lastPoint) {
         lastPoint.coordinates = newCoordinates;
         this.adjustPoint(lastPoint);
-        this.refreshShapePreview();
+        this.syncPreviewFromCurrentState();
       }
     }
   }

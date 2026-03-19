@@ -36,9 +36,7 @@ export class CreatePointTool extends Tool {
   }
 
   updateToolStep(step, extraState = {}) {
-    if (Object.keys(extraState).length > 0) {
-      appActions.setToolState(extraState);
-    }
+    appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
   }
 
@@ -53,12 +51,17 @@ export class CreatePointTool extends Tool {
 
     appActions.setActiveTool(this.name);
 
+    const selectedTemplate =
+      points.find((template) => template.name === app.tool.selectedTemplate?.name) ||
+      points[0];
+    appActions.setSelectedTemplate?.(selectedTemplate);
+
     import('@components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',
       family: 'Points',
       templatesNames: points,
-      selectedTemplate: app.tool.selectedTemplate,
+      selectedTemplate,
       type: 'Geometry',
       nextStep: 'drawPoint',
     });

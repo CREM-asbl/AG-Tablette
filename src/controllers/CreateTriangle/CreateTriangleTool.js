@@ -1,13 +1,14 @@
-import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { app } from '../Core/App';
+import { app, setState } from '../Core/App';
+import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import triangles from '../Core/ShapesKits/triangles.json';
 import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
-import { createTriangleHelpConfig } from './createTriangle.helpConfig';
 
 /**
  * Outil de création de triangles - Refactorisé avec BaseShapeCreationTool
@@ -16,14 +17,6 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   constructor() {
     super('createTriangle', 'Construire un triangle', 'Triangles', triangles);
     this.triangleDef = null;
-  }
-
-  /**
-   * Démarrage avec enregistrement de l'aide contextuelle
-   */
-  async start() {
-    helpConfigRegistry.register(this.name, createTriangleHelpConfig);
-    await super.start();
   }
 
   /**
@@ -40,16 +33,329 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     }
   }
 
+  async start() {
+    // Enregistrer l'aide contextuelle
+    const { helpConfigRegistry } = await import('../../services/HelpConfigRegistry');
+    const { createTriangleHelpConfig } = await import('./createTriangle.helpConfig');
+    helpConfigRegistry.register(this.name, createTriangleHelpConfig);
+
+    // Afficher le sélecteur de forme
+    app.upperCanvasLayer.removeAllObjects();
+    this.removeListeners();
+    this.stopAnimation();
+
+    const { appActions } = await import('../../store/appState');
+    await import('@components/shape-selector');
+    appActions.setToolUiState({
+      name: 'shape-selector',
+      family: 'Triangles',
+      templatesNames: triangles,
+      selectedTemplate: app.tool.selectedTemplate,
+      type: 'Geometry',
+      nextStep: 'drawFirstPoint',
+    });
+  }
+
+  async drawFirstPoint() {
+    app.upperCanvasLayer.removeAllObjects();
+    const triangleDef = await import(`./trianglesDef.js`);
+    this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
+
+    this.points = [];
+    this.segments = [];
+    this.numberOfPointsDrawn = 0;
+
+    setTimeout(
+      () =>
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        }),
+      50,
+    );
+  }
+
+  drawPoint() {
+    this.removeListeners();
+    this.stopAnimation();
+
+    this.getConstraints(this.numberOfPointsDrawn);
+
+    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+  }
+
+  animatePoint() {
+    this.removeListeners();
+    this.animate();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+  }
+
   /**
-   * Nombre de points requis pour la forme
+   * stopper l'état
    */
+  end() {
+    this.removeListeners();
+    this.stopAnimation();
+  }
+
+  canvasMouseDown() {
+    const newCoordinates = new Coordinates(
+      app.workspace.lastKnownMouseCoordinates,
+    );
+
+    if (
+      this.constraints.type === 'isConstrained' &&
+      !this.constraints.projectionOnConstraints(newCoordinates, true)
+    ) {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', {
+          detail: { message: 'Veuillez placer le point sur la contrainte.' },
+        }),
+      );
+      return;
+    }
+
+    this.points[this.numberOfPointsDrawn] = new Point({
+      layer: 'upper',
+      coordinates: newCoordinates,
+      color: app.settings.temporaryDrawColor,
+      size: 2,
+    });
+    this.numberOfPointsDrawn++;
+    if (this.numberOfPointsDrawn > 1) {
+      const seg = new Segment({
+        layer: 'upper',
+        vertexIds: [
+          this.points[this.numberOfPointsDrawn - 2].id,
+          this.points[this.numberOfPointsDrawn - 1].id,
+        ],
+      });
+      this.segments.push(seg);
+    }
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
+      if (this.numberOfPointsDrawn < 3) this.finishShape();
+      const seg = new Segment({
+        layer: 'upper',
+        vertexIds: [this.points[2].id, this.points[0].id],
+      });
+      this.segments.push(seg);
+      const shape = new RegularShape({
+        layer: 'upper',
+        segmentIds: this.segments.map((seg) => seg.id),
+        pointIds: this.points.map((pt) => pt.id),
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
+      });
+      this.segments.forEach((seg, idx) => {
+        seg.idx = idx;
+        seg.shapeId = shape.id;
+      });
+    } else if (this.numberOfPointsDrawn > 1) {
+      new RegularShape({
+        layer: 'upper',
+        segmentIds: [this.segments[0].id],
+        pointIds: this.segments[0].vertexIds,
+        strokeColor: app.settings.temporaryDrawColor,
+        fillOpacity: 0,
+      });
+    }
+    setState({
+      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+    });
+  }
+
+  canvasMouseUp() {
+    for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
+      if (
+        SelectManager.areCoordinatesInMagnetismDistance(
+          this.points[i].coordinates,
+          this.points[this.numberOfPointsDrawn - 1].coordinates,
+        )
+      ) {
+        const firstPointCoordinates = this.points[0].coordinates;
+        if (this.numberOfPointsDrawn === 2) {
+          app.upperCanvasLayer.removeAllObjects();
+          this.numberOfPointsDrawn = 1;
+          this.points = [
+            new Point({
+              layer: 'upper',
+              coordinates: firstPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+          ];
+          this.segments = [];
+        } else if (this.numberOfPointsDrawn === 3) {
+          const secondPointCoordinates = this.points[1].coordinates;
+          app.upperCanvasLayer.removeAllObjects();
+          this.numberOfPointsDrawn = 2;
+          this.points = [
+            new Point({
+              layer: 'upper',
+              coordinates: firstPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+            new Point({
+              layer: 'upper',
+              coordinates: secondPointCoordinates,
+              color: app.settings.temporaryDrawColor,
+              size: 2,
+            }),
+          ];
+          this.segments = [
+            new Segment({
+              layer: 'upper',
+              vertexIds: [this.points[0].id, this.points[1].id],
+            }),
+          ];
+          new RegularShape({
+            layer: 'upper',
+            segmentIds: [this.segments[0].id],
+            pointIds: this.segments[0].vertexIds,
+            strokeColor: app.settings.temporaryDrawColor,
+            fillOpacity: 0,
+          });
+        }
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: 'Veuillez placer le point autre part.' },
+          }),
+        );
+        setState({
+          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        });
+        return;
+      }
+    }
+
+    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
+      this.stopAnimation();
+      this.executeAction();
+      app.upperCanvasLayer.removeAllObjects();
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+      });
+    } else {
+      setState({
+        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      });
+    }
+  }
+
+  adjustPoint(point) {
+    point.adjustedOn = undefined;
+    if (this.constraints.isFree) {
+      let constraints = SelectManager.getEmptySelectionConstraints().points;
+      constraints.canSelect = true;
+      let adjustedPoint;
+      if (
+        (adjustedPoint = SelectManager.selectPoint(
+          point.coordinates,
+          constraints,
+          false,
+        ))
+      ) {
+        point.coordinates = new Coordinates(adjustedPoint.coordinates);
+        point.adjustedOn = adjustedPoint;
+      } else if (
+        (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
+          point.coordinates.toCanvasCoordinates(),
+        ))
+      ) {
+        const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
+        point.coordinates = new Coordinates(adjustedPointInWorldSpace);
+        point.adjustedOn = adjustedPointInWorldSpace;
+      } else {
+        constraints = SelectManager.getEmptySelectionConstraints().segments;
+        constraints.canSelect = true;
+        const adjustedSegment = SelectManager.selectSegment(
+          point.coordinates,
+          constraints,
+        );
+        if (adjustedSegment) {
+          point.coordinates = adjustedSegment.projectionOnSegment(
+            point.coordinates,
+          );
+          point.adjustedOn = adjustedSegment;
+        }
+      }
+    } else {
+      let adjustedCoordinates = this.constraints.projectionOnConstraints(
+        point.coordinates,
+      );
+
+      const constraints = SelectManager.getEmptySelectionConstraints().segments;
+      constraints.canSelect = true;
+      constraints.numberOfObjects = 'allInDistance';
+      const adjustedSegments = SelectManager.selectSegment(
+        adjustedCoordinates,
+        constraints,
+      );
+      if (adjustedSegments) {
+        const adjustedSegment = adjustedSegments
+          .filter((seg) => !seg.isParalleleWith(this.constraints.segments[0]))
+          .sort((seg1, seg2) =>
+            seg1
+              .projectionOnSegment(adjustedCoordinates)
+              .dist(adjustedCoordinates) >
+              seg2
+                .projectionOnSegment(adjustedCoordinates)
+                .dist(adjustedCoordinates)
+              ? 1
+              : -1,
+          )[0];
+        if (adjustedSegment) {
+          adjustedCoordinates = adjustedSegment
+            .intersectionWith(this.constraints.segments[0])
+            .sort((intersection1, intersection2) =>
+              intersection1.dist(adjustedCoordinates) >
+                intersection2.dist(adjustedCoordinates)
+                ? 1
+                : -1,
+            )[0];
+          point.adjustedOn = adjustedSegment;
+        }
+      }
+      // let constraints = SelectManager.getEmptySelectionConstraints().segments;
+      // constraints.canSelect = true;
+      // let adjustedSegment = SelectManager.selectSegment(
+      //   adjustedCoordinates,
+      //   constraints,
+      // );
+      // if (adjustedSegment) {
+      //   adjustedCoordinates = adjustedSegment.intersectionWith(this.constraints.segments[0]).sort((intersection1, intersection2) =>
+      //     intersection1.dist(adjustedCoordinates) > intersection2.dist(adjustedCoordinates) ? 1 : -1
+      //   )[0];
+      //   point.adjustedOn = adjustedSegment;
+      // }
+      point.coordinates = new Coordinates(adjustedCoordinates);
+    }
+  }
+
+  refreshStateUpper() {
+    if (app.tool.currentStep === 'animatePoint') {
+      this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
+        app.workspace.lastKnownMouseCoordinates,
+      );
+      this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
+      if (
+        this.numberOfPointsDrawn === this.numberOfPointsRequired() &&
+        this.numberOfPointsDrawn < 3
+      ) {
+        this.finishShape();
+      }
+    }
+  }
+
   numberOfPointsRequired() {
     return this.triangleDef.numberOfPointsToRequired;
   }
 
-  /**
-   * Obtenir les contraintes pour un point donné
-   */
+  finishShape() {
+    this.triangleDef.finishShape(this.points, this.segments);
+  }
+
   getConstraints(pointNb) {
     this.constraints = this.triangleDef.constraints[pointNb](
       this.points,
@@ -57,21 +363,6 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     );
   }
 
-  /**
-   * Mise à jour de l'aperçu de la forme pendant l'animation
-   */
-  refreshShapePreview() {
-    if (
-      this.numberOfPointsDrawn === this.numberOfPointsRequired() &&
-      this.numberOfPointsDrawn < 3
-    ) {
-      this.triangleDef.finishShape(this.points, this.segments);
-    }
-  }
-
-  /**
-   * Exécution de l'action finale de création
-   */
   async executeAction() {
     this._executeAction();
     window.dispatchEvent(new CustomEvent('refresh'));
