@@ -1,9 +1,9 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
-import { currentEnvironment, resetWorkspaceState } from '../store/appState';
+import { appActions, currentEnvironment, resetWorkspaceState } from '../store/appState';
 import './canvas-layer';
 
 class CanvasContainer extends SignalWatcher(LitElement) {
@@ -158,7 +158,7 @@ class CanvasContainer extends SignalWatcher(LitElement) {
     this.setCanvasSize();
     window.addEventListener('resize', this.resizeHandler);
 
-    setState({ started: true });
+    appActions.setStarted(true);
 
     window.addEventListener(
       'mouse-coordinates-changed',
@@ -183,12 +183,12 @@ class CanvasContainer extends SignalWatcher(LitElement) {
   setCanvasSize() {
     app.canvasWidth = this.clientWidth;
     app.canvasHeight = this.clientHeight;
-    setState({
-      settings: {
-        ...app.settings,
-        selectionDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60,
-        magnetismDistance: Math.min(app.canvasWidth, app.canvasHeight) / 60,
-      },
+    const selectionDistance = Math.min(app.canvasWidth, app.canvasHeight) / 60;
+    app.settings.selectionDistance = selectionDistance;
+    app.settings.magnetismDistance = selectionDistance;
+    appActions.updateSettings({
+      selectionDistance,
+      magnetismDistance: selectionDistance,
     });
     const layers = this.shadowRoot.querySelectorAll('canvas-layer');
     layers.forEach((layer) => layer.requestUpdate());

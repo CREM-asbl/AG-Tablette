@@ -63,9 +63,6 @@ describe('TranslateTool', () => {
     expect(helpConfigRegistry.has('translate')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('translate');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'translate', currentStep: 'listen' },
-    });
 
     vi.useRealTimers();
   });
@@ -77,9 +74,6 @@ describe('TranslateTool', () => {
 
     expect(tool.startClickCoordinates).toBeTruthy();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('translate');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, currentStep: 'translate' },
-    });
   });
 
   it('returns to listen step on mouse up', () => {
@@ -90,8 +84,5 @@ describe('TranslateTool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'translate', currentStep: 'listen' },
-    });
   });
 });

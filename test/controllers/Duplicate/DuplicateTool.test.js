@@ -191,11 +191,5 @@ describe('DuplicateTool', () => {
     expect(ShapeManager.addShape).toHaveBeenCalled();
     expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: expect.objectContaining({
-        name: 'duplicate',
-        currentStep: 'listen',
-      }),
-    });
   });
 });

@@ -63,9 +63,6 @@ describe('ResetPositionTool', () => {
     expect(helpConfigRegistry.has('resetPosition')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('resetPosition');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'resetPosition', currentStep: 'listen' },
-    });
   });
 
   it('returns to listen after selecting an object', () => {
@@ -75,8 +72,5 @@ describe('ResetPositionTool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'resetPosition', currentStep: 'listen' },
-    });
   });
 });

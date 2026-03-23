@@ -39,9 +39,7 @@ export class DuplicateTool extends Tool {
   }
 
   updateToolStep(step, extraState = {}) {
-    if (Object.keys(extraState).length > 0) {
-      appActions.setToolState(extraState);
-    }
+    appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
   }
 

@@ -73,6 +73,22 @@ vi.mock('../../../../src/controllers/Core/Objects/Segment', () => ({
     }
 }));
 
+vi.mock('../../../../src/controllers/Core/Objects/Shapes/RegularShape', () => ({
+    RegularShape: class {
+        constructor(props) {
+            this.id = 'shape-' + Math.random();
+            this.layer = props?.layer || 'upper';
+            this.segmentIds = props?.segmentIds || [];
+            this.pointIds = props?.pointIds || [];
+        }
+    }
+}));
+
+vi.mock('../../../../src/controllers/Core/Tools/general', () => ({
+    findObjectsByName: vi.fn(() => []),
+    removeObjectById: vi.fn(),
+}));
+
 // Concrete class for testing
 class MockCreationTool extends BaseShapeCreationTool {
     constructor() {
@@ -118,8 +134,10 @@ describe('BaseShapeCreationTool', () => {
         tool.canvasMouseDown();
         expect(tool.numberOfPointsDrawn).toBe(2);
         
-        // Mouse up should complete
-        await tool.canvasMouseUp();
+        // Mouse up should complete - completeShape() calls safeExecuteAction() which is async
+        tool.canvasMouseUp();
+        await Promise.resolve(); // flush microtask queue
+        await Promise.resolve(); // flush inner async chain
         expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawFirstPoint');
     });
 

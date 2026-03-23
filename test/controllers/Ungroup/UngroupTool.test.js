@@ -72,10 +72,8 @@ describe('UngroupTool', () => {
     vi.useRealTimers();
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('ungroup');
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 
   it('objectSelected() avec groupe appelle updateToolStep("listen")', async () => {
@@ -87,10 +85,8 @@ describe('UngroupTool', () => {
     tool.objectSelected(shape);
 
     expect(appActions.setActiveTool).not.toHaveBeenCalled();
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 
   it('objectSelected() sans groupe ne met pas à jour le state', async () => {
@@ -100,6 +96,6 @@ describe('UngroupTool', () => {
     tool.objectSelected({});
 
     expect(appActions.setActiveTool).not.toHaveBeenCalled();
-    expect(setState).not.toHaveBeenCalled();
+    expect(appActions.setCurrentStep).not.toHaveBeenCalled();
   });
 });

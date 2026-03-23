@@ -1,6 +1,7 @@
 import '@components/icon-button';
 import { html, LitElement } from 'lit';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
+import { appActions } from '../store/appState';
 import './template-toolbar';
 
 class ToolbarKit extends LitElement {
@@ -80,14 +81,9 @@ class ToolbarKit extends LitElement {
     });
 
     if (this.helpSelected) {
-      const shapeName = event.target.name || 'create';
-      setState({
-        tool: {
-          name: 'create',
-          selectedFamily: event.target.title,
-          currentStep: 'start',
-        },
-      });
+      appActions.setActiveTool('create');
+      appActions.setToolState({ selectedFamily: event.target.title });
+      appActions.setCurrentStep('start');
 
       // Si le mode débutant est activé, créer automatiquement le guide contextuel
       if (this.helpSelected) {
@@ -104,13 +100,9 @@ class ToolbarKit extends LitElement {
         });
       }
     } else if (!app.fullHistory.isRunning) {
-      setState({
-        tool: {
-          name: 'create',
-          selectedFamily: event.target.title,
-          currentStep: 'start',
-        },
-      });
+      appActions.setActiveTool('create');
+      appActions.setToolState({ selectedFamily: event.target.title });
+      appActions.setCurrentStep('start');
     }
   }
 }

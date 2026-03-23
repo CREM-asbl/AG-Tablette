@@ -70,9 +70,6 @@ describe('BaseGeometryTool', () => {
         tool.safeSetState('new-step', { extra: 'data' });
         expect(appActions.setCurrentStep).toHaveBeenCalledWith('new-step');
         expect(appActions.setToolState).toHaveBeenCalledWith({ extra: 'data' });
-        expect(setState).toHaveBeenCalledWith(expect.objectContaining({
-            tool: expect.objectContaining({ currentStep: 'new-step', extra: 'data' })
-        }));
     });
 
     it('cleans up tool state', () => {
@@ -91,8 +88,6 @@ describe('BaseGeometryTool', () => {
     it('handles action failure safely', async () => {
         const mockAction = vi.fn().mockRejectedValue(new Error('fail'));
         await tool.safeExecuteAction(mockAction);
-        expect(setState).toHaveBeenCalledWith(expect.objectContaining({
-            tool: expect.objectContaining({ currentStep: 'error' })
-        }));
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('error');
     });
 });

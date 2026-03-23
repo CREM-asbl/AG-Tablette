@@ -132,10 +132,8 @@ describe('CopyTool', () => {
     vi.useRealTimers();
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('copy');
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 
   it('canvasMouseUp() appelle updateToolStep("listen") en step move', () => {
@@ -145,10 +143,8 @@ describe('CopyTool', () => {
     tool.canvasMouseUp();
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('copy');
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 
   it('canvasMouseUp() ne fait rien si currentStep !== "move"', () => {
@@ -157,6 +153,5 @@ describe('CopyTool', () => {
     tool.canvasMouseUp();
 
     expect(appActions.setActiveTool).not.toHaveBeenCalled();
-    expect(setState).not.toHaveBeenCalled();
   });
 });

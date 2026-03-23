@@ -1,6 +1,7 @@
 import '@components/icon-button';
 import { LitElement, html } from 'lit';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
+import { appActions } from '../store/appState';
 import './template-toolbar';
 
 class ToolbarSection extends LitElement {
@@ -87,7 +88,8 @@ class ToolbarSection extends LitElement {
     const toolName = event.target.name;
 
     if (!app.fullHistory.isRunning) {
-      setState({ tool: { name: toolName, currentStep: 'start' } });
+      appActions.setActiveTool(toolName);
+      appActions.setCurrentStep('start');
 
       // Si le mode débutant est activé, créer automatiquement le guide contextuel
       if (this.helpSelected) {

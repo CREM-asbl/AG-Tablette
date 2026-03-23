@@ -40,13 +40,6 @@ describe('shape-selector', () => {
     expect(selector.selectedTemplate).toEqual(template);
     expect(appActions.setSelectedTemplate).toHaveBeenCalledWith(template);
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: {
-        ...app.tool,
-        selectedTemplate: template,
-        currentStep: 'listen',
-      },
-    });
   });
 
   it('n appelle pas setState si app.tool est absent', () => {
@@ -57,6 +50,5 @@ describe('shape-selector', () => {
 
     expect(appActions.setSelectedTemplate).toHaveBeenCalledWith(template);
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).not.toHaveBeenCalled();
   });
 });

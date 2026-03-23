@@ -74,10 +74,8 @@ describe('BifaceTool', () => {
     vi.useRealTimers();
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('biface');
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 
   it('objectSelected() après action appelle updateToolStep("listen")', () => {
@@ -85,9 +83,7 @@ describe('BifaceTool', () => {
     tool.objectSelected(shape);
 
     expect(appActions.setActiveTool).not.toHaveBeenCalled();
+    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 });

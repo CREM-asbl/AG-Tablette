@@ -1,6 +1,6 @@
 import '@components/flex-grid';
 import '@components/icon-button';
-import { app, setState } from '@controllers/Core/App';
+import { app } from '@controllers/Core/App';
 import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators/custom-element.js';
 import { property } from 'lit/decorators/property.js';
@@ -128,15 +128,6 @@ export class ShapeSelector extends LitElement {
   private updateSelectionState(template) {
     appActions.setSelectedTemplate(template);
     appActions.setCurrentStep(this.nextStep);
-    if (app.tool) {
-      setState({
-        tool: {
-          ...app.tool,
-          selectedTemplate: template,
-          currentStep: this.nextStep,
-        },
-      });
-    }
   }
 
   _clickHandle(template) {

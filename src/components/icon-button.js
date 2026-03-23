@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
+import { appActions } from '../store/appState';
 
 class IconButton extends LitElement {
   static properties = {
@@ -75,13 +76,9 @@ class IconButton extends LitElement {
             value="${this.colorPickerValue}"
             @input="${(e) => {
           if (app.tool.name === 'color') {
-            setState({
-              settings: {
-                ...app.settings,
-                shapesDrawColor: e.target.value,
-              },
-              tool: { ...app.tool, currentStep: 'listen' },
-            });
+            app.settings.shapesDrawColor = e.target.value;
+            appActions.updateSettings({ shapesDrawColor: e.target.value });
+            appActions.setCurrentStep('listen');
           }
         }}"
           />

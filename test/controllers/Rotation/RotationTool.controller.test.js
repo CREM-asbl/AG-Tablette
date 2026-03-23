@@ -192,12 +192,5 @@ describe('RotationTool controller migration', () => {
     expect(appActions.setToolState).toHaveBeenCalledWith({
       numberOfPointsDrawn: 1,
     });
-    expect(setState).toHaveBeenCalledWith({
-      tool: expect.objectContaining({
-        name: 'rotation',
-        currentStep: 'animateRefPoint',
-        numberOfPointsDrawn: 1,
-      }),
-    });
   });
 });

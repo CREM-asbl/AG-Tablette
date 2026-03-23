@@ -93,10 +93,8 @@ export class Tool {
     if (event.type === 'tool-updated') {
       const tool = app.tool;
       if (!tool) {
-        if (this.isActive) {
-          this.isActive = false;
-          this.end();
-        }
+        this.isActive = false;
+        this.end();
         return;
       }
 
