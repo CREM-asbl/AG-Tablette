@@ -1,7 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -33,14 +33,6 @@ export class CreateIrregularTool extends Tool {
   updateToolStep(step, extraState = {}) {
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
-    setState({
-      tool: {
-        ...app.tool,
-        ...extraState,
-        name: this.name,
-        currentStep: step,
-      },
-    });
   }
 
 

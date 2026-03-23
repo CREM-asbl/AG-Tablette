@@ -1,7 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
 import { buildCenterHelpConfig } from './buildCenter.helpConfig';
@@ -18,7 +18,6 @@ export class BuildCenterTool extends Tool {
     appActions.setActiveTool(this.name);
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
-    setState({ tool: { ...app.tool, ...extraState, name: this.name, currentStep: step } });
   }
 
 

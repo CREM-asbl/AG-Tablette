@@ -93,9 +93,6 @@ describe('CutTool', () => {
     expect(helpConfigRegistry.has('cut')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('cut');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'cut', currentStep: 'listen' },
-    });
 
     vi.useRealTimers();
   });
@@ -108,17 +105,12 @@ describe('CutTool', () => {
     vi.advanceTimersByTime(250);
 
     expect(tool.executeAction).toHaveBeenCalled();
-    expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: {
-        ...app.tool,
-        name: 'cut',
-        currentStep: 'listen',
-        firstPointId: undefined,
-        secondPointId: undefined,
-        centerPointId: undefined,
-      },
+    expect(appActions.setToolState).toHaveBeenCalledWith({
+      firstPointId: undefined,
+      secondPointId: undefined,
+      centerPointId: undefined,
     });
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
 
     vi.useRealTimers();
   });

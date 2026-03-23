@@ -63,7 +63,6 @@ describe('ZoomTool', () => {
     expect(appActions.setActiveTool).toHaveBeenCalledWith('zoom');
     expect(appActions.setToolState).toHaveBeenCalledWith({ mode: 'touch' });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('start');
-    expect(setState).toHaveBeenCalled();
   });
 
   it('met a jour les signaux au premier mouse wheel', () => {
@@ -74,7 +73,6 @@ describe('ZoomTool', () => {
     expect(appActions.setActiveTool).toHaveBeenCalledWith('zoom');
     expect(appActions.setToolState).toHaveBeenCalledWith({ mode: 'wheel' });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('start');
-    expect(setState).toHaveBeenCalled();
     expect(tool.applyZoom).toHaveBeenCalled();
   });
 });

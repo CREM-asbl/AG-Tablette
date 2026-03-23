@@ -114,12 +114,6 @@ describe('DivideTool', () => {
     expect(tool.mode).toBe('segment');
     expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('divide');
-    expect(setState).toHaveBeenCalledWith({
-      tool: expect.objectContaining({
-        name: 'divide',
-        currentStep: 'divide',
-      }),
-    });
   });
 
   it('switches to selectSecondPoint when selecting first points', () => {

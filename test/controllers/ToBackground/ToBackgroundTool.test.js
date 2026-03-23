@@ -69,9 +69,6 @@ describe('ToBackgroundTool', () => {
     expect(helpConfigRegistry.has('toBackground')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('toBackground');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'toBackground', currentStep: 'listen' },
-    });
 
     vi.useRealTimers();
   });

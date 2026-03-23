@@ -70,9 +70,6 @@ describe('BuildCenterTool', () => {
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('buildCenter');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 
   it('objectSelected() valide appelle updateToolStep("listen")', () => {
@@ -81,8 +78,5 @@ describe('BuildCenterTool', () => {
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('buildCenter');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith(
-      expect.objectContaining({ tool: expect.objectContaining({ currentStep: 'listen' }) }),
-    );
   });
 });

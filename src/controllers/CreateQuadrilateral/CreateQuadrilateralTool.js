@@ -1,7 +1,7 @@
 import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
 import { html } from 'lit';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -81,10 +81,7 @@ export class CreateQuadrilateralTool extends Tool {
     this.numberOfPointsDrawn = 0;
 
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-        }),
+      () => appActions.setCurrentStep('drawPoint'),
       50,
     );
   }
@@ -172,9 +169,7 @@ export class CreateQuadrilateralTool extends Tool {
         fillOpacity: 0,
       });
     }
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
-    });
+    appActions.setCurrentStep('animatePoint');
   }
 
   canvasMouseUp() {
@@ -277,9 +272,7 @@ export class CreateQuadrilateralTool extends Tool {
             detail: { message: 'Veuillez placer le point autre part.' },
           }),
         );
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-        });
+        appActions.setCurrentStep('drawPoint');
         return;
       }
     }
@@ -287,14 +280,10 @@ export class CreateQuadrilateralTool extends Tool {
     if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
       this.stopAnimation();
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
-      });
+      appActions.setCurrentStep('drawFirstPoint');
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-      });
+      appActions.setCurrentStep('drawPoint');
     }
   }
 

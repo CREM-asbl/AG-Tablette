@@ -150,9 +150,6 @@ describe('ReverseTool', () => {
       selectedShapeId: 's1',
     });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectAxis');
-    expect(setState).toHaveBeenCalledWith(expect.objectContaining({
-      tool: expect.objectContaining({ currentStep: 'selectAxis' })
-    }));
   });
 
   it('handles axis selection and switches to reverse', () => {
@@ -175,8 +172,5 @@ describe('ReverseTool', () => {
       axisAngle: 0,
     });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('reverse');
-    expect(setState).toHaveBeenCalledWith(expect.objectContaining({
-      tool: expect.objectContaining({ currentStep: 'reverse' })
-    }));
   });
 });

@@ -1,7 +1,7 @@
 
 import { appActions } from '../../store/appState';
 import { getFamily } from '../../store/kit';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { CubeShape } from '../Core/Objects/Shapes/CubeShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
@@ -30,14 +30,6 @@ export class CreateTool extends Tool {
     appActions.setActiveTool(this.name);
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
-    setState({
-      tool: {
-        ...app.tool,
-        ...extraState,
-        name: this.name,
-        currentStep: step,
-      },
-    });
   }
 
 

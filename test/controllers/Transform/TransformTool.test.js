@@ -60,9 +60,6 @@ describe('TransformTool', () => {
     expect(helpConfigRegistry.has('transform')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('transform');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectPoint');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'transform', currentStep: 'selectPoint' },
-    });
 
     vi.useRealTimers();
   });
@@ -76,8 +73,5 @@ describe('TransformTool', () => {
     expect(tool.stopAnimation).toHaveBeenCalled();
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectPoint');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'transform', currentStep: 'selectPoint' },
-    });
   });
 });

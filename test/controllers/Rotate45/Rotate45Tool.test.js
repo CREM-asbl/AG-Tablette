@@ -59,9 +59,6 @@ describe('Rotate45Tool', () => {
     expect(helpConfigRegistry.has('rotate45')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('rotate45');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'rotate45', currentStep: 'listen' },
-    });
 
     vi.useRealTimers();
   });
@@ -81,9 +78,6 @@ describe('Rotate45Tool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'rotate45', currentStep: 'listen' },
-    });
 
     vi.useRealTimers();
   });

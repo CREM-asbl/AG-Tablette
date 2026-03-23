@@ -113,13 +113,6 @@ describe('CreateTool', () => {
     expect(appActions.setActiveTool).toHaveBeenCalledWith('create');
     expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('start');
-    expect(setState).toHaveBeenCalledWith({
-      tool: {
-        ...app.tool,
-        name: 'create',
-        currentStep: 'start',
-      },
-    });
   });
 
   it('passe en listen avec selectedTemplate quand une seule forme est disponible', () => {

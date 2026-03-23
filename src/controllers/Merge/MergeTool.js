@@ -1,7 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Tool } from '../Core/States/Tool';
@@ -36,9 +36,6 @@ export class MergeTool extends Tool {
     setTimeout(
       () => {
         appActions.setCurrentStep('listen');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        });
       },
       50,
     );
@@ -109,14 +106,12 @@ export class MergeTool extends Tool {
           strokeWidth: 3,
         });
         appActions.setCurrentStep('selectSecondShape');
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
       }
     } else if (app.tool.currentStep === 'selectSecondShape') {
       if (this.firstShapeId === shape.id) {
         // deselect firstShape
         this.firstShapeId = null;
         appActions.setCurrentStep('listen');
-        setState({ tool: { ...app.tool, currentStep: 'listen' } });
       } else {
         const group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
@@ -171,9 +166,6 @@ export class MergeTool extends Tool {
     if (mustExecuteAction) {
       this.executeAction();
       appActions.setCurrentStep('listen');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-      });
     }
   }
 

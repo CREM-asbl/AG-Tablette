@@ -80,9 +80,6 @@ describe('MergeTool', () => {
     expect(helpConfigRegistry.has('merge')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('merge');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'merge', currentStep: 'listen' },
-    });
 
     vi.useRealTimers();
   });
@@ -100,9 +97,6 @@ describe('MergeTool', () => {
     tool.objectSelected(shape);
 
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectSecondShape');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, currentStep: 'selectSecondShape' },
-    });
   });
 
   it('returns to listen when selecting same shape a second time', () => {
@@ -112,9 +106,6 @@ describe('MergeTool', () => {
     tool.objectSelected({ id: 'shape-1' });
 
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, currentStep: 'listen' },
-    });
   });
 
   it('returns to listen after successful executeAction path', () => {
@@ -126,8 +117,5 @@ describe('MergeTool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'merge', currentStep: 'listen' },
-    });
   });
 });

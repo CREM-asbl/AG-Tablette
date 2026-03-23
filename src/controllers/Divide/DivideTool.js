@@ -1,6 +1,6 @@
 
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
@@ -37,14 +37,6 @@ export class DivideTool extends Tool {
   updateToolStep(step, extraState = {}) {
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
-    setState({
-      tool: {
-        ...app.tool,
-        ...extraState,
-        name: this.name,
-        currentStep: step,
-      },
-    });
   }
 
 

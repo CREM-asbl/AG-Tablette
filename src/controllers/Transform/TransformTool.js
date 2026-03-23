@@ -1,7 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -65,9 +65,6 @@ export class TransformTool extends Tool {
     setTimeout(
       () => {
         appActions.setCurrentStep('selectPoint');
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
-        });
       },
       50,
     );
@@ -261,9 +258,6 @@ export class TransformTool extends Tool {
       );
     });
 
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'transform' },
-    });
     appActions.setCurrentStep('transform');
   }
 
@@ -373,9 +367,6 @@ export class TransformTool extends Tool {
     this.stopAnimation();
     this.executeAction();
     appActions.setCurrentStep('selectPoint');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
-    });
   }
 
   _executeAction() {

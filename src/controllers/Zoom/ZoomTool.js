@@ -1,6 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
 import { zoomHelpConfig } from './zoom.helpConfig';
@@ -35,15 +35,6 @@ export class ZoomTool extends Tool {
     appActions.setActiveTool(this.name);
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
-    setState({
-      tool: {
-        ...app.tool,
-        ...extraState,
-        name: this.name,
-        currentStep: step,
-        title: this.title,
-      },
-    });
   }
 
   /**
