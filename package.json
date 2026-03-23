@@ -33,7 +33,7 @@
     "eslint": "^10.0.1",
     "eslint-plugin-lit": "^2.1.1",
     "fake-indexeddb": "^6.2.5",
-    "jsdom": "^28.1.0",
+    "jsdom": "^29.0.1",
     "prettier": "^3.6.2",
     "vitest": "^4.0.9"
   },
