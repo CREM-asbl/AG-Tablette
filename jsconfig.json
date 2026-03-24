@@ -10,6 +10,9 @@
       "@controllers/*": [
         "src/controllers/*"
       ],
+      "@core/*": [
+        "src/core/*"
+      ],
       "@store/*": [
         "src/store/*"
       ],
@@ -17,7 +20,7 @@
         "src/styles/*"
       ],
       "@utils/*": [
-      "src/utils/*"
+        "src/utils/*"
       ],
       "@services/*": [
         "src/services/*"

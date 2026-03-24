@@ -1,6 +1,12 @@
-import { signal } from '@lit-labs/signals';
+import { signal, computed } from '@lit-labs/signals';
+import {
+  activeTool,
+  currentStep,
+  selectedTemplate,
+  toolState,
+  createWatcher,
+} from '../../store/appState';
 import { resetToolsVisibility, tools } from '@store/tools';
-import { initBugReporting } from '../../services/bug-report.service';
 import { resetKitVisibility } from '../../store/kit';
 import './Managers/HistoryManager'; // Import to register event listeners
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
@@ -225,16 +231,44 @@ export class App {
 }
 
 export const app = new App();
-if (typeof window !== 'undefined') window.app = app;
+if (typeof window !== 'undefined') {
+  window.app = app;
+
+  // Watcher central pour synchroniser les signaux vers l'objet app.tool legacy
+  // et émettre les événements correspondants.
+  const combinedToolSignal = computed(() => ({
+    toolName: activeTool.get(),
+    step: currentStep.get(),
+    template: selectedTemplate.get(),
+    state: toolState.get(),
+  }));
+
+  createWatcher(combinedToolSignal, (newValue, oldValue) => {
+    const { toolName, step, template, state } = newValue;
+
+    // Mise à jour de l'objet legacy app.tool
+    const toolInfo = tools.get().find((t) => t.name === toolName);
+    app.tool = {
+      ...(app.tool || {}),
+      ...state,
+      name: toolName,
+      currentStep: step,
+      selectedTemplate: template,
+      title: toolInfo?.title,
+      type: toolInfo?.type,
+    };
+
+    // Déclenchement des événements legacy après synchro
+    if (toolName !== oldValue?.toolName) {
+      window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
+    }
+    window.dispatchEvent(new CustomEvent('tool-updated', { detail: app }));
+  });
+}
 
 // Initialiser le service de rapportage de bugs
-// Mode 'silent' en PROD, 'off' en DEV
-initBugReporting({
-  mode: import.meta.env.DEV ? 'off' : 'silent',
-  sampleRate: 0.2, // 20% des erreurs S2/S3
-  maxPerSession: 10,
-  minIntervalMs: 5000,
-});
+// Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ
+// liées aux dépendances circulaires des chunks controllers/utils.
 
 //Préparation à un state-changed plus général
 //Ceci permettra aussi de réduire le nombre de listener par la suite
@@ -276,6 +310,6 @@ export const setState = (update) => {
 };
 
 // Initialisation du service de synchronisation Signal
-import { signalSyncService } from '../../services/SignalSyncService';
-signalSyncService.init(app);
+// Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ
+// liées aux dépendances circulaires des chunks controllers/utils.
 

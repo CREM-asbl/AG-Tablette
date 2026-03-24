@@ -3,7 +3,27 @@
  * Remplace le StateManager custom pour éviter la duplication
  */
 
-import { signal, computed } from '@lit-labs/signals';
+import { computed, signal } from '@lit-labs/signals';
+
+const HELP_MODE_STORAGE_KEY = 'ag.help.beginnerModeEnabled';
+
+const getInitialHelpSelected = () => {
+  if (typeof window === 'undefined') return false;
+  try {
+    return window.localStorage.getItem(HELP_MODE_STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const persistHelpSelected = (selected) => {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.setItem(HELP_MODE_STORAGE_KEY, String(selected));
+  } catch {
+    // Silently ignore storage failures (private mode, quota, etc.)
+  }
+};
 
 // Signaux pour l'état de l'application
 export const appLoading = signal(false);
@@ -54,7 +74,7 @@ export const settings = signal({
 export const notifications = signal([]);
 export const dialogs = signal([]);
 export const filename = signal('');
-export const helpSelected = signal(false);
+export const helpSelected = signal(getInitialHelpSelected());
 export const historyState = signal({
   canUndo: false,
   canRedo: false,
@@ -134,6 +154,7 @@ export const appActions = {
 
   setHelpSelected: (selected) => {
     helpSelected.set(selected);
+    persistHelpSelected(selected);
   },
 
   setTangramState: (state) => {
@@ -169,7 +190,14 @@ export const appActions = {
   setCurrentStep: (step) => {
     currentStep.set(step);
     window.dispatchEvent(
-      new CustomEvent('tool:step-changed', { detail: { step } }),
+      new CustomEvent('tool-step-changed', { detail: { step } }),
+    );
+  },
+
+  setSelectedTemplate: (template) => {
+    selectedTemplate.set(template);
+    window.dispatchEvent(
+      new CustomEvent('tool-template-changed', { detail: { template } }),
     );
   },
 
@@ -393,21 +421,46 @@ export const historyActions = {
 /**
  * Utilitaires pour surveiller les changements
  */
+const watchers = new Set();
+let rafId = null;
+
+function runWatchers() {
+  for (const watcher of watchers) {
+    watcher.check();
+  }
+  if (watchers.size > 0) {
+    rafId = requestAnimationFrame(runWatchers);
+  } else {
+    rafId = null;
+  }
+}
+
 export const createWatcher = (signalToWatch, callback) => {
   let lastValue = signalToWatch.get();
 
-  const checkForChanges = () => {
-    const currentValue = signalToWatch.get();
-    if (currentValue !== lastValue) {
-      callback(currentValue, lastValue);
-      lastValue = currentValue;
-    }
+  const watcher = {
+    check: () => {
+      try {
+        const currentValue = signalToWatch.get();
+        if (currentValue !== lastValue) {
+          const old = lastValue;
+          lastValue = currentValue;
+          callback(currentValue, old);
+        }
+      } catch (e) {
+        console.error('Watcher error:', e);
+      }
+    },
   };
 
-  // Vérifier les changements sur le prochain tick
-  const intervalId = setInterval(checkForChanges, 0);
+  watchers.add(watcher);
+  if (!rafId) {
+    rafId = requestAnimationFrame(runWatchers);
+  }
 
-  return () => clearInterval(intervalId);
+  return () => {
+    watchers.delete(watcher);
+  };
 };
 
 /**
@@ -437,7 +490,7 @@ export const resetWorkspaceState = () => {
   notifications.set([]);
   dialogs.set([]);
   filename.set('');
-  helpSelected.set(false);
+  // Keep help mode preference unchanged; it is an explicit user choice.
   tangramState.set({
     mode: null,
     level: null,

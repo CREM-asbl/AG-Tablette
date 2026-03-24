@@ -1,7 +1,10 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Tool } from '../Core/States/Tool';
+import { ungroupHelpConfig } from './ungroup.helpConfig';
 
 /**
  * Supprimer un groupe (ne supprime pas les figures).
@@ -11,31 +14,23 @@ export class UngroupTool extends Tool {
     super('ungroup', 'Dégrouper', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
-        figure appartenant à un groupe.<br /><br />
-
-        Pour supprimer entièrement un groupe, cliquez sur une des figures
-        appartenant à ce groupe.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
 
+
+
   start() {
+    helpConfigRegistry.register(this.name, ungroupHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        this.updateToolStep('listen');
+        this.listen();
+      },
       50,
     );
   }
@@ -76,6 +71,8 @@ export class UngroupTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   /**
@@ -94,9 +91,7 @@ export class UngroupTool extends Tool {
     this.userGroup = GroupManager.getShapeGroup(shape);
     if (this.userGroup) {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-      });
+      this.updateToolStep('listen');
     } else {
       window.dispatchEvent(
         new CustomEvent('show-notif', {

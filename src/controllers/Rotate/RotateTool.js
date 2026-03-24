@@ -1,4 +1,6 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -16,6 +18,7 @@ import {
   computeAllShapeTransform,
   computeConstructionSpec,
 } from '../GeometryTools/recomputeShape';
+import { rotateHelpConfig } from './rotate.helpConfig';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -41,30 +44,18 @@ export class RotateTool extends Tool {
     this.involvedShapes = [];
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une figure, puis glissez votre doigt sans relacher la figure
-        pour la faire tourner. La figure tourne autour de son centre, qui est
-        affiché lors de la rotation. Faites tournez votre doigt autour de ce
-        centre pour faire tourner la figure.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
 
   start() {
+    helpConfigRegistry.register(this.name, rotateHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => this.updateToolStep('listen'),
       50,
     );
   }
@@ -75,6 +66,8 @@ export class RotateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
+    this.updateToolStep('listen');
+
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
     app.workspace.selectionConstraints.shapes.blacklist =
@@ -84,7 +77,7 @@ export class RotateTool extends Tool {
 
   rotate() {
     this.removeListeners();
-
+    this.updateToolStep('rotate');
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -183,7 +176,7 @@ export class RotateTool extends Tool {
       );
     });
 
-    setState({ tool: { ...app.tool, currentStep: 'rotate' } });
+    this.updateToolStep('rotate');
     this.animate();
   }
 
@@ -191,7 +184,7 @@ export class RotateTool extends Tool {
     if (app.tool.currentStep !== 'rotate') return;
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   /**

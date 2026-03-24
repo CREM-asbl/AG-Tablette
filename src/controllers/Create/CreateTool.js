@@ -1,7 +1,7 @@
-import { html } from 'lit';
-import { getFamily } from '../../store/kit';
-import { app, setState } from '../Core/App';
+
 import { appActions } from '../../store/appState';
+import { getFamily } from '../../store/kit';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { CubeShape } from '../Core/Objects/Shapes/CubeShape';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
@@ -26,24 +26,13 @@ export class CreateTool extends Tool {
     this.shapeToCreate = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Après avoir sélectionné une famille de figures dans le menu, vous devez
-        appuyer sur une des figures dans le menu qui apparaît en bas de l'écran.
-        Appuyez ensuite sur l'écran pour ajouter une figure.<br /><br />
-        <b>Note:</b> vous pouvez appuyer sur l'écran puis bouger votre doigt
-        sans le relacher, pour positionner plus précisément la nouvelle figure.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setActiveTool(this.name);
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
+
+
 
   /**
    * (ré-)initialiser l'état
@@ -107,16 +96,15 @@ export class CreateTool extends Tool {
 
     // Force reset de l'état de l'outil pour s'assurer qu'aucun ancien outil n'est actif
     if (app.tool.name !== 'create') {
-      setState({ tool: { name: 'create', currentStep: 'start' } });
+      this.updateToolStep('start');
       return;
     }
 
     const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
     if (shapeTemplates.length === 1) {
       const selectedTemplate = shapeTemplates[0];
-      setState({
-        tool: { ...app.tool, currentStep: 'listen', selectedTemplate },
-      });
+      appActions.setSelectedTemplate(selectedTemplate);
+      this.updateToolStep('listen', { selectedTemplate });
     } else if (!this.shapesList) {
       import('../../components/shape-selector');
       appActions.setToolUiState({
@@ -158,7 +146,7 @@ export class CreateTool extends Tool {
 
     if (this.shapeToCreate.isCircle()) this.shapeToCreate.isCenterShown = true;
 
-    setState({ tool: { ...app.tool, currentStep: 'move' } });
+    this.updateToolStep('move');
     this.animate();
   }
 
@@ -168,7 +156,7 @@ export class CreateTool extends Tool {
     this.executeAction();
     // Nettoyer l'upperCanvasLayer après la création pour éviter les contours de groupe résiduels
     app.upperCanvasLayer.removeAllObjects();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   refreshStateUpper() {

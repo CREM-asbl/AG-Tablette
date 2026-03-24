@@ -1,8 +1,11 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
 import { findIndexById } from '../Core/Tools/general';
+import { toBackgroundHelpConfig } from './toBackground.helpConfig';
 
 /**
  * Déplacer une figure derrière toutes les autres.
@@ -12,28 +15,17 @@ export class ToBackgroundTool extends Tool {
     super('toBackground', 'Arrière-plan', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        placer une figure derrière toutes les autres.<br />
-        Touchez une figure pour la placer en arrière-plan.
-      </p>
-    `;
-  }
+
 
   start() {
+    helpConfigRegistry.register(this.name, toBackgroundHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
@@ -63,6 +55,7 @@ export class ToBackgroundTool extends Tool {
         ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
     );
     this.executeAction();
+    appActions.setCurrentStep('listen');
 
     // window.dispatchEvent(new CustomEvent('refresh'));
   }

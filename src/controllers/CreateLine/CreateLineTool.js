@@ -1,6 +1,7 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
@@ -15,6 +16,7 @@ import { Tool } from '../Core/States/Tool';
 import { findObjectById } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createLineHelpConfig } from './createLine.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -36,26 +38,24 @@ export class CreateLineTool extends Tool {
     this.geometryParentObjectId = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    if (Object.keys(extraState).length > 0) {
+      appActions.setToolState(extraState);
+    }
+    appActions.setCurrentStep(step);
   }
 
+
+
   async start() {
-    console.log('[CreateLineTool] start() called', {
-      currentTool: app.tool,
-      selectedTemplate: app.tool?.selectedTemplate
-    });
     this.removeListeners();
     this.stopAnimation();
     this.geometryParentObjectId = null;
+
+    // Register help configuration
+    helpConfigRegistry.register(this.name, createLineHelpConfig);
+
+    appActions.setActiveTool(this.name);
 
     await import('@components/shape-selector');
 
@@ -68,7 +68,6 @@ export class CreateLineTool extends Tool {
       type: 'Geometry',
       nextStep: 'drawFirstPoint',
     };
-    console.log('[CreateLineTool] Setting toolUiState', uiState);
     appActions.setToolUiState(uiState);
   }
 
@@ -85,25 +84,11 @@ export class CreateLineTool extends Tool {
       !app.tool.selectedTemplate.name.startsWith('Perpendicular')
     ) {
       app.upperCanvasLayer.removeAllObjects();
-      setTimeout(
-        () =>
-          setState({
-            tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-          }),
-        50,
-      );
+      setTimeout(() => this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
+      }), 50);
     } else {
-      setTimeout(
-        () =>
-          setState({
-            tool: {
-              ...app.tool,
-              name: this.name,
-              currentStep: 'selectReference',
-            },
-          }),
-        50,
-      );
+      setTimeout(() => this.updateToolStep('selectReference'), 50);
     }
   }
 
@@ -155,8 +140,8 @@ export class CreateLineTool extends Tool {
       strokeWidth: 2,
     });
 
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+    this.updateToolStep('drawPoint', {
+      numberOfPointsDrawn: this.numberOfPointsDrawn,
     });
   }
 
@@ -267,8 +252,8 @@ export class CreateLineTool extends Tool {
           seg.shapeId = shape.id;
         });
       }
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+      this.updateToolStep('animatePoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
     }
   }
@@ -295,8 +280,8 @@ export class CreateLineTool extends Tool {
         message: 'Veuillez placer le point autre part.',
         type: 'info',
       });
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
       return;
     }
@@ -305,13 +290,13 @@ export class CreateLineTool extends Tool {
       this.stopAnimation();
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
+      this.updateToolStep('drawFirstPoint', {
+        numberOfPointsDrawn: 0,
       });
     } else {
       this.stopAnimation();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
     }
   }

@@ -1,5 +1,12 @@
 import { CreatePointTool } from './CreatePointTool';
 
+let _instance = null;
+
 export default {
-  tool: new CreatePointTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new CreatePointTool();
+    }
+    return _instance;
+  },
 };

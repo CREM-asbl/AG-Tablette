@@ -1,5 +1,12 @@
 import { CreateCircleTool } from './CreateCircleTool';
 
+let _instance = null;
+
 export default {
-  tool: new CreateCircleTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new CreateCircleTool();
+    }
+    return _instance;
+  },
 };

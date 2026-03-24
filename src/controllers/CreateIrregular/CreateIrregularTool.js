@@ -1,5 +1,7 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -8,6 +10,7 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { Tool } from '../Core/States/Tool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { createIrregularHelpConfig } from './createIrregular.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -22,33 +25,35 @@ export class CreateIrregularTool extends Tool {
 
     // listen-canvas-click
     this.points = [];
+    this.numberOfPointsDrawn = 0;
 
     this.shapeId = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
+
+
 
   start() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
+    this.stopAnimation();
+
+    helpConfigRegistry.register(this.name, createIrregularHelpConfig);
+
+    appActions.setActiveTool(this.name);
 
     this.points = [];
     this.segments = [];
+    this.numberOfPointsDrawn = 0;
 
     setTimeout(
       () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+        this.updateToolStep('drawPoint', {
+          numberOfPointsDrawn: this.numberOfPointsDrawn,
         }),
       50,
     );
@@ -62,6 +67,7 @@ export class CreateIrregularTool extends Tool {
   }
 
   animatePoint() {
+    this.removeListeners();
     this.animate();
 
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
@@ -88,6 +94,7 @@ export class CreateIrregularTool extends Tool {
         size: 2,
       }),
     );
+    this.numberOfPointsDrawn++;
     if (this.points.length > 1) {
       const seg = new Segment({
         layer: 'upper',
@@ -105,8 +112,8 @@ export class CreateIrregularTool extends Tool {
         fillOpacity: 0,
       });
     }
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
+    this.updateToolStep('animatePoint', {
+      numberOfPointsDrawn: this.numberOfPointsDrawn,
     });
   }
 
@@ -122,12 +129,12 @@ export class CreateIrregularTool extends Tool {
 
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'start' },
+      this.updateToolStep('start', {
+        numberOfPointsDrawn: 0,
       });
     } else {
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
     }
   }
@@ -206,7 +213,7 @@ export class CreateIrregularTool extends Tool {
     const shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTemplate,
+      name: 'IrregularPolygon',
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),

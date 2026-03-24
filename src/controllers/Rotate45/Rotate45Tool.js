@@ -1,7 +1,9 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
+import { rotate45HelpConfig } from './rotate45.helpConfig';
 
 /**
  * Tourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -20,28 +22,15 @@ export class Rotate45Tool extends Tool {
     this.involvedShapes = [];
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Cliquez sur une figure pour la faire tourner de 45° dans le sens
-        horloger.
-      </p>
-    `;
-  }
-
   start() {
+    helpConfigRegistry.register(this.name, rotate45HelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
@@ -74,10 +63,9 @@ export class Rotate45Tool extends Tool {
 
     this.executeAction();
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }

@@ -1,5 +1,12 @@
 import { MoveTool } from './MoveTool';
 
+let _instance = null;
+
 export default {
-  tool: new MoveTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new MoveTool();
+    }
+    return _instance;
+  },
 };

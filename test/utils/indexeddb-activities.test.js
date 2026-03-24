@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import 'fake-indexeddb/auto';
-import * as IDBUtils from '../../src/utils/indexeddb-activities.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CACHE_CONFIG } from '../../src/utils/cache-config.js';
+import * as IDBUtils from '../../src/utils/indexeddb-activities.js';
 
 describe('IndexedDB Activities Utils', () => {
     beforeEach(async () => {
@@ -67,6 +67,61 @@ describe('IndexedDB Activities Utils', () => {
 
             // Restore original compression setting
             CACHE_CONFIG.COMPRESSION_ENABLED = originalCompression;
+        });
+
+        it('should fallback to raw JSON when compressed flag is true but data is plain JSON (legacy)', async () => {
+            const activityId = 'legacy-plain-json';
+            const payload = { name: 'Legacy', shapes: [1, 2, 3] };
+
+            const db = await IDBUtils.openDB();
+            const tx = db.transaction('activities', 'readwrite');
+            tx.objectStore('activities').put({
+                id: activityId,
+                data: JSON.stringify(payload),
+                compressed: true,
+                version: 1,
+                timestamp: Date.now(),
+                lastAccess: Date.now(),
+                accessCount: 0,
+            });
+
+            await new Promise((resolve, reject) => {
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+            db.close();
+
+            const retrieved = await IDBUtils.getActivity(activityId);
+            expect(retrieved).toBeDefined();
+            expect(retrieved.data).toEqual(payload);
+        });
+
+        it('should return null and purge cache entry when payload is invalid', async () => {
+            const activityId = 'invalid-payload';
+
+            const db = await IDBUtils.openDB();
+            const tx = db.transaction('activities', 'readwrite');
+            tx.objectStore('activities').put({
+                id: activityId,
+                data: 'not-json-and-not-compressed',
+                compressed: true,
+                version: 1,
+                timestamp: Date.now(),
+                lastAccess: Date.now(),
+                accessCount: 0,
+            });
+
+            await new Promise((resolve, reject) => {
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+            db.close();
+
+            const retrieved = await IDBUtils.getActivity(activityId);
+            expect(retrieved).toBeNull();
+
+            const secondRead = await IDBUtils.getActivity(activityId);
+            expect(secondRead).toBeNull();
         });
     });
 

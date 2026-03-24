@@ -31,4 +31,68 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - **Résultat :** Un code base plus propre et moderne.
 
 ---
+## Avancement de la Migration
+
+### Phase 1 : Couverture des tests (TERMINÉ)
+- [x] Modules critiques > 60% de couverture.
+
+### Phase 2 : Migration des Composants UI (TERMINÉ)
+- [x] `ag-menu.ts`
+- [x] `ag-app.ts`
+- [x] Popups principaux.
+- [x] `zoom-menu.js` (pilotage de l'état zoom via `appActions`, fallback legacy conservé).
+- [x] `shape-selector.ts` (sélection de template pilotée par `appActions`, fallback legacy conservé).
+- [x] `CreateRegular/regular-popup.js` (settings + transition d'outil pilotés par `appActions`, fallback legacy conservé).
+
+### Phase 3 : Migration des Outils (EN COURS)
+- [x] **DeleteTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **ColorTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **MoveTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **DuplicateTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **CentralSymetryTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **CreatePointTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **CreateRegularTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **CreateLineTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **CreateIrregularTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **DivideTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **ReverseTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **OrthogonalSymetryTool** : Migration stabilisée. Validé par tests unitaires et E2E.
+- [x] **TranslationTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **TranslateTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **RotationTool** : Migré vers `appActions`. Validé par tests unitaires ciblés.
+- [x] **RotateTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **CreateCircleTool** : Migré vers `appActions`. Validé par tests unitaires et E2E.
+- [x] **CreateTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **ZoomTool** : Migré vers `appActions` pour les transitions wheel/touch (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **BifaceTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **BuildCenterTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **UngroupTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **CopyTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **GroupTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **ShowTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **HideTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **MergeTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **OpacityTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **ScalarMultiplicationTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **ToBackgroundTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **ResetPositionTool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **Rotate45Tool** : Migré vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **TransformTool** : Transitions d'état migrées vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **CutTool** : Transitions d'état principales migrées vers `appActions` (avec fallback `setState`). Validé par tests unitaires ciblés.
+- [x] **BaseGeometryTool** : `safeSetState` synchronisé avec `appActions` (fallback `setState` conservé). Validé par tests unitaires ciblés.
+- [x] **HistoryManager** : Synchronisation `undo`/`redo`/`addStep` avec `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
+- [x] **SaveFileManager** : Synchronisation du `filename` vers `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
+- [x] **OpenFileManager** : Synchronisation `settings`/`filename`/`history`/`tangram` vers `appActions` (fallback `setState` conservé). Validé par la suite unitaire existante.
+- [x] **FullHistoryManager** : Synchronisation `tool`/`settings`/`tangram` vers `appActions` (fallback `setState` conservé). Validé par tests unitaires ciblés.
+- [x] **Tool** : Garde-fou pendant `fullHistory.isRunning` pour éviter l'exécution des étapes de prévisualisation lors de la relecture. Validé par tests unitaires ciblés.
+- [x] **Tangram/state-menu** : Transition `check/uncheck` synchronisée vers `appActions.setTangramState` (fallback `setState` conservé). Validé par tests unitaires ciblés.
+- [x] **SolutionCheckerTool (Tangram)** : Écoute de `tangram:state-changed` + pilotage de `currentStep` via `tangramState` prioritaire (fallback legacy conservé). Validé par tests unitaires ciblés.
+- [x] **SilhouetteCreatorTool (Tangram)** : Synchronisation du `currentStep` initial vers `appActions.setTangramState` (fallback `setState` history conservé). Validé par tests unitaires ciblés.
+- [x] **SolutionCheckerTool (Tangram) - listeners** : Abonnement/désabonnement explicite à `tangram:state-changed` en plus de `tangram-changed`. Validé par tests unitaires ciblés.
+
+### État de la Couverture E2E
+- [x] Tests de base pour Delete, Color, Move dans `tests/`.
+- [ ] Étendre à tous les outils de la barre d'outils.
+
+---
 *Ce document sera maintenu à jour pour refléter l'avancement de la migration.*

@@ -1,4 +1,6 @@
-import { html } from 'lit';
+
+import { appActions } from '../../store/appState';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -10,6 +12,7 @@ import {
   deleteChildrenOfDivisionPoint,
   deleteSubDivisionPoints,
 } from '../GeometryTools/deleteShape';
+import { deleteHelpConfig } from './delete.helpConfig';
 
 /**
  * Supprimer une figure (et supprime le groupe dont la figure faisait partie s'il
@@ -20,30 +23,20 @@ export class DeleteTool extends Tool {
     super('delete', 'Supprimer', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Touchez une figure pour la supprimer de l'espace de travail.
-      </p>
-    `;
-  }
+  
 
   /**
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, deleteHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
@@ -51,6 +44,7 @@ export class DeleteTool extends Tool {
   listen() {
     this.removeListeners();
 
+    appActions.setCurrentStep('listen');
     this.setSelectionConstraints();
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
   }
@@ -87,7 +81,7 @@ export class DeleteTool extends Tool {
       this.mode = 'divisionPoint';
     }
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    appActions.setCurrentStep('listen');
   }
 
   _executeAction() {

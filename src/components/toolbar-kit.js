@@ -1,6 +1,7 @@
 import '@components/icon-button';
 import { html, LitElement } from 'lit';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
+import { appActions } from '../store/appState';
 import './template-toolbar';
 
 class ToolbarKit extends LitElement {
@@ -60,7 +61,6 @@ class ToolbarKit extends LitElement {
                 type="Create"
                 title="${familyName}"
                 ?active="${familyName === this.selectedFamily}"
-                ?helpanimation="${this.helpSelected}"
                 @click="${this._actionHandle}"
               >
               </icon-button>
@@ -81,18 +81,28 @@ class ToolbarKit extends LitElement {
     });
 
     if (this.helpSelected) {
-      window.dispatchEvent(
-        new CustomEvent('helpToolChosen', { detail: { toolname: 'create' } }),
-      );
-      setState({ helpSelected: false });
+      appActions.setActiveTool('create');
+      appActions.setToolState({ selectedFamily: event.target.title });
+      appActions.setCurrentStep('start');
+
+      // Si le mode débutant est activé, créer automatiquement le guide contextuel
+      if (this.helpSelected) {
+        // Supprimer les anciens guides
+        const existingGuides = document.querySelectorAll('contextual-guide');
+        existingGuides.forEach(guide => guide.remove());
+
+        // Créer le nouveau guide contextuel pour 'create'
+        import('@components/popups/contextual-guide').then(() => {
+          const guideElem = document.createElement('contextual-guide');
+          guideElem.toolname = 'create';
+          guideElem.style.display = 'block';
+          document.body.appendChild(guideElem);
+        });
+      }
     } else if (!app.fullHistory.isRunning) {
-      setState({
-        tool: {
-          name: 'create',
-          selectedFamily: event.target.title,
-          currentStep: 'start',
-        },
-      });
+      appActions.setActiveTool('create');
+      appActions.setToolState({ selectedFamily: event.target.title });
+      appActions.setCurrentStep('start');
     }
   }
 }

@@ -1,6 +1,7 @@
 import '@components/color-button';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { range } from '../Core/Tools/utils';
 
@@ -124,6 +125,9 @@ class ScalarPopup extends LitElement {
   }
 
   changeNumerator(event) {
+    appActions.updateSettings({
+      scalarNumerator: parseInt(event.target.value),
+    });
     setState({
       settings: {
         ...app.settings,
@@ -133,6 +137,9 @@ class ScalarPopup extends LitElement {
   }
 
   changeDenominator(event) {
+    appActions.updateSettings({
+      scalarDenominator: parseInt(event.target.value),
+    });
     setState({
       settings: {
         ...app.settings,
@@ -142,6 +149,8 @@ class ScalarPopup extends LitElement {
   }
 
   submit() {
+    appActions.setActiveTool('scalarMultiplication');
+    appActions.setCurrentStep('selectObject');
     setState({
       tool: {
         ...app.tool,

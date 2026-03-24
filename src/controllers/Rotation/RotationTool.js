@@ -1,3 +1,5 @@
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -13,6 +15,7 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
+import { rotationHelpConfig } from './rotation.helpConfig';
 
 /**
  * Outil de rotation géométrique
@@ -23,20 +26,27 @@ export class RotationTool extends Tool {
     super('rotation', 'Rotation', 'transformation');
   }
 
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+  }
+
   start() {
+    helpConfigRegistry.register(this.name, rotationHelpConfig);
+
     this.removeListeners();
     this.duration = app.settings.geometryTransformationAnimation
       ? app.settings.geometryTransformationAnimationDuration
       : 0.001;
 
+    appActions.setActiveTool(this.name);
+
     setTimeout(
       () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectFirstReference',
-          },
+        this.updateToolStep('selectFirstReference', {
+          clockwise: undefined,
+          numberOfPointsDrawn: 0,
+          referenceShapeId: undefined,
         }),
       50,
     );
@@ -54,12 +64,10 @@ export class RotationTool extends Tool {
 
     setTimeout(
       () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectReference',
-          },
+        this.updateToolStep('selectReference', {
+          clockwise: undefined,
+          numberOfPointsDrawn: 0,
+          referenceShapeId: undefined,
         }),
       50,
     );
@@ -125,6 +133,8 @@ export class RotationTool extends Tool {
   rot() {
     this.removeListeners();
 
+    this.progress = 0;
+    this.lastProgress = 0;
     this.startTime = Date.now();
     this.animate();
   }
@@ -169,11 +179,19 @@ export class RotationTool extends Tool {
                 (pt) =>
                   new Point({
                     ...pt,
-                    id: null,
+                    id: undefined,
                     shapeId: undefined,
+                    segmentIds: [],
                     layer: 'upper',
                   }),
               );
+            if (
+              !points[0]?.coordinates ||
+              !points[1]?.coordinates ||
+              !points[2]?.coordinates
+            ) {
+              return;
+            }
             const radius = points[0].coordinates.dist(points[2].coordinates);
             const angle = points[2].coordinates.angleWith(
               points[1].coordinates,
@@ -225,13 +243,9 @@ export class RotationTool extends Tool {
             referenceShape.vertexes[1].coordinates,
           );
         this.angle *= -1;
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectObject',
-            referenceShapeId: referenceShape.id,
-          },
+        this.updateToolStep('selectObject', {
+          numberOfPointsDrawn: this.pointsDrawn.length,
+          referenceShapeId: referenceShape.id,
         });
         this.characteristicElements.elementIds[0] = firstElementId;
         return;
@@ -245,8 +259,8 @@ export class RotationTool extends Tool {
         size: 2,
       }),
     );
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animateRefPoint' },
+    this.updateToolStep('animateRefPoint', {
+      numberOfPointsDrawn: this.pointsDrawn.length,
     });
   }
 
@@ -267,8 +281,8 @@ export class RotationTool extends Tool {
       });
     }
     if (this.pointsDrawn.length < 4) {
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectReference' },
+      this.updateToolStep('selectReference', {
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
     } else {
       this.angle =
@@ -367,8 +381,8 @@ export class RotationTool extends Tool {
         strokeWidth: 2,
       });
 
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectDirection' },
+      this.updateToolStep('selectDirection', {
+        numberOfPointsDrawn: this.pointsDrawn.length,
       });
     }
   }
@@ -409,8 +423,9 @@ export class RotationTool extends Tool {
       this.characteristicElements.elementIds[2],
     );
 
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+    this.updateToolStep('selectObject', {
+      clockwise: this.clockwise,
+      numberOfPointsDrawn: this.pointsDrawn.length,
     });
   }
 
@@ -436,26 +451,37 @@ export class RotationTool extends Tool {
           }),
         }),
     );
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: 'rot',
-      },
+    this.updateToolStep('rot', {
+      clockwise: this.clockwise,
+      numberOfPointsDrawn: this.pointsDrawn?.length,
+      referenceShapeId: app.tool.referenceShapeId,
     });
     window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   animate() {
-    if (app.tool.currentStep === 'animateRefPoint') {
+    const step = app.tool.currentStep;
+
+    if (step === 'animateRefPoint') {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
         this.animate(),
       );
       return;
     }
+
+    // Ignore stale frames once the tool left rotation animation.
+    if (step !== 'rot') return;
+
+    const rotationCenter = this.characteristicElements?.firstElement;
+    if (
+      !rotationCenter?.coordinates ||
+      !Array.isArray(this.drawingShapes) ||
+      typeof this.angle !== 'number'
+    ) return;
+
     this.lastProgress = this.progress || 0;
     if (this.lastProgress === 0) {
-      const rotationCenter = this.characteristicElements.firstElement;
       this.drawingShapes.forEach((s) =>
         s.points.forEach((point) => {
           point.startCoordinates = new Coordinates(point.coordinates);
@@ -473,8 +499,10 @@ export class RotationTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'rotation') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
+      this.updateToolStep('selectObject', {
+        clockwise: this.clockwise,
+        numberOfPointsDrawn: this.pointsDrawn?.length,
+        referenceShapeId: app.tool.referenceShapeId,
       });
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -634,10 +662,12 @@ export class RotationTool extends Tool {
   }
 
   showLastCharacteristicElements(typeOfObjectToShow) {
+    app.workspace.ensureCharacteristicElementsFromShapes?.('rotation');
     if (typeOfObjectToShow === 'rotationCenter') {
       const allRotationCenters =
         app.workspace.rotationLastCharacteristicElements
           .map((lastElements) => lastElements.firstElement)
+          .filter((element) => !!element?.coordinates)
           .filter(
             (element, index, elements) => elements.indexOf(element) === index,
           );
@@ -661,9 +691,17 @@ export class RotationTool extends Tool {
           let points;
           if (characteristicElement.type === 'arc') {
             const arc = findObjectById(characteristicElement.elementIds[1]);
+            if (!arc?.vertexes?.[0] || !arc?.vertexes?.[1] || !arc?.arcCenter)
+              return;
             points = [...arc.vertexes, arc.arcCenter];
           } else {
             points = characteristicElement.elements.slice(1);
+            if (
+              !points[0]?.coordinates ||
+              !points[1]?.coordinates ||
+              !points[2]?.coordinates
+            )
+              return;
             // shape.points[0].color = app.settings.referenceDrawColor;
             // shape.points[0].size = 2;
             // shape.points[1].color = app.settings.referenceDrawColor;

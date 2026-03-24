@@ -1,10 +1,13 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Shape } from '../Core/Objects/Shapes/Shape';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import { hideHelpConfig } from './hide.helpConfig';
 
 /**
  * Cacher des objets.
@@ -14,22 +17,13 @@ export class HideTool extends Tool {
     super('hide', 'Cacher', 'tool');
   }
 
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
-  }
+
 
   start() {
-    setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
-      50,
-    );
+    helpConfigRegistry.register(this.name, hideHelpConfig);
+
+    appActions.setActiveTool(this.name);
+    appActions.setCurrentStep('listen');
   }
 
   listen() {
@@ -63,9 +57,7 @@ export class HideTool extends Tool {
     }
 
     this.executeAction();
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-    });
+    appActions.setCurrentStep('listen');
   }
 
   _executeAction() {

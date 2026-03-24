@@ -1,9 +1,10 @@
 import '@components/color-button';
-import { app, setState } from '@controllers/Core/App';
+import { app } from '@controllers/Core/App';
 import { createElem } from '@controllers/Core/Tools/general';
 import '@controllers/version-item';
 import '@styles/popup-variables.css';
 import { LitElement, css, html } from 'lit';
+import { appActions } from '../../store/appState';
 import './template-popup';
 
 class SettingsPopup extends LitElement {
@@ -15,7 +16,7 @@ class SettingsPopup extends LitElement {
     super();
     this.settings = { ...app.settings };
     window.addEventListener(
-      'settings-changed',
+      'settings:updated',
       () => (this.settings = { ...app.settings }),
     );
     window.addEventListener('close-popup', () => this.close());
@@ -183,39 +184,23 @@ class SettingsPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'settings_automatic_adjustment':
-        setState({
-          settings: {
-            ...app.settings,
-            automaticAdjustment: event.target.checked,
-          },
-        });
+        app.settings.automaticAdjustment = event.target.checked;
+        appActions.updateSettings({ automaticAdjustment: event.target.checked });
         break;
 
       case 'settings_animation_in_geometry_tranformations':
-        setState({
-          settings: {
-            ...app.settings,
-            geometryTransformationAnimation: event.target.checked,
-          },
-        });
+        app.settings.geometryTransformationAnimation = event.target.checked;
+        appActions.updateSettings({ geometryTransformationAnimation: event.target.checked });
         break;
 
       case 'settings_shapes_size':
-        setState({
-          settings: {
-            ...app.settings,
-            shapesSize: parseInt(event.target.value),
-          },
-        });
+        app.settings.shapesSize = parseInt(event.target.value);
+        appActions.updateSettings({ shapesSize: parseInt(event.target.value) });
         break;
 
       case 'settings_shapes_pointed':
-        setState({
-          settings: {
-            ...app.settings,
-            areShapesPointed: event.target.checked,
-          },
-        });
+        app.settings.areShapesPointed = event.target.checked;
+        appActions.updateSettings({ areShapesPointed: event.target.checked });
         window.dispatchEvent(new CustomEvent('refresh'));
         break;
 
@@ -229,7 +214,7 @@ class SettingsPopup extends LitElement {
           event.target.checked,
         );
     }
-    this.settings = { ...this.settings };
+    this.settings = { ...app.settings };
   }
 
   openToolChoicePopup() {

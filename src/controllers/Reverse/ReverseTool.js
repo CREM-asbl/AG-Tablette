@@ -1,5 +1,7 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -18,6 +20,7 @@ import {
   computeAllShapeTransform,
   computeConstructionSpec,
 } from '../GeometryTools/recomputeShape';
+import { reverseHelpConfig } from './reverse.helpConfig';
 
 /**
  * Retourner une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -57,34 +60,22 @@ export class ReverseTool extends Tool {
     this.requestAnimFrameId = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour retourner une figure, touchez-là, puis touchez un des axes de
-        symétrie apparus sur la figure pour la retourner selon cet axe de
-        symétrie.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
+
+
 
   /**
    * initialiser l'état
    */
   start() {
-    setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
-      50,
-    );
+    helpConfigRegistry.register(this.name, reverseHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
+    setTimeout(() => this.updateToolStep('listen'), 50);
   }
 
   listen() {
@@ -226,12 +217,8 @@ export class ReverseTool extends Tool {
         this.involvedShapes.push(...shapesToAdd);
       }
 
-      setState({
-        tool: {
-          ...app.tool,
-          currentStep: 'selectAxis',
-          selectedShapeId: selectedShape.id,
-        },
+      this.updateToolStep('selectAxis', {
+        selectedShapeId: selectedShape.id,
       });
     } else if (
       app.tool.currentStep === 'selectAxis' &&
@@ -308,12 +295,8 @@ export class ReverseTool extends Tool {
 
       this.axes.forEach((axis) => removeObjectById(axis.id));
 
-      setState({
-        tool: {
-          ...app.tool,
-          currentStep: 'reverse',
-          axisAngle: this.axisAngle,
-        },
+      this.updateToolStep('reverse', {
+        axisAngle: this.axisAngle,
       });
     }
   }
@@ -386,8 +369,9 @@ export class ReverseTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'reverse') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
+      this.updateToolStep('listen', {
+        axisAngle: app.tool.axisAngle,
+        selectedShapeId: app.tool.selectedShapeId,
       });
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));

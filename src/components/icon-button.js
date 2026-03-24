@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
+import { appActions } from '../store/appState';
 
 class IconButton extends LitElement {
   static properties = {
@@ -58,9 +59,6 @@ class IconButton extends LitElement {
       box-shadow: inset 0px 0px 1px var(--menu-shadow-color);
     }
 
-    :host([helpanimation]) button {
-      background-color: #f3e0bf;
-    }
   `;
 
   render() {
@@ -68,7 +66,7 @@ class IconButton extends LitElement {
     const src = this.type
       ? `/images/${this.type}/${name}.svg`
       : `/images/${name}.svg`;
-    if (this.name === 'color' && this.cantInteract !== 'true') {
+    if (this.name === 'color') {
       return html`
         <button style="background-image:url('${src}');">
           <input
@@ -78,13 +76,9 @@ class IconButton extends LitElement {
             value="${this.colorPickerValue}"
             @input="${(e) => {
           if (app.tool.name === 'color') {
-            setState({
-              settings: {
-                ...app.settings,
-                shapesDrawColor: e.target.value,
-              },
-              tool: { ...app.tool, currentStep: 'listen' },
-            });
+            app.settings.shapesDrawColor = e.target.value;
+            appActions.updateSettings({ shapesDrawColor: e.target.value });
+            appActions.setCurrentStep('listen');
           }
         }}"
           />

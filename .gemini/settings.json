@@ -12,8 +12,7 @@
       ],
       "env": {
         "MEMORY_FILE_PATH": "${input:memory_file_path}"
-      },
-      "gallery": true
+      }
     },
     "sequentialthinking": {
       "type": "stdio",
@@ -21,8 +20,7 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-sequential-thinking@latest"
-      ],
-      "gallery": true
+      ]
     },
     "playwright": {
       "command": "npx",

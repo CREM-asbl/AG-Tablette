@@ -1,6 +1,7 @@
-import { html } from 'lit';
-import './regular-popup';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -14,6 +15,8 @@ import {
   removeObjectById,
 } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { createRegularHelpConfig } from './createRegular.helpConfig';
+import './regular-popup';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -33,30 +36,38 @@ export class CreateRegularTool extends Tool {
     this.numberOfPoints = 4;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
+
+
 
   /**
    * (ré-)initialiser l'état
    */
   start() {
     this.removeListeners();
+    this.stopAnimation();
+
+    helpConfigRegistry.register(this.name, createRegularHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
+    // Le start peut être appelé deux fois par les mécanismes de state sync.
+    // On force une seule instance visible du popup.
+    const existingPopups = document.querySelectorAll('regular-popup');
+    existingPopups.forEach((popup) => popup.remove());
 
     createElem('regular-popup');
+
+    this.updateToolStep('drawFirstPoint');
   }
 
   drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
+    this.stopAnimation();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
@@ -74,12 +85,14 @@ export class CreateRegularTool extends Tool {
       size: 2,
     });
 
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
     this.animate();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   drawSecondPoint() {
     this.removeListeners();
+    this.stopAnimation();
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
   }
@@ -97,8 +110,9 @@ export class CreateRegularTool extends Tool {
       size: 2,
     });
 
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
     this.animate();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
   /**
@@ -127,9 +141,9 @@ export class CreateRegularTool extends Tool {
 
   canvasMouseDown() {
     if (app.tool.currentStep === 'drawFirstPoint') {
-      setState({ tool: { ...app.tool, currentStep: 'animateFirstPoint' } });
+      this.updateToolStep('animateFirstPoint');
     } else {
-      setState({ tool: { ...app.tool, currentStep: 'animateSecondPoint' } });
+      this.updateToolStep('animateSecondPoint');
     }
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
@@ -141,7 +155,7 @@ export class CreateRegularTool extends Tool {
       this.adjustPoint(this.firstPoint);
       window.dispatchEvent(new CustomEvent('refreshUpper'));
 
-      setState({ tool: { ...app.tool, currentStep: 'drawSecondPoint' } });
+      this.updateToolStep('drawSecondPoint');
     } else {
       this.stopAnimation();
       if (
@@ -163,20 +177,12 @@ export class CreateRegularTool extends Tool {
             detail: { message: 'Veuillez placer le point autre part.' },
           }),
         );
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'drawSecondPoint',
-          },
-        });
+        appActions.setCurrentStep('drawSecondPoint');
         return;
       }
       this.adjustPoint(this.secondPoint);
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
-      });
+      this.updateToolStep('drawFirstPoint');
     }
   }
 
@@ -220,11 +226,13 @@ export class CreateRegularTool extends Tool {
 
   refreshStateUpper() {
     if (app.tool.currentStep === 'animateFirstPoint') {
+      if (!this.firstPoint) return;
       this.firstPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );
       this.adjustPoint(this.firstPoint);
     } else if (app.tool.currentStep === 'animateSecondPoint') {
+      if (!this.firstPoint || !this.secondPoint) return;
       this.secondPoint.coordinates = new Coordinates(
         app.workspace.lastKnownMouseCoordinates,
       );

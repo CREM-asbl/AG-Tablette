@@ -1,11 +1,14 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById } from '../Core/Tools/general';
+import { cutHelpConfig } from './cut.helpConfig';
 
 /**
  * Découper une figure
@@ -22,37 +25,17 @@ export class CutTool extends Tool {
     this.drawColor = '#E90CC8';
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        découper une figure en deux nouvelles figures, tout en laissant la
-        figure d'origine intacte.<br /><br />
 
-        Pour découper une figure, touchez un premier sommet de la figure, puis
-        éventuellement le centre de la figure (non obligatoire), et enfin un
-        second sommet de la figure.<br /><br />
-
-        <b>Note:</b> il n'est pas toujours possible de découper une figure en
-        sélectionnant deux sommets quelconques. La ligne de découpe doit en
-        effet rester à l'intérieur de la figure, sans quoi la découpe ne sera
-        pas réalisée.
-      </p>
-    `;
-  }
 
   start() {
+    helpConfigRegistry.register(this.name, cutHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
@@ -138,6 +121,7 @@ export class CutTool extends Tool {
     }
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.executeAnimation();
   }
 
   end() {
@@ -179,16 +163,8 @@ export class CutTool extends Tool {
           app.environment.name !== 'Geometrie'
         ) {
           segmentCut = true;
-          setState({
-            tool: {
-              ...app.tool,
-              currentStep: 'cut',
-              firstPointId: object[0].id,
-              centerPointId: undefined,
-              secondPointId: undefined,
-              shapeId: shape.id,
-            },
-          });
+          appActions.setToolState({ firstPointId: object[0].id, centerPointId: undefined, secondPointId: undefined, shapeId: shape.id });
+          appActions.setCurrentStep('cut');
           break;
         }
       }
@@ -219,13 +195,8 @@ export class CutTool extends Tool {
           }
         }
         if (object.length) {
-          setState({
-            tool: {
-              ...app.tool,
-              currentStep: 'selectSecondPoint',
-              firstPointIds: object.map((pt) => pt.id),
-            },
-          });
+          appActions.setToolState({ firstPointIds: object.map((pt) => pt.id) });
+          appActions.setCurrentStep('selectSecondPoint');
         }
       }
     } else if (app.tool.currentStep === 'selectSecondPoint') {
@@ -314,9 +285,8 @@ export class CutTool extends Tool {
 
       if (pt1.id === pt2.id) {
         // Désélectionner le premier point
-        setState({
-          tool: { ...app.tool, currentStep: 'listen', firstPointId: undefined },
-        });
+        appActions.setToolState({ firstPointId: undefined });
+        appActions.setCurrentStep('listen');
       } else {
         for (let i = 0; i < cutPoints.length; i++) {
           const shape = findObjectById(cutPoints[0][2]);
@@ -337,26 +307,12 @@ export class CutTool extends Tool {
         }
         if (pt2.type === 'shapeCenter') {
           // On a sélectionné le second point: le centre
-          setState({
-            tool: {
-              ...app.tool,
-              currentStep: 'selectThirdPoint',
-              firstPointId: pt1.id,
-              centerPointId: pt2.id,
-              shapeId: pt2.shape.id,
-            },
-          });
+          appActions.setToolState({ firstPointId: pt1.id, centerPointId: pt2.id, shapeId: pt2.shape.id });
+          appActions.setCurrentStep('selectThirdPoint');
         } else {
           // On a sélectionné le second point: un autre point
-          setState({
-            tool: {
-              ...app.tool,
-              currentStep: 'cut',
-              firstPointId: cutPoints[0][0].id,
-              secondPointId: cutPoints[0][1].id,
-              shapeId: cutPoints[0][2],
-            },
-          });
+          appActions.setToolState({ firstPointId: cutPoints[0][0].id, secondPointId: cutPoints[0][1].id, shapeId: cutPoints[0][2] });
+          appActions.setCurrentStep('cut');
         }
       }
     } else if (app.tool.currentStep === 'selectThirdPoint') {
@@ -397,28 +353,16 @@ export class CutTool extends Tool {
         );
       } else if (pt2.type === 'shapeCenter') {
         // Désélectionner le centre
-        setState({
-          tool: {
-            ...app.tool,
-            currentStep: 'selectSecondPoint',
-            centerPointId: undefined,
-          },
-        });
+        appActions.setToolState({ centerPointId: undefined });
+        appActions.setCurrentStep('selectSecondPoint');
       } else if (pt1.id === pt2.id) {
         // Désélectionner le premier point et le centre
-        setState({
-          tool: {
-            ...app.tool,
-            currentStep: 'listen',
-            firstPointId: undefined,
-            centerPointId: undefined,
-          },
-        });
+        appActions.setToolState({ firstPointId: undefined, centerPointId: undefined });
+        appActions.setCurrentStep('listen');
       } else {
         if (this.isLineValid(shape, this.centerPoint, pt2)) {
-          setState({
-            tool: { ...app.tool, currentStep: 'cut', secondPointId: pt2.id },
-          });
+          appActions.setToolState({ secondPointId: pt2.id });
+          appActions.setCurrentStep('cut');
         } else {
           window.dispatchEvent(
             new CustomEvent('show-notif', {
@@ -430,10 +374,6 @@ export class CutTool extends Tool {
         }
       }
     }
-
-    if (app.tool.currentStep === 'cut') {
-      this.executeAnimation();
-    }
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
 
@@ -441,16 +381,8 @@ export class CutTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'listen',
-          firstPointId: undefined,
-          secondPointId: undefined,
-          centerPointId: undefined,
-        },
-      });
+      appActions.setToolState({ firstPointId: undefined, secondPointId: undefined, centerPointId: undefined });
+      appActions.setCurrentStep('listen');
     }, 200);
   }
 

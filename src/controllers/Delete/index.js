@@ -1,5 +1,12 @@
 import { DeleteTool } from './DeleteTool';
 
+let _instance = null;
+
 export default {
-  tool: new DeleteTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new DeleteTool();
+    }
+    return _instance;
+  },
 };

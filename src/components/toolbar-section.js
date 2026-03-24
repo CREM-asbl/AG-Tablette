@@ -1,6 +1,7 @@
 import '@components/icon-button';
 import { LitElement, html } from 'lit';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
+import { appActions } from '../store/appState';
 import './template-toolbar';
 
 class ToolbarSection extends LitElement {
@@ -61,18 +62,17 @@ class ToolbarSection extends LitElement {
         <h2 slot="title">${this.title}</h2>
         <div slot="body">
           ${tools.map(
-            (tool) =>
-              html` <icon-button
-                name="${tool.name}"
-                type="State"
-                title="${tool.title}"
-                ?active="${tool.name === this.selected}"
-                ?helpanimation="${this.helpSelected}"
-                cantInteract="${this.helpSelected}"
-                @click="${this._actionHandle}"
-              >
-              </icon-button>`,
-          )}
+      (tool) =>
+        html` <icon-button
+                          name="${tool.name}"
+                          type="State"
+                          title="${tool.title}"
+                          ?active="${tool.name === this.selected}"
+                          cantInteract="${tool.name === 'color' ? false : this.helpSelected}"
+                          @click="${this._actionHandle}"
+                        >
+                        </icon-button>`,
+    )}
         </div>
       </template-toolbar>
     `;
@@ -85,15 +85,26 @@ class ToolbarSection extends LitElement {
     this._pendingUpdate = true;
     setTimeout(() => (this._pendingUpdate = false), 100);
 
-    if (this.helpSelected) {
-      window.dispatchEvent(
-        new CustomEvent('helpToolChosen', {
-          detail: { toolname: event.target.name },
-        }),
-      );
-      setState({ helpSelected: false });
-    } else if (!app.fullHistory.isRunning) {
-      setState({ tool: { name: event.target.name, currentStep: 'start' } });
+    const toolName = event.target.name;
+
+    if (!app.fullHistory.isRunning) {
+      appActions.setActiveTool(toolName);
+      appActions.setCurrentStep('start');
+
+      // Si le mode débutant est activé, créer automatiquement le guide contextuel
+      if (this.helpSelected) {
+        // Supprimer les anciens guides
+        const existingGuides = document.querySelectorAll('contextual-guide');
+        existingGuides.forEach(guide => guide.remove());
+
+        // Créer le nouveau guide contextuel
+        import('@components/popups/contextual-guide').then(() => {
+          const guideElem = document.createElement('contextual-guide');
+          guideElem.toolname = toolName;
+          guideElem.style.display = 'block';
+          document.body.appendChild(guideElem);
+        });
+      }
     }
   }
 }

@@ -1,5 +1,12 @@
 import { ShowTool } from './ShowTool';
 
+let _instance = null;
+
 export default {
-  tool: new ShowTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new ShowTool();
+    }
+    return _instance;
+  },
 };

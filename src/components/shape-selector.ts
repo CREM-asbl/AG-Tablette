@@ -1,10 +1,10 @@
 import '@components/flex-grid';
 import '@components/icon-button';
-import { app, setState } from '@controllers/Core/App';
-import { appActions } from '../store/appState';
+import { app } from '@controllers/Core/App';
 import { LitElement, css, html } from 'lit';
 import { customElement } from 'lit/decorators/custom-element.js';
 import { property } from 'lit/decorators/property.js';
+import { appActions } from '../store/appState';
 
 @customElement('shape-selector')
 export class ShapeSelector extends LitElement {
@@ -14,9 +14,12 @@ export class ShapeSelector extends LitElement {
   @property({ type: Array }) titles = [];
   @property({ type: Object }) selectedTemplate;
   @property({ type: String }) nextStep;
+  @property({ type: Boolean }) helpFocused = false;
+  @property({ type: String }) helpText = '';
 
   private toolUpdatedListener: () => void;
   private environmentLoadedListener: () => void;
+  private contextualGuideFocusListener: (event: CustomEvent) => void;
 
   static styles = css`
     :host {
@@ -27,15 +30,67 @@ export class ShapeSelector extends LitElement {
       right: 0;
       left: 250px;
       padding: 4px;
+      z-index: 10001;
     }
 
     .container {
+      position: relative;
       background: var(--theme-color-soft);
       box-shadow: 0 1px 3px gray;
       z-index: 100;
       box-sizing: border-box;
-      overflow: auto;
+      /* Le popover est positionne hors du conteneur, il ne doit pas etre coupe */
+      overflow: visible;
       border-radius: 8px;
+    }
+
+    .container.help-highlight {
+      box-shadow:
+        0 0 0 3px rgba(102, 126, 234, 0.65),
+        0 0 0 32px rgba(102, 126, 234, 0.22),
+        0 10px 24px rgba(0, 0, 0, 0.28);
+      z-index: 1460;
+    }
+
+    .help-popover {
+      position: absolute;
+      top: -64px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.3;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+      border: 2px solid rgba(255, 255, 255, 0.28);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 1470;
+      animation: helpPulse 1.5s ease-in-out infinite;
+    }
+
+    .help-popover::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -10px;
+      border-width: 10px 10px 0;
+      border-style: solid;
+      border-color: #6d62da transparent transparent transparent;
+    }
+
+    @keyframes helpPulse {
+      0%,
+      100% {
+        transform: translateX(-50%) scale(1);
+      }
+      50% {
+        transform: translateX(-50%) scale(1.05);
+      }
     }
 
     h2 {
@@ -48,36 +103,36 @@ export class ShapeSelector extends LitElement {
 
   render() {
     return html`
-      <div class="container">
+      <div class="container ${this.helpFocused ? 'help-highlight' : ''}">
+        ${this.helpFocused && this.helpText
+        ? html`<div class="help-popover">${this.helpText}</div>`
+        : ''}
         <h2>${this.selectedTemplate?.title || this.family}</h2>
         <flex-grid>
           ${this.templatesNames.map(
-      (template) =>
-        html` <icon-button
+          (template) =>
+            html` <icon-button
                 name="${template.name}"
                 type="${this.type}"
                 title="${template.title}"
                 ?active="${template.name === this.selectedTemplate?.name}"
-                @click="${this._clickHandle}"
+                @click="${() => this._clickHandle(template)}"
               >
               </icon-button>`,
-    )}
+        )}
         </flex-grid>
       </div>
     `;
   }
 
-  _clickHandle(event) {
-    this.selectedTemplate = this.templatesNames.find(
-      (template) => template.name === event.target.name,
-    );
-    setState({
-      tool: {
-        ...app.tool,
-        selectedTemplate: this.selectedTemplate,
-        currentStep: this.nextStep,
-      },
-    });
+  private updateSelectionState(template) {
+    appActions.setSelectedTemplate(template);
+    appActions.setCurrentStep(this.nextStep);
+  }
+
+  _clickHandle(template) {
+    this.selectedTemplate = template;
+    this.updateSelectionState(this.selectedTemplate);
   }
 
   connectedCallback() {
@@ -112,11 +167,26 @@ export class ShapeSelector extends LitElement {
       appActions.setToolUiState(null);
     };
     window.addEventListener('environment:loaded', this.environmentLoadedListener);
+
+    this.contextualGuideFocusListener = (event: CustomEvent) => {
+      const { active, target, text } = event.detail || {};
+      const focused = !!active && target === 'shape-selector';
+      this.helpFocused = focused;
+      this.helpText = focused ? text || '' : '';
+    };
+    window.addEventListener(
+      'contextual-guide-focus',
+      this.contextualGuideFocusListener as EventListener,
+    );
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     window.removeEventListener('tool-updated', this.toolUpdatedListener);
     window.removeEventListener('environment:loaded', this.environmentLoadedListener);
+    window.removeEventListener(
+      'contextual-guide-focus',
+      this.contextualGuideFocusListener as EventListener,
+    );
   }
 }

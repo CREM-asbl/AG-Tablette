@@ -1,10 +1,12 @@
 import triangles from '@controllers/Core/ShapesKits/triangles.json';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app } from '../Core/App';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createTriangleHelpConfig } from './createTriangle.helpConfig';
 
 /**
  * Outil de création de triangles - Refactorisé avec BaseShapeCreationTool
@@ -13,6 +15,11 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
   constructor() {
     super('createTriangle', 'Construire un triangle', 'Triangles', triangles);
     this.triangleDef = null;
+  }
+
+  async start() {
+    helpConfigRegistry.register(this.name, createTriangleHelpConfig);
+    await super.start();
   }
 
   /**

@@ -1,5 +1,12 @@
 import { TranslationTool } from './TranslationTool';
 
+let _instance = null;
+
 export default {
-  tool: new TranslationTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new TranslationTool();
+    }
+    return _instance;
+  },
 };

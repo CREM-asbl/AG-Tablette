@@ -1,6 +1,8 @@
 import { computed } from '@lit-labs/signals';
-import { activeTool, currentStep, createWatcher } from '../../../store/appState';
+import { activeTool, createWatcher, currentStep, selectedTemplate, toolState } from '../../../store/appState';
 import { app } from '../App';
+
+const REPLAY_ALLOWED_TOOL_TYPES = new Set(['move', 'transformation']);
 
 /**
  * Cette classe abstraite représente un état possible de l'application
@@ -15,6 +17,8 @@ export class Tool {
     this.name = name;
     this.title = title;
     this.type = type;
+    this.isActive = false;
+    this._executingStep = null;
 
     window.addEventListener('refreshStateUpper', () => {
       if (this.name === app.tool?.name) this.refreshStateUpper();
@@ -23,36 +27,16 @@ export class Tool {
     this.handler = (event) => this.eventHandler(event);
 
     window.addEventListener('tool-updated', this.handler);
+  }
 
-    // Signal listener
-    const combinedSignal = computed(() => ({
-      toolName: activeTool.get(),
-      step: currentStep.get(),
-    }));
-
-    this.disposeWatcher = createWatcher(combinedSignal, (newValue) => {
-      const { toolName, step } = newValue;
-
-      if (toolName === this.name && step) {
-        // Sync legacy state to ensure App.js delegates events correctly
-        // and eventHandler uses the correct step.
-        if (!app.tool || app.tool.name !== toolName || app.tool.currentStep !== step) {
-          app.tool = { ...(app.tool || {}), name: toolName, currentStep: step };
-        }
-
-        if (typeof this[step] === 'function') {
-          this[step]();
-        }
-      } else if (toolName !== this.name && this.name === app.tool?.name) {
-        this.end();
-      }
-    });
+  dispose() {
+    window.removeEventListener('tool-updated', this.handler);
   }
 
   /**
    * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
    */
-  refreshStateUpper() { }
+  refreshStateUpper() {}
 
   /**
    * Exécuter les actions liée à l'état.
@@ -107,11 +91,39 @@ export class Tool {
 
   eventHandler(event) {
     if (event.type === 'tool-updated') {
-      if (!app.tool) {
+      const tool = app.tool;
+      if (!tool) {
+        this.isActive = false;
         this.end();
-      } else if (app.tool.name === this.name) {
-        this[app.tool.currentStep]();
-      } else if (app.tool.currentStep === 'start') {
+        return;
+      }
+
+      if (tool.name === this.name) {
+        this.isActive = true;
+        const step = tool.currentStep;
+
+        if (!step) return;
+
+        // Garde-fou contre la récursion synchrone de la même étape
+        if (this._executingStep === step) return;
+
+        if (
+          app.fullHistory?.isRunning &&
+          !REPLAY_ALLOWED_TOOL_TYPES.has(this.type)
+        ) {
+          return;
+        }
+
+        if (typeof this[step] === 'function') {
+          try {
+            this._executingStep = step;
+            this[step]();
+          } finally {
+            this._executingStep = null;
+          }
+        }
+      } else if (this.isActive) {
+        this.isActive = false;
         this.end();
       }
     } else {

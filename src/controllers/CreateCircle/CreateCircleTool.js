@@ -1,6 +1,7 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryConstraint } from '../Core/Objects/GeometryConstraint';
@@ -16,6 +17,7 @@ import { findObjectsByName } from '../Core/Tools/general';
 import { isAngleBetweenTwoAngles } from '../Core/Tools/geometry';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createCircleHelpConfig } from './createCircle.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -36,24 +38,25 @@ export class CreateCircleTool extends Tool {
     this.clockwise = undefined;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    if (Object.keys(extraState).length > 0) {
+      appActions.setToolState(extraState);
+    }
+    appActions.setCurrentStep(step);
   }
+
+
 
   start() {
     this.removeListeners();
     this.stopAnimation();
 
+    // Register help configuration
+    helpConfigRegistry.register(this.name, createCircleHelpConfig);
+
+    appActions.setActiveTool(this.name);
     import('@components/shape-selector');
-    import('@components/shape-selector');
+    appActions.setSelectedTemplate(app.tool.selectedTemplate);
     appActions.setToolUiState({
       name: 'shape-selector',
       family: 'Arcs',
@@ -72,12 +75,13 @@ export class CreateCircleTool extends Tool {
     this.points = [];
     this.segments = [];
     this.numberOfPointsDrawn = 0;
+    this.clockwise = undefined;
 
     setTimeout(
-      () => {
-        appActions.setToolState({ currentStep: 'drawPoint' });
-        appActions.setCurrentStep('drawPoint');
-      },
+      () =>
+        this.updateToolStep('drawPoint', {
+          numberOfPointsDrawn: this.numberOfPointsDrawn,
+        }),
       50,
     );
   }
@@ -267,8 +271,9 @@ export class CreateCircleTool extends Tool {
           fillOpacity: 0,
         });
       }
-      appActions.setToolState({ currentStep: 'animatePoint' });
-      appActions.setCurrentStep('animatePoint');
+      this.updateToolStep('animatePoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
+      });
     }
   }
 
@@ -295,8 +300,8 @@ export class CreateCircleTool extends Tool {
           detail: { message: 'Veuillez placer le point autre part.' },
         }),
       );
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
       return;
     }
@@ -307,19 +312,20 @@ export class CreateCircleTool extends Tool {
         app.tool.selectedTemplate.name === 'CircleArc'
       ) {
         this.stopAnimation();
-        appActions.setToolState({ currentStep: 'showArrow' });
-        appActions.setCurrentStep('showArrow');
+        this.updateToolStep('showArrow', {
+          numberOfPointsDrawn: this.numberOfPointsDrawn,
+        });
       } else {
         this.stopAnimation();
         this.executeAction();
         app.upperCanvasLayer.removeAllObjects();
-        appActions.setToolState({ currentStep: 'drawFirstPoint' });
-        appActions.setCurrentStep('drawFirstPoint');
+        this.updateToolStep('drawFirstPoint');
       }
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      appActions.setToolState({ currentStep: 'drawPoint' });
-      appActions.setCurrentStep('drawPoint');
+      this.updateToolStep('drawPoint', {
+        numberOfPointsDrawn: this.numberOfPointsDrawn,
+      });
     }
   }
 
@@ -342,8 +348,7 @@ export class CreateCircleTool extends Tool {
     this.clockwise = isAngleInside;
     this.executeAction();
     app.upperCanvasLayer.removeAllObjects();
-    appActions.setToolState({ currentStep: 'drawFirstPoint' });
-    appActions.setCurrentStep('drawFirstPoint');
+    this.updateToolStep('drawFirstPoint');
   }
 
   adjustPoint(point) {

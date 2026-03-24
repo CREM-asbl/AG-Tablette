@@ -1,128 +1,211 @@
+import { app } from '@controllers/Core/App';
 import { CreateCircleTool } from '@controllers/CreateCircle/CreateCircleTool';
+import { helpConfigRegistry } from '@services/HelpConfigRegistry';
+import { appActions } from '@store/appState';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock @lit-labs/signals
 vi.mock('@lit-labs/signals', () => ({
-    computed: vi.fn((cb) => ({ get: cb })),
+  computed: vi.fn((cb) => ({ get: cb })),
+  signal: vi.fn((val) => ({ get: () => val, set: vi.fn() })),
 }));
 
-// Mock the App module
 vi.mock('@controllers/Core/App', () => {
-    const setState = vi.fn();
-    const app = {
-        tool: null,
-        mainCanvasLayer: {
-            points: [],
-            segments: [],
-            shapes: [],
-            removeAllObjects: vi.fn(),
-        },
-        upperCanvasLayer: {
-            points: [],
-            segments: [],
-            shapes: [],
-            removeAllObjects: vi.fn(),
-        },
-        workspace: {
-            lastKnownMouseCoordinates: { x: 0, y: 0 },
-        },
-        settings: {
-            temporaryDrawColor: '#ff0000',
-            referenceDrawColor: '#00ff00',
-            referenceDrawColor2: '#0000ff',
-        },
-        addListener: vi.fn(),
-        removeListener: vi.fn(),
-    };
-    return { app, setState };
+  const setState = vi.fn();
+  const app = {
+    tool: { name: 'createCircle', currentStep: 'start', selectedTemplate: { name: 'Circle' } },
+    environment: { name: 'Geometrie' },
+    upperCanvasLayer: {
+      removeAllObjects: vi.fn(),
+    },
+    workspace: {
+      lastKnownMouseCoordinates: { x: 10, y: 10 },
+    },
+    settings: {
+      temporaryDrawColor: '#ff0000',
+    },
+    addListener: vi.fn(() => 'listener-id'),
+    removeListener: vi.fn(),
+  };
+  return { app, setState };
 });
 
-// Mock appState
 vi.mock('@store/appState', () => ({
-    appActions: {
-        setToolState: vi.fn(),
-        setCurrentStep: vi.fn(),
-        setToolUiState: vi.fn(),
-    },
-    activeTool: { get: vi.fn(() => 'createCircle') },
-    currentStep: { get: vi.fn(() => 'start') },
-    createWatcher: vi.fn((signal, cb) => {
-        // Simulate immediate callback execution for testing
-        // In real app, this happens on change.
-        // For test, we want to verify subscription.
-        // We can simulate a change by calling the callback manually if needed,
-        // but for now just returning the dispose function is enough to avoid errors.
-        return vi.fn();
-    }),
+  activeTool: { get: vi.fn(() => 'createCircle') },
+  currentStep: { get: vi.fn(() => 'start') },
+  selectedTemplate: { get: vi.fn(() => ({ name: 'Circle' })) },
+  toolState: { get: vi.fn(() => ({})) },
+  createWatcher: vi.fn(() => vi.fn()),
+  appActions: {
+    setToolUiState: vi.fn(),
+    setActiveTool: vi.fn(),
+    setCurrentStep: vi.fn(),
+    setToolState: vi.fn(),
+    setSelectedTemplate: vi.fn(),
+  },
 }));
 
-import { app } from '@controllers/Core/App';
-import { appActions } from '@store/appState';
+vi.mock('@controllers/Core/Objects/Point', () => ({
+  Point: class {
+    constructor(props) {
+      this.id = 'p' + Math.random();
+      this.coordinates = props.coordinates;
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/Segment', () => ({
+  Segment: class {
+    constructor(props) {
+      this.id = 'seg' + Math.random();
+      this.vertexIds = props.vertexIds;
+      this.arcCenter = { id: props.arcCenterId };
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/Shapes/RegularShape', () => ({
+  RegularShape: class {
+    constructor() {
+      this.id = 's' + Math.random();
+      this.vertexes = [{}];
+      this.segments = [{}];
+      this.getSVGPath = () => 'M 0 0';
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/Shapes/LineShape', () => ({
+  LineShape: class {
+    constructor() {
+      this.id = 'ls' + Math.random();
+      this.getSVGPath = () => 'M 0 0';
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/Shapes/ArrowLineShape', () => ({
+  ArrowLineShape: class {
+    constructor() {
+      this.id = 'as' + Math.random();
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/Shapes/GeometryObject', () => ({
+  GeometryObject: class {
+    constructor() {
+      this.geometryChildShapeIds = [];
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Objects/GeometryConstraint', () => ({
+  GeometryConstraint: class {
+    constructor(type) {
+      this.type = type;
+      this.isFree = type === 'isFree';
+    }
+  }
+}));
+
+vi.mock('@controllers/Core/Managers/SelectManager', () => ({
+  SelectManager: {
+    areCoordinatesInMagnetismDistance: vi.fn(() => false),
+    getEmptySelectionConstraints: vi.fn(() => ({ points: {}, segments: {} })),
+  },
+}));
+
+vi.mock('@controllers/Core/Tools/geometry', () => ({
+  isAngleBetweenTwoAngles: vi.fn(() => true),
+}));
+
+vi.mock('@controllers/GeometryTools/general', () => ({
+  linkNewlyCreatedPoint: vi.fn(),
+}));
+
+vi.mock('@controllers/GeometryTools/recomputeShape', () => ({
+  computeConstructionSpec: vi.fn(),
+}));
 
 describe('CreateCircleTool', () => {
-    let tool;
+  let tool;
 
-    beforeEach(() => {
-        // Initialiser window.app pour que les composants y accèdent
-        window.app = app;
+  beforeEach(() => {
+    vi.clearAllMocks();
+    helpConfigRegistry.clear();
+    app.tool.selectedTemplate = { name: 'Circle' };
+    tool = new CreateCircleTool();
+  });
 
-        // Reset mocks
-        vi.clearAllMocks();
+  const createMockCoords = (x, y) => ({
+    x, y,
+    angleWith: vi.fn(() => 0),
+    dist: vi.fn(() => 10),
+    substract: vi.fn(() => createMockCoords(0, 0)),
+    add: vi.fn(() => createMockCoords(0, 0)),
+    multiply: vi.fn(() => createMockCoords(0, 0)),
+  });
 
-        // Reset app state
-        app.tool = {
-            selectedTemplate: null,
-        };
+  it('registers help config in start()', () => {
+    tool.start();
+    expect(helpConfigRegistry.has('createCircle')).toBe(true);
+    expect(appActions.setActiveTool).toHaveBeenCalledWith('createCircle');
+  });
 
-        // Mock document.querySelector and createElement
-        document.querySelector = vi.fn().mockReturnValue({
-            appendChild: vi.fn(),
-        });
-        document.createElement = vi.fn().mockReturnValue({
-            family: '',
-            templatesNames: [],
-            selectedTemplate: null,
-            type: '',
-            nextStep: '',
-        });
+  it('handles circle creation step by step', async () => {
+    await tool.drawFirstPoint(); // Initialize segments etc.
+    app.tool.currentStep = 'drawPoint';
+    tool.getConstraints(0);
 
-        tool = new CreateCircleTool();
+    app.workspace.lastKnownMouseCoordinates = createMockCoords(0, 0);
+
+    // First point
+    tool.canvasMouseDown();
+    expect(tool.numberOfPointsDrawn).toBe(1);
+    expect(appActions.setToolState).toHaveBeenCalledWith({
+      numberOfPointsDrawn: 1,
     });
 
-    it('should be defined', () => {
-        expect(tool).toBeDefined();
-        expect(tool.name).toBe('createCircle');
-        expect(tool.title).toBe('Construire un arc');
+    app.tool.currentStep = 'animatePoint';
+    tool.canvasMouseUp();
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
+
+    // Second point
+    app.tool.currentStep = 'drawPoint';
+    app.workspace.lastKnownMouseCoordinates = createMockCoords(100, 0);
+    tool.canvasMouseDown();
+    expect(tool.numberOfPointsDrawn).toBe(2);
+    expect(tool.segments.length).toBe(1);
+    expect(appActions.setToolState).toHaveBeenCalledWith({
+      numberOfPointsDrawn: 2,
     });
 
-    it('should start correctly', () => {
-        tool.start();
-        // The start() method calls appActions.setToolUiState with the shape-selector config
-        expect(appActions.setToolUiState).toHaveBeenCalledWith(expect.objectContaining({
-            name: 'shape-selector',
-            family: 'Arcs',
-            type: 'Geometry',
-            nextStep: 'drawFirstPoint',
-        }));
+    app.tool.currentStep = 'animatePoint';
+    tool.canvasMouseUp();
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawFirstPoint');
+  });
+
+  it('handles CirclePart with direction selection', async () => {
+    await tool.drawFirstPoint();
+    app.tool.selectedTemplate.name = 'CirclePart';
+    tool.points = [
+      { coordinates: createMockCoords(0, 0) },
+      { coordinates: createMockCoords(100, 0) },
+      { coordinates: createMockCoords(0, 100) }
+    ];
+    tool.numberOfPointsDrawn = 3;
+    app.tool.currentStep = 'animatePoint';
+
+    tool.canvasMouseUp();
+    expect(appActions.setToolState).toHaveBeenCalledWith({
+      numberOfPointsDrawn: 3,
     });
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('showArrow');
 
-    it('should initialize drawFirstPoint correctly', async () => {
-        vi.useFakeTimers();
-        await tool.drawFirstPoint();
-
-        expect(app.upperCanvasLayer.removeAllObjects).toHaveBeenCalled();
-        expect(tool.points).toEqual([]);
-        expect(tool.segments).toEqual([]);
-        expect(tool.numberOfPointsDrawn).toBe(0);
-
-        vi.runAllTimers();
-
-        // Verify appActions was called
-        expect(appActions.setToolState).toHaveBeenCalledWith(expect.objectContaining({
-            currentStep: 'drawPoint',
-        }));
-        expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
-
-        vi.useRealTimers();
-    });
+    // Select direction
+    app.workspace.lastKnownMouseCoordinates = createMockCoords(50, 50);
+    tool.canvasClick();
+    expect(tool.clockwise).toBe(true);
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawFirstPoint');
+  });
 });

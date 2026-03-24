@@ -1,9 +1,12 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, getAverageColor } from '../Core/Tools/general';
+import { mergeHelpConfig } from './merge.helpConfig';
 
 /**
  * Fusionner 2 figures en une nouvelle figure
@@ -20,40 +23,20 @@ export class MergeTool extends Tool {
     this.secondShape = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        fusionner deux figures ayant au moins un côté commun en une seule
-        figure. Une nouvelle figure (le fruit de la fusion) est créée, et les
-        deux figures d'origine restent intactes.<br />
 
-        Pour fusionner les deux figures, touchez la première figure puis la
-        seconde.<br /><br />
-
-        <b>Note:</b> pour qu'une fusion entre deux figures soit possible, il
-        faut que les deux figures aient au moins un segment en commun (un côté
-        entier, ou une partie d'un côté). Il ne faut pas que les deux figures se
-        chevauchent pour que la fusion puisse être réalisée.
-      </p>
-    `;
-  }
 
   /**
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, mergeHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
@@ -122,13 +105,13 @@ export class MergeTool extends Tool {
           strokeColor: '#E90CC8',
           strokeWidth: 3,
         });
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
+        appActions.setCurrentStep('selectSecondShape');
       }
     } else if (app.tool.currentStep === 'selectSecondShape') {
       if (this.firstShapeId === shape.id) {
         // deselect firstShape
         this.firstShapeId = null;
-        setState({ tool: { ...app.tool, currentStep: 'listen' } });
+        appActions.setCurrentStep('listen');
       } else {
         const group = ShapeManager.getAllBindedShapes(shape);
         if (group.length > 1) {
@@ -182,9 +165,7 @@ export class MergeTool extends Tool {
 
     if (mustExecuteAction) {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-      });
+      appActions.setCurrentStep('listen');
     }
   }
 

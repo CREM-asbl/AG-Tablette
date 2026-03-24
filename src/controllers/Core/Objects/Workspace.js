@@ -1,6 +1,6 @@
 import { app } from '../App';
 import { Point } from '../Objects/Point';
-import { uniqId } from '../Tools/general';
+import { findObjectById, uniqId } from '../Tools/general';
 import { CharacteristicElements } from './CharacteristicElements';
 import { Coordinates } from './Coordinates';
 import { ShapeGroup } from './ShapeGroup';
@@ -69,6 +69,148 @@ export class Workspace {
       this.translationLastCharacteristicElements = [];
       this.rotationLastCharacteristicElements = [];
     }
+  }
+
+  getCharacteristicElementsBucket(transformationName) {
+    const bucketMap = {
+      translation: 'translationLastCharacteristicElements',
+      orthogonalSymetry: 'orthogonalSymetryLastCharacteristicElements',
+      centralSymetry: 'centralSymetryLastCharacteristicElements',
+      rotation: 'rotationLastCharacteristicElements',
+    };
+    const key = bucketMap[transformationName];
+    return key ? this[key] : null;
+  }
+
+  ensureCharacteristicElementsFromShapes(transformationName) {
+    const bucketMap = {
+      translation: 'translationLastCharacteristicElements',
+      orthogonalSymetry: 'orthogonalSymetryLastCharacteristicElements',
+      centralSymetry: 'centralSymetryLastCharacteristicElements',
+      rotation: 'rotationLastCharacteristicElements',
+    };
+    const key = bucketMap[transformationName];
+    if (!key) return;
+
+    const mergedBucket = [];
+    const normalizeIdBase = (id) => {
+      if (!id || typeof id !== 'string') return null;
+      if (id.length === 10) return id.substring(0, 8);
+      if (id.length > 10) return id.substring(id.length - 8);
+      return id;
+    };
+
+    const resolveCharacteristicElementId = (elementId, type, index) => {
+      if (!elementId || typeof elementId !== 'string') return elementId;
+      if (findObjectById(elementId)) return elementId;
+
+      const preferredTypeByCharacteristic = {
+        axis: ['segment', 'shape'],
+        vector: ['segment', 'shape'],
+        symetryCenter: 'point',
+        'two-points': 'point',
+        points: 'point',
+      };
+
+      let preferredType = preferredTypeByCharacteristic[type] || null;
+      if (type === 'arc') preferredType = index === 1 ? 'segment' : 'point';
+
+      const baseId = normalizeIdBase(elementId);
+      if (!baseId) return elementId;
+
+      const layers = ['main', 'upper'];
+      const allTypes = Array.isArray(preferredType)
+        ? preferredType
+        : preferredType
+          ? [preferredType]
+          : ['point', 'segment', 'shape'];
+
+      for (const layer of layers) {
+        for (const objectType of allTypes) {
+          const objects = app[layer + 'CanvasLayer']?.[objectType + 's'] || [];
+          const found = objects.find((obj) => obj.id?.substring(0, 8) === baseId);
+          if (found?.id) {
+            return found.id;
+          }
+        }
+      }
+
+      return elementId;
+    };
+
+    const inferTypeFromLegacyIds = (legacyIds) => {
+      if (transformationName === 'centralSymetry') return 'symetryCenter';
+      if (transformationName === 'orthogonalSymetry') {
+        return legacyIds.length <= 1 ? 'axis' : 'two-points';
+      }
+      if (transformationName === 'translation') {
+        return legacyIds.length <= 1 ? 'vector' : 'two-points';
+      }
+      if (transformationName === 'rotation') {
+        if (legacyIds.length === 2) {
+          const secondId = resolveCharacteristicElementId(
+            legacyIds[1],
+            'arc',
+            1,
+          );
+          const secondObject = secondId ? findObjectById(secondId) : null;
+          return secondObject?.constructor?.name === 'Segment' ? 'arc' : 'points';
+        }
+        return 'points';
+      }
+      return '';
+    };
+
+    const pushUnique = (rawElements) => {
+      if (!rawElements?.elementIds?.length) return;
+
+      const characteristicElements =
+        rawElements instanceof CharacteristicElements
+          ? rawElements
+          : new CharacteristicElements(rawElements);
+
+      characteristicElements.elementIds = characteristicElements.elementIds.map(
+        (elementId, index) =>
+          resolveCharacteristicElementId(
+            elementId,
+            characteristicElements.type,
+            index,
+          ),
+      );
+
+      if (
+        !mergedBucket.find((existing) => existing.equal(characteristicElements))
+      ) {
+        mergedBucket.push(characteristicElements);
+      }
+    };
+
+    const currentBucket = Array.isArray(this[key]) ? this[key] : [];
+    currentBucket.forEach((elements) => pushUnique(elements));
+
+    app.mainCanvasLayer.shapes.forEach((shape) => {
+      const geometryObject = shape.geometryObject;
+      if (geometryObject?.geometryTransformationName !== transformationName)
+        return;
+
+      const rawElements = geometryObject.geometryTransformationCharacteristicElements;
+      if (rawElements?.elementIds?.length) {
+        pushUnique(rawElements);
+        return;
+      }
+
+      // Legacy compatibility: old saves could store only an ID list.
+      const legacyIds = geometryObject.geometryTransformationCharacteristicElementIds;
+      if (Array.isArray(legacyIds) && legacyIds.length > 0) {
+        pushUnique({
+          type: inferTypeFromLegacyIds(legacyIds),
+          elementIds: legacyIds,
+          clockwise: !!geometryObject.clockwise,
+        });
+      }
+    });
+
+    this[key] = mergedBucket;
   }
 
   set selectionConstraints(value) {
@@ -149,14 +291,27 @@ export class Workspace {
       this.shapeGroups = [];
     }
 
-    if (
-      app.environment.name === 'Geometrie' &&
-      wsdata.translationLastCharacteristicElements
-    ) {
+    if (app.environment.name === 'Geometrie') {
+      const hydrateCharacteristicElements = (elementsData) =>
+        Array.isArray(elementsData)
+          ? elementsData.map((element) => new CharacteristicElements(element))
+          : [];
+
       this.translationLastCharacteristicElements =
-        wsdata.translationLastCharacteristicElements.map(
-          (element) => new CharacteristicElements(element),
+        hydrateCharacteristicElements(
+          wsdata.translationLastCharacteristicElements,
         );
+      this.orthogonalSymetryLastCharacteristicElements =
+        hydrateCharacteristicElements(
+          wsdata.orthogonalSymetryLastCharacteristicElements,
+        );
+      this.centralSymetryLastCharacteristicElements =
+        hydrateCharacteristicElements(
+          wsdata.centralSymetryLastCharacteristicElements,
+        );
+      this.rotationLastCharacteristicElements = hydrateCharacteristicElements(
+        wsdata.rotationLastCharacteristicElements,
+      );
     }
 
     this.setTranslateOffset(
@@ -193,6 +348,18 @@ export class Workspace {
     if (app.environment.name === 'Geometrie') {
       wsdata.translationLastCharacteristicElements =
         this.translationLastCharacteristicElements.map((element) =>
+          element.saveData(),
+        );
+      wsdata.orthogonalSymetryLastCharacteristicElements =
+        this.orthogonalSymetryLastCharacteristicElements.map((element) =>
+          element.saveData(),
+        );
+      wsdata.centralSymetryLastCharacteristicElements =
+        this.centralSymetryLastCharacteristicElements.map((element) =>
+          element.saveData(),
+        );
+      wsdata.rotationLastCharacteristicElements =
+        this.rotationLastCharacteristicElements.map((element) =>
           element.saveData(),
         );
     }

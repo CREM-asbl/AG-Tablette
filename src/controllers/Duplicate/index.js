@@ -1,5 +1,12 @@
 import { DuplicateTool } from './DuplicateTool';
 
+let _instance = null;
+
 export default {
-  tool: new DuplicateTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new DuplicateTool();
+    }
+    return _instance;
+  },
 };

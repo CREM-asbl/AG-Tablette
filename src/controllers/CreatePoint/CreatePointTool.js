@@ -1,7 +1,8 @@
 import points from '@controllers/Core/ShapesKits/points.json';
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -12,6 +13,7 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById } from '../Core/Tools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createPointHelpConfig } from './createPoint.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -33,29 +35,33 @@ export class CreatePointTool extends Tool {
     this.geometryParentObjectId1 = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
+
+
 
   start() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
 
+    helpConfigRegistry.register(this.name, createPointHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
+    const selectedTemplate =
+      points.find((template) => template.name === app.tool.selectedTemplate?.name) ||
+      points[0];
+    appActions.setSelectedTemplate?.(selectedTemplate);
+
     import('@components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',
       family: 'Points',
       templatesNames: points,
-      selectedTemplate: app.tool.selectedTemplate,
+      selectedTemplate,
       type: 'Geometry',
       nextStep: 'drawPoint',
     });
@@ -102,22 +108,13 @@ export class CreatePointTool extends Tool {
     window.dispatchEvent(new CustomEvent('refreshUpper'));
     if (app.tool.currentStep === 'drawPoint') {
       this.geometryParentObjectId1 = segment.id;
-      setState({
-        tool: {
-          ...app.tool,
-          name: this.name,
-          currentStep: 'selectSecondSegment',
-        },
-      });
+      this.updateToolStep('selectSecondSegment');
     } else {
       if (this.geometryParentObjectId1 === segment.id) {
-        window.dispatchEvent(
-          new CustomEvent('show-notif', {
-            detail: {
-              message: 'Veuillez sélectionner deux objets différents.',
-            },
-          }),
-        );
+        appActions.addNotification({
+          message: 'Veuillez sélectionner deux objets différents.',
+          type: 'info',
+        });
         return;
       }
       this.geometryParentObjectId2 = segment.id;
@@ -129,9 +126,7 @@ export class CreatePointTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-      });
+      this.updateToolStep('drawPoint');
     }, 200);
   }
 
@@ -153,17 +148,13 @@ export class CreatePointTool extends Tool {
       size: 2,
     });
 
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
-    });
+    this.updateToolStep('animatePoint');
   }
 
   canvasMouseUp() {
     this.stopAnimation();
     this.executeAction();
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-    });
+    this.updateToolStep('drawPoint');
   }
 
   adjustPoint(point) {

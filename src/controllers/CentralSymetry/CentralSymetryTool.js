@@ -1,4 +1,6 @@
-import { app, setState } from '../Core/App';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -10,6 +12,7 @@ import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { findObjectById, removeObjectById } from '../Core/Tools/general';
+import { centralSymetryHelpConfig } from './centralSymetry.helpConfig';
 
 /**
  */
@@ -18,21 +21,26 @@ export class CentralSymetryTool extends Tool {
     super('centralSymetry', 'Symétrie centrale', 'transformation');
   }
 
+  updateToolStep(step, extraState = {}) {
+    if (Object.keys(extraState).length > 0) {
+      appActions.setToolState(extraState);
+    }
+    appActions.setCurrentStep(step);
+  }
+
   start() {
+    helpConfigRegistry.register(this.name, centralSymetryHelpConfig);
+
     this.removeListeners();
     this.duration = app.settings.geometryTransformationAnimation
       ? app.settings.geometryTransformationAnimationDuration
       : 0.001;
 
     setTimeout(
-      () =>
-        setState({
-          tool: {
-            ...app.tool,
-            name: this.name,
-            currentStep: 'selectCharacteristicElement',
-          },
-        }),
+      () => {
+        appActions.setActiveTool(this.name);
+        this.updateToolStep('selectCharacteristicElement');
+      },
       50,
     );
   }
@@ -48,6 +56,7 @@ export class CentralSymetryTool extends Tool {
     this.characteristicElements = null;
 
     this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   animateCharacteristicElement() {
@@ -98,13 +107,7 @@ export class CentralSymetryTool extends Tool {
       color: app.settings.referenceDrawColor,
       size: 2,
     });
-    setState({
-      tool: {
-        ...app.tool,
-        name: this.name,
-        currentStep: 'animateCharacteristicElement',
-      },
-    });
+    this.updateToolStep('animateCharacteristicElement');
   }
 
   canvasMouseUp() {
@@ -132,9 +135,7 @@ export class CentralSymetryTool extends Tool {
         });
       }
     }
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-    });
+    this.updateToolStep('selectObject');
   }
 
   objectSelected(object) {
@@ -156,12 +157,7 @@ export class CentralSymetryTool extends Tool {
           }),
         }),
     );
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: 'central',
-      },
-    });
+    this.updateToolStep('central');
   }
 
   animate() {
@@ -185,9 +181,7 @@ export class CentralSymetryTool extends Tool {
     this.progress = (Date.now() - this.startTime) / (this.duration * 1000);
     if (this.progress > 1 && app.tool.name === 'centralSymetry') {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
+      this.updateToolStep('selectObject');
     } else {
       window.dispatchEvent(new CustomEvent('refreshUpper'));
       this.requestAnimFrameId = window.requestAnimationFrame(() =>
@@ -300,9 +294,11 @@ export class CentralSymetryTool extends Tool {
   }
 
   showLastCharacteristicElements() {
+    app.workspace.ensureCharacteristicElementsFromShapes?.('centralSymetry');
     app.workspace.centralSymetryLastCharacteristicElements.forEach(
       (characteristicElement) => {
         const point = findObjectById(characteristicElement.elementIds[0]);
+        if (!point?.coordinates) return;
         const shape = new SinglePointShape({
           layer: 'upper',
           path: `M ${point.coordinates.x} ${point.coordinates.y}`,

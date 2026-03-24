@@ -1,7 +1,10 @@
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
+import { resetPositionHelpConfig } from './resetPosition.helpConfig';
 
 /**
  *
@@ -12,7 +15,10 @@ export class ResetPositionTool extends Tool {
   }
 
   start() {
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    helpConfigRegistry.register(this.name, resetPositionHelpConfig);
+
+    appActions.setActiveTool(this.name);
+    appActions.setCurrentStep('listen');
   }
 
   listen() {
@@ -33,9 +39,7 @@ export class ResetPositionTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(object);
 
     this.executeAction();
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-    });
+    appActions.setCurrentStep('listen');
   }
 
   _executeAction() {

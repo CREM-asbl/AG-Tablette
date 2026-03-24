@@ -1,46 +1,42 @@
 # Tâches
 
 - [x] Finaliser le plan de couverture de tests <!-- id: 0 -->
-    - [x] Vérifier la couverture actuelle <!-- id: 1 -->
+    - [x] Vérifier la couverture actuelle (33.69%) <!-- id: 1 -->
     - [x] Mettre à jour `docs/test-coverage-plan.md` <!-- id: 2 -->
-    - [x] Confirmer la fin de la Phase 1 <!-- id: 3 -->
-- [x] Préparer la migration Signal <!-- id: 4 -->
-- [ ] Phase 2 : Migration UI vers Signal <!-- id: 5 -->
-    - [x] Identifier un composant pilote <!-- id: 6 -->
-    - [x] Migrer le composant pilote <!-- id: 7 -->
-    - [x] Vérifier le fonctionnement <!-- id: 8 -->
-    - [x] Migrer `ag-menu.ts` <!-- id: 9 -->
-    - [x] Déboguer et corriger le problème undo/redo (HistoryManager non importé)
-- [x] Continuer la migration des composants UI
-    - [x] Migrer `canvas-container.ts` <!-- id: 10 -->
-    - [x] Migrer `ag-app.ts` (root component)
-    - [x] Phase 2 terminée avec succès ✅
-- [x] Phase 3 : Optimisation et Nettoyage (Documentation)
-    - [x] Créer guide de migration pour développeurs
-    - [x] Documenter les patterns et best practices
-    - [ ] Ajouter tests unitaires pour composants migrés (optionnel)
-- [x] Refactoring Tools (Audit Recommendations)
-    - [x] Refactor BaseShapeCreationTool to use Signals
-    - [x] Standardize Tool Instantiation (Declarative UI)
-    - [x] Refactor CreateLineTool to use Signals
-    - [x] Test manual des outils refactorisés ✅
-- [x] Corriger les 7 Tests Échouants (Audit Recommendations) ✅ 100%
-    - [x] Améliorer mocks IndexedDB dans test/setup.ts (fake-indexeddb installé)
-    - [x] Valider que fake-indexeddb résout les tests IndexedDB
-    - [x] Corriger canvas-layer.test.js (résolu par fake-indexeddb)
-    - [x] Corriger help-popup.test.ts (résolu par fake-indexeddb)
-    - [x] Corriger sync-optimization.test.ts (résolu par fake-indexeddb)
-    - [x] Corriger cache.service.test.ts (résolu par fake-indexeddb)
-    - [x] Corriger ag-main.test.js (mise à jour pour Signals)
-    - [x] Corriger historyActions.test.js (assertions Vitest)
-    - [x] Corriger CreateTriangleTool.test.js (mise à jour pour tool refactoring)
-- [x] Corriger les erreurs eqeqeq (Audit Recommendations) ✅
-    - [x] Analyser les erreurs avec configuration stricte (9 erreurs trouvées, toutes des null checks valides)
-    - [x] Confirmer la conformité avec la règle 'smart' (aucune action requise)
-- [ ] Améliorer la couverture de tests (Objectif: 40%)
-- [x] Analyse du bundle (Optimisation) ✅
-    - [x] Rapport généré dans `docs/bundle-analysis.md`
-    - [x] Identification du chunk Firebase (541kB) comme principal point d'optimisation
-    - [x] Lazy Loading implémenté pour `open-server-popup` (Gain: 40kB sur le chunk initial, Firebase différé) ✅
-    - [x] Optimisation du splitting (`manualChunks`) : `ag-app` réduit à 0.2kB, création de chunks dédiés (`controllers`, `components`) ✅
-    - [x] Suppression des imports statiques de Firebase dans les popups et lazy-loading complet (Gain: 518kB sur le chargement initial) ✅
+    - [x] Confirmer la cible de couverture (40%) <!-- id: 3 -->
+- [x] Stabilisation du projet et correction des tests unitaires <!-- id: 4 -->
+    - [x] Corriger les mocks `appActions` dans les tests d'outils migrés ✅
+    - [x] Résoudre les erreurs d'héritage dans les mocks de formes ✅
+- [x] Amélioration de la couverture de tests (Cible 40% atteinte : 40.62% des lignes) <!-- id: 5 -->
+    - [x] Augmenter la couverture de `ColorTool` (16% -> 85%) ✅
+    - [x] Augmenter la couverture de `DeleteTool` (31% -> 62%) ✅
+    - [x] Augmenter la couverture de `MoveTool` (17% -> 43%) ✅
+    - [x] Augmenter la couverture de `RotateTool` (18% -> 64%) ✅
+    - [x] Augmenter la couverture de `CreateTriangleTool` (20% -> 79%) ✅
+    - [x] Augmenter la couverture de `CreatePointTool` (10% -> 38%) ✅
+    - [x] Augmenter la couverture de `CreateIrregularTool` (21% -> 50%) ✅
+    - [x] Augmenter la couverture de `CreateRegularTool` (11% -> 38%) ✅
+    - [x] Augmenter la couverture de `CreateCircleTool` (8% -> 44%) ✅
+    - [x] Augmenter la couverture de `ag-menu` (42% -> 73%) ✅
+    - [x] Créer des tests pour `App.js` (37% -> 94%) ✅
+    - [x] Créer des tests pour `shapesTools.js` (0% -> 88%) ✅
+    - [x] Augmenter la couverture de `BaseShapeCreationTool` (7% -> 58%) ✅
+    - [x] Augmenter la couverture de `BaseGeometryTool` (43% -> 72%) ✅
+    - [x] Couverture complète de `gridStore.js` (87% -> 100%) ✅
+- [x] Stabilisation des tests E2E Playwright <!-- id: 6 -->
+    - [x] Rendre les imports de composants racines (`ag-main`, `ag-environnements`) statiques dans `ag-app.ts` pour garantir leur définition au rendu ✅
+    - [x] Utiliser `force: true` pour les clics sur les boutons du menu pour éviter l'interception par le conteneur sur Webkit ✅
+    - [x] Ajouter des attentes explicites sur les signaux d'état (`app.tool.currentStep`) pour synchroniser les interactions du test avec la logique de l'application ✅
+    - [x] Augmenter les timeouts pour une meilleure fiabilité sur tous les navigateurs ✅
+- [ ] Poursuivre la migration vers les Signals (Next steps) <!-- id: 7 -->
+    - [x] Migrer `CentralSymetryTool` ✅
+    - [x] Migrer `OrthogonalSymetryTool` ✅
+    - [x] Migrer `DuplicateTool` (complété avec addShape fix) ✅
+    - [ ] Migrer les outils de découpe et division (`Cut`, `Divide`)
+- [ ] Refactorisation des pages Astro restantes <!-- id: 8 -->
+    - [ ] budgets/update/[id].astro
+    - [ ] transactions/update/[id].astro
+    - [ ] cagnottes/[id].astro
+    - [ ] releves/[section]/[id].astro
+    - [ ] consommations.astro
+    - [ ] import-bancaire.astro

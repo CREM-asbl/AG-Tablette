@@ -1,8 +1,11 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { ShapeGroup } from '../Core/Objects/ShapeGroup';
 import { Tool } from '../Core/States/Tool';
+import { groupHelpConfig } from './group.helpConfig';
 
 /**
  * Grouper des figures.
@@ -27,43 +30,19 @@ export class GroupTool extends Tool {
     ];
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        figurer des groupes de figures, qui sont alors solidaires. Une figure ne
-        peut appartenir qu'à un seul groupe.
-        <br />
-        Une fois cet outil sélectionné, le numéro du groupe apparaît sur chaque
-        figure appartenant à un groupe.<br /><br />
-
-        Pour créer un nouveau groupe, touchez deux figures n'appartenant pas à
-        un groupe. Toutes les figures touchées par la suite seront ajoutées à ce
-        groupe.<br /><br />
-
-        Pour ajouter une figure à un groupe, touchez une des figures appartenant
-        à ce groupe, puis touchez la figure que vous souhaitez ajouter.<br /><br />
-
-        Pour fusionner deux groupes, touchez une des figures appartenant au
-        premier groupe, puis touchez une des figures de l'autre groupe.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
 
+
+
   start() {
-    setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
-      50,
-    );
+    helpConfigRegistry.register(this.name, groupHelpConfig);
+
+    appActions.setActiveTool(this.name);
+    this.updateToolStep('listen');
+    this.listen();
   }
 
   listen() {
@@ -99,6 +78,8 @@ export class GroupTool extends Tool {
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.click_all_shape;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
   }
 
   selectSecondShape() {
@@ -127,7 +108,7 @@ export class GroupTool extends Tool {
       const userGroup = GroupManager.getShapeGroup(shape);
       if (userGroup) {
         this.group = userGroup;
-        setState({ tool: { ...app.tool, currentStep: 'fillGroup' } });
+        this.updateToolStep('fillGroup');
       } else {
         this.firstShapeId = shape.id;
         new shape.constructor({
@@ -150,7 +131,7 @@ export class GroupTool extends Tool {
             return pt.color;
           }),
         });
-        setState({ tool: { ...app.tool, currentStep: 'selectSecondShape' } });
+        this.updateToolStep('selectSecondShape');
       }
     } else if (app.tool.currentStep === 'selectSecondShape') {
       const userGroup = GroupManager.getShapeGroup(shape);
@@ -170,9 +151,7 @@ export class GroupTool extends Tool {
         this.group = GroupManager.getShapeGroup(shape);
       }
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' },
-      });
+      this.updateToolStep('fillGroup');
     } else {
       // fillGroup
       this.secondGroup = GroupManager.getShapeGroup(shape);
@@ -201,9 +180,7 @@ export class GroupTool extends Tool {
         this.firstShapeId = shape.id;
       }
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'fillGroup' },
-      });
+      this.updateToolStep('fillGroup');
     }
   }
 

@@ -27,10 +27,9 @@ export class SignalSyncService {
 
     this.addListener('tool-updated', () => {
       if (app.tool) {
-        appActions.setToolState({
-          currentStep: app.tool.currentStep,
-          // Ajouter d'autres propriétés d'état d'outil si nécessaire
-        });
+        // Note: use setCurrentStep (primitive value, no new object) instead of
+        // setToolState — setToolState always creates a new object reference, causing
+        // combinedToolSignal to recompute and the watcher to fire on every RAF frame.
         appActions.setCurrentStep(app.tool.currentStep);
       }
     });
@@ -72,7 +71,9 @@ export class SignalSyncService {
     }
     appActions.updateSettings(app.settings);
 
-    console.log('[SignalSyncService] Initialized - Shadow State active');
+    if (import.meta.env.DEV) {
+      console.log('[SignalSyncService] Initialized - Shadow State active');
+    }
   }
 
   syncViewport() {

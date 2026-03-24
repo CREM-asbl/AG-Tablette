@@ -1,5 +1,6 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
@@ -33,37 +34,25 @@ export class DivideTool extends Tool {
     this.numberOfParts = 2;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        diviser un segment d'une figure en plusieurs parties (délimitées par des
-        points).<br />
-        Après avoir choisit en combien de partie vous souhaitez diviser le
-        segment, touchez le segment que vous souhaitez diviser.<br />
-        Il est également possible de sélectionner deux points situés sur le même
-        segment, afin de diviser le segment formé par ces deux points.<br /><br />
-
-        <b>Note:</b> il est également possible de diviser un arc de cercle, soit
-        en touchant l'arc lui-même, soit en sélectionnant deux points situés sur
-        cet arc. Dans ce dernier cas, la division est effectuée dans le sens
-        horlogique.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
 
+
+
   start() {
+    if (import.meta.env.DEV) {
+      console.log('[DivideTool] start() appelée');
+    }
     window.clearTimeout(this.timeoutRef);
     this.removeListeners();
     const popup = document.createElement('divide-popup');
     popup.parts = app.settings.numberOfDivisionParts;
     document.querySelector('body').appendChild(popup);
+    if (import.meta.env.DEV) {
+      console.log('[DivideTool] divide-popup créé et ajouté au DOM');
+    }
   }
 
   selectObject() {
@@ -99,6 +88,7 @@ export class DivideTool extends Tool {
 
   divide() {
     this.removeListeners();
+    this.executeAnimation();
   }
 
   end() {
@@ -171,18 +161,14 @@ export class DivideTool extends Tool {
           });
 
           this.mode = 'segment';
-          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          this.updateToolStep('divide');
         }
       } else {
         this.firstPointIds = object.map((pt) => pt.id);
 
         this.setSelectionConstraints();
-        setState({
-          tool: {
-            ...app.tool,
-            currentStep: 'selectSecondPoint',
-            firstPointIds: this.firstPointIds,
-          },
+        this.updateToolStep('selectSecondPoint', {
+          firstPointIds: this.firstPointIds,
         });
       }
     } else if (app.tool.currentStep === 'selectSecondPoint') {
@@ -193,7 +179,7 @@ export class DivideTool extends Tool {
         // pt1 == object => désélectionner le point.
         removeObjectById(app.upperCanvasLayer.points[0].id);
 
-        setState({ tool: { ...app.tool, currentStep: 'selectObject' } });
+        this.updateToolStep('selectObject');
       } else {
         const pointsToDivide = [];
         const firstPoints = this.firstPointIds.map((ptId) =>
@@ -360,25 +346,17 @@ export class DivideTool extends Tool {
         this.mode = 'twoPoints';
         this.pointsToDivide = pointsToDivide;
         if (mustChooseArc) {
-          setState({
-            tool: { ...app.tool, currentStep: 'chooseArcDirection' },
-          });
+          this.updateToolStep('chooseArcDirection');
         } else {
-          setState({ tool: { ...app.tool, currentStep: 'divide' } });
+          this.updateToolStep('divide');
         }
       }
     } else if (app.tool.currentStep === 'chooseArcDirection') {
       this.arcDirectionCounterclockwise = object.counterclockwise;
-      setState({ tool: { ...app.tool, currentStep: 'divide' } });
+      this.updateToolStep('divide');
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
+      this.updateToolStep('selectObject');
       return;
-    }
-
-    if (app.tool.currentStep === 'divide') {
-      this.executeAnimation();
     }
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
@@ -387,9 +365,7 @@ export class DivideTool extends Tool {
     window.clearTimeout(this.timeoutRef);
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
+      this.updateToolStep('selectObject');
     }, 200);
   }
 

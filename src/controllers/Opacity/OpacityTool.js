@@ -1,9 +1,12 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Tool } from '../Core/States/Tool';
 import { createElem } from '../Core/Tools/general';
 import './opacity-popup';
+import { opacityHelpConfig } from './opacity.helpConfig';
 
 /**
  * Modifier l'opacité d'une figure
@@ -17,28 +20,16 @@ export class OpacityTool extends Tool {
     this.opacity = 0.7;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>. Cet outil permet de
-        définir pour chaque figure si elle est transparente, semi-transparente
-        ou complètement opaque.<br />
-        Après avoir choisit l'une de ces 3 options dans le menu, touchez une
-        figure pour lui appliquer la modification.
-      </p>
-    `;
-  }
+
 
   /**
    * initialiser l'état
    */
   start() {
+    helpConfigRegistry.register(this.name, opacityHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     this.removeListeners();
 
     createElem('opacity-popup');
@@ -69,6 +60,7 @@ export class OpacityTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
+    appActions.setCurrentStep('selectObject');
     setState({
       tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
     });

@@ -1,4 +1,5 @@
 import { html, LitElement } from 'lit';
+import { appActions, tangramState } from '../../store/appState';
 import { tools } from '../../store/tools';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
@@ -93,6 +94,7 @@ export class SolutionCheckerTool extends LitElement {
     setState({
       tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
     });
+    appActions.setTangramState({ isSilhouetteShown, level });
 
     if (app.history.startSituation === null) {
       setState({
@@ -114,8 +116,12 @@ export class SolutionCheckerTool extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.tangramListener = app.addListener(
+    this.tangramLegacyListener = app.addListener(
       'tangram-changed',
+      this.handler.bind(this),
+    );
+    this.tangramSignalListener = app.addListener(
+      'tangram:state-changed',
       this.handler.bind(this),
     );
     this.objectSelectedId = app.addListener(
@@ -129,7 +135,8 @@ export class SolutionCheckerTool extends LitElement {
     this.stateMenu.close();
     closeForbiddenCanvas();
     app.removeListener('objectSelected', this.objectSelectedId);
-    app.removeListener('tangram-changed', this.tangramListener);
+    app.removeListener('tangram-changed', this.tangramLegacyListener);
+    app.removeListener('tangram:state-changed', this.tangramSignalListener);
   }
 
   check() {
@@ -153,8 +160,10 @@ export class SolutionCheckerTool extends LitElement {
   }
 
   handler(event) {
+    const currentTangramStep = tangramState.get().currentStep || app.tangram.currentStep;
+
     if (this.stateMenu)
-      this.stateMenu.check = app.tangram.currentStep === 'check';
+      this.stateMenu.check = currentTangramStep === 'check';
 
     if (event.type === 'tool-updated') {
       if (app.tool?.name === this.name) {
@@ -167,17 +176,18 @@ export class SolutionCheckerTool extends LitElement {
           app.tool.name !== 'solveChecker' &&
           app.tool.name !== 'verifySolution'
         ) {
+          appActions.setTangramState({ currentStep: 'uncheck' });
           setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
         }
       }
     }
 
     if (
-      event.type === 'tangram-changed' &&
-      ['check', 'uncheck'].includes(app.tangram.currentStep) &&
+      ['tangram-changed', 'tangram:state-changed'].includes(event.type) &&
+      ['check', 'uncheck'].includes(currentTangramStep) &&
       !app.fullHistory.isRunning
     ) {
-      this[app.tangram.currentStep]();
+      this[currentTangramStep]();
     }
 
     if (event.type === 'objectSelected')
@@ -189,8 +199,10 @@ export class SolutionCheckerTool extends LitElement {
       (shape) => shape.name === 'tangramChecker',
     );
     const index = solutionShapes.findIndex((s) => object.id === s.id);
-    if (index === -1)
+    if (index === -1) {
+      appActions.setTangramState({ currentStep: 'uncheck' });
       setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
+    }
   }
 
   eraseSolution() {

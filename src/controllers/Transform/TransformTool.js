@@ -1,5 +1,7 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -16,6 +18,7 @@ import {
   projectionOnConstraints,
   recomputeAllVisibilities,
 } from '../GeometryTools/recomputeShape';
+import { transformHelpConfig } from './transform.helpConfig';
 
 /**
  * Ajout de figures sur l'espace de travail
@@ -43,19 +46,13 @@ export class TransformTool extends Tool {
     this.line = null;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br /></p>
-    `;
-  }
+
 
   start() {
+    helpConfigRegistry.register(this.name, transformHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     app.mainCanvasLayer.editingShapeIds = [];
     app.upperCanvasLayer.removeAllObjects();
 
@@ -66,15 +63,15 @@ export class TransformTool extends Tool {
     this.line = null;
 
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
-        }),
+      () => {
+        appActions.setCurrentStep('selectPoint');
+      },
       50,
     );
   }
 
   selectPoint() {
+    appActions.setCurrentStep('selectPoint');
     this.removeListeners();
     this.constraintsDrawn = false;
     app.mainCanvasLayer.editingShapeIds = [];
@@ -90,6 +87,7 @@ export class TransformTool extends Tool {
   }
 
   transform() {
+    appActions.setCurrentStep('transform');
     this.removeListeners();
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
     this.animate();
@@ -260,9 +258,7 @@ export class TransformTool extends Tool {
       );
     });
 
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'transform' },
-    });
+    appActions.setCurrentStep('transform');
   }
 
   createTree(index, tree) {
@@ -370,9 +366,7 @@ export class TransformTool extends Tool {
   canvasMouseUp() {
     this.stopAnimation();
     this.executeAction();
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectPoint' },
-    });
+    appActions.setCurrentStep('selectPoint');
   }
 
   _executeAction() {

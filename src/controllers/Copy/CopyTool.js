@@ -1,4 +1,6 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -13,6 +15,7 @@ import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { addInfoToId, findObjectById } from '../Core/Tools/general';
 import { computeAllShapeTransform } from '../GeometryTools/recomputeShape';
+import { copyHelpConfig } from './copy.helpConfig';
 
 /**
  * Dupliquer une figure
@@ -37,36 +40,19 @@ export class CopyTool extends Tool {
     this.shapeMoved = 0;
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour copier une figure, appuyez sur la figure et faites glissez votre
-        doigt dans une direction sans le relacher. Relachez ensuite votre doigt
-        une fois que la nouvelle figure est à la bonne place.<br /><br />
-        <b>Attention:</b> si vous appuyez sur une figure puis relachez
-        directement, une copie de la figure aura bien été créée, mais à la même
-        position que la figure d'origine. Il y a donc deux figures l'une sur
-        l'autre.<br /><br />
-        <b>Note:</b> la nouvelle figure créée n'est pas liée d'une manière ou
-        d'une autre avec la figure d'origine: il s'agit bien d'une copie
-        complètement indépendante.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setActiveTool(this.name);
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
 
+
+
   start() {
+    helpConfigRegistry.register(this.name, copyHelpConfig);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => this.updateToolStep('listen'),
       50,
     );
   }
@@ -185,7 +171,7 @@ export class CopyTool extends Tool {
       this.shapesToMove = this.drawingShapes;
     }
 
-    setState({ tool: { ...app.tool, currentStep: 'move' } });
+    this.updateToolStep('move');
     this.animate();
   }
 
@@ -197,7 +183,7 @@ export class CopyTool extends Tool {
       .add(this.translateOffset);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   refreshStateUpper() {

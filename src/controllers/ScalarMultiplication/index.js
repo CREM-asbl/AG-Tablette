@@ -1,6 +1,13 @@
 import './scalar-popup';
 import { ScalarMultiplicationTool } from './ScalarMultiplication';
 
+let _instance = null;
+
 export default {
-  tool: new ScalarMultiplicationTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new ScalarMultiplicationTool();
+    }
+    return _instance;
+  },
 };

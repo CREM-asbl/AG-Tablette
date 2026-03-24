@@ -8,7 +8,8 @@ import {
     getLastSyncInfo,
     isSyncInProgress,
     smartSync,
-    syncActivitiesInBackground
+    syncActivitiesInBackground,
+    initActivitySync
 } from '../../src/services/activity-sync.js';
 import * as indexeddbActivities from '../../src/utils/indexeddb-activities.js';
 
@@ -240,5 +241,34 @@ describe('Activity Sync Service', () => {
             // CONFIG.RETRY_ATTEMPTS is 3, so 3 calls.
             expect(firebaseInit.getFilesCount).toHaveBeenCalledTimes(3);
         }, 10000); // Increase timeout for retries
+    });
+
+    describe('initActivitySync', () => {
+        it('should setup online event listener', () => {
+            const addSpy = vi.spyOn(window, 'addEventListener');
+            initActivitySync();
+            expect(addSpy).toHaveBeenCalledWith('online', expect.any(Function));
+        });
+
+        it('should schedule sync if online', () => {
+            vi.useFakeTimers();
+            Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
+            
+            initActivitySync();
+            
+            // Should have a timeout scheduled for smartSync
+            expect(vi.getTimerCount()).toBeGreaterThan(0);
+            vi.useRealTimers();
+        });
+
+        it('should handle start in offline mode', () => {
+            Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
+            
+            // Should not throw and should not schedule sync
+            vi.useFakeTimers();
+            initActivitySync();
+            expect(vi.getTimerCount()).toBe(0);
+            vi.useRealTimers();
+        });
     });
 });

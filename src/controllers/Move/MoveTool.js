@@ -1,5 +1,6 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
@@ -15,6 +16,8 @@ import {
   computeAllShapeTransform,
   computeConstructionSpec,
 } from '../GeometryTools/recomputeShape';
+import { moveHelpConfig } from './move.helpConfig';
+import { appActions } from '../../store/appState';
 
 /**
  * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
@@ -36,29 +39,17 @@ export class MoveTool extends Tool {
     this.involvedShapes = [];
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour déplacer une figure, touchez la figure et glissez votre doigt sans
-        le relacher. Relachez ensuite votre doigt une fois que la figure est
-        correctement positionnée.
-      </p>
-    `;
-  }
+  
 
   start() {
+    helpConfigRegistry.register(this.name, moveHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
@@ -71,6 +62,8 @@ export class MoveTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
+    appActions.setCurrentStep('listen');
+
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
     app.workspace.selectionConstraints.shapes.blacklist =
@@ -80,6 +73,7 @@ export class MoveTool extends Tool {
 
   move() {
     this.removeListeners();
+    appActions.setCurrentStep('move');
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -149,14 +143,14 @@ export class MoveTool extends Tool {
       );
     });
 
-    setState({ tool: { ...app.tool, currentStep: 'move' } });
+    appActions.setCurrentStep('move');
     this.animate();
   }
 
   canvasMouseUp() {
     if (app.tool.currentStep !== 'move') return;
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    appActions.setCurrentStep('listen');
   }
 
   /**

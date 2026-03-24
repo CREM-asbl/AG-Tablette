@@ -1,5 +1,12 @@
 import { CreateIrregularTool } from './CreateIrregularTool';
 
+let _instance = null;
+
 export default {
-  tool: new CreateIrregularTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new CreateIrregularTool();
+    }
+    return _instance;
+  },
 };

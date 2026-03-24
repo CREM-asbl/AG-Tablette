@@ -1,4 +1,5 @@
-import { app, setState } from '../Core/App';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -33,6 +34,28 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     }
   }
 
+  async start() {
+    // Enregistrer l'aide contextuelle
+    const { helpConfigRegistry } = await import('../../services/HelpConfigRegistry');
+    const { createTriangleHelpConfig } = await import('./createTriangle.helpConfig');
+    helpConfigRegistry.register(this.name, createTriangleHelpConfig);
+
+    // Afficher le sélecteur de forme
+    app.upperCanvasLayer.removeAllObjects();
+    this.removeListeners();
+    this.stopAnimation();
+
+    await import('@components/shape-selector');
+    appActions.setToolUiState({
+      name: 'shape-selector',
+      family: 'Triangles',
+      templatesNames: triangles,
+      selectedTemplate: app.tool.selectedTemplate,
+      type: 'Geometry',
+      nextStep: 'drawFirstPoint',
+    });
+  }
+
   async drawFirstPoint() {
     app.upperCanvasLayer.removeAllObjects();
     const triangleDef = await import(`./trianglesDef.js`);
@@ -43,10 +66,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     this.numberOfPointsDrawn = 0;
 
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-        }),
+      () => appActions.setCurrentStep('drawPoint'),
       50,
     );
   }
@@ -136,9 +156,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
         fillOpacity: 0,
       });
     }
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'animatePoint' },
-    });
+    appActions.setCurrentStep('animatePoint');
   }
 
   canvasMouseUp() {
@@ -199,9 +217,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
             detail: { message: 'Veuillez placer le point autre part.' },
           }),
         );
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-        });
+        appActions.setCurrentStep('drawPoint');
         return;
       }
     }
@@ -210,13 +226,9 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       this.stopAnimation();
       this.executeAction();
       app.upperCanvasLayer.removeAllObjects();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawFirstPoint' },
-      });
+      appActions.setCurrentStep('drawFirstPoint');
     } else {
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'drawPoint' },
-      });
+      appActions.setCurrentStep('drawPoint');
     }
   }
 

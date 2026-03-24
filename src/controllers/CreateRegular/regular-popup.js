@@ -1,7 +1,8 @@
+import '@components/color-button';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
-import '@components/color-button';
 import '../../components/popups/template-popup';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 
 class RegularPopup extends LitElement {
@@ -147,20 +148,24 @@ class RegularPopup extends LitElement {
   }
 
   changeNumberOfPoints(event) {
+    const numberOfRegularPoints = parseInt(event.target.value);
+    appActions.updateSettings({ numberOfRegularPoints });
     setState({
       settings: {
         ...app.settings,
-        numberOfRegularPoints: parseInt(event.target.value),
+        numberOfRegularPoints,
       },
     });
   }
 
   decrementNumberOfPoints() {
     if (app.settings.numberOfRegularPoints === 3) return;
+    const numberOfRegularPoints = app.settings.numberOfRegularPoints - 1;
+    appActions.updateSettings({ numberOfRegularPoints });
     setState({
       settings: {
         ...app.settings,
-        numberOfRegularPoints: app.settings.numberOfRegularPoints - 1,
+        numberOfRegularPoints,
       },
     });
     this.shadowRoot.querySelector('#myRange').value = this.points;
@@ -168,16 +173,20 @@ class RegularPopup extends LitElement {
 
   incrementNumberOfPoints() {
     if (app.settings.numberOfRegularPoints === 20) return;
+    const numberOfRegularPoints = app.settings.numberOfRegularPoints + 1;
+    appActions.updateSettings({ numberOfRegularPoints });
     setState({
       settings: {
         ...app.settings,
-        numberOfRegularPoints: app.settings.numberOfRegularPoints + 1,
+        numberOfRegularPoints,
       },
     });
     this.shadowRoot.querySelector('#myRange').value = this.points;
   }
 
   submit() {
+    appActions.setActiveTool('createRegularPolygon');
+    appActions.setCurrentStep('drawFirstPoint');
     setState({
       tool: {
         ...app.tool,

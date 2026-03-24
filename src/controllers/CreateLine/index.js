@@ -1,5 +1,12 @@
 import { CreateLineTool } from './CreateLineTool';
 
+let _instance = null;
+
 export default {
-  tool: new CreateLineTool(),
+  get tool() {
+    if (!_instance) {
+      _instance = new CreateLineTool();
+    }
+    return _instance;
+  },
 };

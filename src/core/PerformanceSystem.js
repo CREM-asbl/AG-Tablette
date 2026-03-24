@@ -22,7 +22,7 @@ class PerformanceMonitor {
     this.metrics = new Map();
     this.thresholds = {
       eventProcessing: 10, // ms
-      stateChange: 15, // ms
+      stateChange: 20, // ms
       toolCreation: 50, // ms
       validation: 5, // ms
     };

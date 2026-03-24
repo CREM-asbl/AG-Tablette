@@ -1,6 +1,9 @@
-import { app, setState } from '../Core/App';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Tool } from '../Core/States/Tool';
+import { zoomHelpConfig } from './zoom.helpConfig';
 
 /**
  * Calcule le niveau de zoom en appliquant les limites min et max.
@@ -26,6 +29,12 @@ export class ZoomTool extends Tool {
     super('zoom', 'Zoomer', 'tool');
     this.currentStep = null;
     this.init();
+  }
+
+  updateToolStep(step, extraState = {}) {
+    appActions.setActiveTool(this.name);
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
 
   /**
@@ -59,6 +68,8 @@ export class ZoomTool extends Tool {
   }
 
   start() {
+    helpConfigRegistry.register(this.name, zoomHelpConfig);
+
     this.removeListeners();
     if (app.tool.mode === 'touch') {
       this.touchMoveId = app.addListener('canvasTouchMove', this.handler);
@@ -89,14 +100,7 @@ export class ZoomTool extends Tool {
       if (this.baseDist === 0) this.baseDist = 0.001;
       this.originalZoom = app.workspace.zoomLevel;
       app.upperCanvasLayer.removeAllObjects();
-      setState({
-        tool: {
-          name: this.name,
-          currentStep: 'start',
-          mode: 'touch',
-          title: this.title,
-        },
-      });
+      this.updateToolStep('start', { mode: 'touch' });
     }
   }
 
@@ -128,14 +132,7 @@ export class ZoomTool extends Tool {
 
   canvasMouseWheel(deltaY) {
     if (!this.isLastActionZoom)
-      setState({
-        tool: {
-          name: this.name,
-          currentStep: 'start',
-          mode: 'wheel',
-          title: this.title,
-        },
-      });
+      this.updateToolStep('start', { mode: 'wheel' });
     clearTimeout(this.timeoutId);
     this.originalZoom = app.workspace.zoomLevel;
     const scaleOffset = (this.originalZoom - deltaY / 100) / this.originalZoom;

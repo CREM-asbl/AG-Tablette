@@ -1,4 +1,6 @@
-import { html } from 'lit';
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
 import { app, setState } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
@@ -13,6 +15,7 @@ import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
 import { Tool } from '../Core/States/Tool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { duplicateHelpConfig } from './duplicate.helpConfig';
 
 /**
  * Dupliquer une figure
@@ -35,38 +38,16 @@ export class DuplicateTool extends Tool {
     this.translateOffset = new Coordinates({ x: -20, y: -20 });
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        Pour copier une figure, appuyez sur la figure et faites glissez votre
-        doigt dans une direction sans le relacher. Relachez ensuite votre doigt
-        une fois que la nouvelle figure est à la bonne place.<br /><br />
-        <b>Attention:</b> si vous appuyez sur une figure puis relachez
-        directement, une copie de la figure aura bien été créée, mais à la même
-        position que la figure d'origine. Il y a donc deux figures l'une sur
-        l'autre.<br /><br />
-        <b>Note:</b> la nouvelle figure créée n'est pas liée d'une manière ou
-        d'une autre avec la figure d'origine: il s'agit bien d'une copie
-        complètement indépendante.
-      </p>
-    `;
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
   }
 
   start() {
-    setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
-      50,
-    );
+    helpConfigRegistry.register(this.name, duplicateHelpConfig);
+
+    appActions.setActiveTool(this.name);
+    setTimeout(() => this.updateToolStep('listen'), 50);
   }
 
   listen() {
@@ -89,6 +70,10 @@ export class DuplicateTool extends Tool {
     constraints.priority = ['points', 'shapes', 'segments'];
     app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    if (app.tool.currentStep !== 'listen') {
+      this.updateToolStep('listen');
+    }
   }
 
   selectSegment() {
@@ -99,12 +84,20 @@ export class DuplicateTool extends Tool {
     constraints.eventType = 'mousedown';
     app.workspace.selectionConstraints = constraints;
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    if (app.tool.currentStep !== 'selectSegment') {
+      this.updateToolStep('selectSegment');
+    }
   }
 
   move() {
     this.removeListeners();
 
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+
+    if (app.tool.currentStep !== 'move') {
+      this.updateToolStep('move');
+    }
   }
 
   end() {
@@ -124,9 +117,7 @@ export class DuplicateTool extends Tool {
       this.mode = 'point';
       this.segment = object;
       this.executeAction();
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-      });
+      this.updateToolStep('listen');
     } else if (object instanceof Segment) {
       this.mode = 'segment';
 
@@ -148,7 +139,7 @@ export class DuplicateTool extends Tool {
 
       this.drawingShapes = [newShape];
 
-      setState({ tool: { ...app.tool, currentStep: 'move' } });
+      this.updateToolStep('move');
       this.animate();
     } else if (object.name === 'PointOnLine') {
       this.involvedPoint = object;
@@ -158,14 +149,14 @@ export class DuplicateTool extends Tool {
         color: app.settings.referenceDrawColor,
         size: 2,
       });
-      setState({ tool: { ...app.tool, currentStep: 'selectSegment' } });
+      this.updateToolStep('selectSegment');
     } else {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
       for (let i = 0; i < this.involvedShapes.length; i++) {
         const currentShape = this.involvedShapes[i];
         if (currentShape.name === 'Vector') {
-          this.dispatchEvent(new CustomEvent('show-notif', {
+          window.dispatchEvent(new CustomEvent('show-notif', {
             detail: {
               message:
                 'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.',
@@ -207,7 +198,7 @@ export class DuplicateTool extends Tool {
         return newShape;
       });
 
-      setState({ tool: { ...app.tool, currentStep: 'move' } });
+      this.updateToolStep('move');
       this.animate();
     }
   }
@@ -220,7 +211,7 @@ export class DuplicateTool extends Tool {
       .add(this.translateOffset);
 
     this.executeAction();
-    setState({ tool: { ...app.tool, name: this.name, currentStep: 'listen' } });
+    this.updateToolStep('listen');
   }
 
   refreshStateUpper() {
@@ -376,6 +367,7 @@ export class DuplicateTool extends Tool {
           shapesList[0].centerCoordinates,
         );
         newShape.translate(transformation.translation);
+        ShapeManager.addShape(newShape);
       });
 
       //Si nécessaire, créer le userGroup

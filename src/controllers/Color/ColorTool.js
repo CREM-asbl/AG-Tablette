@@ -1,11 +1,14 @@
-import { html } from 'lit';
-import { app, setState } from '../Core/App';
+
+import { appActions } from '../../store/appState';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { app } from '../Core/App';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Segment } from '../Core/Objects/Segment';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { Shape } from '../Core/Objects/Shapes/Shape';
 import { Tool } from '../Core/States/Tool';
+import { colorHelpConfig } from './color.helpConfig';
 
 /**
  * Modifier la couleur
@@ -15,35 +18,25 @@ export class ColorTool extends Tool {
     super('color', 'Colorier', 'tool');
   }
 
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>
-        Vous avez sélectionné l'outil <b>"${toolName}"</b>.<br />
-        <!-- Après avoir choisi une couleur, touchez une figure pour en colorier les
-        bords. -->
-      </p>
-    `;
-  }
+  
 
   start() {
+    helpConfigRegistry.register(this.name, colorHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
     setTimeout(
-      () =>
-        setState({
-          tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-        }),
+      () => {
+        appActions.setCurrentStep('listen');
+      },
       50,
     );
   }
 
   listen() {
-    this.mustPreventNextClick = false;
     this.removeListeners();
+    appActions.setCurrentStep('listen');
+    this.mustPreventNextClick = false;
     this.longPressId = app.addListener('canvasLongPress', this.handler);
     this.mouseClickId = app.addListener('canvasClick', this.handler);
   }
@@ -103,9 +96,7 @@ export class ColorTool extends Tool {
     this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
 
     this.executeAction();
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'listen' },
-    });
+    appActions.setCurrentStep('listen');
   }
 
   _executeAction() {
