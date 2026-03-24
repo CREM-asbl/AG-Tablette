@@ -88,6 +88,7 @@ export class DivideTool extends Tool {
 
   divide() {
     this.removeListeners();
+    this.executeAnimation();
   }
 
   end() {
@@ -356,10 +357,6 @@ export class DivideTool extends Tool {
       this.executeAction();
       this.updateToolStep('selectObject');
       return;
-    }
-
-    if (app.tool.currentStep === 'divide') {
-      this.executeAnimation();
     }
     // window.dispatchEvent(new CustomEvent('refresh'));
   }

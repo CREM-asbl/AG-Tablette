@@ -121,6 +121,7 @@ export class CutTool extends Tool {
     }
 
     window.dispatchEvent(new CustomEvent('refreshUpper'));
+    this.executeAnimation();
   }
 
   end() {
@@ -372,10 +373,6 @@ export class CutTool extends Tool {
           );
         }
       }
-    }
-
-    if (app.tool.currentStep === 'cut') {
-      this.executeAnimation();
     }
     // window.dispatchEvent(new CustomEvent('refresh'));
   }
