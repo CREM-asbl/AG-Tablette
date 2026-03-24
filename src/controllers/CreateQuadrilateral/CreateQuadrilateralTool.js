@@ -272,6 +272,7 @@ export class CreateQuadrilateralTool extends Tool {
             detail: { message: 'Veuillez placer le point autre part.' },
           }),
         );
+        this.stopAnimation();
         appActions.setCurrentStep('drawPoint');
         return;
       }
@@ -282,6 +283,7 @@ export class CreateQuadrilateralTool extends Tool {
       this.executeAction();
       appActions.setCurrentStep('drawFirstPoint');
     } else {
+      this.stopAnimation();
       this.getConstraints(this.numberOfPointsDrawn);
       appActions.setCurrentStep('drawPoint');
     }

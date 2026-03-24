@@ -217,6 +217,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
             detail: { message: 'Veuillez placer le point autre part.' },
           }),
         );
+        this.stopAnimation();
         appActions.setCurrentStep('drawPoint');
         return;
       }
@@ -228,6 +229,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       app.upperCanvasLayer.removeAllObjects();
       appActions.setCurrentStep('drawFirstPoint');
     } else {
+      this.stopAnimation();
       appActions.setCurrentStep('drawPoint');
     }
   }
