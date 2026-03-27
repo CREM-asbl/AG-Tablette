@@ -1,3 +1,4 @@
+import { appActions } from '../store/appState';
 import { app } from './Core/App';
 
 export const bugSend = async (message, src, line, col, error) => {
@@ -11,5 +12,5 @@ export const bugSend = async (message, src, line, col, error) => {
   const { doc, getFirestore, setDoc } = await import('firebase/firestore');
   await import('@db/firebase-init');
   setDoc(doc(getFirestore(), 'BUGS', id), data);
-  app.bugs = [...(app.bugs || []), id];
+  appActions.addBug(id);
 };

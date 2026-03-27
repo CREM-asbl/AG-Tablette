@@ -1,4 +1,3 @@
-import { setState } from '@controllers/Core/App';
 import { appActions } from '@store/appState';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -45,12 +44,6 @@ describe('zoom-menu', () => {
     expect(appActions.setActiveTool).toHaveBeenCalledWith('zoom');
     expect(appActions.setToolState).toHaveBeenCalledWith({ zoomLevel: expect.any(Number) });
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('execute');
-    expect(setState).toHaveBeenCalledWith({
-      tool: expect.objectContaining({
-        currentStep: 'execute',
-        zoomLevel: expect.any(Number),
-      }),
-    });
   });
 
   it('met a jour les signaux et passe en zoom quand applyZoom=false', () => {
@@ -58,11 +51,5 @@ describe('zoom-menu', () => {
 
     expect(menu.position).toBe(40);
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('zoom');
-    expect(setState).toHaveBeenCalledWith({
-      tool: expect.objectContaining({
-        currentStep: 'zoom',
-        zoomLevel: expect.any(Number),
-      }),
-    });
   });
 });

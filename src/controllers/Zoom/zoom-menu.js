@@ -1,7 +1,7 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
 import { appActions } from '../../store/appState';
-import { app, changes, setState } from '../Core/App';
+import { app, changes } from '../Core/App';
 
 class ZoomMenu extends SignalWatcher(LitElement) {
   static get properties() {
@@ -121,14 +121,6 @@ class ZoomMenu extends SignalWatcher(LitElement) {
     appActions.setActiveTool(app.tool?.name || 'zoom');
     appActions.setToolState({ zoomLevel: zoom });
     appActions.setCurrentStep(step);
-
-    setState({
-      tool: {
-        ...app.tool,
-        currentStep: step,
-        zoomLevel: zoom,
-      },
-    });
   }
 }
 customElements.define('zoom-menu', ZoomMenu);

@@ -61,9 +61,6 @@ export class OpacityTool extends Tool {
 
     this.executeAction();
     appActions.setCurrentStep('selectObject');
-    setState({
-      tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-    });
   }
 
   _executeAction() {

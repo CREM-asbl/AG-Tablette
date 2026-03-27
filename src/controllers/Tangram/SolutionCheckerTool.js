@@ -91,23 +91,16 @@ export class SolutionCheckerTool extends LitElement {
     currentTools.find((tool) => tool.name === 'translate').isDisable = true;
     currentTools.find((tool) => tool.name === 'color').isDisable = false;
     tools.set([...currentTools]);
-    setState({
-      tangram: { ...app.defaultState.tangram, isSilhouetteShown, level },
-    });
+    
     appActions.setTangramState({ isSilhouetteShown, level });
 
     if (app.history.startSituation === null) {
       setState({
         history: {
-          ...app.defaultState.history,
+          ...app.history,
           startSituation: {
             ...app.workspace.data,
-            tangram: {
-              isSilhouetteShown: true,
-              currentStep: 'start',
-            },
           },
-          startSettings: { ...app.settings },
         },
       });
     }
@@ -141,13 +134,8 @@ export class SolutionCheckerTool extends LitElement {
 
   check() {
     this.checkSolution();
-    setState({
-      tool: {
-        name: 'verifySolution',
-        title: 'Vérifier la solution',
-        currentStep: 'start',
-      },
-    });
+    appActions.setActiveTool('verifySolution');
+    appActions.setCurrentStep('start');
     window.dispatchEvent(
       new CustomEvent('actions-executed', {
         detail: { name: 'Vérifier la solution' },
@@ -177,7 +165,6 @@ export class SolutionCheckerTool extends LitElement {
           app.tool.name !== 'verifySolution'
         ) {
           appActions.setTangramState({ currentStep: 'uncheck' });
-          setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
         }
       }
     }
@@ -201,7 +188,6 @@ export class SolutionCheckerTool extends LitElement {
     const index = solutionShapes.findIndex((s) => object.id === s.id);
     if (index === -1) {
       appActions.setTangramState({ currentStep: 'uncheck' });
-      setState({ tangram: { ...app.tangram, currentStep: 'uncheck' } });
     }
   }
 

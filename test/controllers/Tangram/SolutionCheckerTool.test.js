@@ -154,14 +154,11 @@ describe('SolutionCheckerTool', () => {
     expect(tool.check).toHaveBeenCalledTimes(1);
   });
 
-  it('bascule en uncheck via signaux + fallback legacy quand objet hors solution', () => {
+  it('bascule en uncheck via signaux quand objet hors solution', () => {
     const tool = new SolutionCheckerTool();
 
     tool.objectSelected({ id: 'unknown-shape' });
 
     expect(appActionsMock.setTangramState).toHaveBeenCalledWith({ currentStep: 'uncheck' });
-    expect(setStateMock).toHaveBeenCalledWith({
-      tangram: expect.objectContaining({ currentStep: 'uncheck' }),
-    });
   });
 });

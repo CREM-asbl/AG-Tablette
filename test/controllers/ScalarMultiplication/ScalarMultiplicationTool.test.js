@@ -1,4 +1,4 @@
-import { app, setState } from '@controllers/Core/App';
+import { app } from '@controllers/Core/App';
 import { ScalarMultiplicationTool } from '@controllers/ScalarMultiplication/ScalarMultiplication';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { appActions } from '@store/appState';
@@ -120,13 +120,6 @@ describe('ScalarMultiplicationTool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectObject');
-    expect(setState).toHaveBeenCalledWith({
-      tool: {
-        ...app.tool,
-        name: 'scalarMultiplication',
-        currentStep: 'selectObject',
-      },
-    });
 
     vi.useRealTimers();
   });

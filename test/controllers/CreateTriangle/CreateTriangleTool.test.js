@@ -41,6 +41,7 @@ vi.mock('@store/appState', () => ({
     },
     activeTool: { get: vi.fn(() => 'createTriangle') },
     currentStep: { get: vi.fn(() => 'start') },
+    selectedTemplate: { get: vi.fn(() => ({ name: 'EquilateralTriangle' })) },
     createWatcher: vi.fn(() => vi.fn()),
 }));
 

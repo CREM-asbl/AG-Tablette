@@ -1,4 +1,4 @@
-import { setState } from './Core/App';
+import { appActions } from '../store/appState';
 import { loadEnvironnement } from './Core/Environment';
 
 export const environmentsByExtensions = {
@@ -20,7 +20,7 @@ if ('launchQueue' in window) {
       const pathArray = fileHandle.name.split('.');
       const extension = pathArray[pathArray.length - 1];
       await loadEnvironnement(environmentsByExtensions[extension]);
-      setState({ fileToOpen: fileHandle });
+      appActions.setFileToOpen(fileHandle);
     }
   });
 }

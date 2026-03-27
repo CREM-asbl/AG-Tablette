@@ -33,32 +33,22 @@ beforeEach(async () => {
 });
 
 describe('state-menu', () => {
-  it('envoie currentStep=check via signaux et fallback legacy quand check=false', () => {
+  it('envoie currentStep=check via signaux quand check=false', () => {
     const menu = document.createElement('state-menu');
     menu.check = false;
 
     menu.clickHandler();
 
     expect(appActionsMock.setTangramState).toHaveBeenCalledWith({ currentStep: 'check' });
-    expect(setStateMock).toHaveBeenCalledWith({
-      tangram: expect.objectContaining({
-        currentStep: 'check',
-      }),
-    });
   });
 
-  it('envoie currentStep=uncheck via signaux et fallback legacy quand check=true', () => {
+  it('envoie currentStep=uncheck via signaux quand check=true', () => {
     const menu = document.createElement('state-menu');
     menu.check = true;
 
     menu.clickHandler();
 
     expect(appActionsMock.setTangramState).toHaveBeenCalledWith({ currentStep: 'uncheck' });
-    expect(setStateMock).toHaveBeenCalledWith({
-      tangram: expect.objectContaining({
-        currentStep: 'uncheck',
-      }),
-    });
   });
 
   it('n envoie rien pendant la relecture fullHistory', () => {
@@ -69,6 +59,5 @@ describe('state-menu', () => {
     menu.clickHandler();
 
     expect(appActionsMock.setTangramState).not.toHaveBeenCalled();
-    expect(setStateMock).not.toHaveBeenCalled();
   });
 });

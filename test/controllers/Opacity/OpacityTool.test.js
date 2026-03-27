@@ -1,4 +1,4 @@
-import { app, setState } from '@controllers/Core/App';
+import { app } from '@controllers/Core/App';
 import { OpacityTool } from '@controllers/Opacity/OpacityTool';
 import { helpConfigRegistry } from '@services/HelpConfigRegistry';
 import { appActions } from '@store/appState';
@@ -73,8 +73,5 @@ describe('OpacityTool', () => {
 
     expect(tool.executeAction).toHaveBeenCalled();
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('selectObject');
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.tool, name: 'opacity', currentStep: 'selectObject' },
-    });
   });
 });

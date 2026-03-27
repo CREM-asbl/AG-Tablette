@@ -30,14 +30,16 @@ export class SilhouetteCreatorTool extends LitElement {
 
     await TangramManager.initShapes(true);
 
-    setState({
-      history: {
-        ...app.history,
-        startSituation: {
-          ...app.workspace.data,
+    if (app.history.startSituation === null) {
+      setState({
+        history: {
+          ...app.history,
+          startSituation: {
+            ...app.workspace.data,
+          },
         },
-      },
-    });
+      });
+    }
     appActions.setTangramState({ currentStep: 'start' });
     window.addEventListener('actions-executed', this.verifyOverlappingShapes);
     window.addEventListener('create-silhouette', this.createSilhouette);

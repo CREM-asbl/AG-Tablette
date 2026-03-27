@@ -150,24 +150,12 @@ class RegularPopup extends LitElement {
   changeNumberOfPoints(event) {
     const numberOfRegularPoints = parseInt(event.target.value);
     appActions.updateSettings({ numberOfRegularPoints });
-    setState({
-      settings: {
-        ...app.settings,
-        numberOfRegularPoints,
-      },
-    });
   }
 
   decrementNumberOfPoints() {
     if (app.settings.numberOfRegularPoints === 3) return;
     const numberOfRegularPoints = app.settings.numberOfRegularPoints - 1;
     appActions.updateSettings({ numberOfRegularPoints });
-    setState({
-      settings: {
-        ...app.settings,
-        numberOfRegularPoints,
-      },
-    });
     this.shadowRoot.querySelector('#myRange').value = this.points;
   }
 
@@ -175,25 +163,12 @@ class RegularPopup extends LitElement {
     if (app.settings.numberOfRegularPoints === 20) return;
     const numberOfRegularPoints = app.settings.numberOfRegularPoints + 1;
     appActions.updateSettings({ numberOfRegularPoints });
-    setState({
-      settings: {
-        ...app.settings,
-        numberOfRegularPoints,
-      },
-    });
     this.shadowRoot.querySelector('#myRange').value = this.points;
   }
 
   submit() {
     appActions.setActiveTool('createRegularPolygon');
     appActions.setCurrentStep('drawFirstPoint');
-    setState({
-      tool: {
-        ...app.tool,
-        name: 'createRegularPolygon',
-        currentStep: 'drawFirstPoint',
-      },
-    });
   }
 
   close() {

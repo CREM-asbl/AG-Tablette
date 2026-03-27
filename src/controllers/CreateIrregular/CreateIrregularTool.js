@@ -1,202 +1,59 @@
-
-import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { appActions } from '../../store/appState';
 import { app } from '../Core/App';
-import { SelectManager } from '../Core/Managers/SelectManager';
-import { Coordinates } from '../Core/Objects/Coordinates';
-import { Point } from '../Core/Objects/Point';
-import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { Tool } from '../Core/States/Tool';
+import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { createIrregularHelpConfig } from './createIrregular.helpConfig';
 
 /**
- * Ajout de figures sur l'espace de travail
+ * Outil de création de polygones irréguliers - Refactorisé avec BaseShapeCreationTool
  */
-export class CreateIrregularTool extends Tool {
+export class CreateIrregularTool extends BaseShapeCreationTool {
   constructor() {
     super(
       'createIrregularPolygon',
       'Construire un polygone irrégulier',
-      'geometryCreator',
+      'Irregular',
+      [],
     );
-
-    // listen-canvas-click
-    this.points = [];
-    this.numberOfPointsDrawn = 0;
-
-    this.shapeId = null;
   }
 
-  updateToolStep(step, extraState = {}) {
-    appActions.setToolState(extraState);
-    appActions.setCurrentStep(step);
-  }
-
-
-
-  start() {
-    app.upperCanvasLayer.removeAllObjects();
-    this.removeListeners();
-    this.stopAnimation();
-
+  async start() {
     helpConfigRegistry.register(this.name, createIrregularHelpConfig);
-
-    appActions.setActiveTool(this.name);
-
-    this.points = [];
-    this.segments = [];
-    this.numberOfPointsDrawn = 0;
-
-    setTimeout(
-      () =>
-        this.updateToolStep('drawPoint', {
-          numberOfPointsDrawn: this.numberOfPointsDrawn,
-        }),
-      50,
-    );
+    // On n'utilise pas le sélecteur de forme pour les polygones irréguliers
+    this.standardStart();
+    this.drawFirstPoint();
   }
 
-  drawPoint() {
-    this.removeListeners();
-    this.stopAnimation();
-
-    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
+  async loadShapeDefinition() {
+    // Pas de définition externe pour les polygones irréguliers
+    this.shapeDefinition = {
+        numberOfPointsRequired: Infinity // Indique que le nombre de points est variable
+    };
   }
 
-  animatePoint() {
-    this.removeListeners();
-    this.animate();
-
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+  numberOfPointsRequired() {
+    return Infinity;
   }
 
   /**
-   * stopper l'état
+   * Gestion spécifique du mouseUp pour les polygones irréguliers (clic sur le premier point pour fermer)
    */
-  end() {
-    this.removeListeners();
-    this.stopAnimation();
-  }
-
-  canvasMouseDown() {
-    const newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates,
-    );
-
-    this.points.push(
-      new Point({
-        layer: 'upper',
-        coordinates: newCoordinates,
-        color: app.settings.temporaryDrawColor,
-        size: 2,
-      }),
-    );
-    this.numberOfPointsDrawn++;
-    if (this.points.length > 1) {
-      const seg = new Segment({
-        layer: 'upper',
-        vertexIds: [
-          this.points[this.points.length - 2].id,
-          this.points[this.points.length - 1].id,
-        ],
-      });
-      this.segments.push(seg);
-      new RegularShape({
-        layer: 'upper',
-        segmentIds: [seg.id],
-        pointIds: seg.vertexIds,
-        strokeColor: app.settings.temporaryDrawColor,
-        fillOpacity: 0,
-      });
-    }
-    this.updateToolStep('animatePoint', {
-      numberOfPointsDrawn: this.numberOfPointsDrawn,
-    });
-  }
-
   canvasMouseUp() {
-    if (
-      this.points.length > 2 &&
-      SelectManager.areCoordinatesInMagnetismDistance(
-        this.points[0].coordinates,
-        this.points[this.points.length - 1].coordinates,
-      )
-    ) {
-      this.stopAnimation();
-
-      this.executeAction();
-      app.upperCanvasLayer.removeAllObjects();
-      this.updateToolStep('start', {
-        numberOfPointsDrawn: 0,
-      });
-    } else {
-      this.updateToolStep('drawPoint', {
-        numberOfPointsDrawn: this.numberOfPointsDrawn,
-      });
-    }
-  }
-
-  adjustPoint(point) {
-    point.adjustedOn = undefined;
-    if (
-      this.points.length > 2 &&
-      SelectManager.areCoordinatesInMagnetismDistance(
-        this.points[0].coordinates,
-        point.coordinates,
-      )
-    )
-      point.coordinates = new Coordinates(this.points[0].coordinates);
-    else {
-      let constraints = SelectManager.getEmptySelectionConstraints().points;
-      constraints.canSelect = true;
-      let adjustedPoint;
-      if (
-        (adjustedPoint = SelectManager.selectPoint(
-          point.coordinates,
-          constraints,
-          false,
-        ))
-      ) {
-        point.coordinates = new Coordinates(adjustedPoint.coordinates);
-        point.adjustedOn = adjustedPoint;
-      } else if (
-        (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
-          point.coordinates.toCanvasCoordinates(),
-        ))
-      ) {
-        const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
-        point.coordinates = new Coordinates(adjustedPointInWorldSpace);
-        point.adjustedOn = adjustedPointInWorldSpace;
-      } else {
-        constraints = SelectManager.getEmptySelectionConstraints().segments;
-        constraints.canSelect = true;
-        const adjustedSegment = SelectManager.selectSegment(
-          point.coordinates,
-          constraints,
-        );
-        if (adjustedSegment) {
-          point.coordinates = adjustedSegment.projectionOnSegment(
-            point.coordinates,
-          );
-          point.adjustedOn = adjustedSegment;
+    if (this.numberOfPointsDrawn > 2 && this.checkPointMagnetism()) {
+        // Si on a cliqué sur un point existant et que c'est le premier point, on ferme la forme
+        if (this.points[0].id === this.points[this.numberOfPointsDrawn-1].adjustedOn?.id || 
+            this.points[0].coordinates.dist(this.points[this.numberOfPointsDrawn-1].coordinates) < 0.01) {
+            this.completeShape();
+            return;
         }
-      }
     }
+    
+    this.continueDrawing();
   }
 
-  refreshStateUpper() {
-    if (app.tool.currentStep === 'animatePoint') {
-      this.points[this.points.length - 1].coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates,
-      );
-      this.adjustPoint(this.points[this.points.length - 1]);
-    }
-  }
-
-  _executeAction() {
+  async executeAction() {
     const familyName = 'Irregular';
 
     let path = [
@@ -207,7 +64,7 @@ export class CreateIrregularTool extends Tool {
     this.points.forEach((point, i) => {
       if (i !== 0) path.push('L', point.coordinates.x, point.coordinates.y);
     });
-    // path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
+    path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
     path = path.join(' ');
 
     const shape = new RegularShape({
@@ -220,8 +77,12 @@ export class CreateIrregularTool extends Tool {
     });
 
     shape.vertexes.forEach((vx, idx) => {
-      vx.adjustedOn = this.points[idx].adjustedOn;
-      linkNewlyCreatedPoint(shape, vx);
+      if (this.points[idx]) {
+        vx.adjustedOn = this.points[idx].adjustedOn;
+        linkNewlyCreatedPoint(shape, vx);
+      }
     });
+
+    return shape;
   }
 }

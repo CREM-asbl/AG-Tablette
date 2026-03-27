@@ -1,4 +1,4 @@
-import { appActions } from '../../../store/appState';
+import { activeTool, appActions, currentStep } from '../../../store/appState';
 import { app, setState } from '../App';
 import { Coordinates } from '../Objects/Coordinates';
 import { Tool } from './Tool';
@@ -12,7 +12,6 @@ export class BaseGeometryTool extends Tool {
     super(name, title, type);
 
     // État commun pour tous les outils géométriques
-    this.currentStep = null;
     this.points = [];
     this.segments = [];
     this.numberOfPointsDrawn = 0;
@@ -21,6 +20,15 @@ export class BaseGeometryTool extends Tool {
     // Bind des méthodes pour éviter les problèmes de contexte
     this.handler = this.handler.bind(this);
     this.validateInput = this.validateInput.bind(this);
+  }
+
+  // Getter pour currentStep pointant vers le signal pour compatibilité synchrone
+  get currentStep() {
+    return currentStep.get();
+  }
+
+  set currentStep(val) {
+    // On ignore le set local car on utilise appActions
   }
 
   /**
@@ -124,7 +132,8 @@ export class BaseGeometryTool extends Tool {
     if (!this.validateInput('start')) return;
 
     this.cleanupTool();
-    this.currentStep = 'initialized';
+    appActions.setActiveTool(this.name);
+    appActions.setCurrentStep('initialized');
   }
 
   /**

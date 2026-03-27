@@ -5,6 +5,13 @@ import {
   selectedTemplate,
   toolState,
   createWatcher,
+  settings,
+  tangramState,
+  historyState,
+  filename,
+  workspaceData,
+  nextGroupColorIdx,
+  bugs,
 } from '../../store/appState';
 import { resetToolsVisibility, tools } from '@store/tools';
 import { resetKitVisibility } from '../../store/kit';
@@ -234,8 +241,19 @@ export const app = new App();
 if (typeof window !== 'undefined') {
   window.app = app;
 
-  // Watcher central pour synchroniser les signaux vers l'objet app.tool legacy
+  // Watcher central pour synchroniser les signaux vers l'objet legacy app
   // et émettre les événements correspondants.
+  const syncSignalToApp = (signalToWatch, key, eventName) => {
+    createWatcher(signalToWatch, (newValue) => {
+      app[key] = newValue;
+      if (eventName) {
+        window.dispatchEvent(new CustomEvent(eventName, { detail: app }));
+      }
+      window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+    });
+  };
+
+  // Synchronisation de l'outil
   const combinedToolSignal = computed(() => ({
     toolName: activeTool.get(),
     step: currentStep.get(),
@@ -263,8 +281,18 @@ if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
     }
     window.dispatchEvent(new CustomEvent('tool-updated', { detail: app }));
+    window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   });
-}
+
+  // Synchronisation des autres branches de l'état
+  syncSignalToApp(settings, 'settings', 'settings-changed');
+  syncSignalToApp(tangramState, 'tangram', 'tangram-changed');
+  syncSignalToApp(historyState, 'history', 'history-changed');
+  syncSignalToApp(filename, 'filename');
+  syncSignalToApp(workspaceData, 'workspaceData'); // Sync data only, Workspace object is stable
+  syncSignalToApp(nextGroupColorIdx, 'nextGroupColorIdx');
+  syncSignalToApp(bugs, 'bugs');
+  }
 
 // Initialiser le service de rapportage de bugs
 // Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ

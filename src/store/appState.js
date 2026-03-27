@@ -70,10 +70,14 @@ export const settings = signal({
   magnetismDistance: 15,
 });
 
+export const nextGroupColorIdx = signal(0);
+export const bugs = signal([]);
+
 // Signaux pour l'interface utilisateur
 export const notifications = signal([]);
 export const dialogs = signal([]);
 export const filename = signal('');
+export const fileToOpen = signal(null);
 export const helpSelected = signal(getInitialHelpSelected());
 export const historyState = signal({
   canUndo: false,
@@ -150,6 +154,19 @@ export const appActions = {
 
   setFilename: (name) => {
     filename.set(name);
+  },
+
+  setFileToOpen: (file) => {
+    fileToOpen.set(file);
+  },
+
+  setNextGroupColorIdx: (idx) => {
+    nextGroupColorIdx.set(idx);
+  },
+
+  addBug: (bugId) => {
+    const current = bugs.get();
+    bugs.set([...current, bugId]);
   },
 
   setHelpSelected: (selected) => {

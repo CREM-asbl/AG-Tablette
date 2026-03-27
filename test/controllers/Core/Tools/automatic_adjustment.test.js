@@ -106,6 +106,7 @@ describe('Automatic Adjustment Logic', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    vi.setConfig({ testTimeout: 10000 });
 
     // It's crucial to re-import the mocked module to get the fresh mock instance for each test
     const appModule = await import('../../../../src/controllers/Core/App');

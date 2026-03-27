@@ -2,7 +2,7 @@ import '@components/color-button';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 
 class OpacityPopup extends LitElement {
   constructor() {
@@ -106,17 +106,11 @@ class OpacityPopup extends LitElement {
   changeOpacity(event) {
     const shapeOpacity = parseFloat(event.target.value);
     appActions.updateSettings({ shapeOpacity });
-    setState({
-      settings: { ...app.settings, shapeOpacity },
-    });
   }
 
   submit() {
     appActions.setActiveTool('opacity');
     appActions.setCurrentStep('selectObject');
-    setState({
-      tool: { ...app.tool, name: 'opacity', currentStep: 'selectObject' },
-    });
   }
 
   close() {

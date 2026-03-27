@@ -1,5 +1,5 @@
 
-import { appActions } from '../../../store/appState';
+import { activeTool, appActions, currentStep, selectedTemplate, settings } from '../../../store/appState';
 import { app } from '../../Core/App';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Coordinates } from '../../Core/Objects/Coordinates';
@@ -7,7 +7,7 @@ import { Point } from '../../Core/Objects/Point';
 import { Segment } from '../../Core/Objects/Segment';
 import { RegularShape } from '../../Core/Objects/Shapes/RegularShape';
 import { BaseGeometryTool } from '../../Core/States/BaseGeometryTool';
-import { findObjectsByName, removeObjectById } from '../../Core/Tools/general';
+import { findObjectsByName } from '../../Core/Tools/general';
 
 /**
  * Classe de base pour tous les outils de création de formes géométriques
@@ -19,8 +19,6 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
 
     this.familyName = familyName;
     this.templatesImport = templatesImport;
-    this.selectedTemplate = null;
-    this.shapeDefinition = null;
     this.previewShapeId = null;
   }
 
@@ -43,7 +41,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
         name: 'shape-selector',
         family: this.familyName,
         templatesNames: this.templatesImport,
-        selectedTemplate: app.tool.selectedTemplate,
+        selectedTemplate: selectedTemplate.get(),
         type: 'Geometry',
         nextStep: 'drawFirstPoint',
       };
@@ -151,7 +149,11 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
 
   clearPreviewShape() {
     if (this.previewShapeId) {
-      removeObjectById(this.previewShapeId);
+      // Suppression non récursive pour garder les points et segments dans le calque
+      const index = app.upperCanvasLayer.shapes.findIndex(
+        (s) => s.id === this.previewShapeId,
+      );
+      if (index !== -1) app.upperCanvasLayer.shapes.splice(index, 1);
       this.previewShapeId = null;
     }
   }
@@ -178,7 +180,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       layer: 'upper',
       segmentIds: this.segments.map((seg) => seg.id),
       pointIds: this.points.map((pt) => pt.id),
-      strokeColor: app.settings.temporaryDrawColor,
+      strokeColor: settings.get().temporaryDrawColor,
       fillOpacity: 0,
     });
 
@@ -191,13 +193,15 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
   }
 
   syncPreviewFromCurrentState() {
-    this.refreshShapePreview();
+    const handled = this.refreshShapePreview();
 
-    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
-      this.ensureClosedPreviewSegment();
+    if (!handled) {
+      if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
+        this.ensureClosedPreviewSegment();
+      }
+
+      this.renderPreviewShape();
     }
-
-    this.renderPreviewShape();
   }
 
   /**
@@ -207,7 +211,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     const point = new Point({
       layer: 'upper',
       coordinates: coordinates,
-      color: app.settings.temporaryDrawColor,
+      color: settings.get().temporaryDrawColor,
       size: 2,
     });
 
@@ -433,7 +437,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   refreshStateUpper() {
     if (
-      app.tool.currentStep === 'animatePoint' &&
+      currentStep.get() === 'animatePoint' &&
       this.numberOfPointsDrawn > 0
     ) {
       const lastPoint = this.points[this.numberOfPointsDrawn - 1];
@@ -452,6 +456,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   refreshShapePreview() {
     // Implémentation par défaut vide
+    return false;
   }
 
   /**
@@ -469,7 +474,7 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   numberOfPointsRequired() {
     throw new Error(
-      'numberOfPointsRequired doit être implémentée dans la classe fille',
+      'numberOfPointsRequired doit être implementée dans la classe fille',
     );
   }
 
@@ -481,3 +486,4 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     throw new Error('executeAction doit être implémentée dans la classe fille');
   }
 }
+

@@ -1,4 +1,4 @@
-import { app, setState } from '@controllers/Core/App';
+import { app } from '@controllers/Core/App';
 import { appActions } from '@store/appState';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,29 +34,16 @@ describe('regular-popup', () => {
     popup = new RegularPopup();
   });
 
-  it('met a jour settings via appActions et fallback dans changeNumberOfPoints', () => {
+  it('met a jour settings via appActions dans changeNumberOfPoints', () => {
     popup.changeNumberOfPoints({ target: { value: '7' } });
 
     expect(appActions.updateSettings).toHaveBeenCalledWith({ numberOfRegularPoints: 7 });
-    expect(setState).toHaveBeenCalledWith({
-      settings: {
-        ...app.settings,
-        numberOfRegularPoints: 7,
-      },
-    });
   });
 
-  it('soumet en pilotant les signaux puis fallback legacy', () => {
+  it('soumet en pilotant les signaux', () => {
     popup.submit();
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('createRegularPolygon');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawFirstPoint');
-    expect(setState).toHaveBeenCalledWith({
-      tool: {
-        ...app.tool,
-        name: 'createRegularPolygon',
-        currentStep: 'drawFirstPoint',
-      },
-    });
   });
 });

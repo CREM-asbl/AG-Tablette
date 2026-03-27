@@ -1,19 +1,28 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock de l'application AVANT l'import de ShapeGroup
-const createMockApp = () => ({
-  nextGroupColorIdx: 0,
-});
+// Utiliser vi.hoisted pour s'assurer que les mocks sont configurés AVANT les imports
+const { mockAppActions, mockApp } = vi.hoisted(() => ({
+  mockAppActions: {
+    setNextGroupColorIdx: vi.fn(),
+  },
+  mockApp: {
+    nextGroupColorIdx: 0,
+  }
+}));
 
-const mockApp = createMockApp();
+// Mock du module appState utilisé par ShapeGroup.js
+// On mocke à la fois le chemin relatif et l'alias
+vi.mock('../../../store/appState', () => ({
+  appActions: mockAppActions,
+}));
 
-// Mock du module setState
-const mockSetState = vi.fn();
+vi.mock('@store/appState', () => ({
+  appActions: mockAppActions,
+}));
 
-// Mock du module App pour intercepter l'import
 vi.mock('@controllers/Core/App', () => ({
   app: mockApp,
-  setState: mockSetState,
+  setState: vi.fn(),
 }));
 
 // Mock de uniqId pour avoir des IDs prévisibles
@@ -23,7 +32,7 @@ vi.mock('@controllers/Core/Tools/general.js', () => ({
 }));
 
 // Maintenant importer ShapeGroup (après les mocks)
-const { ShapeGroup } = await import('@controllers/Core/Objects/ShapeGroup.js');
+const { ShapeGroup } = await import('../../../../src/controllers/Core/Objects/ShapeGroup.js');
 
 describe('ShapeGroup - Tests TDD', () => {
   beforeEach(() => {
@@ -50,7 +59,7 @@ describe('ShapeGroup - Tests TDD', () => {
     it('devrait incrémenter le compteur de couleur', () => {
       new ShapeGroup('shape1', 'shape2');
 
-      expect(mockSetState).toHaveBeenCalledWith({ nextGroupColorIdx: 1 });
+      expect(mockAppActions.setNextGroupColorIdx).toHaveBeenCalled();
     });
 
     it('devrait faire tourner les couleurs (8 couleurs)', () => {
@@ -58,7 +67,7 @@ describe('ShapeGroup - Tests TDD', () => {
 
       new ShapeGroup('shape1', 'shape2');
 
-      expect(mockSetState).toHaveBeenCalledWith({ nextGroupColorIdx: 0 }); // Retour à 0
+      expect(mockAppActions.setNextGroupColorIdx).toHaveBeenCalledWith(0); // Retour à 0
     });
 
     it('devrait lever une erreur si les deux figures sont identiques', () => {
@@ -128,7 +137,7 @@ describe('ShapeGroup - Tests TDD', () => {
       expect(group.shapesIds).toEqual(['shape1']);
     });
 
-    it('devrait retirer la bonne figure parmi plusieurs', () => {
+    it('devrait retirer la bonne figure parmi several', () => {
       const group = new ShapeGroup('shape1', 'shape2');
       group.addShape('shape3');
 
@@ -275,7 +284,7 @@ describe('ShapeGroup - Tests TDD', () => {
       expect(group.shapesIds).toHaveLength(2);
     });
 
-    it('devrait sauvegarder un groupe avec plusieurs figures', () => {
+    it('devrait sauvegarder un groupe avec several figures', () => {
       const group = new ShapeGroup('shape1', 'shape2');
       group.addShape('shape3');
       group.addShape('shape4');
@@ -382,9 +391,9 @@ describe('ShapeGroup - Tests TDD', () => {
       const colors = [];
 
       for (let i = 0; i < 8; i++) {
+        mockApp.nextGroupColorIdx = i;
         const group = new ShapeGroup(`shape${i * 2}`, `shape${i * 2 + 1}`);
         colors.push(group.color);
-        mockApp.nextGroupColorIdx = (mockApp.nextGroupColorIdx + 1) % 8;
       }
 
       expect(colors).toHaveLength(8);

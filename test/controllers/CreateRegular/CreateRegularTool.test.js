@@ -10,9 +10,8 @@ vi.mock('@lit-labs/signals', () => ({
   signal: vi.fn((val) => ({ get: () => val, set: vi.fn() })),
 }));
 
-vi.mock('@controllers/Core/App', () => {
-  const setState = vi.fn();
-  const app = {
+const { appMock } = vi.hoisted(() => ({
+  appMock: {
     tool: { name: 'createRegularPolygon', currentStep: 'start' },
     settings: {
       numberOfRegularPoints: 3,
@@ -20,6 +19,8 @@ vi.mock('@controllers/Core/App', () => {
     },
     upperCanvasLayer: {
       shapes: [],
+      segments: [],
+      points: [],
       removeAllObjects: vi.fn(),
     },
     gridCanvasLayer: {
@@ -30,8 +31,15 @@ vi.mock('@controllers/Core/App', () => {
     },
     addListener: vi.fn(() => 'listener-id'),
     removeListener: vi.fn(),
-  };
-  return { app, setState };
+  }
+}));
+
+// Expose app to global for Segment.js and others
+window.app = appMock;
+
+vi.mock('@controllers/Core/App', () => {
+  const setState = vi.fn();
+  return { app: appMock, setState };
 });
 
 vi.mock('@store/appState', () => ({
@@ -39,11 +47,13 @@ vi.mock('@store/appState', () => ({
   currentStep: { get: vi.fn(() => 'start') },
   selectedTemplate: { get: vi.fn(() => null) },
   toolState: { get: vi.fn(() => ({})) },
+  settings: { get: vi.fn(() => ({ temporaryDrawColor: '#ff0000', numberOfRegularPoints: 3 })) },
   createWatcher: vi.fn(() => vi.fn()),
   appActions: {
     setActiveTool: vi.fn(),
     setCurrentStep: vi.fn(),
     setToolState: vi.fn(),
+    setToolUiState: vi.fn(),
     addNotification: vi.fn(),
   },
 }));
@@ -53,6 +63,10 @@ vi.mock('@controllers/Core/Objects/Point', () => ({
     constructor(props) {
       this.id = 'p' + Math.random();
       this.coordinates = props.coordinates;
+      this.layer = props.layer || 'upper';
+      this.segmentIds = []; 
+      const layerObj = window.app[this.layer + 'CanvasLayer'];
+      if (layerObj && layerObj.points) layerObj.points.push(this);
     }
   }
 }));
@@ -61,11 +75,14 @@ vi.mock('@controllers/Core/Objects/Shapes/RegularShape', () => ({
   RegularShape: class {
     constructor(props) {
       this.id = 's' + Math.random();
-      this.vertexes = [{ adjustedOn: null }, { adjustedOn: null }];
+      this.vertexes = [{ adjustedOn: null, segmentIds: [] }, { adjustedOn: null, segmentIds: [] }];
       this.centerCoordinates = { x: 0, y: 0 };
       this.getSVGPath = () => 'M 0 0';
       this.rotate = vi.fn();
       this.translate = vi.fn();
+      this.layer = props.layer || 'upper';
+      const layerObj = window.app[this.layer + 'CanvasLayer'];
+      if (layerObj && layerObj.shapes) layerObj.shapes.push(this);
     }
   }
 }));
@@ -82,14 +99,20 @@ vi.mock('@controllers/Core/Managers/SelectManager', () => ({
     getEmptySelectionConstraints: vi.fn(() => ({ points: {}, segments: {} })),
     selectPoint: vi.fn(),
     selectSegment: vi.fn(),
+    areCoordinatesInSelectionDistance: vi.fn(() => false),
   },
 }));
 
-vi.mock('@controllers/Core/Tools/general', () => ({
-  createElem: vi.fn(),
-  findObjectById: vi.fn(),
-  removeObjectById: vi.fn(),
-}));
+vi.mock('@controllers/Core/Tools/general', () => {
+    const mockPoint = { id: 'p-mock', segmentIds: [] };
+    return {
+        createElem: vi.fn(),
+        findObjectById: vi.fn(() => mockPoint), 
+        removeObjectById: vi.fn(),
+        createWatcher: vi.fn(() => vi.fn()),
+        uniqId: vi.fn(() => 'test-id'),
+    };
+});
 
 vi.mock('@controllers/GeometryTools/general', () => ({
   linkNewlyCreatedPoint: vi.fn(),
@@ -104,16 +127,11 @@ describe('CreateRegularTool', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    appMock.upperCanvasLayer.shapes = [];
+    appMock.upperCanvasLayer.segments = [];
+    appMock.upperCanvasLayer.points = [];
     helpConfigRegistry.clear();
     tool = new CreateRegularTool();
-  });
-
-  const createMockPoint = (x, y) => ({
-    coordinates: {
-      x, y,
-      toCanvasCoordinates: vi.fn(() => ({ x, y }))
-    },
-    adjustedOn: null
   });
 
   it('registers help config and opens one popup', () => {
@@ -121,37 +139,27 @@ describe('CreateRegularTool', () => {
     tool.start();
     expect(helpConfigRegistry.has('createRegularPolygon')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('createRegularPolygon');
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(generalTools.createElem).toHaveBeenCalledWith('regular-popup');
   });
 
   it('handles first point creation', () => {
-    app.tool.currentStep = 'animateFirstPoint';
-    tool.firstPoint = createMockPoint(0, 0);
-
+    tool.start();
+    tool.canvasMouseDown();
     tool.canvasMouseUp();
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
-    expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawSecondPoint');
+    expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
   });
 
-  it('handles second point and completes shape', () => {
-    tool.firstPoint = createMockPoint(0, 0);
-    tool.secondPoint = createMockPoint(100, 0);
-    tool.shapeDrawnId = 's-drawn';
-    app.tool.currentStep = 'animateSecondPoint';
-
-    const mockShapeDrawn = {
-      getSVGPath: () => 'M 0 0',
-      vertexes: [{}, {}],
-      centerCoordinates: { x: 50, y: 50 },
-      rotate: vi.fn(),
-      translate: vi.fn(),
-    };
-    vi.mocked(generalTools.findObjectById).mockReturnValue(mockShapeDrawn);
-
+  it('handles second point and completes shape', async () => {
+    tool.start();
+    tool.canvasMouseDown(); // First point
+    tool.canvasMouseUp();
+    
+    tool.canvasMouseDown(); // Second point
     tool.canvasMouseUp();
 
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
+    await Promise.resolve(); // completeShape
+    await Promise.resolve();
+
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawFirstPoint');
   });
 });

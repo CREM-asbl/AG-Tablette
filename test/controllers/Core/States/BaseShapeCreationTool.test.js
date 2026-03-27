@@ -1,12 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BaseShapeCreationTool } from '../../../../src/controllers/Core/States/BaseShapeCreationTool';
-import { app, setState } from '../../../../src/controllers/Core/App';
+import { app } from '../../../../src/controllers/Core/App';
 import { appActions } from '../../../../src/store/appState';
 import { SelectManager } from '../../../../src/controllers/Core/Managers/SelectManager';
 
 vi.mock('@lit-labs/signals', () => ({
     computed: vi.fn((cb) => ({ get: cb })),
     signal: vi.fn((val) => ({ get: () => val, set: vi.fn() })),
+}));
+
+const { mockCurrentStepGet } = vi.hoisted(() => ({
+    mockCurrentStepGet: vi.fn(() => 'start')
 }));
 
 vi.mock('../../../../src/controllers/Core/App', () => {
@@ -17,6 +21,9 @@ vi.mock('../../../../src/controllers/Core/App', () => {
             lastKnownMouseCoordinates: { x: 10, y: 10, toCanvasCoordinates: vi.fn(() => ({x:10, y:10})) }
         },
         upperCanvasLayer: {
+            shapes: [],
+            segments: [],
+            points: [],
             removeAllObjects: vi.fn(),
         },
         settings: {
@@ -29,7 +36,13 @@ vi.mock('../../../../src/controllers/Core/App', () => {
 });
 
 vi.mock('../../../../src/store/appState', () => ({
+    settings: { get: vi.fn(() => ({ temporaryDrawColor: '#ff0000' })) },
+    currentStep: { get: mockCurrentStepGet },
+    activeTool: { get: vi.fn(() => 'base') },
+    selectedTemplate: { get: vi.fn(() => null) },
+    toolState: { get: vi.fn(() => ({})) },
     appActions: {
+        setActiveTool: vi.fn(),
         setToolUiState: vi.fn(),
         setToolState: vi.fn(),
         setCurrentStep: vi.fn(),
@@ -97,7 +110,7 @@ class MockCreationTool extends BaseShapeCreationTool {
     async loadShapeDefinition() { this.shapeDefinition = {}; }
     numberOfPointsRequired() { return 2; }
     async executeAction() {}
-    refreshShapePreview() { this.previewRefreshed = true; }
+    refreshShapePreview() { this.previewRefreshed = true; return false; }
 }
 
 describe('BaseShapeCreationTool', () => {
@@ -105,11 +118,16 @@ describe('BaseShapeCreationTool', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        app.upperCanvasLayer.shapes = [];
+        app.upperCanvasLayer.segments = [];
+        app.upperCanvasLayer.points = [];
+        mockCurrentStepGet.mockReturnValue('start');
         tool = new MockCreationTool();
     });
 
     it('starts correctly', async () => {
         await tool.start();
+        expect(appActions.setActiveTool).toHaveBeenCalledWith('mock-create');
         expect(appActions.setToolUiState).toHaveBeenCalled();
     });
 
@@ -168,7 +186,7 @@ describe('BaseShapeCreationTool', () => {
     });
 
     it('refreshes state upper', () => {
-        app.tool.currentStep = 'animatePoint';
+        mockCurrentStepGet.mockReturnValue('animatePoint');
         tool.numberOfPointsDrawn = 1;
         tool.points = [{ coordinates: { x: 0, y: 0 } }];
         

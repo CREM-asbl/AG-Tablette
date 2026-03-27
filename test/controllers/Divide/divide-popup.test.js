@@ -14,6 +14,7 @@ const appActionsMock = {
   setActiveTool: vi.fn(),
   setToolState: vi.fn(),
   setCurrentStep: vi.fn(),
+  updateSettings: vi.fn(),
 };
 
 vi.mock('../../../src/controllers/Core/App', () => ({
@@ -39,6 +40,7 @@ beforeEach(async () => {
   appActionsMock.setActiveTool.mockClear();
   appActionsMock.setToolState.mockClear();
   appActionsMock.setCurrentStep.mockClear();
+  appActionsMock.updateSettings.mockClear();
   appMock.settings.numberOfDivisionParts = 3;
 
   if (!customElements.get('divide-popup')) {
@@ -69,10 +71,8 @@ describe('divide-popup', () => {
     select.value = '2';
     select.dispatchEvent(new Event('change'));
 
-    expect(setStateMock).toHaveBeenCalledWith({
-      settings: expect.objectContaining({
-        numberOfDivisionParts: 2,
-      }),
+    expect(appActionsMock.updateSettings).toHaveBeenCalledWith({
+      numberOfDivisionParts: 2,
     });
   });
 });

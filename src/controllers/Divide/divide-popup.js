@@ -3,7 +3,7 @@ import '@components/popups/template-popup';
 import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { range } from '../Core/Tools/general';
 
 class DividePopup extends LitElement {
@@ -99,18 +99,13 @@ class DividePopup extends LitElement {
   changeNumberOfParts(event) {
     const numberOfDivisionParts = Number(event.target.value);
     this.parts = numberOfDivisionParts;
-    setState({
-      settings: { ...app.settings, numberOfDivisionParts },
-    });
+    appActions.updateSettings({ numberOfDivisionParts });
   }
 
   submit() {
     appActions.setActiveTool('divide');
     appActions.setToolState({});
     appActions.setCurrentStep('selectObject');
-    setState({
-      tool: { ...app.tool, name: 'divide', currentStep: 'selectObject' },
-    });
   }
 
   submitAndClose() {

@@ -1,4 +1,5 @@
-import { app, setState } from '../App';
+import { appActions } from '../../../store/appState';
+import { app } from '../App';
 import { uniqId } from '../Tools/general';
 
 /**
@@ -33,7 +34,7 @@ export class ShapeGroup {
       '#fd3f92',
       '#ff8400',
     ][app.nextGroupColorIdx];
-    setState({ nextGroupColorIdx: (app.nextGroupColorIdx + 1) % 8 });
+    appActions.setNextGroupColorIdx((app.nextGroupColorIdx + 1) % 8);
   }
 
   saveToObject() {

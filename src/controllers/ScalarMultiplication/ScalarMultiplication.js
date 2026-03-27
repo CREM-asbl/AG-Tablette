@@ -81,9 +81,6 @@ export class ScalarMultiplicationTool extends Tool {
     this.timeoutRef = window.setTimeout(() => {
       this.executeAction();
       appActions.setCurrentStep('selectObject');
-      setState({
-        tool: { ...app.tool, name: this.name, currentStep: 'selectObject' },
-      });
     }, 200);
   }
 

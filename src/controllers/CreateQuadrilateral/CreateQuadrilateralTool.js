@@ -1,407 +1,89 @@
 import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
-import { html } from 'lit';
-import { appActions } from '../../store/appState';
 import { app } from '../Core/App';
-import { SelectManager } from '../Core/Managers/SelectManager';
-import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
-import { Segment } from '../Core/Objects/Segment';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
-import { Tool } from '../Core/States/Tool';
-import { findObjectsByName, removeObjectById } from '../Core/Tools/general';
+import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { createQuadrilateralHelpConfig } from './createQuadrilateral.helpConfig';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 
 /**
- * Ajout de figures sur l'espace de travail
+ * Outil de création de quadrilatères - Refactorisé avec BaseShapeCreationTool
  */
-export class CreateQuadrilateralTool extends Tool {
+export class CreateQuadrilateralTool extends BaseShapeCreationTool {
   constructor() {
     super(
       'createQuadrilateral',
       'Construire un quadrilatère',
-      'geometryCreator',
+      'Quadrilatères',
+      quadrilateres,
     );
-
-    // show-quadrilaterals -> select-points
-    this.currentStep = null;
-
-    // points of the shape to create
-    this.points = [];
-
-    // points drawn by the user
-    this.numberOfPointsDrawn = 0;
-
-    // Le tyle de figure que l'on va créer (rectangle, IsoscelesTriangle, RightAngleIsoscelesTriangle, trapèze)
-    this.quadrilateralSelected = null;
-  }
-
-  /**
-   * Renvoie l'aide à afficher à l'utilisateur
-   * @return {String} L'aide, en HTML
-   */
-  getHelpText() {
-    const toolName = this.title;
-    return html`
-      <h3>${toolName}</h3>
-      <p>Vous avez sélectionné l'outil <b>"${toolName}"</b>.</p>
-    `;
+    this.quadrilateralDef = null;
   }
 
   async start() {
-    // Enregistrer l'aide contextuelle
-    const { helpConfigRegistry } = await import('../../services/HelpConfigRegistry');
-    const { createQuadrilateralHelpConfig } = await import('./createQuadrilateral.helpConfig');
     helpConfigRegistry.register(this.name, createQuadrilateralHelpConfig);
-
-    app.upperCanvasLayer.removeAllObjects();
-    this.removeListeners();
-    this.stopAnimation();
-
-    import('@components/shape-selector');
-    import('@components/shape-selector');
-    appActions.setToolUiState({
-      name: 'shape-selector',
-      family: 'Quadrilatères',
-      templatesNames: quadrilateres,
-      selectedTemplate: app.tool.selectedTemplate,
-      type: 'Geometry',
-      nextStep: 'drawFirstPoint',
-    });
+    await super.start();
   }
 
-  async drawFirstPoint() {
-    app.upperCanvasLayer.removeAllObjects();
+  /**
+   * Chargement de la définition du quadrilatère sélectionné
+   */
+  async loadShapeDefinition() {
     const quadrilateralsDef = await import(`./quadrilateralsDef.js`);
     this.quadrilateralDef = quadrilateralsDef[app.tool.selectedTemplate.name];
 
-    this.points = [];
-    this.segments = [];
-    this.numberOfPointsDrawn = 0;
-
-    setTimeout(
-      () => appActions.setCurrentStep('drawPoint'),
-      50,
-    );
-  }
-
-  drawPoint() {
-    this.removeListeners();
-    this.stopAnimation();
-
-    this.getConstraints(this.numberOfPointsDrawn);
-
-    this.mouseDownId = app.addListener('canvasMouseDown', this.handler);
-  }
-
-  animatePoint() {
-    this.removeListeners();
-    this.animate();
-
-    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
-  }
-
-  end() {
-    app.upperCanvasLayer.removeAllObjects();
-    this.removeListeners();
-    this.stopAnimation();
-  }
-
-  canvasMouseDown() {
-    const newCoordinates = new Coordinates(
-      app.workspace.lastKnownMouseCoordinates,
-    );
-
-    if (
-      this.constraints.type === 'isConstrained' &&
-      !this.constraints.projectionOnConstraints(newCoordinates, true)
-    ) {
-      window.dispatchEvent(
-        new CustomEvent('show-notif', {
-          detail: { message: 'Veuillez placer le point sur la contrainte.' },
-        }),
+    if (!this.quadrilateralDef) {
+      throw new Error(
+        `Définition non trouvée pour ${app.tool.selectedTemplate.name}`,
       );
-      return;
-    }
-
-    this.points[this.numberOfPointsDrawn] = new Point({
-      layer: 'upper',
-      coordinates: newCoordinates,
-      color: app.settings.temporaryDrawColor,
-      size: 2,
-    });
-    this.numberOfPointsDrawn++;
-    if (this.numberOfPointsDrawn > 1) {
-      const seg = new Segment({
-        layer: 'upper',
-        vertexIds: [
-          this.points[this.numberOfPointsDrawn - 2].id,
-          this.points[this.numberOfPointsDrawn - 1].id,
-        ],
-      });
-      this.segments.push(seg);
-    }
-    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
-      if (this.numberOfPointsDrawn < 4) this.finishShape();
-      const seg = new Segment({
-        layer: 'upper',
-        vertexIds: [this.points[3].id, this.points[0].id],
-      });
-      this.segments.push(seg);
-      const shape = new RegularShape({
-        layer: 'upper',
-        segmentIds: this.segments.map((seg) => seg.id),
-        pointIds: this.points.map((pt) => pt.id),
-        strokeColor: app.settings.temporaryDrawColor,
-        fillOpacity: 0,
-      });
-      this.segments.forEach((seg, idx) => {
-        seg.idx = idx;
-        seg.shapeId = shape.id;
-      });
-    } else if (this.numberOfPointsDrawn > 1) {
-      new RegularShape({
-        layer: 'upper',
-        segmentIds: [this.segments[this.numberOfPointsDrawn - 2].id],
-        pointIds: this.segments[this.numberOfPointsDrawn - 2].vertexIds,
-        strokeColor: app.settings.temporaryDrawColor,
-        fillOpacity: 0,
-      });
-    }
-    appActions.setCurrentStep('animatePoint');
-  }
-
-  canvasMouseUp() {
-    for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
-      if (
-        SelectManager.areCoordinatesInMagnetismDistance(
-          this.points[i].coordinates,
-          this.points[this.numberOfPointsDrawn - 1].coordinates,
-        )
-      ) {
-        const firstPointCoordinates = this.points[0].coordinates;
-        if (this.numberOfPointsDrawn === 2) {
-          app.upperCanvasLayer.removeAllObjects();
-          this.numberOfPointsDrawn = 1;
-          this.points = [
-            new Point({
-              layer: 'upper',
-              coordinates: firstPointCoordinates,
-              color: app.settings.temporaryDrawColor,
-              size: 2,
-            }),
-          ];
-          this.segments = [];
-        } else if (this.numberOfPointsDrawn === 3) {
-          const secondPointCoordinates = this.points[1].coordinates;
-          app.upperCanvasLayer.removeAllObjects();
-          this.numberOfPointsDrawn = 2;
-          this.points = [
-            new Point({
-              layer: 'upper',
-              coordinates: firstPointCoordinates,
-              color: app.settings.temporaryDrawColor,
-              size: 2,
-            }),
-            new Point({
-              layer: 'upper',
-              coordinates: secondPointCoordinates,
-              color: app.settings.temporaryDrawColor,
-              size: 2,
-            }),
-          ];
-          this.segments = [
-            new Segment({
-              layer: 'upper',
-              vertexIds: [this.points[0].id, this.points[1].id],
-            }),
-          ];
-          new RegularShape({
-            layer: 'upper',
-            segmentIds: [this.segments[0].id],
-            pointIds: this.segments[0].vertexIds,
-            strokeColor: app.settings.temporaryDrawColor,
-            fillOpacity: 0,
-          });
-        } else if (this.numberOfPointsDrawn === 4) {
-          const secondPointCoordinates = this.points[1].coordinates;
-          const thirdPointCoordinates = this.points[2].coordinates;
-          app.upperCanvasLayer.removeAllObjects();
-          this.numberOfPointsDrawn = 3;
-          this.points = [
-            new Point({
-              layer: 'upper',
-              coordinates: firstPointCoordinates,
-              color: app.settings.temporaryDrawColor,
-              size: 2,
-            }),
-            new Point({
-              layer: 'upper',
-              coordinates: secondPointCoordinates,
-              color: app.settings.temporaryDrawColor,
-              size: 2,
-            }),
-            new Point({
-              layer: 'upper',
-              coordinates: thirdPointCoordinates,
-              color: app.settings.temporaryDrawColor,
-              size: 2,
-            }),
-          ];
-          this.segments = [
-            new Segment({
-              layer: 'upper',
-              vertexIds: [this.points[0].id, this.points[1].id],
-            }),
-            new Segment({
-              layer: 'upper',
-              vertexIds: [this.points[1].id, this.points[2].id],
-            }),
-          ];
-          new RegularShape({
-            layer: 'upper',
-            segmentIds: this.segments.map((seg) => seg.id),
-            pointIds: this.points.map((pt) => pt.id),
-            strokeColor: app.settings.temporaryDrawColor,
-            fillOpacity: 0,
-          });
-        }
-        window.dispatchEvent(
-          new CustomEvent('show-notif', {
-            detail: { message: 'Veuillez placer le point autre part.' },
-          }),
-        );
-        this.stopAnimation();
-        appActions.setCurrentStep('drawPoint');
-        return;
-      }
-    }
-
-    if (this.numberOfPointsDrawn === this.numberOfPointsRequired()) {
-      this.stopAnimation();
-      this.executeAction();
-      appActions.setCurrentStep('drawFirstPoint');
-    } else {
-      this.stopAnimation();
-      this.getConstraints(this.numberOfPointsDrawn);
-      appActions.setCurrentStep('drawPoint');
     }
   }
 
-  adjustPoint(point) {
-    point.adjustedOn = undefined;
-    if (this.constraints.isFree) {
-      let constraints = SelectManager.getEmptySelectionConstraints().points;
-      constraints.canSelect = true;
-      let adjustedPoint;
-      if (
-        (adjustedPoint = SelectManager.selectPoint(
-          point.coordinates,
-          constraints,
-          false,
-        ))
-      ) {
-        point.coordinates = new Coordinates(adjustedPoint.coordinates);
-        point.adjustedOn = adjustedPoint;
-      } else if (
-        (adjustedPoint = app.gridCanvasLayer.getClosestGridPoint(
-          point.coordinates.toCanvasCoordinates(),
-        ))
-      ) {
-        const adjustedPointInWorldSpace = adjustedPoint.fromCanvasCoordinates();
-        point.coordinates = new Coordinates(adjustedPointInWorldSpace);
-        point.adjustedOn = adjustedPointInWorldSpace;
-      } else {
-        constraints = SelectManager.getEmptySelectionConstraints().segments;
-        constraints.canSelect = true;
-        const adjustedSegment = SelectManager.selectSegment(
-          point.coordinates,
-          constraints,
-        );
-        if (adjustedSegment) {
-          point.coordinates = adjustedSegment.projectionOnSegment(
-            point.coordinates,
-          );
-          point.adjustedOn = adjustedSegment;
-        }
-      }
-    } else {
-      // This is the correct else for if (this.constraints.isFree)
-      let adjustedCoordinates = this.constraints.projectionOnConstraints(
-        point.coordinates,
-      );
-
-      const constraints = SelectManager.getEmptySelectionConstraints().segments;
-      constraints.canSelect = true;
-      constraints.numberOfObjects = 'allInDistance';
-      const adjustedSegments = SelectManager.selectSegment(
-        adjustedCoordinates,
-        constraints,
-      );
-      if (adjustedSegments) {
-        const adjustedSegment = adjustedSegments
-          .filter((seg) => !seg.isParalleleWith(this.constraints.segments[0]))
-          .sort((seg1, seg2) =>
-            seg1
-              .projectionOnSegment(adjustedCoordinates)
-              .dist(adjustedCoordinates) >
-              seg2
-                .projectionOnSegment(adjustedCoordinates)
-                .dist(adjustedCoordinates)
-              ? 1
-              : -1,
-          )[0];
-        if (adjustedSegment) {
-          adjustedCoordinates = adjustedSegment
-            .intersectionWith(this.constraints.segments[0])
-            .sort((intersection1, intersection2) =>
-              intersection1.dist(adjustedCoordinates) >
-                intersection2.dist(adjustedCoordinates)
-                ? 1
-                : -1,
-            )[0];
-          point.adjustedOn = adjustedSegment;
-        }
-      }
-      point.coordinates = new Coordinates(adjustedCoordinates);
-    }
-  }
-
-  refreshStateUpper() {
-    if (app.tool.currentStep === 'animatePoint') {
-      this.points[this.numberOfPointsDrawn - 1].coordinates = new Coordinates(
-        app.workspace.lastKnownMouseCoordinates,
-      );
-      this.adjustPoint(this.points[this.numberOfPointsDrawn - 1]);
-      if (
-        this.numberOfPointsDrawn === this.numberOfPointsRequired() &&
-        this.numberOfPointsDrawn < 4
-      ) {
-        this.finishShape();
-      }
-    }
-  }
-
+  /**
+   * Nombre de points requis selon le type de quadrilatère
+   */
   numberOfPointsRequired() {
-    return this.quadrilateralDef.numberOfPointsRequired;
+    return this.quadrilateralDef ? this.quadrilateralDef.numberOfPointsRequired : 4;
   }
 
-  finishShape() {
-    this.quadrilateralDef.finishShape(this.points, this.segments);
+  /**
+   * Obtenir les contraintes pour le point donné
+   */
+  getConstraints(pointNumber) {
+    if (this.quadrilateralDef && this.quadrilateralDef.constraints) {
+      this.constraints = this.quadrilateralDef.constraints[pointNumber](
+        this.points,
+        this.segments,
+      );
+    } else {
+      this.constraints = { isFree: true };
+    }
   }
 
-  getConstraints(pointNb) {
-    findObjectsByName('constraints', 'upper').forEach((obj) =>
-      removeObjectById(obj.id),
-    );
-    this.constraints = this.quadrilateralDef.constraints[pointNb](
-      this.points,
-      this.segments,
-    );
+  /**
+   * Finaliser la forme avant création
+   */
+  refreshShapePreview() {
+    if (
+      this.quadrilateralDef &&
+      this.numberOfPointsDrawn === this.numberOfPointsRequired() &&
+      this.numberOfPointsDrawn < 4
+    ) {
+      this.quadrilateralDef.finishShape(this.points, this.segments);
+    }
   }
 
-  _executeAction() {
+  /**
+   * Exécution de l'action finale - création du quadrilatère
+   */
+  async executeAction() {
+    if (!this.quadrilateralDef) {
+      throw new Error('Définition de quadrilatère manquante');
+    }
+
     let familyName = '4-corner-shape';
     if (app.tool.selectedTemplate.name === 'Square') {
       familyName = 'Regular';
@@ -409,17 +91,32 @@ export class CreateQuadrilateralTool extends Tool {
       familyName = 'Irregular';
     }
 
-    let path = [
+    // Si on a moins de 4 points dessinés, la définition doit avoir complété les points restants dans points/segments
+    // On s'assure d'avoir 4 points pour construire le chemin
+    if (this.points.length < 4) {
+        throw new Error('Nombre de points insuffisant pour créer un quadrilatère');
+    }
+
+    // Construire le chemin SVG
+    const path = [
       'M',
       this.points[0].coordinates.x,
       this.points[0].coordinates.y,
-    ];
-    path.push('L', this.points[1].coordinates.x, this.points[1].coordinates.y);
-    path.push('L', this.points[2].coordinates.x, this.points[2].coordinates.y);
-    path.push('L', this.points[3].coordinates.x, this.points[3].coordinates.y);
-    path.push('L', this.points[0].coordinates.x, this.points[0].coordinates.y);
-    path = path.join(' ');
+      'L',
+      this.points[1].coordinates.x,
+      this.points[1].coordinates.y,
+      'L',
+      this.points[2].coordinates.x,
+      this.points[2].coordinates.y,
+      'L',
+      this.points[3].coordinates.x,
+      this.points[3].coordinates.y,
+      'L',
+      this.points[0].coordinates.x,
+      this.points[0].coordinates.y,
+    ].join(' ');
 
+    // Créer la forme
     const shape = new RegularShape({
       layer: 'main',
       path: path,
@@ -429,10 +126,12 @@ export class CreateQuadrilateralTool extends Tool {
       geometryObject: new GeometryObject({}),
     });
 
+    // Lier les points ajustés
     shape.vertexes[0].adjustedOn = this.points[0].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
+    
     if (
       shape.name === 'Rectangle' ||
       shape.name === 'Losange' ||
@@ -442,17 +141,25 @@ export class CreateQuadrilateralTool extends Tool {
       shape.name === 'Trapeze' ||
       shape.name === 'IrregularQuadrilateral'
     ) {
-      shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
-      linkNewlyCreatedPoint(shape, shape.vertexes[2]);
+      if (this.points[2]) {
+        shape.vertexes[2].adjustedOn = this.points[2].adjustedOn;
+        linkNewlyCreatedPoint(shape, shape.vertexes[2]);
+      }
     }
     if (
       shape.name === 'RightAngleTrapeze' ||
       shape.name === 'Trapeze' ||
       shape.name === 'IrregularQuadrilateral'
     ) {
-      shape.vertexes[3].adjustedOn = this.points[3].adjustedOn;
-      linkNewlyCreatedPoint(shape, shape.vertexes[3]);
+      if (this.points[3]) {
+        shape.vertexes[3].adjustedOn = this.points[3].adjustedOn;
+        linkNewlyCreatedPoint(shape, shape.vertexes[3]);
+      }
     }
+
+    // Calculer les spécifications de construction
     computeConstructionSpec(shape);
+
+    return shape;
   }
 }

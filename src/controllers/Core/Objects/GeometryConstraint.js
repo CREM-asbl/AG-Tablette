@@ -14,9 +14,11 @@ export class GeometryConstraint {
    * @param {[Point]} points      pout isContructed
    */
   constructor(type, lines = [], points = []) {
-    findObjectsByName('constraints', 'upper').forEach((s) =>
-      removeObjectById(s.id),
-    );
+    findObjectsByName('constraints', 'upper').forEach((s) => {
+      // Suppression non récursive
+      const index = app.upperCanvasLayer.shapes.findIndex((obj) => obj.id === s.id);
+      if (index !== -1) app.upperCanvasLayer.shapes.splice(index, 1);
+    });
     this.type = type;
     this.segments = lines.map((ln) => {
       let path = '';
