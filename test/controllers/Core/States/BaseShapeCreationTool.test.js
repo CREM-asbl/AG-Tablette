@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { BaseShapeCreationTool } from '../../../../src/controllers/Core/States/BaseShapeCreationTool';
 import { app } from '../../../../src/controllers/Core/App';
-import { appActions } from '../../../../src/store/appState';
 import { SelectManager } from '../../../../src/controllers/Core/Managers/SelectManager';
+import { BaseShapeCreationTool } from '../../../../src/controllers/Core/States/BaseShapeCreationTool';
+import { appActions } from '../../../../src/store/appState';
 
 vi.mock('@lit-labs/signals', () => ({
     computed: vi.fn((cb) => ({ get: cb })),
@@ -18,7 +18,7 @@ vi.mock('../../../../src/controllers/Core/App', () => {
     const app = {
         tool: { name: 'base', currentStep: 'start' },
         workspace: {
-            lastKnownMouseCoordinates: { x: 10, y: 10, toCanvasCoordinates: vi.fn(() => ({x:10, y:10})) }
+            lastKnownMouseCoordinates: { x: 10, y: 10, toCanvasCoordinates: vi.fn(() => ({ x: 10, y: 10 })) }
         },
         upperCanvasLayer: {
             shapes: [],
@@ -109,7 +109,7 @@ class MockCreationTool extends BaseShapeCreationTool {
     }
     async loadShapeDefinition() { this.shapeDefinition = {}; }
     numberOfPointsRequired() { return 2; }
-    async executeAction() {}
+    async executeAction() { }
     refreshShapePreview() { this.previewRefreshed = true; return false; }
 }
 
@@ -159,11 +159,11 @@ describe('BaseShapeCreationTool', () => {
     it('completes shape when required points are drawn', async () => {
         tool.numberOfPointsDrawn = 1;
         tool.points = [{ id: 'p1' }];
-        
+
         // Add second point
         tool.canvasMouseDown();
         expect(tool.numberOfPointsDrawn).toBe(2);
-        
+
         // Mouse up should complete - completeShape() calls safeExecuteAction() which is async
         tool.canvasMouseUp();
         await Promise.resolve(); // flush microtask queue
@@ -178,9 +178,9 @@ describe('BaseShapeCreationTool', () => {
             { id: 'p2', coordinates: { x: 1, y: 1 } }
         ];
         tool.segments = [{ id: 's1' }];
-        
+
         vi.mocked(SelectManager.areCoordinatesInMagnetismDistance).mockReturnValue(true);
-        
+
         tool.canvasMouseUp();
         expect(appActions.addNotification).toHaveBeenCalled();
         expect(tool.numberOfPointsDrawn).toBe(1);
@@ -192,7 +192,7 @@ describe('BaseShapeCreationTool', () => {
     it('adjusts point position free', () => {
         const mockPoint = { coordinates: { x: 5, y: 5 } };
         tool.constraints = { isFree: true };
-        
+
         tool.adjustPoint(mockPoint);
         expect(SelectManager.getEmptySelectionConstraints).toHaveBeenCalled();
     });
@@ -201,26 +201,26 @@ describe('BaseShapeCreationTool', () => {
         mockCurrentStepGet.mockReturnValue('animatePoint');
         tool.numberOfPointsDrawn = 1;
         tool.points = [{ coordinates: { x: 0, y: 0 } }];
-        
+
         tool.refreshStateUpper();
         expect(tool.previewRefreshed).toBe(true);
     });
 
-        it('freezes last point on mouse up before continuing', () => {
-            tool.numberOfPointsDrawn = 1;
-            tool.points = [{ coordinates: { x: 1, y: 1 }, adjustedOn: null }];
-            tool.numberOfPointsRequired = vi.fn(() => 2);
-            tool.checkPointMagnetism = vi.fn(() => false);
+    it('freezes last point on mouse up before continuing', () => {
+        tool.numberOfPointsDrawn = 1;
+        tool.points = [{ coordinates: { x: 1, y: 1 }, adjustedOn: null }];
+        tool.numberOfPointsRequired = vi.fn(() => 2);
+        tool.checkPointMagnetism = vi.fn(() => false);
 
-            app.workspace.lastKnownMouseCoordinates = { x: 42, y: 24 };
+        app.workspace.lastKnownMouseCoordinates = { x: 42, y: 24 };
 
-            const adjustSpy = vi.spyOn(tool, 'adjustPoint');
+        const adjustSpy = vi.spyOn(tool, 'adjustPoint');
 
-            tool.canvasMouseUp();
+        tool.canvasMouseUp();
 
-            expect(tool.points[0].coordinates.x).toBe(42);
-            expect(tool.points[0].coordinates.y).toBe(24);
-            expect(adjustSpy).toHaveBeenCalledWith(tool.points[0]);
-            expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
-        });
+        expect(tool.points[0].coordinates.x).toBe(42);
+        expect(tool.points[0].coordinates.y).toBe(24);
+        expect(adjustSpy).toHaveBeenCalledWith(tool.points[0]);
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
+    });
 });

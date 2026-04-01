@@ -83,7 +83,7 @@ export class CreateRegularTool extends BaseShapeCreationTool {
   }
 
   getPath(firstCoordinates, secondCoordinates) {
-    const numberOfPoints = app.settings.numberOfRegularPoints || 4;
+    const numberOfPoints = app.settings.numberOfRegularPoints || 3;
     const externalAngle = (Math.PI * 2) / numberOfPoints;
 
     let path = [

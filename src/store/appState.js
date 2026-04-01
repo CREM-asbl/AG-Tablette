@@ -68,6 +68,7 @@ export const settings = signal({
   temporaryDrawColor: '#ff0000',
   selectionDistance: 20,
   magnetismDistance: 15,
+  numberOfRegularPoints: 3,
 });
 
 export const nextGroupColorIdx = signal(0);

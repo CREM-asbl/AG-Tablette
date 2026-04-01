@@ -1,5 +1,5 @@
 
-import { activeTool, appActions, currentStep, selectedTemplate, settings } from '../../../store/appState';
+import { appActions, currentStep, selectedTemplate, settings } from '../../../store/appState';
 import { app } from '../../Core/App';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Coordinates } from '../../Core/Objects/Coordinates';
