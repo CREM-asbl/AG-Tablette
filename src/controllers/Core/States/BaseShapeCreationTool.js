@@ -7,7 +7,6 @@ import { Point } from '../../Core/Objects/Point';
 import { Segment } from '../../Core/Objects/Segment';
 import { RegularShape } from '../../Core/Objects/Shapes/RegularShape';
 import { BaseGeometryTool } from '../../Core/States/BaseGeometryTool';
-import { findObjectsByName } from '../../Core/Tools/general';
 
 /**
  * Classe de base pour tous les outils de création de formes géométriques
@@ -65,8 +64,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       await this.loadShapeDefinition();
 
       this.resetDrawingState();
-      appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
       appActions.setCurrentStep('drawPoint');
+      appActions.setToolState({ numberOfPointsDrawn: this.numberOfPointsDrawn });
     } catch (error) {
       console.error('Erreur lors du chargement de la définition:', error);
       this.showErrorNotification("Erreur lors de l'initialisation");
@@ -113,13 +112,6 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
     this.removeListeners();
     this.animate();
 
-    // Masquer les contraintes pendant l'animation
-    findObjectsByName('constraints', 'upper').forEach((s) => {
-      if (s.geometryObject) {
-        s.geometryObject.geometryIsVisible = false;
-      }
-    });
-
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -143,8 +135,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
 
     this.addPointToShape(newCoordinates);
     this.syncPreviewFromCurrentState();
-    appActions.setToolState({ currentStep: 'animatePoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('animatePoint');
+    appActions.setToolState({ numberOfPointsDrawn: this.numberOfPointsDrawn });
   }
 
   clearPreviewShape() {
@@ -243,6 +235,16 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    * Gestion standardisée du mouseUp
    */
   canvasMouseUp() {
+    // Fige explicitement le dernier point au relâchement pour éviter
+    // les décalages dus à la dernière frame d'animation.
+    const lastPoint = this.points[this.numberOfPointsDrawn - 1];
+    const releaseCoordinates = this.getValidMouseCoordinates();
+    if (lastPoint && releaseCoordinates) {
+      lastPoint.coordinates = releaseCoordinates;
+      this.adjustPoint(lastPoint);
+      this.syncPreviewFromCurrentState();
+    }
+
     // Vérifier les points trop proches (magnétisme)
     if (this.checkPointMagnetism()) return;
 
@@ -280,8 +282,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       type: 'info',
     });
     this.rollbackLastPoint();
-    appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('drawPoint');
+    appActions.setToolState({ numberOfPointsDrawn: this.numberOfPointsDrawn });
   }
 
   /**
@@ -303,8 +305,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
    */
   continueDrawing() {
     this.getConstraints(this.numberOfPointsDrawn);
-    appActions.setToolState({ currentStep: 'drawPoint', numberOfPointsDrawn: this.numberOfPointsDrawn });
     appActions.setCurrentStep('drawPoint');
+    appActions.setToolState({ numberOfPointsDrawn: this.numberOfPointsDrawn });
   }
 
   /**
@@ -320,8 +322,8 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
         new CustomEvent('actions-executed', { detail: { name: this.title } }),
       );
       this.clearPreviewShape();
-      appActions.setToolState({ currentStep: 'drawFirstPoint' });
       appActions.setCurrentStep('drawFirstPoint');
+      appActions.setToolState({ numberOfPointsDrawn: 0 });
     }, 'création de forme');
   }
 
