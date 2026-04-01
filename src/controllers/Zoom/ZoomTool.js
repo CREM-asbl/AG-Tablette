@@ -31,12 +31,6 @@ export class ZoomTool extends Tool {
     this.init();
   }
 
-  updateToolStep(step, extraState = {}) {
-    appActions.setActiveTool(this.name);
-    appActions.setToolState(extraState);
-    appActions.setCurrentStep(step);
-  }
-
   /**
    * Applique un nouveau niveau de zoom
    */
@@ -100,7 +94,10 @@ export class ZoomTool extends Tool {
       if (this.baseDist === 0) this.baseDist = 0.001;
       this.originalZoom = app.workspace.zoomLevel;
       app.upperCanvasLayer.removeAllObjects();
-      this.updateToolStep('start', { mode: 'touch' });
+      
+      appActions.setActiveTool(this.name);
+      appActions.setToolState({ mode: 'touch' });
+      appActions.setCurrentStep('start');
     }
   }
 
@@ -131,8 +128,11 @@ export class ZoomTool extends Tool {
   }
 
   canvasMouseWheel(deltaY) {
-    if (!this.isLastActionZoom)
-      this.updateToolStep('start', { mode: 'wheel' });
+    if (!this.isLastActionZoom) {
+      appActions.setActiveTool(this.name);
+      appActions.setToolState({ mode: 'wheel' });
+      appActions.setCurrentStep('start');
+    }
     clearTimeout(this.timeoutId);
     this.originalZoom = app.workspace.zoomLevel;
     const scaleOffset = (this.originalZoom - deltaY / 100) / this.originalZoom;

@@ -2,6 +2,7 @@ import '@components/icon-button';
 import '@components/template-toolbar';
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
+import { fullHistoryState, historyState } from '../store/appState';
 import { app, changes } from './Core/App';
 import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
 
@@ -25,7 +26,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
       top: 0;
       z-index: 10;
       background-color: var(--theme-color);
-      width: ${app.settings.mainMenuWidth}px;
+      width: ${app.settings?.mainMenuWidth || 250}px;
       height: 100dvh;
       padding: 12px;
       box-sizing: border-box;
@@ -356,17 +357,32 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
   }
 
   render() {
-    changes.get();
-    this.updateProperties();
+    const fullHistory = fullHistoryState.get();
+    const history = historyState.get();
+    
+    if (!fullHistory.isRunning) {
+      this.close();
+      return null;
+    }
+
+    this.index = fullHistory.actionIndex;
+    this.playPauseButton = fullHistory.isPlaying ? 'pause' : 'play';
 
     // Calcul du nombre total d'actions pour la barre de progression
-    const totalActions = app.fullHistory.numberOfActions || 1;
+    const totalActions = fullHistory.numberOfActions || 1;
     const currentProgress = (this.index / totalActions) * 100;
 
     // Récupération de la couleur du thème pour les styles dynamiques
     const themeColor = getComputedStyle(document.documentElement)
       .getPropertyValue('--theme-color')
       .trim();
+
+    // Auto-scroll to current action
+    setTimeout(() => {
+      this.shadowRoot
+        ?.getElementById('b' + this.index)
+        ?.parentElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 0);
 
     return html`
       <style>
@@ -520,27 +536,27 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
     }
   }
 
-  _clickHandler(event) {
+  async _clickHandler(event) {
     const index = parseInt(this.index);
     let idx;
     switch (event.target.name) {
       case 'action-button':
         idx = parseInt(event.target.id.substring(1));
-        FullHistoryManager.moveTo(idx);
+        await FullHistoryManager.moveTo(idx);
         break;
       case 'play-action-button':
         idx = parseInt(event.target.id.substring(1));
-        FullHistoryManager.moveTo(idx, true);
+        await FullHistoryManager.moveTo(idx, true);
         FullHistoryManager.playBrowsing(true);
         break;
       case 'undo':
         if (index === 0) {
           break;
         }
-        FullHistoryManager.moveTo(index - 1);
+        await FullHistoryManager.moveTo(index - 1);
         break;
       case 'stop':
-        FullHistoryManager.stopBrowsing();
+        await FullHistoryManager.stopBrowsing();
         break;
       case 'pause':
         FullHistoryManager.pauseBrowsing();
@@ -552,7 +568,7 @@ class FullHistoryTools extends SignalWatcher(LitElement) {
         if (index >= app.fullHistory.numberOfActions) {
           break;
         }
-        FullHistoryManager.moveTo(index + 1);
+        await FullHistoryManager.moveTo(index + 1);
         break;
     }
   }

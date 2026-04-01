@@ -84,7 +84,20 @@ export const historyState = signal({
   canRedo: false,
   size: 0,
   currentIndex: -1,
+  steps: [],
+  startSituation: null,
+  startSettings: null,
 });
+
+export const fullHistoryState = signal({
+  index: 0,
+  actionIndex: 0,
+  numberOfActions: 0,
+  steps: [],
+  isRunning: false,
+});
+
+export const stepSinceSave = signal(false);
 
 export const tangramState = signal({
   mode: null, // 'creation' | 'reproduction' | null
@@ -154,6 +167,7 @@ export const appActions = {
 
   setFilename: (name) => {
     filename.set(name);
+    window.dispatchEvent(new CustomEvent('app:filename-changed', { detail: { filename: name } }));
   },
 
   setFileToOpen: (file) => {
@@ -162,6 +176,13 @@ export const appActions = {
 
   setNextGroupColorIdx: (idx) => {
     nextGroupColorIdx.set(idx);
+  },
+
+  setStepSinceSave: (value) => {
+    stepSinceSave.set(value);
+    window.dispatchEvent(
+      new CustomEvent('app:step-since-save-changed', { detail: { stepSinceSave: value } }),
+    );
   },
 
   addBug: (bugId) => {
@@ -184,7 +205,15 @@ export const appActions = {
   },
 
   setHistoryState: (state) => {
-    historyState.set(state);
+    const current = historyState.get();
+    historyState.set({ ...current, ...state });
+    window.dispatchEvent(new CustomEvent('history:state-changed', { detail: { state } }));
+  },
+
+  setFullHistoryState: (state) => {
+    const current = fullHistoryState.get();
+    fullHistoryState.set({ ...current, ...state });
+    window.dispatchEvent(new CustomEvent('app:full-history-changed', { detail: { state } }));
   },
 
   setActiveTool: (toolName) => {
@@ -305,130 +334,16 @@ export const appActions = {
 };
 
 /**
- * Système d'historique simple pour undo/redo
- */
-class SimpleHistory {
-  constructor(maxSize = 50) {
-    this.history = [];
-    this.currentIndex = -1;
-    this.maxSize = maxSize;
-  }
-
-  saveState() {
-    const state = {
-      workspaceData: workspaceData.get(),
-      settings: settings.get(),
-      viewport: viewport.get(),
-      timestamp: Date.now(),
-    };
-
-    // Supprimer l'historique futur si on est au milieu
-    if (this.currentIndex < this.history.length - 1) {
-      this.history = this.history.slice(0, this.currentIndex + 1);
-    }
-
-    this.history.push(state);
-    this.currentIndex = this.history.length - 1;
-
-    // Limiter la taille
-    if (this.history.length > this.maxSize) {
-      this.history = this.history.slice(-this.maxSize);
-      this.currentIndex = this.history.length - 1;
-    }
-
-    window.dispatchEvent(
-      new CustomEvent('history:state-saved', {
-        detail: { index: this.currentIndex },
-      }),
-    );
-    this.updateSignal();
-  }
-
-  undo() {
-    if (this.canUndo()) {
-      this.currentIndex--;
-      const state = this.history[this.currentIndex];
-      this.restoreState(state);
-      window.dispatchEvent(
-        new CustomEvent('history:undo', {
-          detail: { index: this.currentIndex },
-        }),
-      );
-      this.updateSignal();
-      return true;
-    }
-    return false;
-  }
-
-  redo() {
-    if (this.canRedo()) {
-      this.currentIndex++;
-      const state = this.history[this.currentIndex];
-      this.restoreState(state);
-      window.dispatchEvent(
-        new CustomEvent('history:redo', {
-          detail: { index: this.currentIndex },
-        }),
-      );
-      this.updateSignal();
-      return true;
-    }
-    return false;
-  }
-
-  canUndo() {
-    return this.currentIndex > 0;
-  }
-
-  canRedo() {
-    return this.currentIndex < this.history.length - 1;
-  }
-
-  restoreState(state) {
-    workspaceData.set(state.workspaceData);
-    settings.set(state.settings);
-    viewport.set(state.viewport);
-  }
-
-  clear() {
-    this.history = [];
-    this.currentIndex = -1;
-    window.dispatchEvent(new CustomEvent('history:cleared'));
-    this.updateSignal();
-  }
-
-  updateSignal() {
-    historyState.set(this.getStats());
-  }
-
-  getStats() {
-    return {
-      size: this.history.length,
-      currentIndex: this.currentIndex,
-      canUndo: this.canUndo(),
-      canRedo: this.canRedo(),
-    };
-  }
-}
-
-export const history = new SimpleHistory();
-
-/**
  * Actions d'historique
  */
 export const historyActions = {
   save: () => {
     // Legacy save is automatic or handled by HistoryManager
-    // For now, we might not need an explicit save action from UI if it's automatic
-    // But if we did, we'd dispatch an event.
-    // HistoryManager.addStep() is called on 'actions-executed'
   },
   undo: () => window.dispatchEvent(new CustomEvent('undo')),
   redo: () => window.dispatchEvent(new CustomEvent('redo')),
   clear: () => {
     // Legacy clear
-    // window.dispatchEvent(new CustomEvent('new-window')); // Maybe? Or just clear history?
-    // For now let's just dispatch a clear event if it exists, or do nothing if not used by UI yet
   },
   canUndo: () => historyState.get().canUndo,
   canRedo: () => historyState.get().canRedo,
@@ -513,7 +428,16 @@ export const resetWorkspaceState = () => {
     level: null,
     currentFile: null,
   });
-  history.clear();
+  
+  appActions.setHistoryState({
+    canUndo: false,
+    canRedo: false,
+    size: 0,
+    currentIndex: -1,
+    steps: [],
+    startSituation: null,
+    startSettings: null,
+  });
 
   window.dispatchEvent(new CustomEvent('app:workspace-reset'));
 };
@@ -575,6 +499,6 @@ export const exportAppState = () => {
       notifications: notifications.get(),
       dialogs: dialogs.get(),
     },
-    history: history.getStats(),
+    history: historyState.get(),
   };
 };

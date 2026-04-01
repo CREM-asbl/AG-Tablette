@@ -15,12 +15,27 @@ vi.mock('@/store/gridStore', () => ({
   },
 }));
 
+const mockHistoryState = {
+  currentIndex: -1,
+  steps: [],
+  startSituation: null,
+};
+
 vi.mock('../../../../src/store/appState', () => ({
   appActions: {
-    setHistoryState: vi.fn(),
+    setHistoryState: vi.fn((state) => {
+        Object.assign(mockHistoryState, state);
+    }),
     updateSettings: vi.fn(),
     setTangramState: vi.fn(),
+    setActiveTool: vi.fn(),
   },
+  historyState: {
+    get: vi.fn(() => mockHistoryState),
+  },
+  settings: {
+    get: vi.fn(() => ({})),
+  }
 }));
 
 vi.mock('@controllers/Core/Managers/FullHistoryManager', () => ({
@@ -32,11 +47,6 @@ vi.mock('@controllers/Core/Managers/FullHistoryManager', () => ({
 // Mock du module App
 vi.mock('@controllers/Core/App', () => {
   // Créer les objets mocks qui seront partagés
-  const mockHistory = {
-    index: -1,
-    steps: [],
-    startSituation: null,
-  };
   const mockWorkspace = {
     initFromObject: vi.fn(),
     data: { shapes: [], segments: [], points: [] }, // Ajout de data
@@ -47,7 +57,6 @@ vi.mock('@controllers/Core/App', () => {
   const mockTangram = { isSilhouetteShown: false };
 
   // Exposer les mocks globalement pour les tests
-  global.mockHistory = mockHistory;
   global.mockWorkspace = mockWorkspace;
   global.mockSettings = mockSettings;
   global.mockDefaultState = mockDefaultState;
@@ -56,7 +65,6 @@ vi.mock('@controllers/Core/App', () => {
 
   return {
     app: {
-      history: mockHistory,
       workspace: mockWorkspace,
       settings: mockSettings,
       defaultState: mockDefaultState,
@@ -68,16 +76,15 @@ vi.mock('@controllers/Core/App', () => {
 });
 
 // Import de HistoryManager (après les mocks)
-import { setState } from '@controllers/Core/App';
 import { HistoryManager } from '@controllers/Core/Managers/HistoryManager.js';
 import { appActions } from '../../../../src/store/appState';
 
 describe('HistoryManager - Tests TDD', () => {
   beforeEach(() => {
     // Réinitialiser l'état avant chaque test
-    global.mockHistory.index = -1;
-    global.mockHistory.steps = [];
-    global.mockHistory.startSituation = null;
+    mockHistoryState.currentIndex = -1;
+    mockHistoryState.steps = [];
+    mockHistoryState.startSituation = null;
     global.mockWorkspace.initFromObject = vi.fn();
     Object.keys(global.mockSettings).forEach((key) => delete global.mockSettings[key]);
     global.mockEnvironment.name = 'Default';
@@ -85,102 +92,97 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('canUndo', () => {
-    it('devrait retourner false quand index = -1', () => {
-      mockHistory.index = -1;
+    it('devrait retourner false quand currentIndex = -1', async () => {
+      mockHistoryState.currentIndex = -1;
 
       expect(HistoryManager.canUndo()).toBe(false);
     });
 
-    it('devrait retourner true quand index >= 0', () => {
-      mockHistory.index = 0;
+    it('devrait retourner true quand currentIndex >= 0', async () => {
+      mockHistoryState.currentIndex = 0;
 
       expect(HistoryManager.canUndo()).toBe(true);
     });
 
-    it('devrait retourner true pour des index positifs', () => {
-      mockHistory.index = 5;
+    it('devrait retourner true pour des index positifs', async () => {
+      mockHistoryState.currentIndex = 5;
 
       expect(HistoryManager.canUndo()).toBe(true);
     });
   });
 
   describe('canRedo', () => {
-    it('devrait retourner false quand index = steps.length - 1', () => {
-      mockHistory.index = 2;
-      mockHistory.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
+    it('devrait retourner false quand index = steps.length - 1', async () => {
+      mockHistoryState.currentIndex = 2;
+      mockHistoryState.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
 
       expect(HistoryManager.canRedo()).toBe(false);
     });
 
-    it('devrait retourner true quand index < steps.length - 1', () => {
-      mockHistory.index = 1;
-      mockHistory.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
+    it('devrait retourner true quand index < steps.length - 1', async () => {
+      mockHistoryState.currentIndex = 1;
+      mockHistoryState.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
 
       expect(HistoryManager.canRedo()).toBe(true);
     });
 
-    it('devrait retourner false quand il n\'y a pas de steps', () => {
-      mockHistory.index = -1;
-      mockHistory.steps = [];
+    it('devrait retourner false quand il n\'y a pas de steps', async () => {
+      mockHistoryState.currentIndex = -1;
+      mockHistoryState.steps = [];
 
       expect(HistoryManager.canRedo()).toBe(false);
     });
 
-    it('devrait retourner true quand index = -1 et qu\'il y a des steps', () => {
-      mockHistory.index = -1;
-      mockHistory.steps = [{ id: 1 }];
+    it('devrait retourner true quand currentIndex = -1 et qu\'il y a des steps', async () => {
+      mockHistoryState.currentIndex = -1;
+      mockHistoryState.steps = [{ id: 1 }];
 
       expect(HistoryManager.canRedo()).toBe(true);
     });
   });
 
   describe('undo', () => {
-    it('ne devrait rien faire si canUndo() = false', () => {
+    it('ne devrait rien faire si canUndo() = false', async () => {
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => { });
-      mockHistory.index = -1;
+      mockHistoryState.currentIndex = -1;
 
-      HistoryManager.undo();
+      await HistoryManager.undo();
 
-      expect(consoleInfoSpy).toHaveBeenCalledWith('Nothing to undo');
-      expect(mockWorkspace.initFromObject).not.toHaveBeenCalled();
+      expect(global.mockWorkspace.initFromObject).not.toHaveBeenCalled();
 
       consoleInfoSpy.mockRestore();
     });
 
-    it('devrait revenir à startSituation quand index devient -1', () => {
-      mockHistory.index = 0;
-      mockHistory.startSituation = { shapes: [], settings: {} };
-      mockHistory.steps = [{ shapes: [{ id: 's1' }], settings: {} }];
+    it('devrait revenir à startSituation quand index devient -1', async () => {
+      mockHistoryState.currentIndex = 0;
+      mockHistoryState.startSituation = { shapes: [], settings: {} };
+      mockHistoryState.steps = [{ shapes: [{ id: 's1' }], settings: {} }];
 
-      HistoryManager.undo();
+      await HistoryManager.undo();
 
       expect(global.mockWorkspace.initFromObject).toHaveBeenCalledWith(
         expect.objectContaining({ shapes: [] }),
       );
-      expect(setState).toHaveBeenCalledWith(
-        expect.objectContaining({
-          history: expect.objectContaining({ index: -1 }),
-        }),
+      expect(appActions.setHistoryState).toHaveBeenCalledWith(
+        expect.objectContaining({ currentIndex: -1 }),
       );
     });
 
-    it('devrait revenir à l\'étape précédente quand index > 0', () => {
-      global.mockHistory.index = 2;
-      global.mockHistory.steps = [
+    it('devrait revenir à l\'étape précédente quand currentIndex > 0', async () => {
+      mockHistoryState.currentIndex = 2;
+      mockHistoryState.steps = [
         { shapes: [], settings: {} },
         { shapes: [{ id: 's1' }], settings: {} },
         { shapes: [{ id: 's1' }, { id: 's2' }], settings: {} },
       ];
 
-      HistoryManager.undo();
+      await HistoryManager.undo();
 
       expect(global.mockWorkspace.initFromObject).toHaveBeenCalledWith(
         expect.objectContaining({ shapes: [{ id: 's1' }] }),
       );
-      expect(setState).toHaveBeenCalledWith(
-        expect.objectContaining({
-          history: expect.objectContaining({ index: 1 }),
-        }),
+      expect(appActions.setHistoryState).toHaveBeenCalledWith(
+        expect.objectContaining({ currentIndex: 1 }),
       );
     });
 
@@ -188,11 +190,11 @@ describe('HistoryManager - Tests TDD', () => {
       const { FullHistoryManager } = await import(
         '@controllers/Core/Managers/FullHistoryManager.js'
       );
-      mockHistory.index = 0;
-      mockHistory.startSituation = { shapes: [], settings: {} };
-      mockHistory.steps = [{ shapes: [{ id: 's1' }], settings: {} }];
+      mockHistoryState.currentIndex = 0;
+      mockHistoryState.startSituation = { shapes: [], settings: {} };
+      mockHistoryState.steps = [{ shapes: [{ id: 's1' }], settings: {} }];
 
-      HistoryManager.undo();
+      await HistoryManager.undo();
 
       expect(FullHistoryManager.addStep).toHaveBeenCalledWith('add-fullstep', {
         detail: { name: 'Annuler' },
@@ -203,52 +205,48 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('redo', () => {
-    it('ne devrait rien faire si canRedo() = false', () => {
+    it('ne devrait rien faire si canRedo() = false', async () => {
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => { });
-      global.mockHistory.index = 2;
-      global.mockHistory.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
+      mockHistoryState.currentIndex = 2;
+      mockHistoryState.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
 
-      HistoryManager.redo();
+      await HistoryManager.redo();
 
-      expect(consoleInfoSpy).toHaveBeenCalledWith('Nothing to redo');
+      
       expect(global.mockWorkspace.initFromObject).not.toHaveBeenCalled();
 
       consoleInfoSpy.mockRestore();
     });
 
-    it('devrait avancer à l\'étape suivante', () => {
-      global.mockHistory.index = 0;
-      global.mockHistory.steps = [
+    it('devrait avancer à l\'étape suivante', async () => {
+      mockHistoryState.currentIndex = 0;
+      mockHistoryState.steps = [
         { shapes: [], settings: {} },
         { shapes: [{ id: 's1' }], settings: {} },
         { shapes: [{ id: 's1' }, { id: 's2' }], settings: {} },
       ];
 
-      HistoryManager.redo();
+      await HistoryManager.redo();
 
       expect(global.mockWorkspace.initFromObject).toHaveBeenCalledWith(
         expect.objectContaining({ shapes: [{ id: 's1' }] }),
       );
-      expect(setState).toHaveBeenCalledWith(
-        expect.objectContaining({
-          history: expect.objectContaining({ index: 1 }),
-        }),
+      expect(appActions.setHistoryState).toHaveBeenCalledWith(
+        expect.objectContaining({ currentIndex: 1 }),
       );
     });
 
-    it('devrait avancer depuis index = -1', () => {
-      global.mockHistory.index = -1;
-      global.mockHistory.steps = [{ shapes: [{ id: 's1' }], settings: {} }];
+    it('devrait avancer depuis currentIndex = -1', async () => {
+      mockHistoryState.currentIndex = -1;
+      mockHistoryState.steps = [{ shapes: [{ id: 's1' }], settings: {} }];
 
-      HistoryManager.redo();
+      await HistoryManager.redo();
 
       expect(global.mockWorkspace.initFromObject).toHaveBeenCalledWith(
         expect.objectContaining({ shapes: [{ id: 's1' }] }),
       );
-      expect(setState).toHaveBeenCalledWith(
-        expect.objectContaining({
-          history: expect.objectContaining({ index: 0 }),
-        }),
+      expect(appActions.setHistoryState).toHaveBeenCalledWith(
+        expect.objectContaining({ currentIndex: 0 }),
       );
     });
 
@@ -256,13 +254,13 @@ describe('HistoryManager - Tests TDD', () => {
       const { FullHistoryManager } = await import(
         '@controllers/Core/Managers/FullHistoryManager.js'
       );
-      mockHistory.index = 0;
-      mockHistory.steps = [
+      mockHistoryState.currentIndex = 0;
+      mockHistoryState.steps = [
         { shapes: [], settings: {} },
         { shapes: [{ id: 's1' }], settings: {} },
       ];
 
-      HistoryManager.redo();
+      await HistoryManager.redo();
 
       expect(FullHistoryManager.addStep).toHaveBeenCalledWith('add-fullstep', {
         detail: { name: 'Refaire' },
@@ -273,82 +271,78 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('Intégration undo/redo', () => {
-    it('devrait permettre une séquence undo puis redo', () => {
-      global.mockHistory.index = 1;
-      global.mockHistory.startSituation = { shapes: [], settings: {} };
-      global.mockHistory.steps = [
+    it('devrait permettre une séquence undo puis redo', async () => {
+      mockHistoryState.currentIndex = 1;
+      mockHistoryState.startSituation = { shapes: [], settings: {} };
+      mockHistoryState.steps = [
         { shapes: [{ id: 's1' }], settings: {} },
         { shapes: [{ id: 's1' }, { id: 's2' }], settings: {} },
       ];
 
       // Undo
-      HistoryManager.undo();
-      expect(setState).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          history: expect.objectContaining({ index: 0 }),
-        }),
+      await HistoryManager.undo();
+      expect(appActions.setHistoryState).toHaveBeenLastCalledWith(
+        expect.objectContaining({ currentIndex: 0 }),
       );
 
       // Simuler que l'état a été mis à jour
-      global.mockHistory.index = 0;
+      mockHistoryState.currentIndex = 0;
 
       // Redo
-      HistoryManager.redo();
-      expect(setState).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          history: expect.objectContaining({ index: 1 }),
-        }),
+      await HistoryManager.redo();
+      expect(appActions.setHistoryState).toHaveBeenLastCalledWith(
+        expect.objectContaining({ currentIndex: 1 }),
       );
     });
 
-    it('devrait empêcher undo au-delà du début', () => {
+    it('devrait empêcher undo au-delà du début', async () => {
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => { });
-      global.mockHistory.index = -1;
-      global.mockHistory.startSituation = { shapes: [], settings: {} };
+      mockHistoryState.currentIndex = -1;
+      mockHistoryState.startSituation = { shapes: [], settings: {} };
 
-      HistoryManager.undo();
+      await HistoryManager.undo();
 
-      expect(consoleInfoSpy).toHaveBeenCalledWith('Nothing to undo');
-      expect(setState).not.toHaveBeenCalled();
+      
+      expect(appActions.setHistoryState).not.toHaveBeenCalled();
 
       consoleInfoSpy.mockRestore();
     });
 
-    it('devrait empêcher redo au-delà de la fin', () => {
+    it('devrait empêcher redo au-delà de la fin', async () => {
       const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => { });
-      global.mockHistory.index = 1;
-      global.mockHistory.steps = [{ shapes: [], settings: {} }, { shapes: [{ id: 's1' }], settings: {} }];
+      mockHistoryState.currentIndex = 1;
+      mockHistoryState.steps = [{ shapes: [], settings: {} }, { shapes: [{ id: 's1' }], settings: {} }];
 
-      HistoryManager.redo();
+      await HistoryManager.redo();
 
-      expect(consoleInfoSpy).toHaveBeenCalledWith('Nothing to redo');
-      expect(setState).not.toHaveBeenCalled();
+      
+      expect(appActions.setHistoryState).not.toHaveBeenCalled();
 
       consoleInfoSpy.mockRestore();
     });
   });
 
   describe('Edge cases', () => {
-    it('devrait gérer un historique vide', () => {
-      global.mockHistory.index = -1;
-      global.mockHistory.steps = [];
-      global.mockHistory.startSituation = null;
+    it('devrait gérer un historique vide', async () => {
+      mockHistoryState.currentIndex = -1;
+      mockHistoryState.steps = [];
+      mockHistoryState.startSituation = null;
 
       expect(HistoryManager.canUndo()).toBe(false);
       expect(HistoryManager.canRedo()).toBe(false);
     });
 
-    it('devrait gérer un seul step', () => {
-      global.mockHistory.index = 0;
-      global.mockHistory.steps = [{ shapes: [], settings: {} }];
+    it('devrait gérer un seul step', async () => {
+      mockHistoryState.currentIndex = 0;
+      mockHistoryState.steps = [{ shapes: [], settings: {} }];
 
       expect(HistoryManager.canUndo()).toBe(true);
       expect(HistoryManager.canRedo()).toBe(false);
     });
 
-    it('devrait gérer de nombreux steps', () => {
-      global.mockHistory.index = 50;
-      global.mockHistory.steps = Array.from({ length: 100 }, (_, i) => ({
+    it('devrait gérer de nombreux steps', async () => {
+      mockHistoryState.currentIndex = 50;
+      mockHistoryState.steps = Array.from({ length: 100 }, (_, i) => ({
         shapes: [],
         settings: {},
         id: i,
@@ -360,46 +354,44 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('addStep', () => {
-    it('devrait appeler saveData et setState', () => {
-      global.mockHistory.steps = [];
-      global.mockHistory.index = -1;
+    it('devrait appeler saveData et setHistoryState', async () => {
+      mockHistoryState.steps = [];
+      mockHistoryState.currentIndex = -1;
 
       const saveDataSpy = vi.spyOn(HistoryManager, 'saveData').mockReturnValue({ shapes: [], settings: {} });
 
       HistoryManager.addStep();
 
       expect(saveDataSpy).toHaveBeenCalled();
-      expect(setState).toHaveBeenCalled();
       expect(appActions.setHistoryState).toHaveBeenCalled();
 
-      // Vérifier que setState a été appelé avec un historique mis à jour
-      const setStateCall = setState.mock.calls[setState.mock.calls.length - 1][0];
-      expect(setStateCall.history).toBeDefined();
-      expect(setStateCall.history.steps).toBeDefined();
-      expect(setStateCall.history.index).toBeGreaterThanOrEqual(0);
+      // Vérifier que setHistoryState a été appelé avec un historique mis à jour
+      const setHistoryStateCall = vi.mocked(appActions.setHistoryState).mock.calls[vi.mocked(appActions.setHistoryState).mock.calls.length - 1][0];
+      expect(setHistoryStateCall.steps).toBeDefined();
+      expect(setHistoryStateCall.currentIndex).toBeGreaterThanOrEqual(0);
 
       saveDataSpy.mockRestore();
     });
 
-    it('devrait supprimer les steps futurs lors de l\'ajout d\'un nouveau step', () => {
-      global.mockHistory.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
-      global.mockHistory.index = 1; // On est au step 2, il y a un step 3 après
+    it('devrait supprimer les steps futurs lors de l\'ajout d\'un nouveau step', async () => {
+      mockHistoryState.steps = [{ id: 1 }, { id: 2 }, { id: 3 }];
+      mockHistoryState.currentIndex = 1; // On est au step 2, il y a un step 3 après
 
       const saveDataSpy = vi.spyOn(HistoryManager, 'saveData').mockReturnValue({ shapes: [], settings: {} });
 
       HistoryManager.addStep();
 
-      // Vérifier que setState a été appelé avec les steps correctement tronqués
-      const setStateCall = setState.mock.calls[setState.mock.calls.length - 1][0];
-      expect(setStateCall.history.steps.length).toBe(3); // index était 1, +1 nouveau step = 3 steps
-      expect(setStateCall.history.index).toBe(2);
+      // Vérifier que setHistoryState a été appelé avec les steps correctement tronqués
+      const setHistoryStateCall = vi.mocked(appActions.setHistoryState).mock.calls[vi.mocked(appActions.setHistoryState).mock.calls.length - 1][0];
+      expect(setHistoryStateCall.steps.length).toBe(3); // index était 1, +1 nouveau step = 3 steps
+      expect(setHistoryStateCall.currentIndex).toBe(2);
 
       saveDataSpy.mockRestore();
     });
 
-    it('devrait appeler reduceSize après l\'ajout', () => {
-      global.mockHistory.steps = [];
-      global.mockHistory.index = -1;
+    it('devrait appeler reduceSize après l\'ajout', async () => {
+      mockHistoryState.steps = [];
+      mockHistoryState.currentIndex = -1;
 
       const saveDataSpy = vi.spyOn(HistoryManager, 'saveData').mockReturnValue({ shapes: [], settings: {} });
       const reduceSizeSpy = vi.spyOn(HistoryManager, 'reduceSize').mockImplementation(() => { });
@@ -414,7 +406,7 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('saveData', () => {
-    it('devrait sauvegarder les données du workspace', () => {
+    it('devrait sauvegarder les données du workspace', async () => {
       const mockWorkspaceData = {
         shapes: [{ id: 'shape1' }],
         points: [{ id: 'point1' }],
@@ -430,7 +422,7 @@ describe('HistoryManager - Tests TDD', () => {
       expect(result.settings.gridType).toBeDefined(); // gridStore data should be added
     });
 
-    it('devrait inclure les données tangram si environnement est Tangram', () => {
+    it('devrait inclure les données tangram si environnement est Tangram', async () => {
       global.mockEnvironment.name = 'Tangram';
       global.mockWorkspace.data = { shapes: [] };
       global.mockTangram.isSilhouetteShown = true;
@@ -447,32 +439,32 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('isObjectEqual', () => {
-    it('devrait retourner true pour deux objets identiques', () => {
+    it('devrait retourner true pour deux objets identiques', async () => {
       const obj1 = { a: 1, b: 2, c: { d: 3 } };
       const obj2 = { a: 1, b: 2, c: { d: 3 } };
 
       expect(HistoryManager.isObjectEqual(obj1, obj2)).toBe(true);
     });
 
-    it('devrait retourner false pour deux objets différents', () => {
+    it('devrait retourner false pour deux objets différents', async () => {
       const obj1 = { a: 1, b: 2 };
       const obj2 = { a: 1, b: 3 };
 
       expect(HistoryManager.isObjectEqual(obj1, obj2)).toBe(false);
     });
 
-    it('devrait retourner true pour deux objets vides', () => {
+    it('devrait retourner true pour deux objets vides', async () => {
       expect(HistoryManager.isObjectEqual({}, {})).toBe(true);
     });
 
-    it('devrait gérer les tableaux', () => {
+    it('devrait gérer les tableaux', async () => {
       const obj1 = { arr: [1, 2, 3] };
       const obj2 = { arr: [1, 2, 3] };
 
       expect(HistoryManager.isObjectEqual(obj1, obj2)).toBe(true);
     });
 
-    it('devrait retourner false pour des tableaux différents', () => {
+    it('devrait retourner false pour des tableaux différents', async () => {
       const obj1 = { arr: [1, 2, 3] };
       const obj2 = { arr: [1, 2, 4] };
 
@@ -481,7 +473,7 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('reduceSizeOfSingleObjectType', () => {
-    it('devrait modifier les steps en place (pas de retour)', () => {
+    it('devrait modifier les steps en place (pas de retour)', async () => {
       const steps = [
         { objects: { shapesData: [{ id: 'shape1', color: 'red' }] } },
         { objects: { shapesData: [{ id: 'shape1', color: 'red' }] } }
@@ -498,7 +490,7 @@ describe('HistoryManager - Tests TDD', () => {
       expect(steps[1].objects.shapesData[0].indexOfReference).toBeDefined();
     });
 
-    it('ne devrait rien faire si index est 0', () => {
+    it('ne devrait rien faire si index est 0', async () => {
       const steps = [
         { objects: { shapesData: [{ id: 'shape1' }] } },
         { objects: { shapesData: [{ id: 'shape1' }] } }
@@ -512,7 +504,7 @@ describe('HistoryManager - Tests TDD', () => {
       expect(steps).toEqual(originalSteps);
     });
 
-    it('devrait retourner early si les données sont manquantes', () => {
+    it('devrait retourner early si les données sont manquantes', async () => {
       const steps = [
         { objects: {} }, // Pas de shapesData
         { objects: {} }
@@ -524,7 +516,7 @@ describe('HistoryManager - Tests TDD', () => {
   });
 
   describe('reduceSize', () => {
-    it('devrait appeler reduceSizeOfSingleObjectType pour chaque type', () => {
+    it('devrait appeler reduceSizeOfSingleObjectType pour chaque type', async () => {
       const steps = [
         { objects: { shapesData: [], segmentsData: [], pointsData: [] } },
         { objects: { shapesData: [], segmentsData: [], pointsData: [] } }
@@ -542,7 +534,7 @@ describe('HistoryManager - Tests TDD', () => {
       reduceSpy.mockRestore();
     });
 
-    it('ne devrait rien retourner (void function)', () => {
+    it('ne devrait rien retourner (void function)', async () => {
       const steps = [
         { objects: { shapesData: [{ id: 'shape1' }], segmentsData: [], pointsData: [] } },
         { objects: { shapesData: [{ id: 'shape1' }], segmentsData: [], pointsData: [] } }
@@ -553,7 +545,7 @@ describe('HistoryManager - Tests TDD', () => {
       expect(result).toBeUndefined();
     });
 
-    it('ne devrait rien faire si index est 0', () => {
+    it('ne devrait rien faire si index est 0', async () => {
       const steps = [{ objects: { shapesData: [] } }];
 
       const reduceSpy = vi.spyOn(HistoryManager, 'reduceSizeOfSingleObjectType');
@@ -567,4 +559,3 @@ describe('HistoryManager - Tests TDD', () => {
     });
   });
 });
-

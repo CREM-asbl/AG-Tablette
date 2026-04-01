@@ -38,15 +38,6 @@ export class CreateCircleTool extends Tool {
     this.clockwise = undefined;
   }
 
-  updateToolStep(step, extraState = {}) {
-    if (Object.keys(extraState).length > 0) {
-      appActions.setToolState(extraState);
-    }
-    appActions.setCurrentStep(step);
-  }
-
-
-
   start() {
     this.removeListeners();
     this.stopAnimation();
@@ -78,10 +69,12 @@ export class CreateCircleTool extends Tool {
     this.clockwise = undefined;
 
     setTimeout(
-      () =>
-        this.updateToolStep('drawPoint', {
+      () => {
+        appActions.setToolState({
           numberOfPointsDrawn: this.numberOfPointsDrawn,
-        }),
+        });
+        appActions.setCurrentStep('drawPoint');
+      },
       50,
     );
   }
@@ -271,9 +264,10 @@ export class CreateCircleTool extends Tool {
           fillOpacity: 0,
         });
       }
-      this.updateToolStep('animatePoint', {
+      appActions.setToolState({
         numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
+      appActions.setCurrentStep('animatePoint');
     }
   }
 
@@ -300,9 +294,10 @@ export class CreateCircleTool extends Tool {
           detail: { message: 'Veuillez placer le point autre part.' },
         }),
       );
-      this.updateToolStep('drawPoint', {
+      appActions.setToolState({
         numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
+      appActions.setCurrentStep('drawPoint');
       return;
     }
 
@@ -312,20 +307,22 @@ export class CreateCircleTool extends Tool {
         app.tool.selectedTemplate.name === 'CircleArc'
       ) {
         this.stopAnimation();
-        this.updateToolStep('showArrow', {
+        appActions.setToolState({
           numberOfPointsDrawn: this.numberOfPointsDrawn,
         });
+        appActions.setCurrentStep('showArrow');
       } else {
         this.stopAnimation();
         this.executeAction();
         app.upperCanvasLayer.removeAllObjects();
-        this.updateToolStep('drawFirstPoint');
+        appActions.setCurrentStep('drawFirstPoint');
       }
     } else {
       this.getConstraints(this.numberOfPointsDrawn);
-      this.updateToolStep('drawPoint', {
+      appActions.setToolState({
         numberOfPointsDrawn: this.numberOfPointsDrawn,
       });
+      appActions.setCurrentStep('drawPoint');
     }
   }
 
@@ -348,7 +345,7 @@ export class CreateCircleTool extends Tool {
     this.clockwise = isAngleInside;
     this.executeAction();
     app.upperCanvasLayer.removeAllObjects();
-    this.updateToolStep('drawFirstPoint');
+    appActions.setCurrentStep('drawFirstPoint');
   }
 
   adjustPoint(point) {
@@ -521,7 +518,11 @@ export class CreateCircleTool extends Tool {
           ],
         ];
         this.constraints = new GeometryConstraint('isConstrained', lines);
+      } else {
+        this.constraints = new GeometryConstraint('isFree');
       }
+    } else {
+      this.constraints = new GeometryConstraint('isFree');
     }
   }
 

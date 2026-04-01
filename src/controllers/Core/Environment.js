@@ -78,6 +78,20 @@ export const loadEnvironnement = async (name) => {
 
     const environment = new Environment(config.default);
 
+    // Synchroniser l'environnement immédiatement pour que app.workspace.data y ait accès
+    appActions.setEnvironment(environment);
+
+    await app.workspace.resetWorkspace();
+
+    appActions.setHistoryState({
+      startSituation: app.workspace.data,
+      startSettings: { ...app.settings, ...config.default.settings },
+      steps: [],
+      currentIndex: -1,
+      canUndo: false,
+      canRedo: false,
+    });
+
     setState({
       appLoading: false,
       environment,
@@ -85,7 +99,6 @@ export const loadEnvironnement = async (name) => {
 
     // Synchroniser avec les signaux Lit
     appActions.setLoading(false);
-    appActions.setEnvironment(environment);
     appActions.setEnvironmentConfig(config.default);
     appActions.setEnvironmentModules(config.default.modules);
 

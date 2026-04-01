@@ -167,8 +167,10 @@ class Tool {
 ## 🔄 Historique des décisions importantes
 
 ### Dernières modifications majeures
-- **Migration Signals** : Migration réussie des outils `DeleteTool`, `ColorTool` et `MoveTool` vers une architecture pilotée par les signaux (`appActions`).
-- **Tests E2E** : Introduction des premiers tests Playwright fonctionnels pour valider les outils (`tests/*.spec.js`).
+- **Stabilisation Historique (mars 2026)** : Correction du système Undo/Redo et de la relecture (FullHistory). Suppression des dépendances circulaires entre `HistoryManager` et `App.js` via une initialisation explicite. Amélioration de la robustesse face aux transitions d'environnement.
+- **Migration Signals (mars 2026)** : Migration réussie de `RotateTool`, `DuplicateTool`, `CreateCircleTool` et `ZoomTool` vers l'architecture par signaux. Suppression de `setState` et `updateToolStep` dans ces modules au profit de `appActions`.
+- **Migration Signals (précédent)** : Migration réussie des outils `DeleteTool`, `ColorTool` et `MoveTool`.
+- **Tests E2E** : Passage avec succès des tests Playwright sur Chromium, Firefox et Webkit pour les outils migrés.
 - **Migration dev mode** : Remplacement `window.dev_mode` par `import.meta.env.DEV`
 - **Nettoyage console.log** : Suppression massive + nouvelle politique simplifiée
 - **Politique logging** : Simplification - logs debug autorisés, suppression manuelle avant prod

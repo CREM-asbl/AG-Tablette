@@ -1,5 +1,5 @@
-// OpenFileManager - Version fonctionnelle
-import { app, setState } from '@controllers/Core/App';
+// OpenFileManager - Version fonctionnelle migrée vers les signaux
+import { app } from '@controllers/Core/App';
 import {
   addInfoToId,
   createElem,
@@ -36,26 +36,17 @@ const hasNativeFS = 'showOpenFilePicker' in window;
  * @param {string} message - Message d'erreur à afficher
  */
 const showErrorNotification = (message) => {
-  window.dispatchEvent(
-    new CustomEvent('show-notif', {
-      detail: { message, type: 'error' },
-    }),
-  );
+  appActions.addNotification({ message, type: 'error' });
 };
 
 /**
  * Met à jour une référence d'ID dans un objet géométrique (fonction pure)
- * @param {Object} geometryObject - L'objet géométrique à mettre à jour
- * @param {string} oldId - L'ancien ID
- * @param {string} newId - Le nouvel ID
- * @returns {Object} - L'objet géométrique mis à jour
  */
 export const updateGeometryReference = (geometryObject, oldId, newId) => {
   if (!geometryObject) return geometryObject;
 
   const updated = { ...geometryObject };
 
-  // Mise à jour des tableaux d'IDs
   const arrayProperties = [
     'geometryChildShapeIds',
     'geometryTransformationChildShapeIds',
@@ -71,7 +62,6 @@ export const updateGeometryReference = (geometryObject, oldId, newId) => {
     }
   });
 
-  // Mise à jour des propriétés simples
   const simpleProperties = [
     'geometryTransformationParentShapeId',
     'geometryDuplicateParentShapeId',
@@ -90,12 +80,6 @@ export const updateGeometryReference = (geometryObject, oldId, newId) => {
 
 /**
  * Met à jour les références d'un ID dans tous les objets (fonction pure)
- * @param {Object} objects - Les objets contenant les données
- * @param {string} oldId - L'ancien ID
- * @param {string} newId - Le nouvel ID
- * @param {string} type - Le type d'objet ('shape', 'segment', 'point')
- * @param {boolean} isGeometry - Si c'est un environnement géométrie
- * @returns {Object} - Les objets mis à jour
  */
 export const updateReferences = (
   objects,
@@ -110,10 +94,8 @@ export const updateReferences = (
     pointsData: [...objects.pointsData],
   };
 
-  // Mise à jour selon le type
   switch (type) {
     case 'shape':
-      // Mise à jour des références dans segments et points
       updated.segmentsData = updated.segmentsData.map((seg) =>
         seg.shapeId === oldId ? { ...seg, shapeId: newId } : seg,
       );
@@ -123,7 +105,6 @@ export const updateReferences = (
       break;
 
     case 'segment':
-      // Mise à jour des références dans shapes et points
       updated.shapesData = updated.shapesData.map((s) => ({
         ...s,
         segmentIds: s.segmentIds.map((segId) =>
@@ -139,7 +120,6 @@ export const updateReferences = (
       break;
 
     case 'point':
-      // Mise à jour des références dans shapes
       updated.shapesData = updated.shapesData.map((s) => ({
         ...s,
         pointIds: s.pointIds.map((ptId) => (ptId === oldId ? newId : ptId)),
@@ -162,7 +142,6 @@ export const updateReferences = (
       break;
   }
 
-  // Mise à jour des références géométriques si en mode Géométrie
   if (isGeometry) {
     updated.shapesData = updated.shapesData.map((s) => ({
       ...s,
@@ -175,12 +154,6 @@ export const updateReferences = (
 
 /**
  * Transforme les IDs d'une collection d'objets (fonction pure)
- * @param {Array} dataArray - Le tableau d'objets à transformer
- * @param {Object} objects - Les objets contenant les données
- * @param {string} layer - Le layer de destination
- * @param {string} type - Le type d'objet ('shape', 'segment', 'point')
- * @param {boolean} isGeometry - Si c'est un environnement géométrie
- * @returns {Object} - Les objets avec IDs transformés
  */
 export const transformIds = (
   dataArray,
@@ -195,10 +168,8 @@ export const transformIds = (
     const oldId = item.id;
     const newId = addInfoToId(item.id, layer, type);
 
-    // Mettre à jour l'ID de l'objet lui-même
     const updatedItem = { ...item, id: newId };
 
-    // Mettre à jour les références
     updatedObjects = updateReferences(
       updatedObjects,
       oldId,
@@ -207,7 +178,6 @@ export const transformIds = (
       isGeometry,
     );
 
-    // Mettre à jour l'objet dans le tableau approprié
     const arrayName = `${type}sData`;
     const index = updatedObjects[arrayName].findIndex(
       (obj) => obj.id === oldId,
@@ -220,24 +190,10 @@ export const transformIds = (
   return updatedObjects;
 };
 
-/**
- * Transforme les IDs des formes (fonction pure)
- * @param {Object} objects - Les objets contenant les données
- * @param {string} layer - Le layer de destination
- * @param {boolean} isGeometry - Si c'est un environnement géométrie
- * @returns {Object} - Nouveaux objets avec les IDs de formes transformés
- */
 export const transformShapeIds = (objects, layer, isGeometry = false) => {
   return transformIds(objects.shapesData, objects, layer, 'shape', isGeometry);
 };
 
-/**
- * Transforme les IDs des segments (fonction pure)
- * @param {Object} objects - Les objets contenant les données
- * @param {string} layer - Le layer de destination
- * @param {boolean} isGeometry - Si c'est un environnement géométrie
- * @returns {Object} - Nouveaux objets avec les IDs de segments transformés
- */
 export const transformSegmentIds = (objects, layer, isGeometry = false) => {
   return transformIds(
     objects.segmentsData,
@@ -248,24 +204,10 @@ export const transformSegmentIds = (objects, layer, isGeometry = false) => {
   );
 };
 
-/**
- * Transforme les IDs des points (fonction pure)
- * @param {Object} objects - Les objets contenant les données
- * @param {string} layer - Le layer de destination
- * @param {boolean} isGeometry - Si c'est un environnement géométrie
- * @returns {Object} - Nouveaux objets avec les IDs de points transformés
- */
 export const transformPointIds = (objects, layer, isGeometry = false) => {
   return transformIds(objects.pointsData, objects, layer, 'point', isGeometry);
 };
 
-/**
- * Transforme l'ancien système d'ID vers le nouveau système (fonction pure)
- * @param {Object} objects - Les objets à transformer
- * @param {string} layer - Le layer de destination
- * @param {boolean} isGeometry - Si c'est un environnement géométrie
- * @returns {Object} - Nouveaux objets avec le système d'ID transformé
- */
 export const transformToNewIdSystem = (objects, layer, isGeometry = false) => {
   let transformed = transformShapeIds(objects, layer, isGeometry);
   transformed = transformSegmentIds(transformed, layer, isGeometry);
@@ -274,23 +216,17 @@ export const transformToNewIdSystem = (objects, layer, isGeometry = false) => {
 };
 
 /**
- * Valide le contenu d'un fichier avec des vérifications robustes (fonction pure)
- * @param {Object} saveObject - L'objet de sauvegarde à valider
- * @param {Object} environment - L'environnement actuel
- * @returns {Object} - Résultat de la validation {isValid: boolean, error: string}
+ * Valide le contenu d'un fichier (fonction pure)
  */
 export const validateFileContent = (saveObject, environment) => {
-  // Vérifications de base
   if (!saveObject || typeof saveObject !== 'object') {
     return { isValid: false, error: ERROR_MESSAGES.FILE_PARSE_ERROR };
   }
 
-  // Vérification de la version
   if (!saveObject.appVersion || saveObject.appVersion === '1.0.0') {
     return { isValid: false, error: ERROR_MESSAGES.UNSUPPORTED_VERSION };
   }
 
-  // Vérification de l'environnement
   if (!saveObject.envName || saveObject.envName !== environment.name) {
     const envMessage = saveObject.envName
       ? ERROR_MESSAGES.WRONG_ENVIRONMENT + saveObject.envName + '.'
@@ -298,7 +234,6 @@ export const validateFileContent = (saveObject, environment) => {
     return { isValid: false, error: envMessage };
   }
 
-  // Vérification de la structure des données
   if (!saveObject.workspaceData && !saveObject.wsdata) {
     return {
       isValid: false,
@@ -311,12 +246,10 @@ export const validateFileContent = (saveObject, environment) => {
 
 /**
  * Parse le contenu JSON d'un fichier (fonction pure)
- * @param {string|Object} fileContent - Le contenu du fichier à parser
- * @returns {Object} - Résultat du parsing {success: boolean, data: Object, error: string}
  */
 export const parseJsonContent = (fileContent) => {
   if (typeof fileContent !== 'string') {
-    return { success: true, data: fileContent, error: null }; // Déjà un objet
+    return { success: true, data: fileContent, error: null };
   }
 
   if (!fileContent.trim()) {
@@ -333,10 +266,7 @@ export const parseJsonContent = (fileContent) => {
 };
 
 /**
- * Traite les paramètres du fichier (fonction avec effets)
- * @param {Object} saveObject - L'objet de sauvegarde
- * @param {Object} appInstance - L'instance de l'application
- * @param {Object} gridStoreInstance - L'instance du store de grille
+ * Traite les paramètres du fichier
  */
 export const processSettings = (saveObject, appInstance, gridStoreInstance) => {
   if (saveObject.settings) {
@@ -346,14 +276,10 @@ export const processSettings = (saveObject, appInstance, gridStoreInstance) => {
     };
 
     appActions.updateSettings(mergedSettings);
-    setState({
-      settings: mergedSettings,
-    });
   } else {
     appInstance.resetSettings();
   }
 
-  // Restauration de la grille si présente dans le fichier
   if (saveObject.settings?.gridType) {
     gridStoreInstance.setGridType(saveObject.settings.gridType);
   }
@@ -369,22 +295,15 @@ export const processSettings = (saveObject, appInstance, gridStoreInstance) => {
 };
 
 /**
- * Traite l'historique du fichier (fonction avec effets)
- * @param {Object} saveObject - L'objet de sauvegarde
- * @param {Object} appInstance - L'instance de l'application
- * @param {string} environmentName - Le nom de l'environnement
+ * Traite l'historique du fichier
  */
 export const processHistory = (saveObject, appInstance, environmentName) => {
-  // Traitement de fullHistory
   if (saveObject.fullHistory) {
-    setState({ fullHistory: { ...saveObject.fullHistory } });
+    appActions.setFullHistoryState({ ...saveObject.fullHistory });
   } else {
-    setState({
-      fullHistory: { ...appInstance.defaultState.fullHistory },
-    });
+    appActions.setFullHistoryState({ ...appInstance.defaultState.fullHistory });
   }
 
-  // Traitement de history selon l'environnement
   if (environmentName === 'Tangram') {
     processTangramHistory(saveObject, appInstance);
   } else {
@@ -399,6 +318,7 @@ const syncHistorySignal = (history) => {
   const stepsLength = Array.isArray(history.steps) ? history.steps.length : 0;
 
   appActions.setHistoryState({
+    ...history,
     canUndo: index !== -1,
     canRedo: index < stepsLength - 1,
     size: stepsLength,
@@ -406,11 +326,6 @@ const syncHistorySignal = (history) => {
   });
 };
 
-/**
- * Traite l'historique spécifique à Tangram (fonction avec effets)
- * @param {Object} saveObject - L'objet de sauvegarde
- * @param {Object} appInstance - L'instance de l'application
- */
 export const processTangramHistory = (saveObject, appInstance) => {
   if (saveObject.history) {
     const nextHistory = {
@@ -424,9 +339,6 @@ export const processTangramHistory = (saveObject, appInstance) => {
       },
     };
 
-    setState({
-      history: nextHistory,
-    });
     syncHistorySignal(nextHistory);
     appActions.setTangramState({ isSilhouetteShown: true });
   } else {
@@ -436,25 +348,13 @@ export const processTangramHistory = (saveObject, appInstance) => {
       startSettings: { ...appInstance.settings },
     };
 
-    setState({
-      history: nextHistory,
-    });
     syncHistorySignal(nextHistory);
   }
 };
 
-/**
- * Traite l'historique par défaut (fonction avec effets)
- * @param {Object} saveObject - L'objet de sauvegarde
- * @param {Object} appInstance - L'instance de l'application
- */
 export const processDefaultHistory = (saveObject, appInstance) => {
   if (saveObject.history) {
-    const nextHistory = { ...saveObject.history };
-    setState({
-      history: nextHistory,
-    });
-    syncHistorySignal(nextHistory);
+    syncHistorySignal(saveObject.history);
   } else {
     const nextHistory = {
       ...appInstance.defaultState.history,
@@ -464,19 +364,10 @@ export const processDefaultHistory = (saveObject, appInstance) => {
       startSettings: { ...appInstance.settings },
     };
 
-    setState({
-      history: nextHistory,
-    });
     syncHistorySignal(nextHistory);
   }
 };
 
-/**
- * Traite la visibilité des outils et familles (fonction avec effets)
- * @param {Object} saveObject - L'objet de sauvegarde
- * @param {Function} setToolsVisibilityFn - Fonction pour définir la visibilité des outils
- * @param {Function} setFamiliesVisibilityFn - Fonction pour définir la visibilité des familles
- */
 export const processVisibility = (
   saveObject,
   setToolsVisibilityFn,
@@ -490,27 +381,17 @@ export const processVisibility = (
   if (familiesVisibility?.length) setFamiliesVisibilityFn(familiesVisibility);
 };
 
-/**
- * Déclenche les événements de rafraîchissement (fonction avec effets)
- */
 export const triggerRefreshEvents = () => {
   window.dispatchEvent(new CustomEvent('refresh'));
   window.dispatchEvent(new CustomEvent('refreshUpper'));
   window.dispatchEvent(new CustomEvent('refreshBackground'));
 };
 
-/**
- * Ouvre la popup de sélection de fichier
- */
 export const openPopupFile = async () => {
   await import('@components/popups/open-popup');
   createElem('open-popup');
 };
 
-/**
- * Ouvre un sélecteur de fichier
- * Utilise l'API File System Access si disponible, sinon utilise l'ancienne méthode
- */
 export const openFile = async () => {
   if (hasNativeFS) {
     const opts = {
@@ -538,10 +419,6 @@ export const openFile = async () => {
   }
 };
 
-/**
- * Lit un fichier avec la nouvelle API File System Access
- * @param {FileSystemFileHandle} fileHandle - Le handle du fichier
- */
 export const newReadFile = async (fileHandle) => {
   try {
     const file = await fileHandle.getFile();
@@ -553,10 +430,6 @@ export const newReadFile = async (fileHandle) => {
   }
 };
 
-/**
- * Lit un fichier avec l'ancienne méthode
- * @param {File} file - Le fichier à lire
- */
 export const oldReadFile = (file) => {
   if (!file) return;
 
@@ -569,23 +442,12 @@ export const oldReadFile = (file) => {
       showErrorNotification(ERROR_MESSAGES.FILE_READ_ERROR);
     }
   };
-  reader.onerror = () => {
-    console.error('Erreur FileReader:', reader.error);
-    showErrorNotification(ERROR_MESSAGES.FILE_READ_ERROR);
-  };
   reader.readAsText(file);
 };
 
-/**
- * Parse et traite le contenu d'un fichier
- * @param {string|Object} fileContent - Le contenu du fichier
- * @param {string} filename - Le nom du fichier
- */
 export const parseFile = async (fileContent, filename) => {
-  // Mesurer l'opération complète de parsing
   return await performanceManager.measure('parse-file', async () => {
     try {
-      // Parsing du contenu
       const parseResult = parseJsonContent(fileContent);
       if (!parseResult.success) {
         showErrorNotification(ERROR_MESSAGES.FILE_PARSE_ERROR);
@@ -593,26 +455,18 @@ export const parseFile = async (fileContent, filename) => {
       }
 
       const saveObject = parseResult.data;
-
-      // Ajout de l'extension du fichier
       saveObject.fileExtension = getExtension(filename);
 
-      // Validation du fichier
       const validation = validateFileContent(saveObject, app.environment);
       if (!validation.isValid) {
         showErrorNotification(validation.error);
         return;
       }
 
-      // Appliquer les migrations nécessaires pour la compatibilité entre versions
       applyMigrations(saveObject);
 
-      // Désactiver l'outil courant avant de charger un nouvel état
-      // pour éviter qu'un outil précédent reste actif après ouverture.
-      setState({ tool: null });
       appActions.setActiveTool(null);
 
-      // Chargement du workspace
       const WorkspaceManagerModule = await import(
         '@controllers/Core/Managers/WorkspaceManager.js'
       );
@@ -620,7 +474,6 @@ export const parseFile = async (fileContent, filename) => {
         saveObject.workspaceData || saveObject.wsdata,
       );
 
-      // Traitement spécial pour Tangram
       if (
         app.environment.name === 'Tangram' &&
         saveObject.fileExtension === 'ags'
@@ -628,16 +481,13 @@ export const parseFile = async (fileContent, filename) => {
         app.mainCanvasLayer.removeAllObjects();
       }
 
-      // Traitement des différentes sections
       processSettings(saveObject, app, gridStore);
       processHistory(saveObject, app, app.environment.name);
       processVisibility(saveObject, setToolsVisibility, setFamiliesVisibility);
 
-      // Finalisation
       appActions.setFilename(filename);
-      setState({ filename });
+      appActions.setStepSinceSave(false);
 
-      // Enregistrer métriques personnalisées
       const objectCount = saveObject.workspaceData?.objects?.length || 0;
       await performanceManager.recordCustomMetric(
         'workspace-objects-count',
@@ -645,11 +495,10 @@ export const parseFile = async (fileContent, filename) => {
         'workspace'
       );
 
-      // Mise à jour du signal Tangram si nécessaire
       if (app.environment.name === 'Tangram') {
         appActions.setTangramState({
           currentFile: saveObject,
-          mode: 'reproduction', // Force le mode reproduction lors de l'ouverture
+          mode: 'reproduction',
         });
       }
 
@@ -676,14 +525,12 @@ window.addEventListener('file-opened', (event) => {
   else newReadFile(event.detail.file[0]);
 });
 
-// Export nommé pour la compatibilité avec les anciens imports
 export const OpenFileManager = {
   parseFile,
   openFile,
   openPopupFile,
   newReadFile,
   oldReadFile,
-  // Autres fonctions principales si nécessaire
   validateFileContent,
   parseJsonContent,
   processSettings,

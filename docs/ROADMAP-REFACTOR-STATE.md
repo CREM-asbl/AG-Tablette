@@ -44,12 +44,17 @@ Pour chaque fonctionnalité ou `controller` à migrer, le processus suivant doit
 - [x] `shape-selector.ts` (sélection de template pilotée par `appActions`, fallback legacy conservé).
 - [x] `CreateRegular/regular-popup.js` (settings + transition d'outil pilotés par `appActions`, fallback legacy conservé).
 
-### Phase 3 : Migration des Outils (TERMINÉ POUR LES OUTILS PRINCIPAUX)
+### Phase 3 : Migration des Outils (TERMINÉ)
 - [x] Tous les outils de la barre d'outils ont été migrés vers `appActions`.
-- [x] Le fallback `setState` a été supprimé pour la majorité des outils, renforçant l'architecture pilotée par les signaux.
+- [x] Le fallback `setState` a été supprimé pour la majorité des outils.
 - [x] Les classes de base `BaseGeometryTool` et `BaseShapeCreationTool` ont été standardisées.
-- [x] La suite de tests unitaires a été mise à jour pour valider le nouveau comportement.
-- [x] **HistoryManager**, **SaveFileManager**, **OpenFileManager** : Synchronisation avec `appActions` en place (double appel conservé pour ces managers centraux).
+
+### Phase 4 : Migration des Managers Centraux (TERMINÉ)
+- [x] **HistoryManager** : Entièrement migré vers les signaux (`historyState`). Gère désormais l'historique complet (steps, startSituation) via le signal.
+- [x] **FullHistoryManager** : Migré vers `appActions.setFullHistoryState`. La relecture des actions pilote désormais l'application via les signaux.
+- [x] **OpenFileManager** : Migré pour initialiser l'état via les signaux (`updateSettings`, `setHistoryState`, etc.).
+- [x] **SaveFileManager** : Migré pour utiliser les signaux pour `stepSinceSave` et les notifications.
+- [x] **Pont de Compatibilité** : Étendu pour synchroniser toutes les branches de l'état vers l'objet legacy `app`, assurant la stabilité des composants non encore migrés.
 
 
 ### État de la Couverture E2E

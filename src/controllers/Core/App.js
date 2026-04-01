@@ -8,16 +8,20 @@ import {
   settings,
   tangramState,
   historyState,
+  fullHistoryState,
+  stepSinceSave,
   filename,
   workspaceData,
   nextGroupColorIdx,
   bugs,
+  appActions,
 } from '../../store/appState';
 import { resetToolsVisibility, tools } from '@store/tools';
 import { resetKitVisibility } from '../../store/kit';
-import './Managers/HistoryManager'; // Import to register event listeners
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
+import { initHistoryManager } from './Managers/HistoryManager';
+import { initFullHistoryManager } from './Managers/FullHistoryManager';
 import { Workspace } from './Objects/Workspace';
 import { uniqId } from './Tools/utils';
 
@@ -241,31 +245,18 @@ export const app = new App();
 if (typeof window !== 'undefined') {
   window.app = app;
 
-  // Watcher central pour synchroniser les signaux vers l'objet legacy app
-  // et émettre les événements correspondants.
-  const syncSignalToApp = (signalToWatch, key, eventName) => {
-    createWatcher(signalToWatch, (newValue) => {
-      app[key] = newValue;
-      if (eventName) {
-        window.dispatchEvent(new CustomEvent(eventName, { detail: app }));
-      }
-      window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
-    });
-  };
+  // Pont de compatibilité SYNCHRONE
+  // On écoute les événements émis par appActions pour mettre à jour l'objet app immédiatement
 
-  // Synchronisation de l'outil
-  const combinedToolSignal = computed(() => ({
-    toolName: activeTool.get(),
-    step: currentStep.get(),
-    template: selectedTemplate.get(),
-    state: toolState.get(),
-  }));
-
-  createWatcher(combinedToolSignal, (newValue, oldValue) => {
-    const { toolName, step, template, state } = newValue;
-
-    // Mise à jour de l'objet legacy app.tool
+  const syncTool = () => {
+    const toolName = activeTool.get();
+    const step = currentStep.get();
+    const template = selectedTemplate.get();
+    const state = toolState.get();
     const toolInfo = tools.get().find((t) => t.name === toolName);
+
+    const oldToolName = app.tool?.name;
+
     app.tool = {
       ...(app.tool || {}),
       ...state,
@@ -276,24 +267,81 @@ if (typeof window !== 'undefined') {
       type: toolInfo?.type,
     };
 
-    // Déclenchement des événements legacy après synchro
-    if (toolName !== oldValue?.toolName) {
+    if (toolName !== oldToolName) {
       window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
     }
     window.dispatchEvent(new CustomEvent('tool-updated', { detail: app }));
     window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+  };
+
+  window.addEventListener('tool:activated', syncTool);
+  window.addEventListener('tool:state-changed', syncTool);
+  window.addEventListener('tool-step-changed', syncTool);
+  window.addEventListener('tool-template-changed', syncTool);
+
+  window.addEventListener('settings:updated', () => {
+    app.settings = settings.get();
+    window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));
+    window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+  });
+window.addEventListener('history:state-changed', () => {
+  app.history = historyState.get();
+  window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));
+  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+});
+
+window.addEventListener('app:full-history-changed', () => {
+  app.fullHistory = fullHistoryState.get();
+  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+});
+
+window.addEventListener('environment:changed', () => {
+  app.environment = currentEnvironment.get();
+  if (app.environment && app.history.startSituation === null) {
+    appActions.setHistoryState({
+      startSituation: app.workspace.data,
+      startSettings: { ...app.settings },
+    });
+  }
+});
+
+  window.addEventListener('tangram:state-changed', () => {
+    app.tangram = tangramState.get();
+    window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));
+    window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   });
 
-  // Synchronisation des autres branches de l'état
-  syncSignalToApp(settings, 'settings', 'settings-changed');
-  syncSignalToApp(tangramState, 'tangram', 'tangram-changed');
-  syncSignalToApp(historyState, 'history', 'history-changed');
-  syncSignalToApp(filename, 'filename');
-  syncSignalToApp(workspaceData, 'workspaceData'); // Sync data only, Workspace object is stable
-  syncSignalToApp(nextGroupColorIdx, 'nextGroupColorIdx');
-  syncSignalToApp(bugs, 'bugs');
-  }
+  window.addEventListener('app:filename-changed', (e) => {
+    app.filename = e.detail.filename;
+  });
 
+  window.addEventListener('app:step-since-save-changed', (e) => {
+    app.stepSinceSave = e.detail.stepSinceSave;
+  });
+
+  window.addEventListener('app:started-changed', (e) => {
+    app.started = e.detail.started;
+    if (app.started) {
+        window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
+    }
+  });
+
+  window.addEventListener('workspace:updated', () => {
+    app.workspaceData = workspaceData.get();
+    window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+  });
+
+  // Synchronisation initiale
+  syncTool();
+  app.settings = settings.get();
+  app.history = historyState.get();
+  app.fullHistory = fullHistoryState.get();
+  app.tangram = tangramState.get();
+  app.filename = filename.get();
+
+  initHistoryManager();
+  initFullHistoryManager();
+}
 // Initialiser le service de rapportage de bugs
 // Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ
 // liées aux dépendances circulaires des chunks controllers/utils.
@@ -308,6 +356,31 @@ if (typeof window !== 'undefined') {
 export const setState = (update) => {
   for (const [key, value] of Object.entries(update)) {
     app[key] = value;
+    
+    // Synchronisation vers les signaux (Legacy -> Signals)
+    if (key === 'tool' && value) {
+        // On évite les boucles infinies en ne rappelant pas appActions si on vient déjà d'un signal
+        // Mais ici setState est le point d'entrée legacy.
+        if (value.name !== undefined) appActions.setActiveTool(value.name);
+        if (value.currentStep !== undefined) appActions.setCurrentStep(value.currentStep);
+        const { name, currentStep, selectedTemplate, title, type, ...state } = value;
+        if (Object.keys(state).length > 0) appActions.setToolState(state);
+        if (selectedTemplate !== undefined) appActions.setSelectedTemplate(selectedTemplate);
+    } else if (key === 'settings' && value) {
+        appActions.updateSettings(value);
+    } else if (key === 'history' && value) {
+        appActions.setHistoryState(value);
+    } else if (key === 'tangram' && value) {
+        appActions.setTangramState(value);
+    } else if (key === 'filename') {
+        appActions.setFilename(value);
+    } else if (key === 'appLoading') {
+        appActions.setLoading(value);
+    } else if (key === 'started') {
+        appActions.setStarted(value);
+    } else if (key === 'stepSinceSave') {
+        appActions.setStepSinceSave(value);
+    }
   }
 
   if ('tool' in update) {

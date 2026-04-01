@@ -64,7 +64,16 @@ vi.mock('@store/tools', () => ({
   }
 }));
 
+vi.mock('@store/appState', () => ({
+  appActions: {
+    addNotification: vi.fn(),
+    setFilename: vi.fn(),
+    setStepSinceSave: vi.fn(),
+  }
+}));
+
 vi.mock('@controllers/Core/App', () => ({
+  app: {},
   setState: vi.fn()
 }));
 
@@ -124,6 +133,7 @@ const mockApp = {
 
 // Importer après les mocks
 import { configureSaveOptions, prepareSaveData, validateAppState } from '@controllers/Core/Managers/SaveFileManager.js';
+import { appActions } from '@store/appState';
 
 describe('SaveFileManager', () => {
   beforeEach(() => {
@@ -153,31 +163,31 @@ describe('SaveFileManager', () => {
       const invalidApp = { ...mockApp, environment: null };
       const result = validateAppState(invalidApp);
       expect(result).toBe(false);
-      expect(mockDispatchEvent).toHaveBeenCalledWith(
+      expect(appActions.addNotification).toHaveBeenCalledWith(
         expect.objectContaining({
-          detail: { message: "Erreur : L'environnement n'est pas prêt." }
+          message: "Erreur : L'environnement n'est pas prêt.",
+          type: 'error'
         })
       );
     });
 
-    it('should return false when kit is required but not loaded', () => {
+    it('should return false when kit is required but not loaded', async () => {
       const invalidApp = {
         ...mockApp,
         environment: { ...mockApp.environment, kit: true }
       };
 
-      // Mock kit.get() to return null using import
-      import('@store/kit').then(({ kit }) => {
-        kit.get.mockReturnValueOnce(null);
+      const { kit } = await import('@store/kit');
+      vi.mocked(kit.get).mockReturnValueOnce(null);
 
-        const result = validateAppState(invalidApp);
-        expect(result).toBe(false);
-        expect(mockDispatchEvent).toHaveBeenCalledWith(
-          expect.objectContaining({
-            detail: { message: "Erreur : Le kit de formes requis n'est pas chargé." }
-          })
-        );
-      });
+      const result = validateAppState(invalidApp);
+      expect(result).toBe(false);
+      expect(appActions.addNotification).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: "Erreur : Le kit de formes requis n'est pas chargé.",
+          type: 'error'
+        })
+      );
     });
   });
 

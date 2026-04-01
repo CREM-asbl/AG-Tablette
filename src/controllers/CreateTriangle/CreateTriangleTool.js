@@ -47,7 +47,11 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
    * Obtenir les contraintes pour le point donné
    */
   getConstraints(pointNumber) {
-    if (this.triangleDef && this.triangleDef.constraints) {
+    if (
+      this.triangleDef &&
+      this.triangleDef.constraints &&
+      typeof this.triangleDef.constraints[pointNumber] === 'function'
+    ) {
       this.constraints = this.triangleDef.constraints[pointNumber](
         this.points,
         this.segments,

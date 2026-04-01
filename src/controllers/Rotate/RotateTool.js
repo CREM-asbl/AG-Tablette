@@ -1,7 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
@@ -44,18 +44,13 @@ export class RotateTool extends Tool {
     this.involvedShapes = [];
   }
 
-  updateToolStep(step, extraState = {}) {
-    appActions.setToolState(extraState);
-    appActions.setCurrentStep(step);
-  }
-
   start() {
     helpConfigRegistry.register(this.name, rotateHelpConfig);
 
     appActions.setActiveTool(this.name);
 
     setTimeout(
-      () => this.updateToolStep('listen'),
+      () => appActions.setCurrentStep('listen'),
       50,
     );
   }
@@ -66,7 +61,7 @@ export class RotateTool extends Tool {
     this.stopAnimation();
     this.removeListeners();
 
-    this.updateToolStep('listen');
+    appActions.setCurrentStep('listen');
 
     app.workspace.selectionConstraints =
       app.fastSelectionConstraints.mousedown_all_shape;
@@ -77,7 +72,7 @@ export class RotateTool extends Tool {
 
   rotate() {
     this.removeListeners();
-    this.updateToolStep('rotate');
+    appActions.setCurrentStep('rotate');
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
   }
 
@@ -176,7 +171,7 @@ export class RotateTool extends Tool {
       );
     });
 
-    this.updateToolStep('rotate');
+    appActions.setCurrentStep('rotate');
     this.animate();
   }
 
@@ -184,7 +179,7 @@ export class RotateTool extends Tool {
     if (app.tool.currentStep !== 'rotate') return;
 
     this.executeAction();
-    this.updateToolStep('listen');
+    appActions.setCurrentStep('listen');
   }
 
   /**

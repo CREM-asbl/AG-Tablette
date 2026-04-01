@@ -1,6 +1,6 @@
-import { appActions } from '../../../store/appState';
+import { appActions, historyState, settings } from '../../../store/appState';
 import { gridStore } from '../../../store/gridStore';
-import { app, setState } from '../App';
+import { app } from '../App';
 import { FullHistoryManager } from './FullHistoryManager';
 
 /**
@@ -12,7 +12,8 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canUndo() {
-    return app.history.index !== -1;
+    const state = historyState.get();
+    return state && state.currentIndex !== undefined && state.currentIndex !== -1;
   }
 
   /**
@@ -20,183 +21,174 @@ export class HistoryManager {
    * @return {Boolean}
    */
   static canRedo() {
-    return app.history.index < app.history.steps.length - 1;
+    const state = historyState.get();
+    if (!state || !state.steps) return false;
+    return state.currentIndex < state.steps.length - 1;
   }
 
   /**
    * Annuler une étape. Cela fait reculer le curseur de l'historique d'un
    * élément.
    */
-  static undo() {
+  static async undo() {
+    if (HistoryManager.isinteracting) return;
     if (!HistoryManager.canUndo()) {
-      console.info('Nothing to undo');
       return;
     }
-    const index = app.history.index - 1;
-    let data;
-    if (index === -1) {
-      data = app.history.startSituation;
-    } else {
-      data = app.history.steps[index];
-    }
-    data = { ...data }; // Clone data to avoid modifying history steps directly
+    HistoryManager.isinteracting = true;
 
-    app.workspace.initFromObject(data); // This might use data.settings internally if present
-
-    let settingsForApp, tangram;
-
-    if (!data || !data.settings) {
-      // This case handles undoing to the initial state or if settings were not saved in this step.
-      // Reset grid to its default state.
-      gridStore.setGridType('none'); // This also sets isVisible to false by default in gridStore
-      gridStore.setGridSize(1); // Default grid size
-      // No specific app settings to restore from this history step, app.settings will be used.
-      settingsForApp = { ...app.settings }; // Use current app settings
-      // Remove any potential lingering grid properties from current app settings
-      delete settingsForApp.gridShown;
-      delete settingsForApp.gridType;
-      delete settingsForApp.gridSize;
-      delete settingsForApp.isVisible;
-
-      tangram = {
-        ...app.defaultState.tangram,
-      };
-    } else {
-      // data.settings contains the settings saved at this history point.
-      const historicalSettings = { ...data.settings };
-
-      // Restore grid state from historicalSettings into gridStore
-      if (typeof historicalSettings.gridType !== 'undefined') {
-        gridStore.setGridType(historicalSettings.gridType);
+    try {
+      const state = historyState.get();
+      const index = (state.currentIndex ?? 0) - 1;
+      let data;
+      if (index === -1) {
+        data = state.startSituation;
       } else {
-        // If not defined in history (e.g. older save), reset to default
-        gridStore.setGridType('none');
+        data = state.steps ? state.steps[index] : null;
       }
-      if (typeof historicalSettings.gridSize !== 'undefined') {
-        gridStore.setGridSize(historicalSettings.gridSize);
+      
+      if (!data) {
+          await app.workspace.resetWorkspace();
       } else {
-        gridStore.setGridSize(1);
+          data = { ...data };
+          await app.workspace.initFromObject(data);
       }
-      // isVisible should be set after setGridType, as setGridType might change isVisible.
-      // The key in historical data might be 'isVisible' (new) or 'gridShown' (old).
-      if (typeof historicalSettings.isVisible !== 'undefined') {
-        gridStore.setIsVisible(historicalSettings.isVisible);
-      } else if (typeof historicalSettings.gridShown !== 'undefined') {
-        // Check for old key
-        gridStore.setIsVisible(historicalSettings.gridShown);
-      }
-      // If neither isVisible nor gridShown is present, setGridType would have set a default visibility.
 
-      // Prepare settings to be applied to app.settings:
-      // Start with current app.settings, then overlay historical non-grid settings.
-      settingsForApp = { ...app.settings, ...historicalSettings };
+      let settingsForApp, tangram;
 
-      // Remove all grid-related properties from settingsForApp, as grid is now managed by gridStore.
-      delete settingsForApp.gridType;
-      delete settingsForApp.gridSize;
-      delete settingsForApp.isVisible;
-      delete settingsForApp.gridShown; // Old key
+      if (!data || !data.settings) {
+        gridStore.setGridType('none'); 
+        gridStore.setGridSize(1); 
+        settingsForApp = { ...settings.get() }; 
+        delete settingsForApp.gridShown;
+        delete settingsForApp.gridType;
+        delete settingsForApp.gridSize;
+        delete settingsForApp.isVisible;
 
-      if (app.environment.name === 'Tangram') {
-        if (data.tangram) {
-          tangram = {
-            ...app.defaultState.tangram,
-            isSilhouetteShown: data.tangram.isSilhouetteShown,
-          };
+        tangram = {
+          isSilhouetteShown: false,
+          currentStep: null,
+        };
+      } else {
+        const historicalSettings = { ...data.settings };
+
+        if (typeof historicalSettings.gridType !== 'undefined') {
+          gridStore.setGridType(historicalSettings.gridType);
+        } else {
+          gridStore.setGridType('none');
+        }
+        if (typeof historicalSettings.gridSize !== 'undefined') {
+          gridStore.setGridSize(historicalSettings.gridSize);
+        } else {
+          gridStore.setGridSize(1);
+        }
+        if (typeof historicalSettings.isVisible !== 'undefined') {
+          gridStore.setIsVisible(historicalSettings.isVisible);
+        } else if (typeof historicalSettings.gridShown !== 'undefined') {
+          gridStore.setIsVisible(historicalSettings.gridShown);
+        }
+
+        settingsForApp = { ...settings.get(), ...historicalSettings };
+
+        delete settingsForApp.gridType;
+        delete settingsForApp.gridSize;
+        delete settingsForApp.isVisible;
+        delete settingsForApp.gridShown; 
+
+        if (app.environment.name === 'Tangram') {
+          if (data.tangram) {
+            tangram = {
+              isSilhouetteShown: data.tangram.isSilhouetteShown,
+              currentStep: null,
+            };
+          }
         }
       }
-    }
 
-    setState({
-      tool: null,
-      history: { ...app.history, index },
-      settings: settingsForApp,
-      tangram,
-    });
-    appActions.setHistoryState({
-      canUndo: index !== -1,
-      canRedo: index < app.history.steps.length - 1,
-      size: app.history.steps.length,
-      currentIndex: index,
-    });
-    appActions.updateSettings(settingsForApp);
-    if (tangram) {
-      appActions.setTangramState(tangram);
+      appActions.setActiveTool(null);
+      appActions.setHistoryState({
+        ...state,
+        canUndo: index !== -1,
+        canRedo: true,
+        currentIndex: index,
+      });
+      appActions.updateSettings(settingsForApp);
+      if (tangram) {
+        appActions.setTangramState(tangram);
+      }
+      FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Annuler' } });
+    } finally {
+      HistoryManager.isinteracting = false;
     }
-    FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Annuler' } });
   }
 
   /**
    * Refaire l'étape qui vient d'être annulée. Cela fait avancer le curseur
    * de l'historique d'un élément.
    */
-  static redo() {
+  static async redo() {
+    if (HistoryManager.isinteracting) return;
     if (!HistoryManager.canRedo()) {
-      console.info('Nothing to redo');
       return;
     }
-    const index = app.history.index + 1;
-    const data = app.history.steps[index];
-    app.workspace.initFromObject(data); // This might use data.settings
+    HistoryManager.isinteracting = true;
 
-    const historicalSettings = { ...data.settings }; // Settings from the history step to redo
-    let tangram;
+    try {
+      const state = historyState.get();
+      const index = state.currentIndex + 1;
+      const data = state.steps[index];
+      await app.workspace.initFromObject(data); 
 
-    // Restore grid state from historicalSettings into gridStore
-    if (typeof historicalSettings.gridType !== 'undefined') {
-      gridStore.setGridType(historicalSettings.gridType);
-    } else {
-      gridStore.setGridType('none'); // Default if missing
-    }
-    if (typeof historicalSettings.gridSize !== 'undefined') {
-      gridStore.setGridSize(historicalSettings.gridSize);
-    } else {
-      gridStore.setGridSize(1); // Default if missing
-    }
-    // isVisible should be set after setGridType. Check for new and old keys.
-    if (typeof historicalSettings.isVisible !== 'undefined') {
-      gridStore.setIsVisible(historicalSettings.isVisible);
-    } else if (typeof historicalSettings.gridShown !== 'undefined') {
-      // Check for old key
-      gridStore.setIsVisible(historicalSettings.gridShown);
-    }
-    // If neither is present, setGridType handles default visibility.
+      const historicalSettings = { ...data.settings }; 
+      let tangram;
 
-    // Prepare settings to be applied to app.settings:
-    // Start with current app.settings, then overlay historical non-grid settings.
-    const settingsForApp = { ...app.settings, ...historicalSettings };
-
-    // Remove all grid-related properties from settingsForApp
-    delete settingsForApp.gridType;
-    delete settingsForApp.gridSize;
-    delete settingsForApp.isVisible;
-    delete settingsForApp.gridShown; // Old key
-
-    if (app.environment.name === 'Tangram') {
-      if (data.tangram) {
-        tangram = {
-          ...app.defaultState.tangram,
-          isSilhouetteShown: data.tangram.isSilhouetteShown,
-        };
+      if (typeof historicalSettings.gridType !== 'undefined') {
+        gridStore.setGridType(historicalSettings.gridType);
+      } else {
+        gridStore.setGridType('none'); 
       }
+      if (typeof historicalSettings.gridSize !== 'undefined') {
+        gridStore.setGridSize(historicalSettings.gridSize);
+      } else {
+        gridStore.setGridSize(1); 
+      }
+      if (typeof historicalSettings.isVisible !== 'undefined') {
+        gridStore.setIsVisible(historicalSettings.isVisible);
+      } else if (typeof historicalSettings.gridShown !== 'undefined') {
+        gridStore.setIsVisible(historicalSettings.gridShown);
+      }
+
+      const settingsForApp = { ...settings.get(), ...historicalSettings };
+
+      delete settingsForApp.gridType;
+      delete settingsForApp.gridSize;
+      delete settingsForApp.isVisible;
+      delete settingsForApp.gridShown; 
+
+      if (app.environment.name === 'Tangram') {
+        if (data.tangram) {
+          tangram = {
+            isSilhouetteShown: data.tangram.isSilhouetteShown,
+            currentStep: null,
+          };
+        }
+      }
+
+      appActions.setActiveTool(null);
+      appActions.setHistoryState({
+        ...state,
+        canUndo: true,
+        canRedo: index < state.steps.length - 1,
+        currentIndex: index,
+      });
+      appActions.updateSettings(settingsForApp);
+      if (tangram) {
+        appActions.setTangramState(tangram);
+      }
+      FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Refaire' } });
+    } finally {
+      HistoryManager.isinteracting = false;
     }
-    setState({
-      tool: null,
-      history: { ...app.history, index },
-      settings: settingsForApp,
-      tangram,
-    });
-    appActions.setHistoryState({
-      canUndo: index !== -1,
-      canRedo: index < app.history.steps.length - 1,
-      size: app.history.steps.length,
-      currentIndex: index,
-    });
-    appActions.updateSettings(settingsForApp);
-    if (tangram) {
-      appActions.setTangramState(tangram);
-    }
-    FullHistoryManager.addStep('add-fullstep', { detail: { name: 'Refaire' } });
   }
 
   /**
@@ -204,51 +196,50 @@ export class HistoryManager {
    * exécutée, il est supposé qu'elle a déjà été exécutée).
    */
   static addStep() {
-    const steps = [...app.history.steps];
+    const state = historyState.get();
+    let { startSituation, startSettings } = state;
+    if (startSituation === null) {
+      startSituation = HistoryManager.saveData();
+      startSettings = { ...settings.get() };
+    }
+
+    const steps = [...(state.steps || [])];
     steps.splice(
-      app.history.index + 1,
-      app.history.steps.length,
+      state.currentIndex + 1,
+      steps.length,
       HistoryManager.saveData(),
     );
     const index = steps.length - 1;
 
     HistoryManager.reduceSize(steps, index);
-    setState({ history: { ...app.history, steps, index } });
+    
     appActions.setHistoryState({
-      canUndo: index !== -1,
-      canRedo: index < steps.length - 1,
-      size: steps.length,
+      ...state,
+      startSituation,
+      startSettings,
+      steps,
       currentIndex: index,
+      canUndo: index !== -1,
+      canRedo: false,
+      size: steps.length,
     });
   }
 
   static saveData() {
-    const data = app.workspace.data; // This is the object that will be stored in history.
-    // It typically includes shapes, segments, points, etc.
+    const data = app.workspace.data; 
     const gridState = gridStore.getState();
 
-    // Create a settings object for this history entry.
-    // Start with a copy of the current application settings (app.settings).
-    // These app.settings should ideally no longer contain any grid-related properties
-    // as they have been migrated out of App.js.
-    const settingsForHistory = { ...app.settings };
+    const settingsForHistory = { ...settings.get() };
 
-    // Defensively remove any old grid-related keys that might still linger in the
-    // app.settings copy. This ensures they don't conflict with gridStore's state.
-    delete settingsForHistory.gridShown; // Old key for visibility
-    delete settingsForHistory.gridType; // Old key for grid type
-    delete settingsForHistory.gridSize; // Old key for grid size
-    delete settingsForHistory.isVisible; // Just in case new key was wrongly in app.settings
+    delete settingsForHistory.gridShown; 
+    delete settingsForHistory.gridType; 
+    delete settingsForHistory.gridSize; 
+    delete settingsForHistory.isVisible; 
 
-    // Now, add the authoritative grid state from gridStore to settingsForHistory.
     settingsForHistory.gridType = gridState.gridType;
     settingsForHistory.gridSize = gridState.gridSize;
     settingsForHistory.isVisible = gridState.isVisible;
-    // Note: gridOpacity is not saved here, consistent with the previous behavior
-    // which only saved gridShown, gridType, and gridSize.
 
-    // Assign the composed settingsForHistory object to data.settings.
-    // This is what will be saved in the history step.
     data.settings = settingsForHistory;
 
     if (app.environment.name === 'Tangram') {
@@ -335,6 +326,8 @@ export class HistoryManager {
   }
 }
 
-window.addEventListener('actions-executed', () => HistoryManager.addStep());
-window.addEventListener('undo', () => HistoryManager.undo());
-window.addEventListener('redo', () => HistoryManager.redo());
+export const initHistoryManager = () => {
+  window.addEventListener('actions-executed', () => HistoryManager.addStep());
+  window.addEventListener('undo', () => HistoryManager.undo());
+  window.addEventListener('redo', () => HistoryManager.redo());
+};

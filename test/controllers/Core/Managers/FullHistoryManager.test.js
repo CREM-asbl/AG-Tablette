@@ -35,7 +35,23 @@ vi.mock('../../../../src/store/appState', () => ({
     setToolState: vi.fn(),
     updateSettings: vi.fn(),
     setTangramState: vi.fn(),
+    setFullHistoryState: vi.fn(),
+    addNotification: vi.fn(),
+    setHistoryState: vi.fn(),
+    setStepSinceSave: vi.fn(),
   },
+  historyState: {
+    get: vi.fn(() => ({ startSituation: {}, startSettings: {} })),
+  },
+  fullHistoryState: {
+    get: vi.fn(() => ({ index: 0, actionIndex: 0, steps: [], isRunning: true })),
+  },
+  settings: {
+    get: vi.fn(() => ({})),
+  },
+  tangramState: {
+    get: vi.fn(() => ({})),
+  }
 }));
 
 vi.mock('../../../../src/controllers/Core/Objects/Coordinates', () => ({
@@ -57,9 +73,9 @@ vi.mock('../../../../src/controllers/Core/Managers/SelectManager', () => ({
   },
 }));
 
-import { app, setState } from '../../../../src/controllers/Core/App';
+import { app } from '../../../../src/controllers/Core/App';
 import { FullHistoryManager } from '../../../../src/controllers/Core/Managers/FullHistoryManager';
-import { appActions } from '../../../../src/store/appState';
+import { appActions, fullHistoryState } from '../../../../src/store/appState';
 
 describe('FullHistoryManager', () => {
   beforeEach(() => {
@@ -69,10 +85,18 @@ describe('FullHistoryManager', () => {
     app.fullHistory.numberOfActions = 1;
     app.fullHistory.isRunning = true;
     app.fullHistory.steps = [];
+    
+    vi.mocked(fullHistoryState.get).mockReturnValue({
+        index: 0,
+        actionIndex: 0,
+        numberOfActions: 1,
+        isRunning: true,
+        steps: []
+    });
   });
 
-  it('syncs appActions on tool-updated step', () => {
-    app.fullHistory.steps = [
+  it('syncs appActions on tool-updated step', async () => {
+    const steps = [
       {
         type: 'tool-updated',
         detail: {
@@ -82,12 +106,16 @@ describe('FullHistoryManager', () => {
         },
       },
     ];
-
-    FullHistoryManager.executeStep(0);
-
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.fullHistory.steps[0].detail },
+    
+    vi.mocked(fullHistoryState.get).mockReturnValue({
+        index: 0,
+        actionIndex: 0,
+        steps: steps,
+        isRunning: true
     });
+
+    await FullHistoryManager.executeStep(0);
+
     expect(appActions.setActiveTool).toHaveBeenCalledWith('move');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
     expect(appActions.setToolState).toHaveBeenCalledWith({
@@ -95,8 +123,8 @@ describe('FullHistoryManager', () => {
     });
   });
 
-  it('keeps animation step payload on tool-updated replay', () => {
-    app.fullHistory.steps = [
+  it('keeps animation step payload on tool-updated replay', async () => {
+    const steps = [
       {
         type: 'tool-updated',
         detail: {
@@ -106,12 +134,16 @@ describe('FullHistoryManager', () => {
         },
       },
     ];
-
-    FullHistoryManager.executeStep(0);
-
-    expect(setState).toHaveBeenCalledWith({
-      tool: { ...app.fullHistory.steps[0].detail },
+    
+    vi.mocked(fullHistoryState.get).mockReturnValue({
+        index: 0,
+        actionIndex: 0,
+        steps: steps,
+        isRunning: true
     });
+
+    await FullHistoryManager.executeStep(0);
+
     expect(appActions.setActiveTool).toHaveBeenCalledWith('move');
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('move');
     expect(appActions.setToolState).toHaveBeenCalledWith({
@@ -119,8 +151,8 @@ describe('FullHistoryManager', () => {
     });
   });
 
-  it('syncs appActions on settings-changed step', () => {
-    app.fullHistory.steps = [
+  it('syncs appActions on settings-changed step', async () => {
+    const steps = [
       {
         type: 'settings-changed',
         detail: {
@@ -129,21 +161,25 @@ describe('FullHistoryManager', () => {
         },
       },
     ];
-
-    FullHistoryManager.executeStep(0);
-
-    expect(setState).toHaveBeenCalledWith({
-      settings: { ...app.fullHistory.steps[0].detail },
+    
+    vi.mocked(fullHistoryState.get).mockReturnValue({
+        index: 0,
+        actionIndex: 0,
+        steps: steps,
+        isRunning: true
     });
+
+    await FullHistoryManager.executeStep(0);
+
     expect(appActions.updateSettings).toHaveBeenCalledWith({
       gridShown: true,
       gridSize: 20,
     });
   });
 
-  it('syncs tangram state on add-fullstep with tangram payload', () => {
+  it('syncs tangram state on add-fullstep with tangram payload', async () => {
     vi.useFakeTimers();
-    app.fullHistory.steps = [
+    const steps = [
       {
         type: 'add-fullstep',
         detail: {
@@ -157,9 +193,18 @@ describe('FullHistoryManager', () => {
         },
       },
     ];
+    
+    vi.mocked(fullHistoryState.get).mockReturnValue({
+        index: 0,
+        actionIndex: 0,
+        steps: steps,
+        isRunning: true,
+        numberOfActions: 1
+    });
 
-    FullHistoryManager.executeStep(0);
+    const promise = FullHistoryManager.executeStep(0);
     vi.advanceTimersByTime(600);
+    await promise;
 
     expect(appActions.setTangramState).toHaveBeenCalledWith({
       isSilhouetteShown: true,

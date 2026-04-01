@@ -137,7 +137,6 @@ describe('DuplicateTool', () => {
     expect(helpConfigRegistry.has('duplicate')).toBe(true);
     vi.advanceTimersByTime(100);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('duplicate');
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
     vi.useRealTimers();
   });
@@ -159,7 +158,6 @@ describe('DuplicateTool', () => {
     tool.objectSelected(mockShape);
 
     expect(tool.involvedShapes).toContain(mockShape);
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('move');
   });
 
@@ -189,7 +187,6 @@ describe('DuplicateTool', () => {
     tool.canvasMouseUp();
 
     expect(ShapeManager.addShape).toHaveBeenCalled();
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
   });
 });

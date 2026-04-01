@@ -53,7 +53,11 @@ export class CreateQuadrilateralTool extends BaseShapeCreationTool {
    * Obtenir les contraintes pour le point donné
    */
   getConstraints(pointNumber) {
-    if (this.quadrilateralDef && this.quadrilateralDef.constraints) {
+    if (
+      this.quadrilateralDef &&
+      this.quadrilateralDef.constraints &&
+      typeof this.quadrilateralDef.constraints[pointNumber] === 'function'
+    ) {
       this.constraints = this.quadrilateralDef.constraints[pointNumber](
         this.points,
         this.segments,

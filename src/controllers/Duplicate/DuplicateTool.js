@@ -1,7 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
@@ -38,16 +38,11 @@ export class DuplicateTool extends Tool {
     this.translateOffset = new Coordinates({ x: -20, y: -20 });
   }
 
-  updateToolStep(step, extraState = {}) {
-    appActions.setToolState(extraState);
-    appActions.setCurrentStep(step);
-  }
-
   start() {
     helpConfigRegistry.register(this.name, duplicateHelpConfig);
 
     appActions.setActiveTool(this.name);
-    setTimeout(() => this.updateToolStep('listen'), 50);
+    setTimeout(() => appActions.setCurrentStep('listen'), 50);
   }
 
   listen() {
@@ -72,7 +67,7 @@ export class DuplicateTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
 
     if (app.tool.currentStep !== 'listen') {
-      this.updateToolStep('listen');
+      appActions.setCurrentStep('listen');
     }
   }
 
@@ -86,7 +81,7 @@ export class DuplicateTool extends Tool {
     this.objectSelectedId = app.addListener('objectSelected', this.handler);
 
     if (app.tool.currentStep !== 'selectSegment') {
-      this.updateToolStep('selectSegment');
+      appActions.setCurrentStep('selectSegment');
     }
   }
 
@@ -96,7 +91,7 @@ export class DuplicateTool extends Tool {
     this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
 
     if (app.tool.currentStep !== 'move') {
-      this.updateToolStep('move');
+      appActions.setCurrentStep('move');
     }
   }
 
@@ -117,7 +112,7 @@ export class DuplicateTool extends Tool {
       this.mode = 'point';
       this.segment = object;
       this.executeAction();
-      this.updateToolStep('listen');
+      appActions.setCurrentStep('listen');
     } else if (object instanceof Segment) {
       this.mode = 'segment';
 
@@ -139,7 +134,7 @@ export class DuplicateTool extends Tool {
 
       this.drawingShapes = [newShape];
 
-      this.updateToolStep('move');
+      appActions.setCurrentStep('move');
       this.animate();
     } else if (object.name === 'PointOnLine') {
       this.involvedPoint = object;
@@ -149,7 +144,7 @@ export class DuplicateTool extends Tool {
         color: app.settings.referenceDrawColor,
         size: 2,
       });
-      this.updateToolStep('selectSegment');
+      appActions.setCurrentStep('selectSegment');
     } else {
       this.mode = 'shape';
       this.involvedShapes = ShapeManager.getAllBindedShapes(object);
@@ -198,7 +193,7 @@ export class DuplicateTool extends Tool {
         return newShape;
       });
 
-      this.updateToolStep('move');
+      appActions.setCurrentStep('move');
       this.animate();
     }
   }
@@ -211,7 +206,7 @@ export class DuplicateTool extends Tool {
       .add(this.translateOffset);
 
     this.executeAction();
-    this.updateToolStep('listen');
+    appActions.setCurrentStep('listen');
   }
 
   refreshStateUpper() {

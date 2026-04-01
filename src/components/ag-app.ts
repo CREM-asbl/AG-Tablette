@@ -51,8 +51,6 @@ export class App extends SignalWatcher(LitElement) {
       maxPerSession: 10,
       minIntervalMs: 5000,
     });
-
-    signalSyncService.init(app);
   }
 
   async parseURL() {

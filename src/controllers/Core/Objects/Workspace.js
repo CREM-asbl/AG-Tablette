@@ -291,7 +291,7 @@ export class Workspace {
       this.shapeGroups = [];
     }
 
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       const hydrateCharacteristicElements = (elementsData) =>
         Array.isArray(elementsData)
           ? elementsData.map((element) => new CharacteristicElements(element))
@@ -333,7 +333,11 @@ export class Workspace {
 
     wsdata.id = this.id;
 
-    wsdata.objects = app.mainCanvasLayer.saveData();
+    wsdata.objects = app.mainCanvasLayer ? app.mainCanvasLayer.saveData() : {
+      shapesData: [],
+      segmentsData: [],
+      pointsData: [],
+    };
     if (app.tangramCanvasLayer) {
       let mustEraseShapes = false;
       if (app.tangramCanvasLayer.shapes.length === 0) {
@@ -345,7 +349,7 @@ export class Workspace {
         app.tangramCanvasLayer.removeAllObjects();
       }
     }
-    if (app.environment.name === 'Geometrie') {
+    if (app.environment?.name === 'Geometrie') {
       wsdata.translationLastCharacteristicElements =
         this.translationLastCharacteristicElements.map((element) =>
           element.saveData(),
@@ -433,7 +437,9 @@ export class Workspace {
 
   async resetWorkspace() {
     this.translateOffset = Coordinates.nullCoordinates;
-    await app.mainCanvasLayer.loadFromData(null);
+    if (app.mainCanvasLayer) {
+      await app.mainCanvasLayer.loadFromData(null);
+    }
     app.tangramCanvasLayer?.clear();
     app.gridCanvasLayer?.clear();
   }

@@ -109,7 +109,6 @@ describe('RotateTool', () => {
     vi.advanceTimersByTime(100);
 
     expect(appActions.setActiveTool).toHaveBeenCalledWith('rotate');
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
     vi.useRealTimers();
   });
@@ -128,7 +127,6 @@ describe('RotateTool', () => {
     tool.objectSelected(mockShape);
 
     expect(tool.selectedShape).toBe(mockShape);
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('rotate');
   });
 
@@ -155,7 +153,6 @@ describe('RotateTool', () => {
     tool.canvasMouseUp();
 
     expect(mockShape.rotate).toHaveBeenCalled();
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
   });
 });

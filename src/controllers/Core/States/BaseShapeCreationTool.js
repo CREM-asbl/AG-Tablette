@@ -315,6 +315,10 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
 
     this.safeExecuteAction(async () => {
       await this.executeAction();
+      window.dispatchEvent(new CustomEvent('refresh'));
+      window.dispatchEvent(
+        new CustomEvent('actions-executed', { detail: { name: this.title } }),
+      );
       this.clearPreviewShape();
       appActions.setToolState({ currentStep: 'drawFirstPoint' });
       appActions.setCurrentStep('drawFirstPoint');
