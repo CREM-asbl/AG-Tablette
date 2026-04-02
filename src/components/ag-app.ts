@@ -1,16 +1,12 @@
 import { SignalWatcher } from '@lit-labs/signals';
-import { html, LitElement, css } from 'lit';
-import '../controllers/auto-launch';
-import '../controllers/backbutton-manager';
+import { css, html, LitElement } from 'lit';
 import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
-import '../controllers/Core/Manifest';
-import { initBugReporting } from '../services/bug-report.service';
-import { signalSyncService } from '../services/SignalSyncService';
-import { appLoading, currentEnvironment } from '../store/appState';
-import './tool-ui-container';
-import './ag-environnements';
 import '../layouts/ag-main';
+import { initBugReporting } from '../services/bug-report.service';
+import { appLoading, currentEnvironment } from '../store/appState';
+import './ag-environnements';
+import './tool-ui-container';
 
 /**
  * fix device-height != screen-height on pwa
@@ -37,6 +33,20 @@ export class App extends SignalWatcher(LitElement) {
     this.parseURL();
   }
 
+  bootstrapControllerSideEffects() {
+    void Promise.allSettled([
+      import('../controllers/auto-launch'),
+      import('../controllers/backbutton-manager'),
+      import('../controllers/Core/Manifest'),
+    ]).then((results) => {
+      results.forEach((result) => {
+        if (result.status === 'rejected') {
+          console.warn('Erreur lors du bootstrap des controllers:', result.reason);
+        }
+      });
+    });
+  }
+
   initCoreServices() {
     const globalWindow = window as Window & {
       __agCoreServicesInitialized?: boolean;
@@ -51,6 +61,8 @@ export class App extends SignalWatcher(LitElement) {
       maxPerSession: 10,
       minIntervalMs: 5000,
     });
+
+    this.bootstrapControllerSideEffects();
   }
 
   async parseURL() {

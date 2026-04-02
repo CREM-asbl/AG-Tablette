@@ -63,17 +63,18 @@ class ContextualGuideController extends LitElement {
       return;
     }
 
-    // Vérifier que cet outil a une config d'aide
+    // Ne pas fermer immédiatement si la config n'est pas encore enregistrée.
+    // Plusieurs outils enregistrent leur config dans start(), après création du guide.
     if (!helpConfigRegistry.has(this.toolname)) {
-      console.warn(`[ContextualGuideController] Pas de config d'aide pour ${this.toolname}`);
-      this.close();
-      return;
+      console.warn(
+        `[ContextualGuideController] Config d'aide pas encore disponible pour ${this.toolname}, attente...`,
+      );
     }
 
     // Boucle de polling pour état du tool
     this.updateLoop = setInterval(() => {
       const currentApp = window.app;
-      
+
       // Auto-fermeture si l'outil change ou n'existe plus
       if (!currentApp?.tool || currentApp.tool.name !== this.toolname) {
         this.close();
@@ -102,7 +103,7 @@ class ContextualGuideController extends LitElement {
     this.handleActionComplete = () => {
       this.isComplete = true;
       this.updateGuide();
-      
+
       // Réinitialiser le flag de complétion après 1,5s pour permettre la suite du guidage
       setTimeout(() => {
         if (this.updateLoop) { // Vérifier si le guide n'a pas été fermé entre temps

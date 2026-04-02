@@ -43,6 +43,7 @@ vi.mock('../../../../src/store/appState', () => ({
     toolState: { get: vi.fn(() => ({})) },
     appActions: {
         setActiveTool: vi.fn(),
+        setSelectedTemplate: vi.fn(),
         setToolUiState: vi.fn(),
         setToolState: vi.fn(),
         setCurrentStep: vi.fn(),

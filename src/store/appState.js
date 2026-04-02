@@ -429,7 +429,7 @@ export const resetWorkspaceState = () => {
     level: null,
     currentFile: null,
   });
-  
+
   appActions.setHistoryState({
     canUndo: false,
     canRedo: false,

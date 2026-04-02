@@ -190,7 +190,7 @@ class ThemeElem extends SignalWatcher(LitElement) {
 
       // Sauvegarder les modules dans IndexedDB si récupérés du serveur
       if (modulesDoc && modulesDoc.length > 0 && navigator.onLine) {
-        const { saveModulesToIndexedDB } = await import('../../store/notions');
+        const { saveModulesToIndexedDB } = await import('../../services/notions-cache.service');
         await saveModulesToIndexedDB(modulesDoc, this.title);
       }
 

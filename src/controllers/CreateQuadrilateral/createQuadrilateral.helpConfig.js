@@ -20,7 +20,7 @@ export const createQuadrilateralHelpConfig = {
     const { currentStep, numberOfPointsDrawn = 0 } = state;
 
     // Étape initiale - sélection du type de quadrilatère
-    if (currentStep === 'start') {
+    if (currentStep === 'start' || currentStep === 'initialized') {
       return {
         target: 'shape-selector',
         text: '📌 Choisis une forme de quadrilatère',

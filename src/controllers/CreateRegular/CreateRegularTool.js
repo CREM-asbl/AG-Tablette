@@ -1,12 +1,10 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
-import { appActions } from '../../store/appState';
 import { app } from '../Core/App';
-import { Coordinates } from '../Core/Objects/Coordinates';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
-import { createElem, removeObjectById } from '../Core/Tools/general';
+import { createElem } from '../Core/Tools/general';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { createRegularHelpConfig } from './createRegular.helpConfig';
 import './regular-popup';
@@ -33,13 +31,13 @@ export class CreateRegularTool extends BaseShapeCreationTool {
     existingPopups.forEach((popup) => popup.remove());
 
     createElem('regular-popup');
-    
+
     // Le popup s'occupera de passer à l'étape 'drawFirstPoint'
   }
 
   async loadShapeDefinition() {
     this.shapeDefinition = {
-        numberOfPointsRequired: 2
+      numberOfPointsRequired: 2
     };
   }
 
@@ -122,8 +120,8 @@ export class CreateRegularTool extends BaseShapeCreationTool {
 
   async executeAction() {
     const path = this.getPath(
-        this.points[0].coordinates,
-        this.points[1].coordinates,
+      this.points[0].coordinates,
+      this.points[1].coordinates,
     );
 
     const shape = new RegularShape({
@@ -139,12 +137,12 @@ export class CreateRegularTool extends BaseShapeCreationTool {
     const transformation = getShapeAdjustment([shape], shape);
     shape.rotate(transformation.rotationAngle, shape.centerCoordinates);
     shape.translate(transformation.translation);
-    
+
     shape.vertexes[0].adjustedOn = this.points[0].adjustedOn;
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    
+
     return shape;
   }
 }

@@ -10,7 +10,6 @@ import { appActions } from '@store/appState';
 import { gridStore } from '@store/gridStore.js';
 import { setFamiliesVisibility } from '@store/kit.js';
 import { setToolsVisibility } from '@store/tools.js';
-import { performanceManager } from '../../../utils/PerformanceManager.js';
 
 // Constantes d'erreur
 const ERROR_MESSAGES = {
@@ -446,6 +445,8 @@ export const oldReadFile = (file) => {
 };
 
 export const parseFile = async (fileContent, filename) => {
+  const { performanceManager } = await import('../../../utils/PerformanceManager.js');
+
   return await performanceManager.measure('parse-file', async () => {
     try {
       const parseResult = parseJsonContent(fileContent);

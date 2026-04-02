@@ -45,6 +45,7 @@ vi.mock('@store/appState', () => ({
   appActions: {
     setToolUiState: vi.fn(),
     setActiveTool: vi.fn(),
+    setSelectedTemplate: vi.fn(),
     setToolState: vi.fn(),
     setCurrentStep: vi.fn(),
     addNotification: vi.fn(),
@@ -99,10 +100,13 @@ describe('CreatePointTool', () => {
     tool = new CreatePointTool();
   });
 
-  it('registers help config in start()', () => {
-    tool.start();
+  it('registers help config in start()', async () => {
+    await tool.start();
     expect(helpConfigRegistry.has('createPoint')).toBe(true);
     expect(appActions.setActiveTool).toHaveBeenCalledWith('createPoint');
+    expect(appActions.setSelectedTemplate).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Point' }),
+    );
     expect(appActions.setToolUiState).toHaveBeenCalled();
   });
 
@@ -115,12 +119,10 @@ describe('CreatePointTool', () => {
     // Mouse down
     tool.canvasMouseDown();
     expect(tool.point).toBeDefined();
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('animatePoint');
 
     // Mouse up
     tool.canvasMouseUp();
-    expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
   });
 

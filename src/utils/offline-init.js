@@ -47,6 +47,3 @@ export function initOfflineSupport() {
     );
   });
 }
-
-// Auto-initialisation
-initOfflineSupport();

@@ -35,7 +35,7 @@ export class CreatePointTool extends Tool {
     this.geometryParentObjectId1 = null;
   }
 
-  start() {
+  async start() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
     this.stopAnimation();
@@ -47,9 +47,9 @@ export class CreatePointTool extends Tool {
     const selectedTemplate =
       points.find((template) => template.name === app.tool.selectedTemplate?.name) ||
       points[0];
-    appActions.setSelectedTemplate?.(selectedTemplate);
+    appActions.setSelectedTemplate(selectedTemplate);
 
-    import('@components/shape-selector');
+    await import('@components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',
       family: 'Points',

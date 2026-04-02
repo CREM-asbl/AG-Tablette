@@ -1,10 +1,10 @@
+import { app } from '@controllers/Core/App';
 import { CreateTriangleTool } from '@controllers/CreateTriangle/CreateTriangleTool';
-import { helpConfigRegistry } from '@services/HelpConfigRegistry';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { app, setState } from '@controllers/Core/App';
-import { appActions } from '@store/appState';
 import * as geometryTools from '@controllers/GeometryTools/general';
 import * as recomputeShape from '@controllers/GeometryTools/recomputeShape';
+import { helpConfigRegistry } from '@services/HelpConfigRegistry';
+import { appActions } from '@store/appState';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@lit-labs/signals', () => ({
     computed: vi.fn((cb) => ({ get: cb })),
@@ -35,6 +35,7 @@ vi.mock('@controllers/Core/App', () => {
 vi.mock('@store/appState', () => ({
     appActions: {
         setActiveTool: vi.fn(),
+        setSelectedTemplate: vi.fn(),
         setToolState: vi.fn(),
         setCurrentStep: vi.fn(),
         setToolUiState: vi.fn(),
@@ -67,7 +68,7 @@ vi.mock('@controllers/Core/Objects/Shapes/RegularShape', () => ({
 
 vi.mock('@controllers/Core/Objects/Shapes/GeometryObject', () => ({
     GeometryObject: class {
-        constructor() {}
+        constructor() { }
     }
 }));
 
@@ -119,9 +120,9 @@ describe('CreateTriangleTool', () => {
         tool.numberOfPointsDrawn = 3;
         // In preview, if numberOfPointsRequired is 3, finishShape is not called because of drawn < 3 condition in refreshShapePreview
         // Wait, the condition is: this.numberOfPointsDrawn === this.numberOfPointsRequired() && this.numberOfPointsDrawn < 3
-        // So for triangles (3 points), it never calls finishShape in preview? 
+        // So for triangles (3 points), it never calls finishShape in preview?
         // Let's check the code: if (this.numberOfPointsDrawn === this.numberOfPointsRequired() && this.numberOfPointsDrawn < 3)
-        // If required is 3, then it's never < 3. 
+        // If required is 3, then it's never < 3.
         // Some triangles might require 2 points (RightAngleTriangle if 3rd is computed?)
     });
 
@@ -132,9 +133,9 @@ describe('CreateTriangleTool', () => {
             { coordinates: { x: 100, y: 0 }, adjustedOn: null },
             { coordinates: { x: 50, y: 86 }, adjustedOn: null },
         ];
-        
+
         await tool.executeAction();
-        
+
         expect(geometryTools.linkNewlyCreatedPoint).toHaveBeenCalled();
         expect(recomputeShape.computeConstructionSpec).toHaveBeenCalled();
     });

@@ -1,27 +1,24 @@
-import { signal, computed } from '@lit-labs/signals';
+import { signal } from '@lit-labs/signals';
+import { resetToolsVisibility, tools } from '@store/tools';
 import {
   activeTool,
+  appActions,
+  currentEnvironment,
   currentStep,
+  filename,
+  fullHistoryState,
+  historyState,
   selectedTemplate,
-  toolState,
-  createWatcher,
   settings,
   tangramState,
-  historyState,
-  fullHistoryState,
-  stepSinceSave,
-  filename,
-  workspaceData,
-  nextGroupColorIdx,
-  bugs,
-  appActions,
+  toolState,
+  workspaceData
 } from '../../store/appState';
-import { resetToolsVisibility, tools } from '@store/tools';
 import { resetKitVisibility } from '../../store/kit';
+import { initFullHistoryManager } from './Managers/FullHistoryManager';
+import { initHistoryManager } from './Managers/HistoryManager';
 import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
-import { initHistoryManager } from './Managers/HistoryManager';
-import { initFullHistoryManager } from './Managers/FullHistoryManager';
 import { Workspace } from './Objects/Workspace';
 import { uniqId } from './Tools/utils';
 
@@ -284,26 +281,26 @@ if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));
     window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
   });
-window.addEventListener('history:state-changed', () => {
-  app.history = historyState.get();
-  window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));
-  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
-});
+  window.addEventListener('history:state-changed', () => {
+    app.history = historyState.get();
+    window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));
+    window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+  });
 
-window.addEventListener('app:full-history-changed', () => {
-  app.fullHistory = fullHistoryState.get();
-  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
-});
+  window.addEventListener('app:full-history-changed', () => {
+    app.fullHistory = fullHistoryState.get();
+    window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
+  });
 
-window.addEventListener('environment:changed', () => {
-  app.environment = currentEnvironment.get();
-  if (app.environment && app.history.startSituation === null) {
-    appActions.setHistoryState({
-      startSituation: app.workspace.data,
-      startSettings: { ...app.settings },
-    });
-  }
-});
+  window.addEventListener('environment:changed', () => {
+    app.environment = currentEnvironment.get();
+    if (app.environment && app.history.startSituation === null) {
+      appActions.setHistoryState({
+        startSituation: app.workspace.data,
+        startSettings: { ...app.settings },
+      });
+    }
+  });
 
   window.addEventListener('tangram:state-changed', () => {
     app.tangram = tangramState.get();
@@ -322,7 +319,7 @@ window.addEventListener('environment:changed', () => {
   window.addEventListener('app:started-changed', (e) => {
     app.started = e.detail.started;
     if (app.started) {
-        window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
+      window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
     }
   });
 
@@ -356,30 +353,30 @@ window.addEventListener('environment:changed', () => {
 export const setState = (update) => {
   for (const [key, value] of Object.entries(update)) {
     app[key] = value;
-    
+
     // Synchronisation vers les signaux (Legacy -> Signals)
     if (key === 'tool' && value) {
-        // On évite les boucles infinies en ne rappelant pas appActions si on vient déjà d'un signal
-        // Mais ici setState est le point d'entrée legacy.
-        if (value.name !== undefined) appActions.setActiveTool(value.name);
-        if (value.currentStep !== undefined) appActions.setCurrentStep(value.currentStep);
-        const { name, currentStep, selectedTemplate, title, type, ...state } = value;
-        if (Object.keys(state).length > 0) appActions.setToolState(state);
-        if (selectedTemplate !== undefined) appActions.setSelectedTemplate(selectedTemplate);
+      // On évite les boucles infinies en ne rappelant pas appActions si on vient déjà d'un signal
+      // Mais ici setState est le point d'entrée legacy.
+      if (value.name !== undefined) appActions.setActiveTool(value.name);
+      if (value.currentStep !== undefined) appActions.setCurrentStep(value.currentStep);
+      const { name, currentStep, selectedTemplate, title, type, ...state } = value;
+      if (Object.keys(state).length > 0) appActions.setToolState(state);
+      if (selectedTemplate !== undefined) appActions.setSelectedTemplate(selectedTemplate);
     } else if (key === 'settings' && value) {
-        appActions.updateSettings(value);
+      appActions.updateSettings(value);
     } else if (key === 'history' && value) {
-        appActions.setHistoryState(value);
+      appActions.setHistoryState(value);
     } else if (key === 'tangram' && value) {
-        appActions.setTangramState(value);
+      appActions.setTangramState(value);
     } else if (key === 'filename') {
-        appActions.setFilename(value);
+      appActions.setFilename(value);
     } else if (key === 'appLoading') {
-        appActions.setLoading(value);
+      appActions.setLoading(value);
     } else if (key === 'started') {
-        appActions.setStarted(value);
+      appActions.setStarted(value);
     } else if (key === 'stepSinceSave') {
-        appActions.setStepSinceSave(value);
+      appActions.setStepSinceSave(value);
     }
   }
 

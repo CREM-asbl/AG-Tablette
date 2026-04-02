@@ -1,10 +1,10 @@
-import { snapCoordinatesToGrid } from '../../utils/gridSnapping';
 import { app } from '../Core/App';
 import { Coordinates } from '../Core/Objects/Coordinates';
 import { Point } from '../Core/Objects/Point';
 import { Segment } from '../Core/Objects/Segment';
 import { LineShape } from '../Core/Objects/Shapes/LineShape';
 import { findObjectById, mod } from '../Core/Tools/general';
+import { snapCoordinatesToGrid } from './gridSnapping';
 
 export function computeAllShapeTransform(
   shape,

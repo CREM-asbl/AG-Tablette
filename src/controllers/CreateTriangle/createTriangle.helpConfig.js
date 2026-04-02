@@ -19,7 +19,7 @@ export const createTriangleHelpConfig = {
     const { currentStep, numberOfPointsDrawn = 0, selectedTemplate } = state;
 
     // Étape initiale - sélection du type de triangle
-    if (currentStep === 'start') {
+    if (currentStep === 'start' || currentStep === 'initialized') {
       return {
         target: 'shape-selector',
         text: '📌 Choisis le type de triangle',

@@ -35,12 +35,24 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       // Charger dynamiquement le composant shape-selector
       await import('@components/shape-selector');
 
+      const availableTemplates = Array.isArray(this.templatesImport)
+        ? this.templatesImport
+        : [];
+      const initialTemplate =
+        availableTemplates.find(
+          (template) => template.name === selectedTemplate.get()?.name,
+        ) || availableTemplates[0];
+
+      if (initialTemplate) {
+        appActions.setSelectedTemplate(initialTemplate);
+      }
+
       // Utiliser le signal pour afficher le sélecteur de forme
       const uiState = {
         name: 'shape-selector',
         family: this.familyName,
-        templatesNames: this.templatesImport,
-        selectedTemplate: selectedTemplate.get(),
+        templatesNames: availableTemplates,
+        selectedTemplate: initialTemplate,
         type: 'Geometry',
         nextStep: 'drawFirstPoint',
       };

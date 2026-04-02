@@ -11,14 +11,6 @@ import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import { activeTool, filename, historyState } from '../store/appState';
-import { initializeCachesFromIndexedDB } from '../store/notions';
-import '../utils/offline-init.js';
-
-if (app.fileToOpen) OpenFileManager.newReadFile(app.fileToOpen);
-initializeCachesFromIndexedDB().catch((error) => {
-  console.warn("Erreur lors de l'initialisation des caches:", error);
-});
-
 
 @customElement('ag-main')
 class AGMain extends SignalWatcher(LitElement) {
@@ -144,6 +136,29 @@ class AGMain extends SignalWatcher(LitElement) {
   }
 
   async firstUpdated() {
+    const globalWindow = window as Window & {
+      __agNotionsCacheInitialized?: boolean;
+      __agOfflineSupportInitialized?: boolean;
+    };
+
+    if (!globalWindow.__agNotionsCacheInitialized) {
+      globalWindow.__agNotionsCacheInitialized = true;
+      const { initializeNotionsCacheBootstrap } = await import('../services/notions-cache-bootstrap');
+      initializeNotionsCacheBootstrap().catch((error) => {
+        console.warn("Erreur lors de l'initialisation des caches:", error);
+      });
+    }
+
+    if (!globalWindow.__agOfflineSupportInitialized) {
+      globalWindow.__agOfflineSupportInitialized = true;
+      const { initializeOfflineSupportBootstrap } = await import('../services/offline-support-bootstrap');
+      void initializeOfflineSupportBootstrap();
+    }
+
+    if (app.fileToOpen) {
+      OpenFileManager.newReadFile(app.fileToOpen);
+    }
+
     window.addEventListener('show-file-selector', () => {
       const input = this.shadowRoot?.querySelector(
         '#fileSelector',

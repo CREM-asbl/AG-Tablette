@@ -17,9 +17,6 @@ import {
 } from 'firebase/firestore';
 import { getPerformance } from 'firebase/performance';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
-import { app } from '../controllers/Core/App';
-import { loadEnvironnement } from '../controllers/Core/Environment';
-import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
 import {
   getActivity,
   getAllModules,
@@ -53,6 +50,21 @@ if (location.hostname !== 'localhost') {
 // Exporter pour utilisation dans l'application
 export { perf };
 
+async function loadAppControllerDependencies() {
+  const [{ app }, { loadEnvironnement }, { OpenFileManager }] = await Promise.all([
+    import('../controllers/Core/App'),
+    import('../controllers/Core/Environment'),
+    import('../controllers/Core/Managers/OpenFileManager'),
+  ]);
+
+  return { app, loadEnvironnement, OpenFileManager };
+}
+
+async function getAppInstance() {
+  const { app } = await import('../controllers/Core/App');
+  return app;
+}
+
 export async function openFileFromServer(activityName) {
   try {
     // Validation des paramètres
@@ -62,6 +74,9 @@ export async function openFileFromServer(activityName) {
 
     const data = await getFileDocFromFilename(activityName);
     if (data) {
+      const { app, loadEnvironnement, OpenFileManager } =
+        await loadAppControllerDependencies();
+
       await loadEnvironnement(data.environment);
       const fileDownloadedObject = await readFileFromServer(data.id);
 
@@ -231,6 +246,7 @@ export async function getFileDocFromFilename(id) {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
+          const app = await getAppInstance();
           app.fileFromServer = true;
           return { id, ...docSnap.data() };
         } else {
