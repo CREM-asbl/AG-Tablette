@@ -93,15 +93,17 @@ function parseActivityPayload(record) {
  * @param {string} id - Identifiant de l'activité
  * @param {Object} data - Données de l'activité
  * @param {number} version - Version de l'activité
+ * @param {number} [customTimestamp] - Timestamp optionnel (ex: date de modification serveur)
  * @returns {Promise} Promesse de sauvegarde
  */
-export async function saveActivity(id, data, version = 1) {
+export async function saveActivity(id, data, version = 1, customTimestamp = null) {
   const db = await openDB();
   const tx = db.transaction(STORE_NAMES.activities, 'readwrite');
   const store = tx.objectStore(STORE_NAMES.activities);
 
   // Préparer les données avec métadonnées
   const now = Date.now();
+  const timestamp = customTimestamp !== null ? customTimestamp : now;
   const compressedData = CACHE_CONFIG.COMPRESSION_ENABLED
     ? compressToUTF16(JSON.stringify(data))
     : JSON.stringify(data);
@@ -110,7 +112,7 @@ export async function saveActivity(id, data, version = 1) {
     id,
     data: compressedData,
     version,
-    timestamp: now,
+    timestamp: timestamp,
     lastAccess: now,
     accessCount: 1,
     compressed: CACHE_CONFIG.COMPRESSION_ENABLED,

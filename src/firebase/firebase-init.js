@@ -16,7 +16,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { getPerformance } from 'firebase/performance';
-import { getDownloadURL, getStorage, ref } from 'firebase/storage';
+import { getDownloadURL, getMetadata, getStorage, ref } from 'firebase/storage';
 import {
   getActivity,
   getAllModules,
@@ -133,39 +133,71 @@ export async function readFileFromServer(filename, options = {}) {
     }
 
     const { forceDownload = false } = options;
+    const fileRef = ref(storage, filename);
+    let serverMetadata = null;
 
-    // Vérifier d'abord IndexedDB (accès hors ligne) - sauf si forceDownload
-    if (!forceDownload) {
-      try {
-        const localActivity = await getActivity(filename);
-        if (localActivity) {
-
-          // Notification supprimée pour transparence utilisateur
-          return localActivity.data;
-        }
-      } catch (indexedDBError) {
-        logDevWarning(
-          '[firebase-init] IndexedDB read failed for activity cache:',
-          indexedDBError,
-        );
+    // Récupérer les métadonnées du serveur pour vérifier la date de mise à jour
+    try {
+      if (navigator.onLine) {
+        serverMetadata = await getMetadata(fileRef);
       }
+    } catch (metaError) {
+      logDevWarning(`[firebase-init] getMetadata failed for ${filename}:`, metaError);
     }
 
-    // Vérifier le cache mémoire - sauf si forceDownload
+    // Vérifier d'abord IndexedDB (accès hors ligne)
+    try {
+      const localActivity = await getActivity(filename);
+      if (localActivity && !forceDownload) {
+        // Si on a les métadonnées du serveur, comparer les dates
+        if (serverMetadata && serverMetadata.updated) {
+          const serverLastModified = new Date(serverMetadata.updated).getTime();
+          const localTimestamp = localActivity.timestamp || 0;
+
+          // Si le fichier local est plus récent ou identique au fichier serveur, on l'utilise
+          if (localTimestamp >= serverLastModified) {
+            return localActivity.data;
+          }
+          
+          if (import.meta.env.DEV) {
+            console.log(`[firebase-init] Mise à jour détectée pour ${filename}: local ${new Date(localTimestamp).toLocaleString()} < server ${new Date(serverLastModified).toLocaleString()}`);
+          }
+        } else {
+          // Si on est hors ligne ou si getMetadata a échoué, on utilise le cache
+          return localActivity.data;
+        }
+      }
+    } catch (indexedDBError) {
+      logDevWarning(
+        '[firebase-init] IndexedDB read failed for activity cache:',
+        indexedDBError,
+      );
+    }
+
+    // Vérifier le cache mémoire - seulement si on n'a pas détecté de mise à jour nécessaire
     const cacheKey = `file_${filename}`;
     if (!forceDownload) {
       const cachedData = fileCache.get(cacheKey);
       if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
-
-        return cachedData.data;
+        // Si on a les métadonnées du serveur, on vérifie aussi contre le cache mémoire
+        if (serverMetadata && serverMetadata.updated) {
+          const serverLastModified = new Date(serverMetadata.updated).getTime();
+          if (cachedData.timestamp >= serverLastModified) {
+            return cachedData.data;
+          }
+        } else {
+          return cachedData.data;
+        }
       }
     }
 
     // Télécharger avec retry
     const fileDownloaded = await retryWithBackoff(
       async () => {
-        const URL = await getDownloadURL(ref(storage, filename));
-        const response = await fetch(URL);
+        const URL = await getDownloadURL(fileRef);
+        // Bypass le cache navigateur si on sait qu'il y a une mise à jour
+        const fetchOptions = serverMetadata ? { cache: 'reload' } : {};
+        const response = await fetch(URL, fetchOptions);
 
         if (!response.ok) {
           throw new Error(
@@ -184,8 +216,13 @@ export async function readFileFromServer(filename, options = {}) {
 
     // Sauvegarder dans IndexedDB pour accès hors ligne
     try {
+      // Utiliser la date du serveur comme timestamp de référence si disponible
+      const timestampToSave = serverMetadata && serverMetadata.updated 
+        ? new Date(serverMetadata.updated).getTime() 
+        : Date.now();
+      
       const version = jsonData.version || 1;
-      await saveActivity(filename, jsonData, version);
+      await saveActivity(filename, jsonData, version, timestampToSave);
     } catch (saveError) {
       logDevWarning(
         '[firebase-init] IndexedDB save failed for activity cache:',
