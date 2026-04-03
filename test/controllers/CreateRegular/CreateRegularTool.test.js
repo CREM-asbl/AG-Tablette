@@ -28,6 +28,8 @@ const { appMock } = vi.hoisted(() => ({
     },
     workspace: {
       lastKnownMouseCoordinates: { x: 10, y: 10 },
+      zoomLevel: 1,
+      translateOffset: { x: 0, y: 0 },
     },
     addListener: vi.fn(() => 'listener-id'),
     removeListener: vi.fn(),

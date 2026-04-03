@@ -1,6 +1,6 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
-import { appActions } from '../../store/appState';
+import { appActions, settings } from '../../store/appState';
 import { app, changes } from '../Core/App';
 
 class ZoomMenu extends SignalWatcher(LitElement) {
@@ -48,6 +48,7 @@ class ZoomMenu extends SignalWatcher(LitElement) {
 
   render() {
     changes.get();
+    settings.get();
     this.updateProperties();
     return html`
       <div>
@@ -73,7 +74,7 @@ class ZoomMenu extends SignalWatcher(LitElement) {
 
   updateProperties() {
     this.zoomLevel = app.tool?.zoomLevel || app.workspace.zoomLevel;
-    this.position = this.getPositionFromZoom(app.workspace.zoomLevel);
+    this.position = this.getPositionFromZoom(this.zoomLevel);
   }
 
   close() {

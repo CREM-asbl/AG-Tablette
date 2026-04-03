@@ -62,6 +62,11 @@ export class App extends SignalWatcher(LitElement) {
       minIntervalMs: 5000,
     });
 
+    // Initialisation du service de synchronisation Signal
+    import('../services/SignalSyncService').then(({ signalSyncService }) => {
+      signalSyncService.init(app);
+    });
+
     this.bootstrapControllerSideEffects();
   }
 

@@ -15,43 +15,9 @@ export class SignalSyncService {
     this.app = appInstance;
     const app = this.app;
 
-    // Synchronisation de l'outil actif
-    this.addListener('tool-changed', () => {
-      if (app.tool) {
-        appActions.setActiveTool(app.tool.name);
-        appActions.setCurrentStep(app.tool.currentStep);
-      } else {
-        appActions.setActiveTool(null);
-      }
-    });
-
-    this.addListener('tool-updated', () => {
-      if (app.tool) {
-        // Note: use setCurrentStep (primitive value, no new object) instead of
-        // setToolState — setToolState always creates a new object reference, causing
-        // combinedToolSignal to recompute and the watcher to fire on every RAF frame.
-        appActions.setCurrentStep(app.tool.currentStep);
-      }
-    });
-
     // Synchronisation du viewport (Zoom/Pan)
     this.addListener('refresh', () => this.syncViewport());
     this.addListener('refreshUpper', () => this.syncViewport());
-
-    // Synchronisation des settings
-    this.addListener('settings-changed', () => {
-      appActions.updateSettings(app.settings);
-    });
-
-    // Synchronisation de l'historique
-    this.addListener('history-changed', () => {
-      appActions.setHistoryState({
-        canUndo: app.history.index !== -1,
-        canRedo: app.history.index < app.history.steps.length - 1,
-        size: app.history.steps.length,
-        currentIndex: app.history.index,
-      });
-    });
 
     // Synchronisation du nom de fichier
     this.addListener('file-opened', (e) => {
@@ -60,19 +26,11 @@ export class SignalSyncService {
       }
     });
 
-    this.addListener('app-started', () => {
-      appActions.setStarted(true);
-    });
-
     // Synchronisation initiale
     this.syncViewport();
-    if (app.tool) {
-      appActions.setActiveTool(app.tool.name);
-    }
-    appActions.updateSettings(app.settings);
 
     if (import.meta.env.DEV) {
-      console.log('[SignalSyncService] Initialized - Shadow State active');
+      console.log('[SignalSyncService] Initialized - Shadow State active (pruned)');
     }
   }
 

@@ -65,10 +65,26 @@ export const viewport = signal({
 export const settings = signal({
   gridShown: false,
   areShapesPointed: true,
-  temporaryDrawColor: '#ff0000',
+  temporaryDrawColor: '#E90CC8',
   selectionDistance: 20,
-  magnetismDistance: 15,
+  magnetismDistance: 20,
   numberOfRegularPoints: 3,
+  maxZoomLevel: 10,
+  minZoomLevel: 0.1,
+  mainMenuWidth: 250,
+  precision: 1.5,
+  constraintsDrawColor: '#080',
+  referenceDrawColor: '#a6dbff',
+  referenceDrawColor2: '#4a88b2',
+  geometryTransformationAnimationDuration: 2,
+  geometryTransformationAnimation: false,
+  automaticAdjustment: true,
+  shapesSize: 2,
+  numberOfDivisionParts: 2,
+  shapesDrawColor: '#ff0000',
+  shapeOpacity: 0.7,
+  scalarNumerator: 1,
+  scalarDenominator: 1,
 });
 
 export const nextGroupColorIdx = signal(0);

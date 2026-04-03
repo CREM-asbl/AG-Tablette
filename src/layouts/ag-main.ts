@@ -26,7 +26,7 @@ class AGMain extends SignalWatcher(LitElement) {
     #app-view {
       background-color: var(--theme-color-soft);
       display: grid;
-      grid-template-columns: 240px 1fr;
+      grid-template-columns: 250px 1fr;
       width: 100%;
       margin: 0;
       padding: 0;
