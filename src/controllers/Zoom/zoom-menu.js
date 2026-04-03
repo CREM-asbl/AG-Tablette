@@ -1,6 +1,6 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
-import { appActions, settings } from '../../store/appState';
+import { appActions, settings, viewport } from '../../store/appState';
 import { app, changes } from '../Core/App';
 
 class ZoomMenu extends SignalWatcher(LitElement) {
@@ -49,7 +49,10 @@ class ZoomMenu extends SignalWatcher(LitElement) {
   render() {
     changes.get();
     settings.get();
-    this.updateProperties();
+    const vp = viewport.get(); // Signal de viewport réactif
+    this.zoomLevel = vp.zoom;
+    this.position = this.getPositionFromZoom(this.zoomLevel);
+    
     return html`
       <div>
         <span @click="${() => this.showResult(this.position - 1)}">-</span>
@@ -73,44 +76,30 @@ class ZoomMenu extends SignalWatcher(LitElement) {
   }
 
   updateProperties() {
-    this.zoomLevel = app.tool?.zoomLevel || app.workspace.zoomLevel;
-    this.position = this.getPositionFromZoom(this.zoomLevel);
+    // Désormais géré par render() via le signal viewport
   }
 
-  close() {
-    this.remove();
-  }
-
+  // Utiliser les signaux pour les calculs de zoom
   getZoomFromPosition(position) {
-    // position will be between 0 and 100
+    const settingsValue = settings.get();
     const minp = 0;
     const maxp = 100;
+    const minv = Math.log10(settingsValue.minZoomLevel);
+    const maxv = Math.log10(settingsValue.maxZoomLevel);
 
-    // The result should be between 0.1 an 10
-    const minv = Math.log10(app.settings.minZoomLevel);
-    const maxv = Math.log10(app.settings.maxZoomLevel);
-
-    // calculate adjustment factor
     const scale = (maxv - minv) / (maxp - minp);
-
-    const zoomLevel = Math.pow(10, minv + scale * (position - minp));
-    return zoomLevel;
+    return Math.pow(10, minv + scale * (position - minp));
   }
 
   getPositionFromZoom(zoomLevel) {
-    // position will be between 0 and 100
+    const settingsValue = settings.get();
     const minp = 0;
     const maxp = 100;
+    const minv = Math.log10(settingsValue.minZoomLevel);
+    const maxv = Math.log10(settingsValue.maxZoomLevel);
 
-    // The result should be between 0.1 an 10
-    const minv = Math.log10(app.settings.minZoomLevel);
-    const maxv = Math.log10(app.settings.maxZoomLevel);
-
-    // calculate adjustment factor
     const scale = (maxv - minv) / (maxp - minp);
-
-    const pos = (Math.log10(zoomLevel) - minv) / scale + minp;
-    return pos;
+    return (Math.log10(zoomLevel) - minv) / scale + minp;
   }
 
   showResult(sliderPos, applyZoom = true) {

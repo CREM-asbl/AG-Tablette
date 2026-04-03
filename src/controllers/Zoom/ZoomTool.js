@@ -48,8 +48,8 @@ export class ZoomTool extends Tool {
         .add(newWinSize.substract(actualWinSize).multiply(1 / 2))
         .multiply(newZoom);
 
-    app.workspace.setZoomLevel(newZoom, false);
-    app.workspace.setTranslateOffset(newTranslateoffset);
+    app.workspace.setZoomLevel(newZoom, true);
+    app.workspace.setTranslateOffset(newTranslateoffset, true);
   }
 
   /**
