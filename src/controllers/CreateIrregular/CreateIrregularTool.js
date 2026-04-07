@@ -5,6 +5,7 @@ import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { createIrregularHelpConfig } from './createIrregular.helpConfig';
+import { SelectManager } from '../Core/Managers/SelectManager';
 
 /**
  * Outil de création de polygones irréguliers - Refactorisé avec BaseShapeCreationTool
@@ -41,15 +42,35 @@ export class CreateIrregularTool extends BaseShapeCreationTool {
    * Gestion spécifique du mouseUp pour les polygones irréguliers (clic sur le premier point pour fermer)
    */
   canvasMouseUp() {
-    if (this.numberOfPointsDrawn > 2 && this.checkPointMagnetism()) {
-        // Si on a cliqué sur un point existant et que c'est le premier point, on ferme la forme
-        if (this.points[0].id === this.points[this.numberOfPointsDrawn-1].adjustedOn?.id || 
-            this.points[0].coordinates.dist(this.points[this.numberOfPointsDrawn-1].coordinates) < 0.01) {
-            this.completeShape();
-            return;
-        }
+    // Fige explicitement le dernier point au relâchement (copié de BaseShapeCreationTool)
+    const lastPoint = this.points[this.numberOfPointsDrawn - 1];
+    const releaseCoordinates = this.getValidMouseCoordinates();
+    if (lastPoint && releaseCoordinates) {
+      lastPoint.coordinates = releaseCoordinates;
+      this.adjustPoint(lastPoint);
+      this.syncPreviewFromCurrentState();
     }
-    
+
+    // On vérifie si on a cliqué sur un point existant
+    for (let i = 0; i < this.numberOfPointsDrawn - 1; i++) {
+      if (
+        SelectManager.areCoordinatesInMagnetismDistance(
+          this.points[i].coordinates,
+          this.points[this.numberOfPointsDrawn - 1].coordinates,
+        )
+      ) {
+        // Si c'est le premier point et qu'on a au moins 3 points, on ferme la forme
+        if (i === 0 && this.numberOfPointsDrawn > 2) {
+          this.completeShape();
+          return;
+        } else {
+          // Sinon c'est une collision invalide
+          this.handleMagnetismCollision(i);
+          return;
+        }
+      }
+    }
+
     this.continueDrawing();
   }
 
