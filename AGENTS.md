@@ -16,7 +16,7 @@
 Frontend: Astro + Lit Elements + TypeScript/JavaScript
 Backend: Firebase (Auth, Firestore, Storage, Functions)
 Testing: Vitest (unit) + Playwright (E2E)
-Outils: ESLint, Prettier, Service Worker
+Outils: @lit-labs/signals, ESLint, Prettier, Service Worker
 ```
 
 ## 🏗️ Structure architecturale
@@ -28,197 +28,83 @@ src/
 ├── controllers/    # Logique métier modulaire (1 outil = 1 controller)
 ├── core/          # Systèmes centraux (Performance, Validation)
 ├── services/      # Services Firebase et utilitaires
-├── store/         # Gestion d'état
+├── store/         # Gestion d'état (Signals Lit)
 └── utils/         # Fonctions utilitaires pures
 ```
 
 ### Pattern Controller
 - **Principe** : 1 outil géométrique = 1 controller dédié
 - **Structure** : `controllers/[NomOutil]/index.js`
-- **Exemples** : `CreateCircle/`, `Rotate/`, `Tangram/`
-- **Responsabilité unique** : Chaque controller gère un aspect spécifique
+- **Héritage** : Les outils héritent de `BaseGeometryTool` ou `BaseShapeCreationTool`.
+- **État** : Utilisation exclusive de `appActions` pour modifier l'état réactif.
 
 ## 🎯 Conventions de développement
 
+### État Global et Signaux (Avril 2026)
+- **Architecture** : L'application utilise `@lit-labs/signals` pour une gestion d'état réactive.
+- **Migration** : ✅ **TERMINÉE**. La fonction legacy `setState` a été supprimée.
+- **Actions** : Toutes les modifications d'état passent par `appActions` défini dans `src/store/appState.js`.
+- **Compatibilité** : L'objet global `window.app` est maintenu synchronisé par des écouteurs d'événements dans `App.js` pour la rétrocompatibilité.
+
 ### Code Style
-- **Langue** : Français pour les noms de classes/méthodes métier
-- **Format** : Lit Elements pour les composants, classes ES6 pour la logique
-- **Imports** : Chemins absolus configurés dans `jsconfig.json`
-- **Debug** : `console.log` autorisés en développement, supprimer avant production
-- **Performance** : Logs conditionnés avec `import.meta.env.DEV` (monitoring système)
-
-### Naming Conventions
-```javascript
-// ✅ Bon
-class CreateCircleTool extends Tool {}
-const tangramManager = new TangramManager();
-
-// ❌ Éviter
-class CCT extends Tool {}
-const tM = new TM();
-```
+- **Langue** : Français pour les noms de classes/méthodes métier.
+- **Format** : Lit Elements pour les composants, classes ES6 pour la logique.
+- **Imports** : Chemins absolus configurés dans `jsconfig.json`.
+- **Performance** : Utiliser `PerformanceSystem.js` pour wrapper les opérations lourdes.
 
 ### Gestion des erreurs
-- **Production** : Aucun `console.log` (supprimer avant commit)
-- **Développement** : `console.log` autorisés pour debug
-- **Erreurs** : `console.error()` et `console.warn()` toujours autorisés
-- **Validation** : Utiliser `ValidationSystem.js`
+- **Validation** : Utiliser `ValidationSystem.js` avant traitement.
+- **Tooling** : Utiliser `safeUpdateStep(step)` dans les contrôleurs pour changer d'état de manière sécurisée.
 
 ## 🔧 Systèmes centraux
 
 ### PerformanceSystem.js
-- **Rôle** : Monitoring des performances, métriques
-- **Usage** : Tracker les opérations coûteuses
-- **Convention** : Wrapper les opérations lourdes
+- **Rôle** : Monitoring des performances, métriques.
 
 ### ValidationSystem.js
-- **Rôle** : Validation des données et états
-- **Usage** : Valider avant traitement
-- **Pattern** : Fail-fast avec messages explicites
+- **Rôle** : Validation des données et états (Fail-fast).
 
 ### Canvas Architecture
-- **Layers** : Système multi-couches pour rendu
-- **Pattern Observer** : Événements custom pour communication
-- **Async loading** : Gestion asynchrone des ressources lourdes
-
-## 🎮 Spécificités métier
-
-### Système Tangram
-- **Problème connu** : Chargement asynchrone des silhouettes
-- **Solution** : Événement 'tangram-canvas-ready' + timeout de sécurité
-- **Fichiers clés** : `Workspace.js`, `canvas-layer.js`, `SolutionCheckerTool.js`
-
-### Gestion d'état
-- **Pattern** : État centralisé avec propagation par événements
-- **Workspace** : Point central pour la persistance
-- **BackObjects** : Objets de fond (silhouettes) traités séparément
-
-### Firebase Integration
-- **Config** : `firebase-config.json` + `firebase-init.js`
-- **Services** : Auth, Firestore, Storage
-- **Pattern** : Services isolés dans `src/services/`
+- **Layers** : Système multi-couches (main, upper, background, grid/tangram, invisible).
+- **Signal Sync** : `SignalSyncService.js` synchronise automatiquement le Workspace vers l'état réactif.
 
 ## ⚠️ Points d'attention critiques
 
-### Performance
-- **Bundle size** : Chunk principal ~681KB (optimisable)
-- **Lazy loading** : Utiliser dynamic imports pour les popups
-- **Canvas** : Optimiser les reflows et repaints
-
-### Compatibilité
-- **Cible** : Tablettes (iOS/Android) + Desktop
-- **Browsers** : Modernes (ES6+ requis)
-- **Touch** : Gestion tactile native
+### Historique (Undo/Redo)
+- **Gestion** : Centralisée dans `HistoryManager.js`.
+- **FullHistory** : Permet la relecture complète des actions.
+- **Attention** : Toujours vérifier que les nouvelles actions sont correctement enregistrées dans l'historique.
 
 ### Tests
 ```bash
-npm test          # Vitest (unit tests)
-npm run test:playwright # E2E tests
-npm run test:all  # Suite complète
+npm test          # Vitest (unit tests) - Requis avant chaque commit
+npm run test:playwright # E2E tests (Playwright)
 ```
 
 ## 🚫 Anti-patterns à éviter
 
 ### ❌ À ne pas faire
-```javascript
-// Import en dur d'un controller dans un autre
-import { CreateCircleTool } from '../CreateCircle/index.js';
-
-// État global muté directement
-window.appState.tools.current = 'create';
-
-// Console.log en production
-console.log('Debug info');
-
-// Logique métier dans les composants
-// Séparer UI et logique métier
-```
+- **`setState`** : Tenter d'utiliser la fonction `setState` (elle n'existe plus).
+- **Mutation directe** : Modifier directement `app.settings` ou `app.tool` sans passer par `appActions`.
+- **Import direct** : Importer un controller dans un autre (utiliser les événements).
 
 ### ✅ À faire
-```javascript
-// Communication par événements
-this.dispatchEvent(new CustomEvent('tool-changed', {detail: 'create'}));
+- **Signals** : Utiliser `SignalWatcher` dans les composants Lit pour réagir aux changements d'état.
+- **appActions** : Utiliser `appActions.updateSettings()`, `appActions.setCurrentStep()`, etc.
+- **TDD** : Écrire un test unitaire dans `test/controllers/` pour chaque nouvelle fonctionnalité.
 
-// Debug temporaire (supprimer avant commit)
-console.log('Debug info');
-
-// Injection de dépendances
-class Tool {
-  constructor(workspace, canvas) {
-    this.workspace = workspace;
-    this.canvas = canvas;
-  }
-}
-```
-
-## 📚 Documentation de référence
-
-### Fichiers essentiels à lire
-1. `NETTOYAGE.md` - Historique des optimisations récentes
-2. `docs/development/README.md` - Debugging Tangram
-3. `package.json` - Scripts et dépendances
-4. `src/core/index.js` - Architecture centrale
-
-### Ressources externes
-- [Lit Elements Guide](https://lit.dev/)
-- [Astro Documentation](https://docs.astro.build/)
-- [Firebase Web SDK](https://firebase.google.com/docs/web/setup)
+---
 
 ## 🔄 Historique des décisions importantes
 
 ### Dernières modifications majeures
-- **Stabilisation Historique (mars 2026)** : Correction du système Undo/Redo et de la relecture (FullHistory). Suppression des dépendances circulaires entre `HistoryManager` et `App.js` via une initialisation explicite. Amélioration de la robustesse face aux transitions d'environnement.
-- **Migration Signals (mars 2026)** : Migration réussie de `RotateTool`, `DuplicateTool`, `CreateCircleTool` et `ZoomTool` vers l'architecture par signaux. Suppression de `setState` et `updateToolStep` dans ces modules au profit de `appActions`.
-- **Migration Signals (précédent)** : Migration réussie des outils `DeleteTool`, `ColorTool` et `MoveTool`.
-- **Tests E2E** : Passage avec succès des tests Playwright sur Chromium, Firefox et Webkit pour les outils migrés.
-- **Migration dev mode** : Remplacement `window.dev_mode` par `import.meta.env.DEV`
-- **Nettoyage console.log** : Suppression massive + nouvelle politique simplifiée
-- **Politique logging** : Simplification - logs debug autorisés, suppression manuelle avant prod
-- **Fix Tangram** : Résolution du chargement asynchrone des silhouettes
-- **Architecture** : Migration vers Astro + maintien des Web Components
-
-### Choix techniques justifiés
-- **Lit Elements** : Conservé pour compatibilité et performance
-- **Firebase** : Backend managé pour faciliter maintenance
-- **Modularité** : Architecture controller pour faciliter les tests
-- **Signals** : Utilisation de `@lit-labs/signals` pour un état réactif et découplé de la logique impérative.
-
-## 🎯 Guidelines pour les futures interventions IA
-
-### Avant toute modification
-1. **Lire ce fichier** en priorité
-2. **Analyser l'impact** sur l'architecture existante
-3. **Respecter les patterns** établis
-4. **Tester localement** avec `npm run test:all` (ou Vitest + Playwright séparément)
-
-### 🚦 Évolution du state management
-> **Note (mars 2026)** : La migration vers les Signals est en cours. Les outils migrés utilisent désormais `appActions` pour mettre à jour l'état réactif. La compatibilité descendante est assurée par un double appel à `setState` le temps que tous les managers legacy soient migrés.
-
-> **⚠️ PRÉREQUIS MIGRATION** : La couverture des tests des modules critiques a dépassé les 60%, autorisant la migration active des outils. Chaque migration doit suivre le cycle : Test Caractérisation (E2E) -> TDD (Unit) -> Migration -> Vérification.
-
-### Pour les nouveaux outils géométriques
-1. Créer un dossier `controllers/[NomOutil]/`
-2. Hériter de la classe `Tool` de base
-3. Suivre le pattern Observer pour la communication
-4. Ajouter les tests correspondants
-
-### Recommandation TDD pour tous les agents IA
-> **Bonne pratique** : Avant toute correction de bug ou ajout de fonctionnalité, écrire d'abord un test automatisé qui échoue (TDD). Corriger ensuite le code pour que le test passe, puis refactorer si nécessaire. Cette démarche garantit la non-régression et la robustesse du projet. Tous les agents IA doivent systématiquement appliquer cette méthodologie lors des futures interventions.
-
-### Pour les modifications de performance
-1. Utiliser `PerformanceSystem.js`
-2. Mesurer avant/après
-3. Documenter les métriques
+- **Finalisation Migration Signals (avril 2026)** : Suppression définitive de `setState` et du signal `changes`. Refactorisation de `Environment.js`, `App.js` et des outils Tangram. Renommage de `safeSetState` en `safeUpdateStep`.
+- **Stabilisation Historique (mars 2026)** : Correction du système Undo/Redo et de la relecture. Suppression des dépendances circulaires.
+- **Migration Signals (mars 2026)** : Migration progressive des outils (Rotate, Duplicate, CreateCircle, Zoom, Delete, Color, Move).
 
 ---
 
 ## 📝 Métadonnées
-
-**Dernière mise à jour** : Novembre 2025
-**Version** : 1.0.0
+**Dernière mise à jour** : 7 Avril 2026
+**Version** : 1.1.0
 **Mainteneur** : équipe CREM-asbl
-**Contact** : [Informations de contact si nécessaire]
-
----
-
-> **Note importante** : Ce fichier doit être mis à jour à chaque modification architecturale significative ou décision technique importante. Il constitue la mémoire collective du projet pour les futures sessions IA.

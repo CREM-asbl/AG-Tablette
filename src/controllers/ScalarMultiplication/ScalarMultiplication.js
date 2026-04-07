@@ -1,6 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { ArrowLineShape } from '../Core/Objects/Shapes/ArrowLineShape';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { Tool } from '../Core/States/Tool';

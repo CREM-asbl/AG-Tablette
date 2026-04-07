@@ -1,6 +1,6 @@
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { SelectManager } from '../Core/Managers/SelectManager';
 import { ShapeManager } from '../Core/Managers/ShapeManager';

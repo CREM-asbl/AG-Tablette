@@ -6,7 +6,6 @@ vi.mock('@lit-labs/signals', () => ({
 }));
 
 vi.mock('@controllers/Core/App', () => {
-  const setState = vi.fn();
   const app = {
     tool: { name: 'zoom', currentStep: 'start' },
     workspace: { zoomLevel: 1 },
@@ -16,11 +15,21 @@ vi.mock('@controllers/Core/App', () => {
       maxZoomLevel: 4,
     },
   };
-  const changes = { get: vi.fn() };
-  return { app, changes, setState };
+  return { app };
 });
 
 vi.mock('@store/appState', () => ({
+  settings: {
+    get: vi.fn(() => ({
+      minZoomLevel: 0.1,
+      maxZoomLevel: 10,
+    })),
+  },
+  viewport: {
+    get: vi.fn(() => ({
+      zoom: 1,
+    })),
+  },
   appActions: {
     setActiveTool: vi.fn(),
     setToolState: vi.fn(),

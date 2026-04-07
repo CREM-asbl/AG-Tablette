@@ -1,4 +1,4 @@
-import { app, setState } from '../../../src/controllers/Core/App';
+import { app } from '../../../src/controllers/Core/App';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // S'assurer que le module n'est pas mocké par d'autres tests
@@ -62,28 +62,7 @@ describe('App', () => {
     expect(app.history.index).toBe(-1);
   });
 
-  it('setState updates properties and dispatches events', () => {
-    const spy = vi.fn();
-    window.addEventListener('state-changed', spy);
-
-    setState({ started: true });
-
-    expect(app.started).toBe(true);
-    expect(spy).toHaveBeenCalled();
-    expect(mockAppActions.setStarted).toHaveBeenCalledWith(true);
-  });
-
-  it('setState updates tool info from tools store', () => {
-    setState({ tool: { name: 'move', currentStep: 'start' } });
-
-    expect(app.tool.name).toBe('move');
-    expect(app.tool.title).toBe('Déplacer');
-    
-    expect(mockAppActions.setActiveTool).toHaveBeenCalledWith('move');
-    expect(mockAppActions.setCurrentStep).toHaveBeenCalledWith('start');
-  });
-
-  it('resetSettings calls reset functions', async () => {
+  it('resetSettings calls reset functions and updates settings action', async () => {
     const { resetToolsVisibility } = await import('../../../src/store/tools');
     const { resetKitVisibility } = await import('../../../src/store/kit');
 
@@ -91,5 +70,6 @@ describe('App', () => {
 
     expect(resetToolsVisibility).toHaveBeenCalled();
     expect(resetKitVisibility).toHaveBeenCalled();
+    expect(mockAppActions.updateSettings).toHaveBeenCalledWith(app.defaultState.settings);
   });
 });

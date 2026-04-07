@@ -34,6 +34,7 @@ const {
   setStateMock: vi.fn(),
   appActionsMock: {
     setTangramState: vi.fn(),
+    setHistoryState: vi.fn(),
   },
   initShapesMock: vi.fn(() => Promise.resolve()),
   addListenerSpy: vi.spyOn(window, 'addEventListener'),
@@ -45,7 +46,6 @@ vi.mock('../../../src/store/tools', () => ({
 
 vi.mock('../../../src/controllers/Core/App', () => ({
   app: appMock,
-  setState: setStateMock,
 }));
 
 vi.mock('../../../src/store/appState', () => ({
@@ -81,10 +81,8 @@ describe('SilhouetteCreatorTool', () => {
     expect(appMock.workspace.selectionConstraints).toEqual(
       appMock.fastSelectionConstraints.mousedown_all_shape,
     );
-    expect(setStateMock).toHaveBeenCalledWith({
-      history: expect.objectContaining({
-        startSituation: expect.any(Object),
-      }),
+    expect(appActionsMock.setHistoryState).toHaveBeenCalledWith({
+      startSituation: expect.any(Object),
     });
     expect(appActionsMock.setTangramState).toHaveBeenCalledWith({ currentStep: 'start' });
     expect(addListenerSpy).toHaveBeenCalledWith('actions-executed', tool.verifyOverlappingShapes);

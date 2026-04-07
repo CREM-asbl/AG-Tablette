@@ -165,12 +165,11 @@ class GridPopup extends LitElement {
   }
 
   submit() {
-    // setState({ tool: null }); // Sera géré différemment ou supprimé si plus pertinent
+    // La fermeture du popup suffit à valider
   }
 
   close() {
     this.remove();
-    // window.removeEventListener('settings-changed', this.eventHandler); // Supprimé (eventHandler n'existe pas, probablement une typo pour updateProperties)
   }
 
   submitAndClose() {
@@ -189,27 +188,11 @@ class GridPopup extends LitElement {
   _actionHandle(event) {
     switch (event.target.name) {
       case 'grid_popup_grid_type':
-        // setState remplacé par l'action du store
         gridStore.setGridType(event.target.value);
-        // La logique de gridShown est maintenant gérée par le store via setGridType
-        // setState({
-        //   settings: {
-        //     ...app.settings,
-        //     gridType: event.target.value,
-        //     gridShown: event.target.value !== 'none',
-        //   },
-        // });
         break;
 
       case 'grid_popup_grid_size':
-        // setState remplacé par l'action du store
         gridStore.setGridSize(parseFloat(event.target.value));
-        // setState({
-        //   settings: {
-        //     ...app.settings,
-        //     gridSize: event.target.value,
-        //   },
-        // });
         break;
 
       default:

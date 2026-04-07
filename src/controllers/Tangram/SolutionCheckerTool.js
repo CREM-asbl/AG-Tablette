@@ -1,7 +1,7 @@
 import { html, LitElement } from 'lit';
 import { appActions, tangramState } from '../../store/appState';
 import { tools } from '../../store/tools';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { GroupManager } from '../Core/Managers/GroupManager';
 import { Bounds } from '../Core/Objects/Bounds';
 import { Coordinates } from '../Core/Objects/Coordinates';
@@ -95,12 +95,9 @@ export class SolutionCheckerTool extends LitElement {
     appActions.setTangramState({ isSilhouetteShown, level });
 
     if (app.history.startSituation === null) {
-      setState({
-        history: {
-          ...app.history,
-          startSituation: {
-            ...app.workspace.data,
-          },
+      appActions.setHistoryState({
+        startSituation: {
+          ...app.workspace.data,
         },
       });
     }

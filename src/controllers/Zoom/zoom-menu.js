@@ -1,7 +1,7 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
 import { appActions, settings, viewport } from '../../store/appState';
-import { app, changes } from '../Core/App';
+import { app } from '../Core/App';
 
 class ZoomMenu extends SignalWatcher(LitElement) {
   static get properties() {
@@ -47,7 +47,6 @@ class ZoomMenu extends SignalWatcher(LitElement) {
   `;
 
   render() {
-    changes.get();
     settings.get();
     const vp = viewport.get(); // Signal de viewport réactif
     this.zoomLevel = vp.zoom;

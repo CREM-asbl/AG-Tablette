@@ -1,7 +1,7 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { property } from 'lit/decorators.js';
-import { app, setState } from '../controllers/Core/App';
+import { app } from '../controllers/Core/App';
 import { Coordinates } from '../controllers/Core/Objects/Coordinates';
 import { appActions, currentEnvironment, resetWorkspaceState } from '../store/appState';
 import './canvas-layer';
@@ -158,7 +158,6 @@ class CanvasContainer extends SignalWatcher(LitElement) {
     this.setCanvasSize();
     window.addEventListener('resize', this.resizeHandler);
 
-    setState({ started: true });
     appActions.setStarted(true);
 
     window.addEventListener(

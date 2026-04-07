@@ -2,7 +2,7 @@ import { tools } from '@store/tools';
 import { eventUtils, moduleUtils, validator } from '../../core/index.js';
 import { appActions } from '../../store/appState.js';
 import { loadKit, resetKit } from '../../store/kit';
-import { app, setState } from './App';
+import { app } from './App';
 
 export const loadEnvironnement = async (name) => {
   try {
@@ -49,18 +49,6 @@ export const loadEnvironnement = async (name) => {
 
     if (config.default.settings) {
       console.log('Setting settings on app', app);
-      setState({
-        settings: { ...app.settings, ...config.default.settings },
-        history: {
-          ...app.history,
-          startSettings: {
-            ...app.history.startSettings,
-            ...config.default.settings,
-          },
-        },
-        defaultState: { ...app.defaultState, settings: { ...app.settings } },
-      });
-
       // Synchroniser avec les signaux Lit
       appActions.updateSettings(config.default.settings);
     }
@@ -92,11 +80,6 @@ export const loadEnvironnement = async (name) => {
       canRedo: false,
     });
 
-    setState({
-      appLoading: false,
-      environment,
-    });
-
     // Synchroniser avec les signaux Lit
     appActions.setLoading(false);
     appActions.setEnvironmentConfig(config.default);
@@ -117,7 +100,6 @@ export const loadEnvironnement = async (name) => {
       error,
     );
 
-    setState({ appLoading: false });
     appActions.setLoading(false);
     appActions.setError(error.message);
 

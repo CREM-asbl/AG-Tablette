@@ -1,7 +1,7 @@
 import { tools } from '@store/tools';
 import { LitElement } from 'lit';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { Silhouette } from './Silhouette';
 import { TangramManager } from './TangramManager';
 
@@ -31,12 +31,9 @@ export class SilhouetteCreatorTool extends LitElement {
     await TangramManager.initShapes(true);
 
     if (app.history.startSituation === null) {
-      setState({
-        history: {
-          ...app.history,
-          startSituation: {
-            ...app.workspace.data,
-          },
+      appActions.setHistoryState({
+        startSituation: {
+          ...app.workspace.data,
         },
       });
     }

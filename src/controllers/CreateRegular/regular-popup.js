@@ -3,7 +3,7 @@ import '@styles/popup-variables.css';
 import { css, html, LitElement } from 'lit';
 import '../../components/popups/template-popup';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 
 class RegularPopup extends LitElement {
   constructor() {

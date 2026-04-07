@@ -1,7 +1,7 @@
 
 import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { appActions } from '../../store/appState';
-import { app, setState } from '../Core/App';
+import { app } from '../Core/App';
 import { ShapeManager } from '../Core/Managers/ShapeManager';
 import { Text } from '../Core/Objects/Text';
 import { Tool } from '../Core/States/Tool';

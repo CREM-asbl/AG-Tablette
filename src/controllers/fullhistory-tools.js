@@ -3,7 +3,7 @@ import '@components/template-toolbar';
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
 import { fullHistoryState, historyState } from '../store/appState';
-import { app, changes } from './Core/App';
+import { app } from './Core/App';
 import { FullHistoryManager } from './Core/Managers/FullHistoryManager';
 
 const formatTime = (milliseconds) => {

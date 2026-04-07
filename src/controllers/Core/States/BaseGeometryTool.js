@@ -1,5 +1,5 @@
 import { activeTool, appActions, currentStep } from '../../../store/appState';
-import { app, setState } from '../App';
+import { app } from '../App';
 import { Coordinates } from '../Objects/Coordinates';
 import { Tool } from './Tool';
 
@@ -97,7 +97,7 @@ export class BaseGeometryTool extends Tool {
    * @param {string} newStep - Nouvel état
    * @param {object} additionalData - Données supplémentaires
    */
-  safeSetState(newStep, additionalData = {}) {
+  safeUpdateStep(newStep, additionalData = {}) {
     try {
       appActions.setCurrentStep(newStep);
       if (Object.keys(additionalData).length > 0) {
@@ -158,7 +158,7 @@ export class BaseGeometryTool extends Tool {
       );
 
       // Retour à un état sûr
-      this.safeSetState('error');
+      this.safeUpdateStep('error');
     }
   }
 }

@@ -72,7 +72,7 @@ export class CutTool extends Tool {
     const firstPoint = this.firstPoint;
     const centerPoint = this.centerPoint;
     new Point({
-      coordinates: firstPoint.coordinates,
+      coordinates: firstPoint ? firstPoint.coordinates : {x: 0, y: 0},
       layer: 'upper',
       color: this.drawColor,
       size: 2,
@@ -98,7 +98,7 @@ export class CutTool extends Tool {
     const centerPoint = this.centerPoint;
     const secondPoint = this.secondPoint;
     new Point({
-      coordinates: firstPoint.coordinates,
+      coordinates: firstPoint ? firstPoint.coordinates : {x: 0, y: 0},
       layer: 'upper',
       color: this.drawColor,
       size: 2,
@@ -491,10 +491,11 @@ export class CutTool extends Tool {
         shape.segments[0].vertexes[1].y,
       ];
     } else {
-      if (pt1.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
+      if (pt1 && pt1.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
         pt1 = shape.segments[0].vertexes[0];
       }
       if (
+        pt1 &&
         pt1.coordinates.equal(
           shape.segments[shape.segments.length - 1].vertexes[1].coordinates,
         )
@@ -502,10 +503,11 @@ export class CutTool extends Tool {
         pt1 = shape.segments[shape.segments.length - 1].vertexes[1];
       }
       if (pt2) {
-        if (pt2.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
+        if (pt2 && pt2.coordinates.equal(shape.segments[0].vertexes[0].coordinates)) {
           pt2 = shape.segments[0].vertexes[0];
         }
         if (
+          pt2 &&
           pt2.coordinates.equal(
             shape.segments[shape.segments.length - 1].vertexes[1].coordinates,
           )
@@ -516,6 +518,7 @@ export class CutTool extends Tool {
 
       // Trier les 2 points:
       if (
+        pt1 && pt2 &&
         pt1.type === 'vertex' &&
         pt1.idx === 0 &&
         pt1.shape.name !== 'PointOnLine' &&
@@ -524,6 +527,7 @@ export class CutTool extends Tool {
         [pt1, pt2] = [pt2, pt1];
       } else if (
         !(
+          pt2 &&
           pt2.type === 'vertex' &&
           pt2.idx === 0 &&
           pt2.shape.name !== 'PointOnLine' &&

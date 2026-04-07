@@ -1,4 +1,3 @@
-import { signal } from '@lit-labs/signals';
 import { resetToolsVisibility, tools } from '@store/tools';
 import {
   activeTool,
@@ -21,8 +20,6 @@ import { initSaveFileEventListener } from './Managers/SaveFileManager';
 import { initSelectManager } from './Managers/SelectManager';
 import { Workspace } from './Objects/Workspace';
 import { uniqId } from './Tools/utils';
-
-export const changes = signal({});
 
 /**
  * @typedef {object} Settings Configuration de l'application
@@ -118,10 +115,6 @@ export class App {
       shapeOpacity: 0.7,
       scalarNumerator: 1,
       scalarDenominator: 1,
-
-      // gridShown: false, // Supprimé
-      // gridType: 'none', // Supprimé
-      // gridSize: 1, // Supprimé
     };
 
     /** @type {HistoryState} Historique des actions de l'utilisateur */
@@ -165,7 +158,6 @@ export class App {
       fullHistory: { ...this.fullHistory },
       tangram: { ...this.tangram },
       stepSinceSave: this.stepSinceSave,
-      notionsOpen: { ...this.notionsOpen }, // Assurez-vous que this.notionsOpen est défini ou initialisé
     };
 
     /**
@@ -226,15 +218,7 @@ export class App {
   resetSettings() {
     resetToolsVisibility();
     resetKitVisibility();
-    setState({
-      settings: {
-        ...app.defaultState.settings,
-        // Les lignes suivantes sont supprimées car l'état de la grille est géré par gridStore
-        // gridShown: app.settings.gridShown,
-        // gridType: app.settings.gridType,
-        // gridSize: app.settings.gridSize,
-      },
-    });
+    appActions.updateSettings(app.defaultState.settings);
   }
 }
 
@@ -339,75 +323,3 @@ if (typeof window !== 'undefined') {
   initHistoryManager();
   initFullHistoryManager();
 }
-// Initialiser le service de rapportage de bugs
-// Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ
-// liées aux dépendances circulaires des chunks controllers/utils.
-
-//Préparation à un state-changed plus général
-//Ceci permettra aussi de réduire le nombre de listener par la suite
-/**
- * Met à jour l'état global de l'application et déclenche les événements correspondants.
- * @param {Partial<App>} update - Un objet contenant les propriétés de l'instance `app` à mettre à jour.
- * @returns {void}
- */
-export const setState = (update) => {
-  for (const [key, value] of Object.entries(update)) {
-    app[key] = value;
-
-    // Synchronisation vers les signaux (Legacy -> Signals)
-    if (key === 'tool' && value) {
-      // On évite les boucles infinies en ne rappelant pas appActions si on vient déjà d'un signal
-      // Mais ici setState est le point d'entrée legacy.
-      if (value.name !== undefined) appActions.setActiveTool(value.name);
-      if (value.currentStep !== undefined) appActions.setCurrentStep(value.currentStep);
-      const { name, currentStep, selectedTemplate, title, type, ...state } = value;
-      if (Object.keys(state).length > 0) appActions.setToolState(state);
-      if (selectedTemplate !== undefined) appActions.setSelectedTemplate(selectedTemplate);
-    } else if (key === 'settings' && value) {
-      appActions.updateSettings(value);
-    } else if (key === 'history' && value) {
-      appActions.setHistoryState(value);
-    } else if (key === 'tangram' && value) {
-      appActions.setTangramState(value);
-    } else if (key === 'filename') {
-      appActions.setFilename(value);
-    } else if (key === 'appLoading') {
-      appActions.setLoading(value);
-    } else if (key === 'started') {
-      appActions.setStarted(value);
-    } else if (key === 'stepSinceSave') {
-      appActions.setStepSinceSave(value);
-    }
-  }
-
-  if ('tool' in update) {
-    const toolInfo = tools.get().find((tool) => tool.name === app.tool?.name);
-    if (toolInfo) {
-      app.tool.title = toolInfo.title;
-      app.tool.type = toolInfo.type;
-    }
-    if (!app.tool || app.tool.currentStep === 'start') {
-      window.dispatchEvent(new CustomEvent('tool-changed', { detail: app }));
-    }
-    window.dispatchEvent(new CustomEvent('tool-updated', { detail: app }));
-  }
-  if ('tangram' in update) {
-    window.dispatchEvent(new CustomEvent('tangram-changed', { detail: app }));
-  }
-  if ('settings' in update) {
-    window.dispatchEvent(new CustomEvent('settings-changed', { detail: app }));
-  }
-  if ('history' in update) {
-    window.dispatchEvent(new CustomEvent('history-changed', { detail: app }));
-  }
-  if ('started' in update) {
-    window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
-  }
-  window.dispatchEvent(new CustomEvent('state-changed', { detail: app }));
-  changes.set(update);
-};
-
-// Initialisation du service de synchronisation Signal
-// Initialisé depuis le composant racine (ag-app) pour éviter les erreurs TDZ
-// liées aux dépendances circulaires des chunks controllers/utils.
-
