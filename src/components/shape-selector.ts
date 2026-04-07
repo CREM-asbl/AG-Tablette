@@ -101,6 +101,12 @@ export class ShapeSelector extends LitElement {
     }
   `;
 
+  updated(changedProperties) {
+    if (changedProperties.has('family')) {
+      this.selectedTemplate = null;
+    }
+  }
+
   render() {
     return html`
       <div class="container ${this.helpFocused ? 'help-highlight' : ''}">
@@ -115,7 +121,7 @@ export class ShapeSelector extends LitElement {
                 name="${template.name}"
                 type="${this.type}"
                 title="${template.title}"
-                ?active="${template.name === this.selectedTemplate?.name}"
+                ?active="${this.selectedTemplate && template.name === this.selectedTemplate.name}"
                 @click="${() => this._clickHandle(template)}"
               >
               </icon-button>`,

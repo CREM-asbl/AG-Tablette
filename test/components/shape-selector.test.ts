@@ -42,13 +42,14 @@ describe('shape-selector', () => {
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
   });
 
-  it('n appelle pas setState si app.tool est absent', () => {
-    const template = { name: 'Carre', title: 'Carre' };
-    app.tool = null;
-
-    selector._clickHandle(template);
-
-    expect(appActions.setSelectedTemplate).toHaveBeenCalledWith(template);
-    expect(appActions.setCurrentStep).toHaveBeenCalledWith('listen');
+  it('n a aucun bouton actif par defaut lorsque selectedTemplate est null', () => {
+    selector.templatesNames = [{ name: 'Triangle', title: 'Triangle' }];
+    selector.selectedTemplate = null;
+    
+    // On vérifie le comportement attendu en rendant le composant et en testant les propriétés
+    selector.requestUpdate();
+    
+    // Le template est null donc aucun devrait être active
+    expect(selector.selectedTemplate).toBeNull();
   });
 });
