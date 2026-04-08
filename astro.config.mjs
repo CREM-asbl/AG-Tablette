@@ -1,6 +1,5 @@
 import lit from '@astrojs/lit';
 import { defineConfig } from 'astro/config';
-import serviceWorker from 'astrojs-service-worker';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -11,7 +10,7 @@ export default defineConfig({
   base: '/',
   site: 'https://ag.crem.be',
   output: 'static',
-  integrations: [lit(), serviceWorker()],
+  integrations: [lit()],
   vite: {
     resolve: {
       alias: {
@@ -25,6 +24,8 @@ export default defineConfig({
         '@layouts': resolve(__dirname, './src/layouts'),
         '@pages': resolve(__dirname, './src/pages'),
         '@types': resolve(__dirname, './src/types'),
+        '@firebase': resolve(__dirname, './src/firebase'),
+        '@db': resolve(__dirname, './src/firebase'),
       },
     },
     build: {
@@ -41,10 +42,11 @@ export default defineConfig({
             if (id.includes('src/controllers')) return 'controllers';
             if (id.includes('src/components')) return 'components';
             if (id.includes('src/store')) return 'store';
-            if (id.includes('src/utils') || id.includes('src/core') || id.includes('src/services')) return 'utils';
-          }
-        }
-      }
-    }
-  }
-})
+            if (id.includes('src/utils') || id.includes('src/core') || id.includes('src/services'))
+              return 'utils';
+          },
+        },
+      },
+    },
+  },
+});

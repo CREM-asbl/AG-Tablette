@@ -1,4 +1,4 @@
-import { appActions, filename, helpSelected, historyState } from '../store/appState';
+import { appActions } from '../store/appState';
 
 /**
  * Service de synchronisation entre le système d'événements legacy (Workspace)

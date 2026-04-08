@@ -7,19 +7,31 @@ service cloud.firestore {
     }
     match /BUGS/{id} {
     	allow read : if true;
-    	allow write : if true;
+    	allow write : if request.auth != null;
     }
     match /Files/{id} {
     	allow read : if true;
-    	allow write : if true;
+    	allow write : if request.auth != null;
     }
     match /Sequences/{id} {
     	allow read : if true;
-    	allow write : if true;
+    	allow write : if request.auth != null;
     }
     match /Notions/{id} {
     	allow read : if true;
-    	allow write : if true;
+    	allow write : if request.auth != null;
+    }
+    match /Files/{id} {
+    	allow read : if true;
+    	allow write : if request.auth != null;
+    }
+    match /Sequences/{id} {
+    	allow read : if true;
+    	allow write : if request.auth != null;
+    }
+    match /Notions/{id} {
+    	allow read : if true;
+    	allow write : if request.auth != null;
     }
     match /files/{id} {
     	allow read : if true;

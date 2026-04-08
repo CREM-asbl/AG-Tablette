@@ -46,7 +46,7 @@ export class BaseGeometryTool extends Tool {
 
     if (
       data.coordinates &&
-      (!data.coordinates.x === undefined || !data.coordinates.y === undefined)
+      (data.coordinates.x === undefined || data.coordinates.y === undefined)
     ) {
       console.error(`${method}: Coordonnées invalides`);
       this.showErrorNotification('Erreur: Coordonnées invalides');

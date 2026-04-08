@@ -12,32 +12,20 @@
     // Add type definitions for our Vite runtime.
     "useDefineForClassFields": false,
     "experimentalDecorators": true,
-    "types": [
-      "vite/client"
-    ],
+    "types": ["vite/client"],
     "baseUrl": ".",
     "paths": {
-      "@components/*": [
-        "src/components/*"
-      ],
-      "@controllers/*": [
-        "src/controllers/*"
-      ],
-      "@layouts/*": [
-        "src/layouts/*"
-      ],
-      "@db/*": [
-        "src/firebase/*"
-      ],
-      "@config/*": [
-        "src/config/*"
-      ],
-      "@styles/*": [
-        "src/styles/*"
-      ],
-      "@store/*": [
-        "src/store/*"
-      ],
+      "@components/*": ["src/components/*"],
+      "@controllers/*": ["src/controllers/*"],
+      "@core/*": ["src/core/*"],
+      "@store/*": ["src/store/*"],
+      "@styles/*": ["src/styles/*"],
+      "@utils/*": ["src/utils/*"],
+      "@services/*": ["src/services/*"],
+      "@firebase/*": ["src/firebase/*"],
+      "@layouts/*": ["src/layouts/*"],
+      "@pages/*": ["src/pages/*"],
+      "@types/*": ["src/types/*"]
     }
   }
 }
