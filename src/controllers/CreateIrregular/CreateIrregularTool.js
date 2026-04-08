@@ -1,11 +1,10 @@
-import { app } from '../Core/App';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { SelectManager } from '../Core/Managers/SelectManager';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
-import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { createIrregularHelpConfig } from './createIrregular.helpConfig';
-import { SelectManager } from '../Core/Managers/SelectManager';
 
 /**
  * Outil de création de polygones irréguliers - Refactorisé avec BaseShapeCreationTool
@@ -30,7 +29,7 @@ export class CreateIrregularTool extends BaseShapeCreationTool {
   async loadShapeDefinition() {
     // Pas de définition externe pour les polygones irréguliers
     this.shapeDefinition = {
-        numberOfPointsRequired: Infinity // Indique que le nombre de points est variable
+      numberOfPointsRequired: Infinity // Indique que le nombre de points est variable
     };
   }
 
@@ -59,8 +58,12 @@ export class CreateIrregularTool extends BaseShapeCreationTool {
           this.points[this.numberOfPointsDrawn - 1].coordinates,
         )
       ) {
-        // Si c'est le premier point et qu'on a au moins 3 points, on ferme la forme
-        if (i === 0 && this.numberOfPointsDrawn > 2) {
+        // Le dernier point est un point temporaire ajouté au mousedown.
+        // Lors d'une fermeture sur le premier point, on le retire pour éviter
+        // un doublon du sommet initial dans la forme finale.
+        const numberOfDistinctPoints = this.numberOfPointsDrawn - 1;
+        if (i === 0 && numberOfDistinctPoints >= 3) {
+          this.rollbackLastPoint();
           this.completeShape();
           return;
         } else {
