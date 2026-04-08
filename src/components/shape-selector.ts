@@ -108,12 +108,14 @@ export class ShapeSelector extends LitElement {
   }
 
   render() {
+    const activeTemplate = app.tool?.selectedTemplate || this.selectedTemplate;
+
     return html`
       <div class="container ${this.helpFocused ? 'help-highlight' : ''}">
         ${this.helpFocused && this.helpText
         ? html`<div class="help-popover">${this.helpText}</div>`
         : ''}
-        <h2>${this.selectedTemplate?.title || this.family}</h2>
+        <h2>${activeTemplate?.title || this.family}</h2>
         <flex-grid>
           ${this.templatesNames.map(
           (template) =>
@@ -121,7 +123,7 @@ export class ShapeSelector extends LitElement {
                 name="${template.name}"
                 type="${this.type}"
                 title="${template.title}"
-                ?active="${this.selectedTemplate && template.name === this.selectedTemplate.name}"
+                ?active="${activeTemplate && template.name === activeTemplate.name}"
                 @click="${() => this._clickHandle(template)}"
               >
               </icon-button>`,

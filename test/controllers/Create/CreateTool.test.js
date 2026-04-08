@@ -1,4 +1,4 @@
-import { app, setState } from '@controllers/Core/App';
+import { app } from '@controllers/Core/App';
 import { CreateTool } from '@controllers/Create/CreateTool';
 import { appActions } from '@store/appState';
 import { getFamily } from '@store/kit';
@@ -138,5 +138,26 @@ describe('CreateTool', () => {
     expect(appActions.setToolState).toHaveBeenCalledWith({});
     expect(appActions.setCurrentStep).toHaveBeenCalledWith('move');
     expect(tool.animate).toHaveBeenCalled();
+  });
+
+  it('met a jour le shape-selector quand la famille change alors qu il est deja ouvert', () => {
+    tool.selectedFamily = 'Polygones';
+    tool.selectedTemplate = { name: 'Carre' };
+    app.tool.selectedFamily = 'Triangles';
+
+    getFamily.mockReturnValue({
+      shapeTemplates: [{ name: 'EquilateralTriangle' }, { name: 'IsoscelesTriangle' }],
+    });
+
+    tool.openShapeList();
+
+    expect(appActions.setSelectedTemplate).toHaveBeenCalledWith(null);
+    expect(appActions.setToolUiState).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'shape-selector',
+        family: 'Triangles',
+        selectedTemplate: null,
+      }),
+    );
   });
 });

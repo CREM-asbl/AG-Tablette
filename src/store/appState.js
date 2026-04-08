@@ -233,6 +233,10 @@ export const appActions = {
   },
   setActiveTool: (toolName) => {
     activeTool.set(toolName);
+    // Reset de l'état spécifique outil lors d'un changement d'outil.
+    // Les propriétés (selectedFamily/selectedTemplate/...) appartiennent à l'outil actif.
+    toolState.set({});
+    currentStep.set(null);
     window.dispatchEvent(
       new CustomEvent('tool:activated', { detail: { toolName } }),
     );

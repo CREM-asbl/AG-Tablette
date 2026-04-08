@@ -38,7 +38,11 @@ export class CreateTool extends Tool {
   }
 
   updateToolStep(step, extraState = {}) {
-    appActions.setToolState(extraState);
+    appActions.setActiveTool(this.name);
+    appActions.setToolState({});
+    if (Object.keys(extraState).length > 0) {
+      appActions.setToolState(extraState);
+    }
     appActions.setCurrentStep(step);
   }
 
@@ -65,6 +69,11 @@ export class CreateTool extends Tool {
     const selectedTemplate = app.tool?.selectedTemplate;
     if (selectedTemplate && this.selectedTemplate !== selectedTemplate) {
       this._selectedTemplate = selectedTemplate;
+    }
+
+    const selectedFamily = app.tool?.selectedFamily;
+    if (selectedFamily && this.selectedFamily !== selectedFamily) {
+      this._selectedFamily = selectedFamily;
     }
 
     // Vérifier que l'outil actif est bien 'create'
@@ -118,10 +127,22 @@ export class CreateTool extends Tool {
       return;
     }
 
-    const family = this.selectedFamily || app.tool.selectedFamily;
+    const family = app.tool.selectedFamily || this.selectedFamily;
+    if (!family) {
+      this.updateToolStep('start');
+      return;
+    }
+
+    if (this.selectedFamily !== family) {
+      this.selectedTemplate = null;
+      appActions.setSelectedTemplate(null);
+    }
+
+    this.selectedFamily = family;
     const shapeTemplates = getFamily(family).shapeTemplates;
     if (shapeTemplates.length === 1) {
       this.selectedTemplate = shapeTemplates[0];
+      appActions.setSelectedTemplate(this.selectedTemplate);
       this.updateToolStep('listen', { selectedTemplate: this.selectedTemplate });
     } else if (!this.shapesList) {
       import('../../components/shape-selector');

@@ -1,5 +1,9 @@
 
-import { appActions, currentStep, settings } from '../../../store/appState';
+import {
+  appActions,
+  currentStep,
+  settings,
+} from '../../../store/appState';
 import { app } from '../../Core/App';
 import { SelectManager } from '../../Core/Managers/SelectManager';
 import { Coordinates } from '../../Core/Objects/Coordinates';
@@ -38,13 +42,12 @@ export class BaseShapeCreationTool extends BaseGeometryTool {
       const availableTemplates = Array.isArray(this.templatesImport)
         ? this.templatesImport
         : [];
-      const initialTemplate =
-        availableTemplates.find(
-          (template) => template.name === app.tool?.selectedTemplate?.name,
-        ) || availableTemplates[0];
+      const initialTemplate = availableTemplates.find(
+        (template) => template.name === app.tool?.selectedTemplate?.name,
+      ) || null;
 
       if (initialTemplate) {
-        app.tool.selectedTemplate = initialTemplate;
+        appActions.setSelectedTemplate(initialTemplate);
       }
 
       // Utiliser le signal pour afficher le sélecteur de forme

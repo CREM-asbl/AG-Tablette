@@ -35,6 +35,10 @@ export class CreatePointTool extends Tool {
     this.geometryParentObjectId1 = null;
   }
 
+  get selectedTemplate() {
+    return app.tool?.selectedTemplate || null;
+  }
+
   async start() {
     app.upperCanvasLayer.removeAllObjects();
     this.removeListeners();
@@ -45,16 +49,18 @@ export class CreatePointTool extends Tool {
     appActions.setActiveTool(this.name);
 
     const selectedTemplate =
-      points.find((template) => template.name === app.tool.selectedTemplate?.name) ||
-      points[0];
-    app.tool.selectedTemplate = selectedTemplate;
+      points.find((template) => template.name === this.selectedTemplate?.name) ||
+      null;
+    if (selectedTemplate) {
+      appActions.setSelectedTemplate(selectedTemplate);
+    }
 
     await import('../../components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',
       family: 'Points',
       templatesNames: points,
-      selectedTemplate: app.tool.selectedTemplate,
+      selectedTemplate,
       type: 'Geometry',
       nextStep: 'drawPoint',
     });
@@ -66,7 +72,8 @@ export class CreatePointTool extends Tool {
     this.removeListeners();
     this.stopAnimation();
 
-    if (app.tool.selectedTemplate.name === 'PointOnIntersection') {
+    const selectedTemplate = this.selectedTemplate;
+    if (selectedTemplate?.name === 'PointOnIntersection') {
       app.workspace.selectionConstraints =
         app.fastSelectionConstraints.click_all_segments;
       this.objectSelectedId = app.addListener('objectSelected', this.handler);
@@ -158,10 +165,13 @@ export class CreatePointTool extends Tool {
       return;
     }
 
+    const selectedTemplate = this.selectedTemplate;
+    if (!selectedTemplate?.name) return;
+
     point.adjustedOn = undefined;
     let reference, newCoord;
     if (
-      app.tool.selectedTemplate.name === 'Point' ||
+      selectedTemplate.name === 'Point' ||
       app.environment.name === 'Geometrie'
     ) {
       // Convertir les coordonnées du point en espace canvas pour getClosestGridPoint
@@ -176,7 +186,7 @@ export class CreatePointTool extends Tool {
         point.adjustedOn = gridPointInWorldSpace;
       }
     }
-    switch (app.tool.selectedTemplate.name) {
+    switch (selectedTemplate.name) {
       case 'PointOnLine':
         reference = SelectManager.selectSegment(point.coordinates, {
           canSelect: true,
@@ -212,16 +222,19 @@ export class CreatePointTool extends Tool {
   }
 
   _executeAction() {
+    const selectedTemplate = this.selectedTemplate;
+    if (!selectedTemplate?.name) return;
+
     let shape;
-    if (app.tool.selectedTemplate.name === 'Point') {
+    if (selectedTemplate.name === 'Point') {
       shape = new SinglePointShape({
         layer: 'main',
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
-        name: app.tool.selectedTemplate.name,
+        name: selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
-    } else if (app.tool.selectedTemplate.name === 'PointOnLine') {
+    } else if (selectedTemplate.name === 'PointOnLine') {
       if (!this.geometryParentObjectId1) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
@@ -235,7 +248,7 @@ export class CreatePointTool extends Tool {
       shape = new SinglePointShape({
         layer: 'main',
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
-        name: app.tool.selectedTemplate.name,
+        name: selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
@@ -246,7 +259,7 @@ export class CreatePointTool extends Tool {
 
       const reference = findObjectById(this.geometryParentObjectId1);
       reference.shape.geometryObject.geometryChildShapeIds.push(shape.id);
-    } else if (app.tool.selectedTemplate.name === 'PointOnShape') {
+    } else if (selectedTemplate.name === 'PointOnShape') {
       if (!this.geometryParentObjectId1) {
         window.dispatchEvent(
           new CustomEvent('show-notif', {
@@ -260,7 +273,7 @@ export class CreatePointTool extends Tool {
       shape = new RegularShape({
         layer: 'main',
         path: `M ${this.point.coordinates.x} ${this.point.coordinates.y}`,
-        name: app.tool.selectedTemplate.name,
+        name: selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });
@@ -268,7 +281,7 @@ export class CreatePointTool extends Tool {
         this.geometryParentObjectId1;
       const reference = findObjectById(this.geometryParentObjectId1);
       reference.geometryObject.geometryChildShapeIds.push(shape.id);
-    } else if (app.tool.selectedTemplate.name === 'PointOnIntersection') {
+    } else if (selectedTemplate.name === 'PointOnIntersection') {
       const firstSeg = findObjectById(this.geometryParentObjectId1);
       const secondSeg = findObjectById(this.geometryParentObjectId2);
       const coords = firstSeg.intersectionWith(secondSeg);
@@ -288,7 +301,7 @@ export class CreatePointTool extends Tool {
       shape = new SinglePointShape({
         layer: 'main',
         path: coords.map((coord) => `M ${coord.x} ${coord.y}`).join(' '),
-        name: app.tool.selectedTemplate.name,
+        name: selectedTemplate.name,
         familyName: 'Point',
         geometryObject: new GeometryObject({}),
       });

@@ -17,6 +17,10 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     this.triangleDef = null;
   }
 
+  get selectedTemplate() {
+    return app.tool?.selectedTemplate || null;
+  }
+
   async start() {
     helpConfigRegistry.register(this.name, createTriangleHelpConfig);
     await super.start();
@@ -27,11 +31,12 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
    */
   async loadShapeDefinition() {
     const triangleDef = await import(`./trianglesDef.js`);
-    this.triangleDef = triangleDef[app.tool.selectedTemplate.name];
+    const selectedTemplateName = this.selectedTemplate?.name;
+    this.triangleDef = triangleDef[selectedTemplateName];
 
     if (!this.triangleDef) {
       throw new Error(
-        `Définition non trouvée pour ${app.tool.selectedTemplate.name}`,
+        `Définition non trouvée pour ${selectedTemplateName}`,
       );
     }
   }
@@ -90,10 +95,15 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
       throw new Error('Définition de triangle manquante');
     }
 
+    const selectedTemplateName = this.selectedTemplate?.name;
+    if (!selectedTemplateName) {
+      throw new Error('Template triangle non sélectionné');
+    }
+
     let familyName = '3-corner-shape';
-    if (app.tool.selectedTemplate.name === 'EquilateralTriangle') {
+    if (selectedTemplateName === 'EquilateralTriangle') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTemplate.name === 'IrregularTriangle') {
+    } else if (selectedTemplateName === 'IrregularTriangle') {
       familyName = 'Irregular';
     }
 
@@ -117,7 +127,7 @@ export class CreateTriangleTool extends BaseShapeCreationTool {
     const shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTemplate.name,
+      name: selectedTemplateName,
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),

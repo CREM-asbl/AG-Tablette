@@ -235,6 +235,7 @@ if (typeof window !== 'undefined') {
     const toolInfo = tools.get().find((t) => t.name === toolName);
 
     const oldToolName = app.tool?.name;
+    const previousFamily = app.tool?.selectedFamily || null;
     const previousTemplate = app.tool?.selectedTemplate || null;
 
     app.tool = {
@@ -242,6 +243,10 @@ if (typeof window !== 'undefined') {
       ...state,
       name: toolName,
       currentStep: step,
+      selectedFamily:
+        toolName === oldToolName
+          ? (state.selectedFamily ?? previousFamily ?? null)
+          : (state.selectedFamily ?? null),
       // Priorité au template venant du state si fourni, sinon fallback sur le précédent.
       selectedTemplate:
         toolName === oldToolName

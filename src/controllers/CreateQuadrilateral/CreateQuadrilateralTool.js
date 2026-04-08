@@ -1,13 +1,12 @@
 import quadrilateres from '@controllers/Core/ShapesKits/quadrilateres.json';
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 import { app } from '../Core/App';
-import { Point } from '../Core/Objects/Point';
 import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
 import { RegularShape } from '../Core/Objects/Shapes/RegularShape';
 import { BaseShapeCreationTool } from '../Core/States/BaseShapeCreationTool';
 import { linkNewlyCreatedPoint } from '../GeometryTools/general';
 import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
 import { createQuadrilateralHelpConfig } from './createQuadrilateral.helpConfig';
-import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
 
 /**
  * Outil de création de quadrilatères - Refactorisé avec BaseShapeCreationTool
@@ -23,6 +22,10 @@ export class CreateQuadrilateralTool extends BaseShapeCreationTool {
     this.quadrilateralDef = null;
   }
 
+  get selectedTemplate() {
+    return app.tool?.selectedTemplate || null;
+  }
+
   async start() {
     helpConfigRegistry.register(this.name, createQuadrilateralHelpConfig);
     await super.start();
@@ -33,11 +36,12 @@ export class CreateQuadrilateralTool extends BaseShapeCreationTool {
    */
   async loadShapeDefinition() {
     const quadrilateralsDef = await import(`./quadrilateralsDef.js`);
-    this.quadrilateralDef = quadrilateralsDef[app.tool.selectedTemplate.name];
+    const selectedTemplateName = this.selectedTemplate?.name;
+    this.quadrilateralDef = quadrilateralsDef[selectedTemplateName];
 
     if (!this.quadrilateralDef) {
       throw new Error(
-        `Définition non trouvée pour ${app.tool.selectedTemplate.name}`,
+        `Définition non trouvée pour ${selectedTemplateName}`,
       );
     }
   }
@@ -88,17 +92,22 @@ export class CreateQuadrilateralTool extends BaseShapeCreationTool {
       throw new Error('Définition de quadrilatère manquante');
     }
 
+    const selectedTemplateName = this.selectedTemplate?.name;
+    if (!selectedTemplateName) {
+      throw new Error('Template quadrilatère non sélectionné');
+    }
+
     let familyName = '4-corner-shape';
-    if (app.tool.selectedTemplate.name === 'Square') {
+    if (selectedTemplateName === 'Square') {
       familyName = 'Regular';
-    } else if (app.tool.selectedTemplate.name === 'IrregularQuadrilateral') {
+    } else if (selectedTemplateName === 'IrregularQuadrilateral') {
       familyName = 'Irregular';
     }
 
     // Si on a moins de 4 points dessinés, la définition doit avoir complété les points restants dans points/segments
     // On s'assure d'avoir 4 points pour construire le chemin
     if (this.points.length < 4) {
-        throw new Error('Nombre de points insuffisant pour créer un quadrilatère');
+      throw new Error('Nombre de points insuffisant pour créer un quadrilatère');
     }
 
     // Construire le chemin SVG
@@ -124,7 +133,7 @@ export class CreateQuadrilateralTool extends BaseShapeCreationTool {
     const shape = new RegularShape({
       layer: 'main',
       path: path,
-      name: app.tool.selectedTemplate.name,
+      name: selectedTemplateName,
       familyName: familyName,
       fillOpacity: 0,
       geometryObject: new GeometryObject({}),
@@ -135,7 +144,7 @@ export class CreateQuadrilateralTool extends BaseShapeCreationTool {
     linkNewlyCreatedPoint(shape, shape.vertexes[0]);
     shape.vertexes[1].adjustedOn = this.points[1].adjustedOn;
     linkNewlyCreatedPoint(shape, shape.vertexes[1]);
-    
+
     if (
       shape.name === 'Rectangle' ||
       shape.name === 'Losange' ||
