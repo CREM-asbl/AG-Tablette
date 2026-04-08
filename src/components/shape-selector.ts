@@ -159,7 +159,7 @@ export class ShapeSelector extends LitElement {
         return;
       }
 
-      // Remove if user selected a different template (but not when both are undefined)
+      // Remove if user selected a different template
       if (
         app.tool.selectedTemplate !== undefined &&
         this.selectedTemplate !== app.tool.selectedTemplate

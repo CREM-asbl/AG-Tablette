@@ -1,5 +1,5 @@
 import { computed } from '@lit-labs/signals';
-import { activeTool, createWatcher, currentStep, selectedTemplate, toolState } from '../../../store/appState';
+import { activeTool, createWatcher, currentStep, toolState } from '../../../store/appState';
 import { app } from '../App';
 
 const REPLAY_ALLOWED_TOOL_TYPES = new Set(['move', 'transformation']);

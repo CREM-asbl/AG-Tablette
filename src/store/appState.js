@@ -40,7 +40,6 @@ export const environmentModules = signal([]);
 export const activeTool = signal(null);
 export const toolState = signal({});
 export const currentStep = signal(null);
-export const selectedTemplate = signal(null);
 export const toolUiState = signal(null);
 
 // Signaux pour le workspace
@@ -232,12 +231,8 @@ export const appActions = {
     fullHistoryState.set({ ...current, ...state });
     window.dispatchEvent(new CustomEvent('app:full-history-changed', { detail: { state } }));
   },
-
   setActiveTool: (toolName) => {
     activeTool.set(toolName);
-    // Réinitialiser l'état de l'outil
-    toolState.set({});
-    currentStep.set(null);
     window.dispatchEvent(
       new CustomEvent('tool:activated', { detail: { toolName } }),
     );
@@ -250,17 +245,17 @@ export const appActions = {
     );
   },
 
+  setSelectedTemplate: (template) => {
+    appActions.setToolState({ selectedTemplate: template });
+    window.dispatchEvent(
+      new CustomEvent('tool-template-changed', { detail: { template } }),
+    );
+  },
+
   setCurrentStep: (step) => {
     currentStep.set(step);
     window.dispatchEvent(
       new CustomEvent('tool-step-changed', { detail: { step } }),
-    );
-  },
-
-  setSelectedTemplate: (template) => {
-    selectedTemplate.set(template);
-    window.dispatchEvent(
-      new CustomEvent('tool-template-changed', { detail: { template } }),
     );
   },
 
@@ -419,7 +414,6 @@ export const resetWorkspaceState = () => {
   activeTool.set(null);
   toolState.set({});
   currentStep.set(null);
-  selectedTemplate.set(null);
   workspaceData.set({
     objects: {
       shapesData: [],
@@ -505,7 +499,6 @@ export const exportAppState = () => {
       active: activeTool.get(),
       state: toolState.get(),
       currentStep: currentStep.get(),
-      selectedTemplate: selectedTemplate.get(),
     },
     workspace: {
       data: workspaceData.get(),

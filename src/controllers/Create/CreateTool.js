@@ -19,24 +19,35 @@ export class CreateTool extends Tool {
     // start -> listen -> move
     this.currentStep = null;
 
-    this.selectedFamily = null;
-
-    this.selectedTemplate = null;
+    this._selectedFamily = null;
+    this._selectedTemplate = null;
 
     this.shapeToCreate = null;
   }
 
+  get selectedFamily() { return this._selectedFamily; }
+  set selectedFamily(value) {
+    this._selectedFamily = value;
+    window.dispatchEvent(new CustomEvent('create:family-changed', { detail: { family: value } }));
+  }
+
+  get selectedTemplate() { return this._selectedTemplate; }
+  set selectedTemplate(value) {
+    this._selectedTemplate = value;
+    window.dispatchEvent(new CustomEvent('create:template-changed', { detail: { template: value } }));
+  }
+
   updateToolStep(step, extraState = {}) {
-    appActions.setActiveTool(this.name);
     appActions.setToolState(extraState);
     appActions.setCurrentStep(step);
   }
 
-
+  getActiveSelectedTemplate() {
+    return this.selectedTemplate || app.tool?.selectedTemplate || null;
+  }
 
   /**
    * (ré-)initialiser l'état
-   * @param  {String} family Nom de la famille sélectionnée
    */
   start() {
     // S'assurer que l'outil précédent soit complètement arrêté
@@ -51,6 +62,11 @@ export class CreateTool extends Tool {
   }
 
   listen() {
+    const selectedTemplate = app.tool?.selectedTemplate;
+    if (selectedTemplate && this.selectedTemplate !== selectedTemplate) {
+      this._selectedTemplate = selectedTemplate;
+    }
+
     // Vérifier que l'outil actif est bien 'create'
     if (app.tool.name !== 'create') {
       console.warn(
@@ -88,6 +104,8 @@ export class CreateTool extends Tool {
     app.upperCanvasLayer.removeAllObjects();
     this.stopAnimation();
     this.removeListeners();
+    this.selectedFamily = null;
+    this.selectedTemplate = null;
   }
 
   openShapeList() {
@@ -100,33 +118,35 @@ export class CreateTool extends Tool {
       return;
     }
 
-    const shapeTemplates = getFamily(app.tool.selectedFamily).shapeTemplates;
+    const family = this.selectedFamily || app.tool.selectedFamily;
+    const shapeTemplates = getFamily(family).shapeTemplates;
     if (shapeTemplates.length === 1) {
-      const selectedTemplate = shapeTemplates[0];
-      appActions.setSelectedTemplate(selectedTemplate);
-      this.updateToolStep('listen', { selectedTemplate });
+      this.selectedTemplate = shapeTemplates[0];
+      this.updateToolStep('listen', { selectedTemplate: this.selectedTemplate });
     } else if (!this.shapesList) {
       import('../../components/shape-selector');
       appActions.setToolUiState({
         name: 'shape-selector',
-        family: app.tool.selectedFamily,
-        templatesNames: getFamily(app.tool.selectedFamily).shapeTemplates,
-        selectedTemplate: app.tool.selectedTemplate,
+        family: family,
+        templatesNames: getFamily(family).shapeTemplates,
+        selectedTemplate: this.selectedTemplate,
         type: 'Create',
         nextStep: 'listen',
       });
     }
   }
-
   canvasMouseDown() {
+    const selectedTemplate = this.getActiveSelectedTemplate();
     if (app.tool.currentStep !== 'listen') return;
+    if (!selectedTemplate) {
+      console.warn('No template selected');
+      return;
+    }
 
     // Nettoyer avant de commencer la création
     app.upperCanvasLayer.removeAllObjects();
 
-    const selectedTemplate = app.tool.selectedTemplate;
-
-    if (selectedTemplate?.name && selectedTemplate.name.startsWith('Segment')) {
+    if (selectedTemplate.name && selectedTemplate.name.startsWith('Segment')) {
       this.shapeToCreate = new LineShape({
         ...selectedTemplate,
         layer: 'upper',
@@ -180,9 +200,14 @@ export class CreateTool extends Tool {
   }
 
   _executeAction() {
-    const selectedTemplate = app.tool.selectedTemplate;
-    if (!selectedTemplate?.name) {
+    const selectedTemplate = this.getActiveSelectedTemplate();
+    if (!selectedTemplate) {
       console.warn('No template selected');
+      return;
+    }
+
+    if (!selectedTemplate.name) {
+      console.warn('Selected template has no name');
       return;
     }
 

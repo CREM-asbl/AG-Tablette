@@ -47,17 +47,18 @@ export class CreatePointTool extends Tool {
     const selectedTemplate =
       points.find((template) => template.name === app.tool.selectedTemplate?.name) ||
       points[0];
-    appActions.setSelectedTemplate(selectedTemplate);
+    app.tool.selectedTemplate = selectedTemplate;
 
-    await import('@components/shape-selector');
+    await import('../../components/shape-selector');
     appActions.setToolUiState({
       name: 'shape-selector',
       family: 'Points',
       templatesNames: points,
-      selectedTemplate,
+      selectedTemplate: app.tool.selectedTemplate,
       type: 'Geometry',
       nextStep: 'drawPoint',
     });
+
   }
 
   drawPoint() {

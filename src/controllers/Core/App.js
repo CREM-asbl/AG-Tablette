@@ -7,7 +7,6 @@ import {
   filename,
   fullHistoryState,
   historyState,
-  selectedTemplate,
   settings,
   tangramState,
   toolState,
@@ -232,18 +231,22 @@ if (typeof window !== 'undefined') {
   const syncTool = () => {
     const toolName = activeTool.get();
     const step = currentStep.get();
-    const template = selectedTemplate.get();
     const state = toolState.get();
     const toolInfo = tools.get().find((t) => t.name === toolName);
 
     const oldToolName = app.tool?.name;
+    const previousTemplate = app.tool?.selectedTemplate || null;
 
     app.tool = {
       ...(app.tool || {}),
       ...state,
       name: toolName,
       currentStep: step,
-      selectedTemplate: template,
+      // Priorité au template venant du state si fourni, sinon fallback sur le précédent.
+      selectedTemplate:
+        toolName === oldToolName
+          ? (state.selectedTemplate ?? previousTemplate ?? null)
+          : (state.selectedTemplate ?? null),
       title: toolInfo?.title,
       type: toolInfo?.type,
     };
