@@ -1,5 +1,6 @@
 {
   "name": "ag-tablette",
+  "version": "1.5.1 beta 4",
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4324",
@@ -29,6 +30,7 @@
     "@types/node": "^25.0.8",
     "@typescript-eslint/eslint-plugin": "^8.56.0",
     "@typescript-eslint/parser": "^8.56.0",
+    "@vite-pwa/astro": "^1.2.0",
     "@vitest/coverage-v8": "^4.0.9",
     "eslint": "^10.0.1",
     "eslint-plugin-lit": "^2.1.1",
@@ -40,6 +42,7 @@
   "dependencies": {
     "@astrojs/lit": "^4.3.0",
     "@lit-labs/signals": "^0.2.0",
+    "@webcomponents/template-shadowroot": "^0.2.1",
     "astro": "^6.1.2",
     "fflate": "^0.8.0",
     "firebase": "^12.2.1",

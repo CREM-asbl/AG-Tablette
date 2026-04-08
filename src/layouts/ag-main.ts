@@ -136,6 +136,11 @@ class AGMain extends SignalWatcher(LitElement) {
   }
 
   async firstUpdated() {
+    // Initialiser la version de l'application
+    const { initializeAppVersion } = await import('@store/appState');
+    const version = await initializeAppVersion();
+    app.version = version;
+
     const globalWindow = window as Window & {
       __agNotionsCacheInitialized?: boolean;
       __agOfflineSupportInitialized?: boolean;

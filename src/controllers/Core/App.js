@@ -146,6 +146,8 @@ export class App {
     this.appLoading = false;
     /** @type {number} Index pour la prochaine couleur de groupe à assigner */
     this.nextGroupColorIdx = 0;
+    /** @type {string} Numéro de version de l'application */
+    this.version = '1.0.0';
 
     this.workspace = new Workspace();
 

@@ -28,8 +28,29 @@ const persistHelpSelected = (selected) => {
 // Signaux pour l'état de l'application
 export const appLoading = signal(false);
 export const appError = signal(null);
-export const appVersion = signal('1.0.0');
+export const appVersion = signal('1.0.0'); // Sera mis à jour au démarrage
 export const appStarted = signal(false);
+
+/**
+ * Initialise la version de l'application depuis le manifest
+ * À appeler au démarrage de l'app dans firstUpdated()
+ * @returns {Promise<void>}
+ */
+export async function initializeAppVersion() {
+  try {
+    const response = await fetch('/manifest.json');
+    if (response.ok) {
+      const manifest = await response.json();
+      const version = manifest.version || '1.0.0';
+      appVersion.set(version);
+      console.log(`✓ Version de l'application chargée: ${version}`);
+      return version;
+    }
+  } catch (error) {
+    console.warn('⚠ Erreur lors du chargement de la version:', error);
+  }
+  return '1.0.0';
+}
 
 // Signaux pour l'environnement
 export const currentEnvironment = signal(null);

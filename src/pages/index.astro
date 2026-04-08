@@ -1,5 +1,6 @@
 ---
 import { App } from '@components/ag-app';
+import { pwaInfo } from 'virtual:pwa-info';
 ---
 
 <!doctype html>
@@ -20,8 +21,8 @@ import { App } from '@components/ag-app';
     <link rel="icon" href="/images/favicon.ico" />
     <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
 
-    <!-- pwa data -->
-    <link rel="manifest" href="/manifest.json" />
+    <!-- PWA manifest (généré par @vite-pwa/astro) -->
+    {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
     <meta
       name="theme-color"
       content="lightgrey"
@@ -49,26 +50,8 @@ import { App } from '@components/ag-app';
       content="Logiciel mobile de géométrie dynamique"
     />
 
-    <script type="module">
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', async () => {
-          const sw =
-            await navigator.serviceWorker.register('/service-worker.js');
-          sw.onupdatefound = () => {
-            sw.installing.onstatechange = () => {
-              if (sw.waiting) {
-                sw.waiting.postMessage({ type: 'SKIP_WAITING' });
-              }
-            };
-          };
-        });
-
-        navigator.serviceWorker.oncontrollerchange = () => {
-          if (confirm(`Mise à jour disponible.\nMettre à jour ?`))
-            location.reload();
-        };
-      }
-    </script>
+    <!-- PWA Service Worker registration -->
+    <script src="/src/pwa.ts"></script>
 
     <style>
       :root {
