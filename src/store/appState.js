@@ -388,51 +388,6 @@ export const historyActions = {
 };
 
 /**
- * Utilitaires pour surveiller les changements
- */
-const watchers = new Set();
-let rafId = null;
-
-function runWatchers() {
-  for (const watcher of watchers) {
-    watcher.check();
-  }
-  if (watchers.size > 0) {
-    rafId = requestAnimationFrame(runWatchers);
-  } else {
-    rafId = null;
-  }
-}
-
-export const createWatcher = (signalToWatch, callback) => {
-  let lastValue = signalToWatch.get();
-
-  const watcher = {
-    check: () => {
-      try {
-        const currentValue = signalToWatch.get();
-        if (currentValue !== lastValue) {
-          const old = lastValue;
-          lastValue = currentValue;
-          callback(currentValue, old);
-        }
-      } catch (e) {
-        console.error('Watcher error:', e);
-      }
-    },
-  };
-
-  watchers.add(watcher);
-  if (!rafId) {
-    rafId = requestAnimationFrame(runWatchers);
-  }
-
-  return () => {
-    watchers.delete(watcher);
-  };
-};
-
-/**
  * Fonction de réinitialisation de l'espace de travail (sans quitter l'environnement)
  */
 export const resetWorkspaceState = () => {

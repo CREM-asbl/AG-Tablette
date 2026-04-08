@@ -1,6 +1,7 @@
 // Service de synchronisation pour les activités
 // Gère la synchronisation en arrière-plan des fichiers d'activités
 
+// @ts-ignore
 import {
   findAllFilesPaged,
   findAllThemes,
@@ -8,11 +9,13 @@ import {
   getModulesDocFromTheme,
   readFileFromServer,
 } from '../firebase/firebase-init.js';
+// @ts-ignore
 import {
   setSyncCompleted,
   setSyncProgress,
   syncInProgress,
 } from '../store/syncState.js';
+// @ts-ignore
 import {
   getAllActivities,
   getSyncMetadata,
@@ -22,6 +25,27 @@ import {
   saveSyncMetadata,
   saveTheme,
 } from '../utils/indexeddb-activities.js';
+
+interface ActivityMetadata {
+  id: string;
+  version: number;
+}
+
+interface ThemeMetadata {
+  id: string;
+  version: number;
+}
+
+interface SyncMetadata {
+  lastSyncDate: number;
+  serverFiles: ActivityMetadata[];
+  serverFilesTruncated: boolean;
+  serverThemes: ThemeMetadata[];
+  expiryDate: number;
+  syncedFilesCount: number;
+  totalFilesCount: number;
+  totalThemesCount: number;
+}
 
 // Configuration du service
 const CONFIG = {
@@ -43,16 +67,17 @@ const CONFIG = {
  * Utilitaires pour le service de synchronisation
  */
 const utils = {
-  log: (message, ...args) => {
+  log: (message: string, ...args: any[]) => {
     if (CONFIG.DEBUG) {
+      console.log(`[SYNC] ${message}`, ...args);
     }
   },
 
-  warn: (message, ...args) => {
+  warn: (message: string, ...args: any[]) => {
     console.warn(`[SYNC] ${message}`, ...args);
   },
 
-  error: (message, ...args) => {
+  error: (message: string, ...args: any[]) => {
     console.error(`[SYNC] ${message}`, ...args);
   },
 
@@ -61,22 +86,17 @@ const utils = {
    * @param {number} ms Délai en millisecondes
    * @returns {Promise<void>}
    */
-  delay: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  delay: (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms)),
 
   /**
    * Calculer la progression totale incluant fichiers, thèmes et modules
-   * @param {number} filesProcessed Nombre de fichiers traités
-   * @param {number} totalFiles Nombre total de fichiers
-   * @param {number} themesProcessed Nombre de thèmes traités
-   * @param {number} totalThemes Nombre total de thèmes
-   * @returns {number} Pourcentage global
    */
   calculateProgress: (
-    filesProcessed,
-    totalFiles,
-    themesProcessed,
-    totalThemes,
-  ) => {
+    filesProcessed: number,
+    totalFiles: number,
+    themesProcessed: number,
+    totalThemes: number,
+  ): number => {
     // Pondération: 70% pour les fichiers, 30% pour les thèmes/modules
     const fileWeight = 0.7;
     const themeWeight = 0.3;
@@ -90,7 +110,7 @@ const utils = {
   },
 };
 
-export async function syncActivitiesInBackground(forceSync = false) {
+export async function syncActivitiesInBackground(forceSync = false): Promise<void> {
   // Utiliser le store centralisé au lieu d'une variable globale
   if (syncInProgress.value) {
     utils.log('Synchronisation déjà en cours...');
@@ -130,10 +150,10 @@ export async function syncActivitiesInBackground(forceSync = false) {
 
       const localActivities = await getAllActivities();
       const localMap = new Map(
-        localActivities.map((activity) => [activity.id, activity]),
+        localActivities.map((activity: any) => [activity.id, activity]),
       );
 
-      const serverFilesMetadata = [];
+      const serverFilesMetadata: ActivityMetadata[] = [];
       let serverFilesTruncated = false;
 
       let addedCount = 0;
@@ -147,7 +167,7 @@ export async function syncActivitiesInBackground(forceSync = false) {
       // Synchronisation des fichiers d'activités avec gestion de timeout
       await findAllFilesPaged({
         pageSize: CONFIG.FILE_PAGE_SIZE,
-        onPage: async (serverFiles) => {
+        onPage: async (serverFiles: any[]) => {
           for (const serverFile of serverFiles) {
             try {
               const localActivity = localMap.get(serverFile.id);
@@ -224,10 +244,8 @@ export async function syncActivitiesInBackground(forceSync = false) {
 
       /**
        * Nettoie les données pour la sérialisation IndexedDB
-       * @param {Object} data Données à nettoyer
-       * @returns {Object} Données sérialisables
        */
-      const cleanData = (data) => {
+      const cleanData = (data: any) => {
         try {
           return JSON.parse(JSON.stringify(data));
         } catch (e) {
@@ -270,11 +288,11 @@ export async function syncActivitiesInBackground(forceSync = false) {
 
       // Sauvegarder les métadonnées de synchronisation pour éviter les syncs inutiles
       try {
-        await saveSyncMetadata({
+        const metadata: SyncMetadata = {
           lastSyncDate: Date.now(),
           serverFiles: serverFilesMetadata,
           serverFilesTruncated,
-          serverThemes: serverThemes.map((t) => ({
+          serverThemes: serverThemes.map((t: any) => ({
             id: t.id,
             version: t.version || 1,
           })),
@@ -282,7 +300,8 @@ export async function syncActivitiesInBackground(forceSync = false) {
           syncedFilesCount: addedCount,
           totalFilesCount: totalFiles ?? processedFiles,
           totalThemesCount: serverThemes.length,
-        });
+        };
+        await saveSyncMetadata(metadata);
         utils.log('Métadonnées de synchronisation sauvegardées avec succès');
       } catch (metadataError) {
         utils.warn(
@@ -321,13 +340,8 @@ export async function syncActivitiesInBackground(forceSync = false) {
 
 /**
  * Synchronisation intelligente avec vérification de cache
- * Cette fonction vérifie d'abord si une synchronisation récente a eu lieu
- * @param {Object} options - Options de synchronisation
- * @param {boolean} options.force - Forcer la synchronisation même si récente
- * @param {number} options.maxAgeHours - Âge maximum en heures pour considérer une sync comme récente
- * @returns {Promise<string>} Résultat de la synchronisation
  */
-export async function smartSync(options = {}) {
+export async function smartSync(options: { force?: boolean; maxAgeHours?: number } = {}): Promise<string> {
   const { force = false, maxAgeHours = 24 } = options;
 
   if (!navigator.onLine) {
@@ -368,9 +382,8 @@ export async function smartSync(options = {}) {
 
 /**
  * Obtient les informations de la dernière synchronisation
- * @returns {Promise<Object|null>} Informations de sync ou null
  */
-export async function getLastSyncInfo() {
+export async function getLastSyncInfo(): Promise<any> {
   try {
     const metadata = await getSyncMetadata();
     if (!metadata) {
@@ -395,7 +408,7 @@ export async function getLastSyncInfo() {
   }
 }
 
-export function initActivitySync() {
+export function initActivitySync(): void {
   utils.log('Initialisation du service de synchronisation...');
 
   // Synchronisation automatique lors de la reconnexion
@@ -418,9 +431,9 @@ export function initActivitySync() {
   }
 }
 
-utils.log('Service activity-sync.js chargé');
+utils.log('Service activity-sync.ts chargé');
 initActivitySync();
 
-export function isSyncInProgress() {
+export function isSyncInProgress(): boolean {
   return syncInProgress.value;
 }

@@ -1,10 +1,9 @@
 import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
-import { app } from '../controllers/Core/App';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../layouts/ag-main';
 import { initBugReporting } from '../services/bug-report.service';
-import { appLoading, currentEnvironment } from '../store/appState';
+import { appActions, appLoading, currentEnvironment } from '../store/appState';
 import './ag-environnements';
 import './tool-ui-container';
 
@@ -63,7 +62,11 @@ export class App extends SignalWatcher(LitElement) {
     });
 
     // Initialisation du service de synchronisation Signal
-    import('../services/SignalSyncService').then(({ signalSyncService }) => {
+    // On importe dynamiquement 'app' pour ne pas polluer l'UI avec le moteur legacy
+    Promise.all([
+      import('../services/SignalSyncService'),
+      import('../controllers/Core/App')
+    ]).then(([{ signalSyncService }, { app }]) => {
       signalSyncService.init(app);
     });
 
@@ -92,7 +95,7 @@ export class App extends SignalWatcher(LitElement) {
 
     if (environmentSelected) {
       history.pushState({}, 'main page');
-      app.appLoading = false;
+      appActions.setLoading(false);
       return html`<ag-main></ag-main>`;
     } else if (!isLoading) {
       return html`<ag-environnements></ag-environnements>`;
