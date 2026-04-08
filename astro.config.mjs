@@ -1,9 +1,9 @@
 import lit from '@astrojs/lit';
 import AstroPWA from '@vite-pwa/astro';
 import { defineConfig } from 'astro/config';
+import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readFileSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const pkgJson = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8'));
