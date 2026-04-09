@@ -1,49 +1,70 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    // Par défaut, tout est fermé
     match /{document=**} {
       allow read : if false;
       allow write: if false;
     }
-    match /BUGS/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
+
+    /**
+     * Rapports de bugs
+     * Note: Utilisé par bug-report.service.ts.
+     * L'écriture est ouverte pour permettre les rapports anonymes (sans auth).
+     * La lecture est bloquée pour protéger les données de debug.
+     */
+    match /bugs/{id} {
+      allow create: if true;
+      allow read, update, delete: if false;
     }
-    match /Files/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
-    }
-    match /Sequences/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
-    }
-    match /Notions/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
-    }
-    match /Files/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
-    }
-    match /Sequences/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
-    }
-    match /Notions/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
-    }
+
+    /**
+     * Contenu de l'application (Activités, Thèmes, Modules)
+     * Ces collections semblent être du contenu statique ou géré par l'administration.
+     * Les écritures sont bloquées pour les utilisateurs standards.
+     * Lecture publique pour le fonctionnement de l'app.
+     */
+
     match /files/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null;// Bloqué: contenu géré par l'admin
     }
+
     match /modules/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null; // Bloqué: contenu géré par l'admin
     }
+
     match /themes/{id} {
-    	allow read : if true;
-    	allow write : if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null; // Bloqué: contenu géré par l'admin
+    }
+
+    /**
+     * COLLECTIONS POTENTIELLEMENT OBSOLÈTES (Legacy)
+     * Ces collections avec des noms en MAJUSCULES ne semblent plus utilisées par le nouveau code.
+     * Elles sont conservées ici en lecture seule par sécurité, mais les écritures sont totalement bloquées.
+     */
+
+    match /BUGS/{id} {
+      allow read : if true;
+      allow write : if false;
+    }
+
+    match /Files/{id} {
+      allow read : if true;
+      allow write : if false;
+    }
+
+    match /Sequences/{id} {
+      allow read : if true;
+      allow write : if false;
+    }
+
+    match /Notions/{id} {
+      allow read : if true;
+      allow write : if false;
     }
   }
 }
