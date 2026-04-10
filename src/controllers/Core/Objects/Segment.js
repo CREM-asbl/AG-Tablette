@@ -717,6 +717,7 @@ export class Segment {
   }
 
   isParalleleWith(segment) {
+    if (!segment) return false;
     if (this.isArc() && segment.isArc()) {
       return this.arcParelleleWith(segment);
     } else if (this.isArc() || segment.isArc()) {

@@ -17,6 +17,7 @@ vi.mock('@controllers/Core/App', () => {
         tool: null,
         upperCanvasLayer: {
             removeAllObjects: vi.fn(),
+            shapes: [],
         },
         workspace: {
             lastKnownMouseCoordinates: { x: 0, y: 0 },
@@ -44,6 +45,7 @@ vi.mock('@store/appState', () => ({
     currentStep: { get: vi.fn(() => 'start') },
     selectedTemplate: { get: vi.fn(() => ({ name: 'EquilateralTriangle' })) },
     createWatcher: vi.fn(() => vi.fn()),
+    settings: { get: () => ({ temporaryDrawColor: '#ff0000' }) },
 }));
 
 const mockTriangleDef = {
@@ -62,6 +64,7 @@ vi.mock('@controllers/Core/Objects/Shapes/RegularShape', () => ({
         constructor() {
             this.vertexes = [{ adjustedOn: null }, { adjustedOn: null }, { adjustedOn: null }];
             this.name = 'EquilateralTriangle';
+            this.id = 'shape-id';
         }
     }
 }));
@@ -78,6 +81,14 @@ vi.mock('@controllers/GeometryTools/general', () => ({
 
 vi.mock('@controllers/GeometryTools/recomputeShape', () => ({
     computeConstructionSpec: vi.fn(),
+}));
+
+vi.mock('@controllers/Core/Managers/SelectManager', () => ({
+    SelectManager: {
+        getEmptySelectionConstraints: vi.fn(() => ({ segments: {}, points: {} })),
+        selectSegment: vi.fn(),
+        selectPoint: vi.fn(),
+    }
 }));
 
 describe('CreateTriangleTool', () => {
@@ -138,5 +149,20 @@ describe('CreateTriangleTool', () => {
 
         expect(geometryTools.linkNewlyCreatedPoint).toHaveBeenCalled();
         expect(recomputeShape.computeConstructionSpec).toHaveBeenCalled();
+    });
+
+    it('should not crash in adjustPointConstrained when segments are empty', () => {
+        const point = {
+            coordinates: { x: 10, y: 10, dist: vi.fn(() => 0) },
+            adjustedOn: null
+        };
+        tool.constraints = {
+            projectionOnConstraints: vi.fn((coords) => coords),
+            segments: [], // Empty segments list as in RightAngleIsoscelesTriangle
+            isFree: false
+        };
+
+        // This should not throw anymore after the fix
+        expect(() => tool.adjustPointConstrained(point)).not.toThrow();
     });
 });

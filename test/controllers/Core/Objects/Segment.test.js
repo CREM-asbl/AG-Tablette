@@ -304,6 +304,11 @@ describe('Segment advanced', () => {
     expect(seg1.isParalleleWith(seg2)).toBe(true);
   });
 
+  it('isParalleleWith returns false for undefined segment', () => {
+    const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
+    expect(seg1.isParalleleWith(undefined)).toBe(false);
+  });
+
   it('hasSameDirection returns true for same direction', () => {
     const seg1 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 0 }, { x: 10, y: 0 }] });
     const seg2 = new Segment({ layer: 'main', createFromNothing: true, vertexCoordinates: [{ x: 0, y: 1 }, { x: 10, y: 1 }] });

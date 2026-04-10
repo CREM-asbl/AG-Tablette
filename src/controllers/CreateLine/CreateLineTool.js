@@ -362,7 +362,7 @@ export class CreateLineTool extends Tool {
         adjustedCoordinates,
         constraints,
       );
-      if (adjustedSegments) {
+      if (adjustedSegments && this.constraints.segments && this.constraints.segments[0]) {
         const adjustedSegment = adjustedSegments
           .filter((seg) => !seg.isParalleleWith(this.constraints.segments[0]))
           .sort((seg1, seg2) =>

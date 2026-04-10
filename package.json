@@ -1,6 +1,6 @@
 {
   "name": "ag-tablette",
-  "version": "1.5.1 beta 4",
+  "version": "1.5.1 beta 5",
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4324",
@@ -9,8 +9,7 @@
     "build": "astro build",
     "deploy": "firebase deploy",
     "deploy:beta": "firebase deploy --only hosting:beta",
-    "deploy:beta2": "firebase hosting:channel:deploy $(cat public/manifest.json | grep version | head -1 | awk -F: '{ print $2 }' | sed 's/[\\\"،]//g' | sed 's/[^0-9.]//g') --expires 30d",
-    "deploy:beta3": "firebase hosting:channel:deploy beta --expires 30d",
+    "deploy:beta2": "firebase hosting:channel:deploy beta --expires 30d",
     "deploy:rules": "npm run deploy:firestore-rules && npm run deploy:storage-rules",
     "deploy:firestore-rules": "firebase deploy --only firestore:rules",
     "deploy:storage-rules": "firebase deploy --only storage",
