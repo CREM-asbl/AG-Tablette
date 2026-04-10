@@ -15,7 +15,7 @@ export const createLineHelpConfig = {
    * @returns {{target: string, text: string} | null}
    */
   getStepConfig: (state) => {
-    const { currentStep, numberOfPointsDrawn = 0 } = state;
+    const { currentStep, numberOfPointsDrawn = 0, selectedTemplate } = state;
 
     // Étape initiale - sélection du type de ligne
     if (currentStep === 'start') {
@@ -27,6 +27,19 @@ export const createLineHelpConfig = {
 
     // Étapes de placement des points
     if (currentStep === 'drawPoint') {
+      const templateName = selectedTemplate?.name;
+
+      if (templateName?.startsWith('Parallele') || templateName?.startsWith('Perpendicular')) {
+        const pointLabels = [
+          '🎯 Place le point par lequel passe la ligne',
+          '🎯 Place le deuxième point sur la ligne verte',
+        ];
+        return {
+          target: 'canvas-container',
+          text: pointLabels[numberOfPointsDrawn] || pointLabels[0],
+        };
+      }
+
       const pointLabels = [
         '🎯 Place le 1er point',
         '🎯 Place le 2e point',
@@ -45,7 +58,7 @@ export const createLineHelpConfig = {
       ];
       return {
         target: 'canvas-container',
-        text: adjustLabels[numberOfPointsDrawn] || adjustLabels[0],
+        text: adjustLabels[numberOfPointsDrawn - 1] || adjustLabels[0],
       };
     }
 

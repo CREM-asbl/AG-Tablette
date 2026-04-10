@@ -17,7 +17,7 @@ export const createQuadrilateralHelpConfig = {
    * @returns {{target: string, text: string} | null}
    */
   getStepConfig: (state) => {
-    const { currentStep, numberOfPointsDrawn = 0 } = state;
+    const { currentStep, numberOfPointsDrawn = 0, selectedTemplate } = state;
 
     // Étape initiale - sélection du type de quadrilatère
     if (currentStep === 'start' || currentStep === 'initialized') {
@@ -29,6 +29,38 @@ export const createQuadrilateralHelpConfig = {
 
     // Étapes de placement des points
     if (currentStep === 'drawPoint') {
+      const templateName = selectedTemplate?.name;
+
+      if (templateName === 'Rectangle' && numberOfPointsDrawn === 2) {
+        return {
+          target: 'canvas-container',
+          text: '🎯 Place le 3e sommet sur la ligne verte',
+        };
+      }
+
+      if (templateName === 'Losange' && numberOfPointsDrawn === 2) {
+        return {
+          target: 'canvas-container',
+          text: '🎯 Place le 3e sommet sur le cercle vert',
+        };
+      }
+
+      if (templateName === 'RightAngleTrapeze') {
+        if (numberOfPointsDrawn === 2 || numberOfPointsDrawn === 3) {
+          return {
+            target: 'canvas-container',
+            text: `🎯 Place le ${numberOfPointsDrawn + 1}e sommet sur la ligne verte`,
+          };
+        }
+      }
+
+      if (templateName === 'Trapeze' && numberOfPointsDrawn === 3) {
+        return {
+          target: 'canvas-container',
+          text: '🎯 Place le 4e sommet sur la ligne verte',
+        };
+      }
+
       const pointLabels = [
         '🎯 Place le 1er point',
         '🎯 Place le 2e point',

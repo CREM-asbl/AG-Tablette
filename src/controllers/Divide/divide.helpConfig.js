@@ -18,28 +18,28 @@ export const divideHelpConfig = {
     if (currentStep === 'start') {
       return {
         target: 'divide-popup',
-        text: 'Choisis en combien de parties diviser',
+        text: '⚙️ Choisis le nombre de parties pour la division',
       };
     }
 
     if (currentStep === 'selectObject') {
       return {
         target: 'canvas-container',
-        text: 'Selectionne un segment ou un premier point',
+        text: '🎯 Choisis le segment ou le premier point à diviser',
       };
     }
 
     if (currentStep === 'selectSecondPoint') {
       return {
         target: 'canvas-container',
-        text: 'Selectionne le second point sur le meme segment',
+        text: '🎯 Choisis le deuxième point sur le même segment',
       };
     }
 
     if (currentStep === 'chooseArcDirection') {
       return {
         target: 'canvas-container',
-        text: 'Choisis le sens de division sur l\'arc',
+        text: '🔃 Clique à l’intérieur ou l’extérieur pour choisir le sens de la division',
       };
     }
 

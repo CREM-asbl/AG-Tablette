@@ -28,6 +28,44 @@ export const createTriangleHelpConfig = {
 
     // Placement des points (3 points pour un triangle)
     if (currentStep === 'drawPoint') {
+      const templateName = selectedTemplate?.name;
+
+      if (templateName === 'IsoscelesTriangle') {
+        const labels = [
+          '🎯 Place le premier point de la base',
+          '🎯 Place le deuxième point de la base',
+          '🎯 Place le troisième sommet sur la ligne verte',
+        ];
+        return {
+          target: 'canvas-container',
+          text: labels[numberOfPointsDrawn] || labels[0],
+        };
+      }
+
+      if (templateName === 'RightAngleIsoscelesTriangle') {
+        const labels = [
+          '🎯 Place le premier sommet',
+          '🎯 Place le deuxième sommet',
+          '🎯 Choisis le troisième sommet',
+        ];
+        return {
+          target: 'canvas-container',
+          text: labels[numberOfPointsDrawn] || labels[0],
+        };
+      }
+
+      if (templateName === 'RightAngleTriangle') {
+        const labels = [
+          '🎯 Place le premier sommet',
+          '🎯 Place le deuxième sommet',
+          '🎯 Place le troisième sommet sur la ligne verte',
+        ];
+        return {
+          target: 'canvas-container',
+          text: labels[numberOfPointsDrawn] || labels[0],
+        };
+      }
+
       const pointLabels = [
         '🎯 Place le premier sommet',
         '🎯 Place le deuxième sommet',
@@ -41,6 +79,15 @@ export const createTriangleHelpConfig = {
 
     // Ajustement de la position
     if (currentStep === 'animatePoint') {
+      const templateName = selectedTemplate?.name;
+
+      if (templateName === 'IsoscelesTriangle' && numberOfPointsDrawn <= 2) {
+        return {
+          target: 'canvas-container',
+          text: '🔄 Ajuste le point de la base',
+        };
+      }
+
       const adjustLabels = [
         '🔄 Ajuste le premier sommet',
         '🔄 Ajuste le deuxième sommet',

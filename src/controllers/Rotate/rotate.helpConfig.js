@@ -12,14 +12,14 @@ export const rotateHelpConfig = {
     if (currentStep === 'start' || currentStep === 'listen') {
       return {
         target: 'canvas-container',
-        text: 'Tourne la figure a l\'aide d\'un glisser autour de son centre',
+        text: '👆 Touche la figure à faire tourner',
       };
     }
 
     if (currentStep === 'rotate') {
       return {
         target: 'canvas-container',
-        text: 'Glisse pour faire pivoter, puis relache pour valider',
+        text: '🔄 Glisse pour faire pivoter, puis relâche pour valider',
       };
     }
 
