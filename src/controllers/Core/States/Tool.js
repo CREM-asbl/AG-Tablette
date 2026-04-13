@@ -2,7 +2,13 @@ import { computed } from '@lit-labs/signals';
 import { activeTool, currentStep, toolState } from '../../../store/appState';
 import { app } from '../App';
 
-const REPLAY_ALLOWED_TOOL_TYPES = new Set(['move', 'transformation']);
+const REPLAY_ALLOWED_TOOL_TYPES = new Set([
+  'move',
+  'transformation',
+  'geometryCreator',
+  'operation',
+  'tool',
+]);
 
 /**
  * Cette classe abstraite représente un état possible de l'application

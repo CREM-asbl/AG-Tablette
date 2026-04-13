@@ -67,13 +67,49 @@ describe('Tool', () => {
     transformationTool.end = vi.fn();
   });
 
-  it('does not execute current step during fullHistory replay', () => {
+  it('executes current step during fullHistory replay for tool type', () => {
     app.tool = { name: 'dummy', currentStep: 'listen' };
     app.fullHistory.isRunning = true;
 
     tool.eventHandler({ type: 'tool-updated' });
 
-    expect(tool.listen).not.toHaveBeenCalled();
+    expect(tool.listen).toHaveBeenCalled();
+  });
+
+  it('executes current step during fullHistory replay for geometryCreator type', () => {
+    class DummyCreatorTool extends Tool {
+      constructor() {
+        super('dummyCreator', 'Dummy Creator', 'geometryCreator');
+      }
+      listen() {}
+    }
+    const creatorTool = new DummyCreatorTool();
+    creatorTool.listen = vi.fn();
+    
+    app.tool = { name: 'dummyCreator', currentStep: 'listen' };
+    app.fullHistory.isRunning = true;
+
+    creatorTool.eventHandler({ type: 'tool-updated' });
+
+    expect(creatorTool.listen).toHaveBeenCalled();
+  });
+
+  it('executes current step during fullHistory replay for operation type', () => {
+    class DummyOperationTool extends Tool {
+      constructor() {
+        super('dummyOperation', 'Dummy Operation', 'operation');
+      }
+      listen() {}
+    }
+    const operationTool = new DummyOperationTool();
+    operationTool.listen = vi.fn();
+    
+    app.tool = { name: 'dummyOperation', currentStep: 'listen' };
+    app.fullHistory.isRunning = true;
+
+    operationTool.eventHandler({ type: 'tool-updated' });
+
+    expect(operationTool.listen).toHaveBeenCalled();
   });
 
   it('still cleans up when tool becomes null during fullHistory replay', () => {

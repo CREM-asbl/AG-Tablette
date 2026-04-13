@@ -14,7 +14,7 @@ import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
  */
 export class CreateTool extends Tool {
   constructor() {
-    super('create', 'Ajouter une figure');
+    super('create', 'Ajouter une figure', 'tool');
 
     // start -> listen -> move
     this.currentStep = null;
