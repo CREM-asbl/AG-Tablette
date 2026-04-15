@@ -38,7 +38,7 @@ class HelpModeChooser extends SignalWatcher(LitElement) {
       padding: var(--popup-padding);
       max-width: 500px;
       width: 90%;
-      z-index: 2000;
+      z-index: var(--z-ui-modal);
       animation: slideIn 0.3s ease-out;
     }
 
@@ -60,7 +60,7 @@ class HelpModeChooser extends SignalWatcher(LitElement) {
       right: 0;
       bottom: 0;
       background: rgba(0, 0, 0, 0.4);
-      z-index: 1999;
+      z-index: var(--z-ui-modal-overlay);
       animation: fadeIn 0.2s ease-out;
     }
 

@@ -23,32 +23,18 @@ import { pwaInfo } from 'virtual:pwa-info';
 
     <!-- PWA manifest (généré par @vite-pwa/astro) -->
     {pwaInfo && <Fragment set:html={pwaInfo.webManifest.linkTag} />}
-    <meta
-      name="theme-color"
-      content="lightgrey"
-      media="(prefers-color-scheme: light)"
-    />
-    <meta
-      name="theme-color"
-      content="lightgrey"
-      media="(prefers-color-scheme: dark)"
-    />
+    <meta name="theme-color" content="lightgrey" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="lightgrey" media="(prefers-color-scheme: dark)" />
 
     <!-- Default Open graph -->
     <meta property="og:title" content="Apprenti Géomètre mobile" />
     <meta property="og:url" content="https://ag.crem.be" />
     <meta property="og:type" content="application" />
     <meta property="og:site_name" content="AG mobile" />
-    <meta
-      property="og:image"
-      content="https://ag.crem.be/images/manifest/icon-512.png"
-    />
+    <meta property="og:image" content="https://ag.crem.be/images/manifest/icon-512.png" />
     <meta property="og:image:width" content="512" />
     <meta property="og:image:height" content="512" />
-    <meta
-      property="og:description"
-      content="Logiciel mobile de géométrie dynamique"
-    />
+    <meta property="og:description" content="Logiciel mobile de géométrie dynamique" />
 
     <!-- PWA Service Worker registration -->
     <script src="/src/pwa.ts"></script>
@@ -56,6 +42,12 @@ import { pwaInfo } from 'virtual:pwa-info';
     <style>
       :root {
         touch-action: pan-x pan-y;
+        --z-ui-help-highlight: 1460;
+        --z-ui-help-popover: 1470;
+        --z-ui-floating-controls: 1500;
+        --z-ui-modal-overlay: 1999;
+        --z-ui-modal: 2000;
+        --z-ui-contextual-popover: 2100;
       }
       * {
         box-sizing: border-box;
@@ -92,8 +84,6 @@ import { pwaInfo } from 'virtual:pwa-info';
 
   <body>
     <App client:only="lit" />
-    <noscript>
-      Veuillez activer javascript afin de profiter de cette application
-    </noscript>
+    <noscript> Veuillez activer javascript afin de profiter de cette application </noscript>
   </body>
 </html>

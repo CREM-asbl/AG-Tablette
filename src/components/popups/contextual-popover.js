@@ -16,7 +16,7 @@ class ContextualPopover extends LitElement {
   static styles = css`
     :host {
       position: fixed;
-      z-index: 9999;
+      z-index: var(--z-ui-contextual-popover);
       pointer-events: none;
       top: 0;
       left: 0;
@@ -34,7 +34,7 @@ class ContextualPopover extends LitElement {
       transition: background 0.3s ease;
       animation: slideIn 0.3s ease-out;
       position: fixed;
-      z-index: 9999;
+      z-index: var(--z-ui-contextual-popover);
     }
 
     .popover.complete {
@@ -158,7 +158,7 @@ class ContextualPopover extends LitElement {
     this.text = text;
     this.target = target;
     this.isComplete = !!isComplete;
-    
+
     // Calculer la position avant de l'afficher pour éviter le flash à (0,0)
     this._updatePosition();
     this.isVisible = true;

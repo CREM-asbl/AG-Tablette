@@ -57,7 +57,7 @@ class CanvasContainer extends SignalWatcher(LitElement) {
     }
 
     :host(.help-highlight) {
-      z-index: 1460;
+      z-index: var(--z-ui-help-highlight);
       box-shadow:
         0 0 0 3px rgba(102, 126, 234, 0.6),
         0 0 0 38px rgba(102, 126, 234, 0.2);
@@ -79,7 +79,7 @@ class CanvasContainer extends SignalWatcher(LitElement) {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
       border: 2px solid rgba(255, 255, 255, 0.28);
       pointer-events: none;
-      z-index: 1470;
+      z-index: var(--z-ui-help-popover);
       white-space: nowrap;
       animation: helpPulse 1.5s ease-in-out infinite;
     }

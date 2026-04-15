@@ -17,7 +17,7 @@ class ZoomMenu extends SignalWatcher(LitElement) {
       grid-template: auto / auto 1fr auto;
       justify-items: center;
       position: absolute;
-      z-index: 1500;
+      z-index: var(--z-ui-floating-controls);
       top: 5px;
       padding: 10px;
       font-size: 28px;

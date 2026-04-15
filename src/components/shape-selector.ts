@@ -30,7 +30,7 @@ export class ShapeSelector extends LitElement {
       right: 0;
       left: 250px;
       padding: 4px;
-      z-index: 10001;
+      z-index: var(--z-ui-floating-controls);
     }
 
     .container {
@@ -49,7 +49,7 @@ export class ShapeSelector extends LitElement {
         0 0 0 3px rgba(102, 126, 234, 0.65),
         0 0 0 32px rgba(102, 126, 234, 0.22),
         0 10px 24px rgba(0, 0, 0, 0.28);
-      z-index: 1460;
+      z-index: var(--z-ui-help-highlight);
     }
 
     .help-popover {
@@ -68,7 +68,7 @@ export class ShapeSelector extends LitElement {
       border: 2px solid rgba(255, 255, 255, 0.28);
       white-space: nowrap;
       pointer-events: none;
-      z-index: 1470;
+      z-index: var(--z-ui-help-popover);
       animation: helpPulse 1.5s ease-in-out infinite;
     }
 
