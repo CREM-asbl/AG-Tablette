@@ -17,6 +17,7 @@ class ZoomMenu extends SignalWatcher(LitElement) {
       grid-template: auto / auto 1fr auto;
       justify-items: center;
       position: absolute;
+      z-index: 1500;
       top: 5px;
       padding: 10px;
       font-size: 28px;
@@ -51,7 +52,7 @@ class ZoomMenu extends SignalWatcher(LitElement) {
     const vp = viewport.get(); // Signal de viewport réactif
     this.zoomLevel = vp.zoom;
     this.position = this.getPositionFromZoom(this.zoomLevel);
-    
+
     return html`
       <div>
         <span @click="${() => this.showResult(this.position - 1)}">-</span>
