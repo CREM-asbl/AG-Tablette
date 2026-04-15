@@ -24,7 +24,7 @@ const mockHistoryState = {
 vi.mock('../../../../src/store/appState', () => ({
   appActions: {
     setHistoryState: vi.fn((state) => {
-        Object.assign(mockHistoryState, state);
+      Object.assign(mockHistoryState, state);
     }),
     updateSettings: vi.fn(),
     setTangramState: vi.fn(),
@@ -212,7 +212,7 @@ describe('HistoryManager - Tests TDD', () => {
 
       await HistoryManager.redo();
 
-      
+
       expect(global.mockWorkspace.initFromObject).not.toHaveBeenCalled();
 
       consoleInfoSpy.mockRestore();
@@ -302,7 +302,7 @@ describe('HistoryManager - Tests TDD', () => {
 
       await HistoryManager.undo();
 
-      
+
       expect(appActions.setHistoryState).not.toHaveBeenCalled();
 
       consoleInfoSpy.mockRestore();
@@ -315,7 +315,7 @@ describe('HistoryManager - Tests TDD', () => {
 
       await HistoryManager.redo();
 
-      
+
       expect(appActions.setHistoryState).not.toHaveBeenCalled();
 
       consoleInfoSpy.mockRestore();
@@ -402,6 +402,54 @@ describe('HistoryManager - Tests TDD', () => {
 
       saveDataSpy.mockRestore();
       reduceSizeSpy.mockRestore();
+    });
+
+    it('devrait recapturer la startSituation si son canvasSize est invalide', async () => {
+      mockHistoryState.steps = [];
+      mockHistoryState.currentIndex = -1;
+      mockHistoryState.startSituation = {
+        objects: { shapesData: [], segmentsData: [], pointsData: [] },
+        canvasSize: { width: 0, height: 0 },
+      };
+
+      const validSnapshot = {
+        objects: { shapesData: [], segmentsData: [], pointsData: [] },
+        canvasSize: { width: 1200, height: 800 },
+        settings: {},
+      };
+      const saveDataSpy = vi.spyOn(HistoryManager, 'saveData').mockReturnValue(validSnapshot);
+
+      HistoryManager.addStep();
+
+      const setHistoryStateCall = vi.mocked(appActions.setHistoryState).mock.calls[vi.mocked(appActions.setHistoryState).mock.calls.length - 1][0];
+      expect(setHistoryStateCall.startSituation).toEqual(validSnapshot);
+
+      saveDataSpy.mockRestore();
+    });
+
+    it('ne devrait pas recapturer la startSituation si son canvasSize est valide', async () => {
+      mockHistoryState.steps = [];
+      mockHistoryState.currentIndex = -1;
+      mockHistoryState.startSituation = {
+        objects: { shapesData: [], segmentsData: [], pointsData: [] },
+        canvasSize: { width: 1000, height: 700 },
+      };
+
+      const saveDataSpy = vi.spyOn(HistoryManager, 'saveData').mockReturnValue({
+        objects: { shapesData: [], segmentsData: [], pointsData: [] },
+        canvasSize: { width: 1200, height: 800 },
+        settings: {},
+      });
+
+      HistoryManager.addStep();
+
+      const setHistoryStateCall = vi.mocked(appActions.setHistoryState).mock.calls[vi.mocked(appActions.setHistoryState).mock.calls.length - 1][0];
+      expect(setHistoryStateCall.startSituation).toEqual({
+        objects: { shapesData: [], segmentsData: [], pointsData: [] },
+        canvasSize: { width: 1000, height: 700 },
+      });
+
+      saveDataSpy.mockRestore();
     });
   });
 

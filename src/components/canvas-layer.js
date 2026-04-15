@@ -1,3 +1,4 @@
+import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { app } from '../controllers/Core/App';
 import { SelectManager } from '../controllers/Core/Managers/SelectManager';
@@ -11,6 +12,7 @@ import {
   createElem,
   findObjectById,
 } from '../controllers/Core/Tools/general';
+import { canvasRedrawVersion } from '../store/appState';
 import { gridStore } from '../store/gridStore.js';
 
 // Constantes pour le rendu de la grille
@@ -22,7 +24,7 @@ const GRID_CONSTANTS = {
   MOVEMENT_THRESHOLD_TOUCH: 20,
 };
 
-class CanvasLayer extends LitElement {
+class CanvasLayer extends SignalWatcher(LitElement) {
   constructor() {
     super();
     this.shapes = [];
@@ -64,9 +66,18 @@ class CanvasLayer extends LitElement {
   `;
 
   render() {
+    // Dependency on signal-driven redraw version so this layer updates without global refresh events.
+    const layerName =
+      this.canvasName ||
+      (this.id && this.id.endsWith('Canvas')
+        ? this.id.substring(0, this.id.lastIndexOf('C'))
+        : 'main');
+    const redrawVersion = canvasRedrawVersion.get()[layerName] ?? 0;
+
     return html`<canvas
       width="${this.clientWidth}"
       height="${this.clientHeight}"
+      data-redraw-version="${redrawVersion}"
     ></canvas>`;
   }
 

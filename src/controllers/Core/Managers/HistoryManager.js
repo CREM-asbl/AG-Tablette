@@ -3,6 +3,13 @@ import { gridStore } from '../../../store/gridStore';
 import { app } from '../App';
 import { FullHistoryManager } from './FullHistoryManager';
 
+const hasValidCanvasSize = (workspaceData) => {
+  const width = workspaceData?.canvasSize?.width;
+  const height = workspaceData?.canvasSize?.height;
+
+  return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0;
+};
+
 /**
  * Représente l'historique d'un espace de travail.
  */
@@ -46,20 +53,20 @@ export class HistoryManager {
       } else {
         data = state.steps ? state.steps[index] : null;
       }
-      
+
       if (!data) {
-          await app.workspace.resetWorkspace();
+        await app.workspace.resetWorkspace();
       } else {
-          data = { ...data };
-          await app.workspace.initFromObject(data);
+        data = { ...data };
+        await app.workspace.initFromObject(data);
       }
 
       let settingsForApp, tangram;
 
       if (!data || !data.settings) {
-        gridStore.setGridType('none'); 
-        gridStore.setGridSize(1); 
-        settingsForApp = { ...settings.get() }; 
+        gridStore.setGridType('none');
+        gridStore.setGridSize(1);
+        settingsForApp = { ...settings.get() };
         delete settingsForApp.gridShown;
         delete settingsForApp.gridType;
         delete settingsForApp.gridSize;
@@ -93,7 +100,7 @@ export class HistoryManager {
         delete settingsForApp.gridType;
         delete settingsForApp.gridSize;
         delete settingsForApp.isVisible;
-        delete settingsForApp.gridShown; 
+        delete settingsForApp.gridShown;
 
         if (app.environment.name === 'Tangram') {
           if (data.tangram) {
@@ -137,20 +144,20 @@ export class HistoryManager {
       const state = historyState.get();
       const index = state.currentIndex + 1;
       const data = state.steps[index];
-      await app.workspace.initFromObject(data); 
+      await app.workspace.initFromObject(data);
 
-      const historicalSettings = { ...data.settings }; 
+      const historicalSettings = { ...data.settings };
       let tangram;
 
       if (typeof historicalSettings.gridType !== 'undefined') {
         gridStore.setGridType(historicalSettings.gridType);
       } else {
-        gridStore.setGridType('none'); 
+        gridStore.setGridType('none');
       }
       if (typeof historicalSettings.gridSize !== 'undefined') {
         gridStore.setGridSize(historicalSettings.gridSize);
       } else {
-        gridStore.setGridSize(1); 
+        gridStore.setGridSize(1);
       }
       if (typeof historicalSettings.isVisible !== 'undefined') {
         gridStore.setIsVisible(historicalSettings.isVisible);
@@ -163,7 +170,7 @@ export class HistoryManager {
       delete settingsForApp.gridType;
       delete settingsForApp.gridSize;
       delete settingsForApp.isVisible;
-      delete settingsForApp.gridShown; 
+      delete settingsForApp.gridShown;
 
       if (app.environment.name === 'Tangram') {
         if (data.tangram) {
@@ -198,7 +205,7 @@ export class HistoryManager {
   static addStep() {
     const state = historyState.get();
     let { startSituation, startSettings } = state;
-    if (startSituation === null) {
+    if (startSituation === null || !hasValidCanvasSize(startSituation)) {
       startSituation = HistoryManager.saveData();
       startSettings = { ...settings.get() };
     }
@@ -212,7 +219,7 @@ export class HistoryManager {
     const index = steps.length - 1;
 
     HistoryManager.reduceSize(steps, index);
-    
+
     appActions.setHistoryState({
       ...state,
       startSituation,
@@ -226,15 +233,15 @@ export class HistoryManager {
   }
 
   static saveData() {
-    const data = app.workspace.data; 
+    const data = app.workspace.data;
     const gridState = gridStore.getState();
 
     const settingsForHistory = { ...settings.get() };
 
-    delete settingsForHistory.gridShown; 
-    delete settingsForHistory.gridType; 
-    delete settingsForHistory.gridSize; 
-    delete settingsForHistory.isVisible; 
+    delete settingsForHistory.gridShown;
+    delete settingsForHistory.gridType;
+    delete settingsForHistory.gridSize;
+    delete settingsForHistory.isVisible;
 
     settingsForHistory.gridType = gridState.gridType;
     settingsForHistory.gridSize = gridState.gridSize;

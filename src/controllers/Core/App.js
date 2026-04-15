@@ -20,6 +20,13 @@ import { initSelectManager } from './Managers/SelectManager';
 import { Workspace } from './Objects/Workspace';
 import { uniqId } from './Tools/utils';
 
+const hasValidCanvasSize = (workspaceData) => {
+  const width = workspaceData?.canvasSize?.width;
+  const height = workspaceData?.canvasSize?.height;
+
+  return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0;
+};
+
 /**
  * @typedef {object} Settings Configuration de l'application
  * @property {number} magnetismDistance - Distance de magnétisme.
@@ -288,9 +295,14 @@ if (typeof window !== 'undefined') {
 
   window.addEventListener('environment:changed', () => {
     app.environment = currentEnvironment.get();
-    if (app.environment && app.history.startSituation === null) {
+    const startSituation = app.workspace?.data;
+    if (
+      app.environment &&
+      app.history.startSituation === null &&
+      hasValidCanvasSize(startSituation)
+    ) {
       appActions.setHistoryState({
-        startSituation: app.workspace.data,
+        startSituation,
         startSettings: { ...app.settings },
       });
     }

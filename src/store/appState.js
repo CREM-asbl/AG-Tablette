@@ -81,6 +81,14 @@ export const viewport = signal({
   offsetY: 0,
 });
 
+export const canvasRedrawVersion = signal({
+  main: 0,
+  upper: 0,
+  grid: 0,
+  tangram: 0,
+  invisible: 0,
+});
+
 // Signaux pour les paramètres
 export const settings = signal({
   gridShown: false,
@@ -346,6 +354,20 @@ export const appActions = {
     );
   },
 
+  bumpCanvasRedraw: (layers = ['main']) => {
+    const layerList = Array.isArray(layers) ? layers : [layers];
+    const current = canvasRedrawVersion.get();
+    const next = { ...current };
+
+    layerList.forEach((layerName) => {
+      if (typeof layerName !== 'string' || layerName.length === 0) return;
+      const currentValue = Number.isFinite(next[layerName]) ? next[layerName] : 0;
+      next[layerName] = currentValue + 1;
+    });
+
+    canvasRedrawVersion.set(next);
+  },
+
   addNotification: (notification) => {
     const current = notifications.get();
     const updated = [...current, { ...notification, id: Date.now() }];
@@ -409,6 +431,13 @@ export const resetWorkspaceState = () => {
     offsetX: 0,
     offsetY: 0,
   });
+  canvasRedrawVersion.set({
+    main: 0,
+    upper: 0,
+    grid: 0,
+    tangram: 0,
+    invisible: 0,
+  });
   // On ne reset pas les settings ici pour garder la grille et les options
   notifications.set([]);
   dialogs.set([]);
@@ -428,6 +457,14 @@ export const resetWorkspaceState = () => {
     steps: [],
     startSituation: null,
     startSettings: null,
+  });
+
+  fullHistoryState.set({
+    index: 0,
+    actionIndex: 0,
+    numberOfActions: 0,
+    steps: [],
+    isRunning: false,
   });
 
   window.dispatchEvent(new CustomEvent('app:workspace-reset'));

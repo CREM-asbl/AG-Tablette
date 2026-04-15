@@ -1,4 +1,9 @@
+import {
+  createMonotonicClock,
+  createTimelineStep,
+} from '../../../services/TimelineService';
 import { appActions, fullHistoryState, historyState, settings, tangramState } from '../../../store/appState';
+import { gridStore } from '../../../store/gridStore';
 import { app } from '../App';
 import { Coordinates } from '../Objects/Coordinates';
 import { createElem } from '../Tools/utils';
@@ -19,10 +24,41 @@ const syncToolState = (toolDetail) => {
   }
 };
 
+const applyHistoricalSettings = (snapshotSettings = {}) => {
+  const historicalSettings = { ...snapshotSettings };
+
+  if (typeof historicalSettings.gridType !== 'undefined') {
+    gridStore.setGridType(historicalSettings.gridType);
+  } else {
+    gridStore.setGridType('none');
+  }
+
+  if (typeof historicalSettings.gridSize !== 'undefined') {
+    gridStore.setGridSize(historicalSettings.gridSize);
+  } else {
+    gridStore.setGridSize(1);
+  }
+
+  if (typeof historicalSettings.isVisible !== 'undefined') {
+    gridStore.setIsVisible(historicalSettings.isVisible);
+  } else if (typeof historicalSettings.gridShown !== 'undefined') {
+    gridStore.setIsVisible(historicalSettings.gridShown);
+  }
+
+  const mergedSettings = { ...settings.get(), ...historicalSettings };
+  delete mergedSettings.gridType;
+  delete mergedSettings.gridSize;
+  delete mergedSettings.isVisible;
+  delete mergedSettings.gridShown;
+  appActions.updateSettings(mergedSettings);
+};
+
 /**
  * Représente l'historique complet d'un espace de travail.
  */
 export class FullHistoryManager {
+  static monotonicNow = createMonotonicClock();
+
   static startBrowsing() {
     const fullHistory = fullHistoryState.get();
     const numberOfActions = fullHistory.steps.filter(
@@ -50,7 +86,6 @@ export class FullHistoryManager {
 
     FullHistoryManager.saveHistory = { ...historyState.get() };
     FullHistoryManager.setWorkspaceToStartSituation();
-    FullHistoryManager.nextTime = 0;
   }
 
   static async stopBrowsing() {
@@ -72,9 +107,11 @@ export class FullHistoryManager {
   }
 
   static playBrowsing(onlySingleAction = false) {
+    const fullHistory = fullHistoryState.get();
+    const delay = FullHistoryManager.getReplayDelayAtIndex(fullHistory.index);
     const timeoutId = setTimeout(
       () => FullHistoryManager.executeAllSteps(onlySingleAction),
-      FullHistoryManager.nextTime + 50,
+      delay,
     );
     appActions.setFullHistoryState({
       timeoutId,
@@ -85,7 +122,8 @@ export class FullHistoryManager {
   static async setWorkspaceToStartSituation() {
     const history = historyState.get();
     await app.workspace.initFromObject(history.startSituation);
-    appActions.updateSettings({ ...history.startSettings });
+    applyHistoricalSettings(history.startSettings || {});
+    appActions.bumpCanvasRedraw(['main', 'upper', 'grid', 'tangram']);
   }
 
   static async moveTo(actionIndex, isForSingleActionPlaying = false) {
@@ -104,21 +142,17 @@ export class FullHistoryManager {
     }
     if (data) {
       await app.workspace.initFromObject({ ...data });
-      const currentSettings = settings.get();
-      const newSettings = {
-        ...currentSettings,
-        gridShown: data.settings.gridShown,
-        gridType: data.settings.gridType,
-        gridSize: data.settings.gridSize,
-      };
-      appActions.updateSettings(newSettings);
+      applyHistoricalSettings(data.settings || {});
+      appActions.bumpCanvasRedraw(['main', 'upper', 'grid', 'tangram']);
     } else {
       await FullHistoryManager.setWorkspaceToStartSituation();
     }
 
     // not to re-execute fullStep
-    if (!isForSingleActionPlaying) index++;
-    appActions.setFullHistoryState({ actionIndex: actionIndex, index });
+    let nextIndex = index;
+    if (!isForSingleActionPlaying) nextIndex = Math.max(0, index + 1);
+    if (actionIndex === 0) nextIndex = 0;
+    appActions.setFullHistoryState({ actionIndex: Math.max(0, actionIndex || 0), index: nextIndex });
     appActions.setActiveTool(null);
   }
 
@@ -134,22 +168,68 @@ export class FullHistoryManager {
       FullHistoryManager.pauseBrowsing();
       return;
     }
-    
+
     // Check if it's the last action recorded
     if (stopReplay && fullHistoryState.get().numberOfActions === fullHistoryState.get().actionIndex) {
-        FullHistoryManager.stopBrowsing();
-        return;
+      FullHistoryManager.stopBrowsing();
+      return;
     }
 
     if (!fullHistoryState.get().isRunning) return;
 
     const index = fullHistoryState.get().index + 1;
+    const delay = FullHistoryManager.getReplayDelayAtIndex(index);
     const timeoutId = setTimeout(
       () => FullHistoryManager.executeAllSteps(onlySingleAction),
-      FullHistoryManager.nextTime + 50, // nextTime,
+      delay,
     );
     appActions.setFullHistoryState({ index, timeoutId });
-    FullHistoryManager.nextTime = 0;
+  }
+
+  static getReplayDelayAtIndex(index) {
+    const steps = fullHistoryState.get().steps || [];
+    const step = steps[index];
+    if (!step) return 0;
+
+    // Cap delays per event type to keep replay responsive.
+    // Mouse interaction events (canvasMouseMove, canvasMouseDown, canvasMouseUp, mouse-coordinates-changed)
+    // are capped tightly so replay stays fluid. Significant actions (add-fullstep, settings-changed)
+    // may have slightly longer pauses to preserve visual rhythm.
+    const MAX_MOUSE_DELAY_MS = 50;
+    const MAX_ACTION_DELAY_MS = 2000;
+    const MAX_DEFAULT_DELAY_MS = 500;
+
+    const isMouse = (
+      step.type === 'canvasMouseMove' ||
+      step.type === 'canvasMouseDown' ||
+      step.type === 'canvasMouseUp' ||
+      step.type === 'canvasClick' ||
+      step.type === 'mouse-coordinates-changed' ||
+      step.type === 'canvasTouchStart' ||
+      step.type === 'canvasTouchMove' ||
+      step.type === 'canvasTouchEnd'
+    );
+    const cap = isMouse ? MAX_MOUSE_DELAY_MS
+      : step.type === 'add-fullstep' ? MAX_ACTION_DELAY_MS
+        : MAX_DEFAULT_DELAY_MS;
+
+    // Prefer recorded deltas for faithful timing; fallback to legacy timestamp diff.
+    if (typeof step.timeDelta === 'number' && Number.isFinite(step.timeDelta)) {
+      return Math.min(Math.max(0, step.timeDelta), cap);
+    }
+
+    const previousStep = steps[index - 1];
+    if (
+      previousStep &&
+      typeof step.timeStamp === 'number' &&
+      Number.isFinite(step.timeStamp) &&
+      typeof previousStep.timeStamp === 'number' &&
+      Number.isFinite(previousStep.timeStamp)
+    ) {
+      return Math.min(Math.max(0, step.timeStamp - previousStep.timeStamp), cap);
+    }
+
+    return isMouse ? 16 : 50;
   }
 
   static async executeStep(index = fullHistoryState.get().index) {
@@ -169,25 +249,17 @@ export class FullHistoryManager {
     }
 
     if (type === 'add-fullstep') {
-      if (detail.name === 'Retourner') {
-        FullHistoryManager.nextTime = 2 * 1000;
-      } else if (detail.name === 'Diviser') {
-        FullHistoryManager.nextTime = 0.5 * 1000;
-      } else if (detail.name === 'Découper') {
-        FullHistoryManager.nextTime = 0.5 * 1000;
-      }
-      
       const data = detail.data;
       await app.workspace.initFromObject(data);
+      applyHistoricalSettings(data?.settings || {});
       if (data.tangram) {
         appActions.setTangramState({ ...data.tangram });
       }
-
+      appActions.bumpCanvasRedraw(['main', 'upper', 'grid', 'tangram']);
       return true;
     } else if (type === 'tool-changed' || type === 'tool-updated') {
       syncToolState(detail);
     } else if (type === 'settings-changed') {
-      FullHistoryManager.nextTime = 1 * 1000;
       appActions.updateSettings({ ...detail });
     } else if (type === 'objectSelected') {
       SelectManager.selectObject(app.workspace.lastKnownMouseCoordinates);
@@ -258,8 +330,7 @@ export class FullHistoryManager {
   }
 
   static cleanHisto() {
-    FullHistoryManager.cleanColorMultiplication();
-    FullHistoryManager.cleanMouseSteps();
+    // Keep full event fidelity: no destructive filtering during replay setup.
   }
 
   /**
@@ -297,14 +368,25 @@ export class FullHistoryManager {
     ) {
       return;
     }
-    const timeStamp = Date.now() - FullHistoryManager.startTimestamp;
-    const steps = [...(fullHistory.steps || []), { type, detail, timeStamp }];
+    const timeStamp = FullHistoryManager.monotonicNow();
+    const previousStep = (fullHistory.steps || [])[stepsCount - 1];
+    const timelineStep = createTimelineStep({
+      type,
+      detail,
+      actionIndex: detail.actionIndex,
+      previousStep,
+      timeStamp,
+      stepIndex: stepsCount,
+    });
+
+    const steps = [...(fullHistory.steps || []), timelineStep];
     appActions.setFullHistoryState({ steps });
   }
 }
 
 export const initFullHistoryManager = () => {
   FullHistoryManager.startTimestamp = Date.now();
+  FullHistoryManager.monotonicNow = createMonotonicClock();
 
   // mouse events
   window.addEventListener('canvasClick', (event) =>
