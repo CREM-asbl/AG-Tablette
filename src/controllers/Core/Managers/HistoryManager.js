@@ -93,9 +93,18 @@ export class HistoryManager {
           gridStore.setIsVisible(historicalSettings.isVisible);
         } else if (typeof historicalSettings.gridShown !== 'undefined') {
           gridStore.setIsVisible(historicalSettings.gridShown);
+        } else {
+          // Si aucune donnée de visibilité n'est enregistrée, restaurer l'état par défaut
+          gridStore.setIsVisible(false);
         }
 
         settingsForApp = { ...settings.get(), ...historicalSettings };
+
+        // Force un redraw synchrone de la couche grille pour s’assurer qu'elle s'affiche correctement
+        // pendant l'undo/redo (contourne le throttle de requestAnimationFrame)
+        if (app.gridCanvasLayer) {
+          app.gridCanvasLayer.redraw();
+        }
 
         delete settingsForApp.gridType;
         delete settingsForApp.gridSize;
@@ -163,9 +172,18 @@ export class HistoryManager {
         gridStore.setIsVisible(historicalSettings.isVisible);
       } else if (typeof historicalSettings.gridShown !== 'undefined') {
         gridStore.setIsVisible(historicalSettings.gridShown);
+      } else {
+        // Si aucune donnée de visibilité n'est enregistrée, restaurer l'état par défaut
+        gridStore.setIsVisible(false);
       }
 
       const settingsForApp = { ...settings.get(), ...historicalSettings };
+
+      // Force un redraw synchrone de la couche grille pour s’assurer qu'elle s'affiche correctement
+      // pendant le redo (contourne le throttle de requestAnimationFrame)
+      if (app.gridCanvasLayer) {
+        app.gridCanvasLayer.redraw();
+      }
 
       delete settingsForApp.gridType;
       delete settingsForApp.gridSize;

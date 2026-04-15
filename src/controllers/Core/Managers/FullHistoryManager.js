@@ -43,6 +43,9 @@ const applyHistoricalSettings = (snapshotSettings = {}) => {
     gridStore.setIsVisible(historicalSettings.isVisible);
   } else if (typeof historicalSettings.gridShown !== 'undefined') {
     gridStore.setIsVisible(historicalSettings.gridShown);
+  } else {
+    // Si aucune donnée de visibilité n'est enregistrée, restaurer l'état par défaut
+    gridStore.setIsVisible(false);
   }
 
   const mergedSettings = { ...settings.get(), ...historicalSettings };
@@ -51,6 +54,12 @@ const applyHistoricalSettings = (snapshotSettings = {}) => {
   delete mergedSettings.isVisible;
   delete mergedSettings.gridShown;
   appActions.updateSettings(mergedSettings);
+
+  // Force un redraw synchrone de la couche grille pour s’assurer qu'elle s'affiche correctement
+  // pendant la relecture de l'historique (contourne le throttle de requestAnimationFrame)
+  if (app.gridCanvasLayer) {
+    app.gridCanvasLayer.redraw();
+  }
 };
 
 /**
@@ -351,6 +360,11 @@ export class FullHistoryManager {
       const data = app.workspace.data;
       data.history = undefined;
       data.settings = { ...settings.get() };
+      // Sauvegarder aussi l'état du gridStore pour pouvoir le restaurer à la relecture
+      const gridState = gridStore.getState();
+      data.settings.gridType = gridState.gridType;
+      data.settings.gridSize = gridState.gridSize;
+      data.settings.isVisible = gridState.isVisible;
       data.tangram = { ...tangramState.get() };
       detail.data = data;
       appActions.setStepSinceSave(true);
