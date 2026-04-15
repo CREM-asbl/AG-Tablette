@@ -43,10 +43,20 @@ class ToolbarSection extends LitElement {
       this._lastTools !== this.tools ||
       !this._filteredTools.length
     ) {
-      this._filteredTools = (this.tools || []).filter(
-        (tool) =>
-          tool.type === this.toolsType && tool.isVisible && !tool.isDisable,
-      );
+      const hideCreateInToolsForKitEnvironments =
+        this.toolsType === 'tool' &&
+        ['Grandeurs', 'Cubes'].includes(app.environment?.name);
+
+      this._filteredTools = (this.tools || []).filter((tool) => {
+        if (
+          hideCreateInToolsForKitEnvironments &&
+          tool.name === 'create'
+        ) {
+          return false;
+        }
+
+        return tool.type === this.toolsType && tool.isVisible && !tool.isDisable;
+      });
       this._lastToolsType = this.toolsType;
       this._lastTools = this.tools;
     }
