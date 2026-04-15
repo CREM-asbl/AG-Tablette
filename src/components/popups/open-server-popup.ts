@@ -1,15 +1,12 @@
 import '@components/color-button';
 import '@components/popups/template-popup';
+import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { getLastSyncInfo } from '../../services/activity-sync.js';
 import { cachedThemes, selectedSequence } from '../../store/notions';
 import { syncInProgress } from '../../store/syncState.js';
-import {
-  OptimizedSignalController,
-  debounce,
-  throttle,
-} from '../../utils/signal-observer.js';
+import { debounce, throttle } from '../../utils/signal-observer.js';
 import './sync-settings-popup';
 import './theme-elem';
 
@@ -21,8 +18,7 @@ declare global {
 }
 
 @customElement('open-server-popup')
-class OpenServerPopup extends LitElement {
-  private signalController = new OptimizedSignalController(this);
+class OpenServerPopup extends SignalWatcher(LitElement) {
 
   @property({ type: Array }) allThemes = [];
   @property({ type: Boolean }) isDownloading = false;

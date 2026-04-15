@@ -164,6 +164,9 @@ export const hasActiveNotifications = computed(() => {
   return notifications.get().length > 0;
 });
 
+export const historyCanUndo = computed(() => historyState.get().canUndo);
+export const historyCanRedo = computed(() => historyState.get().canRedo);
+
 /**
  * Actions pour modifier l'état (remplacent les action creators)
  */

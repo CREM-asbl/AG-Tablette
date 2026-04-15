@@ -15,6 +15,8 @@ if (document.body.clientHeight > screen.height) {
 }
 
 export class App extends SignalWatcher(LitElement) {
+  private _environmentTransitioned = false;
+
   static styles = css`
     :host {
       display: block;
@@ -94,8 +96,6 @@ export class App extends SignalWatcher(LitElement) {
     const environmentSelected = currentEnvironment.get() !== null;
 
     if (environmentSelected) {
-      history.pushState({}, 'main page');
-      appActions.setLoading(false);
       return html`<ag-main></ag-main>`;
     } else if (!isLoading) {
       return html`<ag-environnements></ag-environnements>`;
@@ -103,6 +103,17 @@ export class App extends SignalWatcher(LitElement) {
     if (isLoading) {
       import('./loading-elem');
       return html`<loading-elem></loading-elem>`;
+    }
+  }
+
+  updated() {
+    const environmentSelected = currentEnvironment.get() !== null;
+    if (environmentSelected && !this._environmentTransitioned) {
+      this._environmentTransitioned = true;
+      history.pushState({}, 'main page');
+      appActions.setLoading(false);
+    } else if (!environmentSelected) {
+      this._environmentTransitioned = false;
     }
   }
 }

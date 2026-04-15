@@ -9,7 +9,7 @@ import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { app } from '../controllers/Core/App';
 import { createElem } from '../controllers/Core/Tools/general';
-import { activeTool, appActions, helpSelected, historyActions, historyState, toolState } from '../store/appState';
+import { activeTool, appActions, helpSelected, historyActions, historyCanRedo, historyCanUndo, toolState } from '../store/appState';
 
 @customElement('ag-menu')
 class AGMenu extends SignalWatcher(LitElement) {
@@ -63,14 +63,15 @@ class AGMenu extends SignalWatcher(LitElement) {
     }
 
     const isHelpSelected = helpSelected.get();
-    const history = historyState.get();
+    const canUndo = historyCanUndo.get();
+    const canRedo = historyCanRedo.get();
 
     return html`
       <h3>
         ${toolTitle}
       </h3>
       <template-toolbar>
-        <div slot="body">${this._renderActionButtons(history, isHelpSelected)}</div>
+        <div slot="body">${this._renderActionButtons(canUndo, canRedo, isHelpSelected)}</div>
       </template-toolbar>
 
       <toolbar-kit
@@ -84,14 +85,14 @@ class AGMenu extends SignalWatcher(LitElement) {
     `;
   }
 
-  _renderActionButtons(history, isHelpSelected) {
+  _renderActionButtons(canUndo, canRedo, isHelpSelected) {
     const actions = [
       { name: 'home', title: 'Accueil' },
       { name: 'open', title: 'Ouvrir' },
       { name: 'save', title: 'Enregistrer' },
       { name: 'settings', title: 'Paramètres' },
-      { name: 'undo', title: 'Annuler', disabled: !history.canUndo },
-      { name: 'redo', title: 'Refaire', disabled: !history.canRedo },
+      { name: 'undo', title: 'Annuler', disabled: !canUndo },
+      { name: 'redo', title: 'Refaire', disabled: !canRedo },
       { name: 'replay', title: 'Rejouer' },
       { name: 'help', title: 'Aide' },
     ];

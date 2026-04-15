@@ -1,4 +1,4 @@
-import { appActions } from '../store/appState';
+import { appActions, viewport } from '../store/appState';
 
 /**
  * Interface minimale pour le moteur legacy (App.js / Workspace.js)
@@ -56,11 +56,17 @@ export class SignalSyncService {
    */
   public syncViewport(): void {
     if (this.app && this.app.workspace) {
-      appActions.setViewport({
-        zoom: this.app.workspace.zoomLevel,
-        offsetX: this.app.workspace.translateOffset.x,
-        offsetY: this.app.workspace.translateOffset.y,
-      });
+      const newZoom = this.app.workspace.zoomLevel;
+      const newOffsetX = this.app.workspace.translateOffset.x;
+      const newOffsetY = this.app.workspace.translateOffset.y;
+      const current = viewport.get();
+      if (
+        current.zoom !== newZoom ||
+        current.offsetX !== newOffsetX ||
+        current.offsetY !== newOffsetY
+      ) {
+        appActions.setViewport({ zoom: newZoom, offsetX: newOffsetX, offsetY: newOffsetY });
+      }
     }
   }
 

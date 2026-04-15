@@ -10,7 +10,7 @@ import '../components/sync-status-indicator.ts';
 import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
-import { activeTool, filename, historyState } from '../store/appState';
+import { activeTool, filename } from '../store/appState';
 
 @customElement('ag-main')
 class AGMain extends SignalWatcher(LitElement) {
@@ -66,7 +66,6 @@ class AGMain extends SignalWatcher(LitElement) {
   render() {
     const currentToolName = activeTool.get();
     const currentTool = currentToolName ? { name: currentToolName } : null;
-    const history = historyState.get();
     const currentFilename = filename.get();
 
     // Update title

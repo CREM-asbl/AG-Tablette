@@ -1,3 +1,4 @@
+import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import {
@@ -6,10 +7,7 @@ import {
   syncProgress,
   syncVisible,
 } from '../store/syncState.js';
-import {
-  OptimizedSignalController,
-  debounce,
-} from '../utils/signal-observer.js';
+import { debounce } from '../utils/signal-observer.js';
 
 /**
  * Affiche uniquement l'état de synchronisation.
@@ -19,9 +17,7 @@ import {
  * Version optimisée qui remplace le polling 100ms par une observation efficace des signaux.
  */
 @customElement('sync-status-indicator')
-export class SyncStatusIndicator extends LitElement {
-  // Utilisation du nouveau controller optimisé au lieu du polling
-  private signalController = new OptimizedSignalController(this);
+export class SyncStatusIndicator extends SignalWatcher(LitElement) {
 
   static styles = css`
     :host {
