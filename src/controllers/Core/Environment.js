@@ -71,8 +71,16 @@ export const loadEnvironnement = async (name) => {
 
     await app.workspace.resetWorkspace();
 
+    // Capturer startSituation seulement si le canvas est déjà prêt (changement d'environnement).
+    // Si le canvas n'est pas encore monté (premier chargement), startSituation reste null
+    // et sera capturé dans App.js lors de l'événement app:started-changed.
+    const workspaceData = app.workspace.data;
+    const canvasReady =
+      workspaceData?.canvasSize?.width > 0 &&
+      workspaceData?.canvasSize?.height > 0;
+
     appActions.setHistoryState({
-      startSituation: app.workspace.data,
+      startSituation: canvasReady ? workspaceData : null,
       startSettings: { ...app.settings, ...config.default.settings },
       steps: [],
       currentIndex: -1,

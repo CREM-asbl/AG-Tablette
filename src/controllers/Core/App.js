@@ -325,7 +325,34 @@ if (typeof window !== 'undefined') {
   window.addEventListener('app:started-changed', (e) => {
     app.started = e.detail.started;
     if (app.started) {
+      // Capturer startSituation maintenant que le canvas est prêt (canvasWidth/Height valides)
+      if (app.environment) {
+        const currentSituation = app.history.startSituation;
+        const workspaceData = app.workspace?.data;
+        if (
+          (currentSituation === null || !hasValidCanvasSize(currentSituation)) &&
+          hasValidCanvasSize(workspaceData)
+        ) {
+          appActions.setHistoryState({
+            startSituation: workspaceData,
+            startSettings: { ...app.settings },
+          });
+        }
+      }
       window.dispatchEvent(new CustomEvent('app-started', { detail: app }));
+    }
+  });
+
+  window.addEventListener('app:workspace-reset', () => {
+    // Après un reset (nouveau workspace vide), recapturer startSituation si le canvas est prêt
+    if (app.started && app.environment) {
+      const workspaceData = app.workspace?.data;
+      if (hasValidCanvasSize(workspaceData)) {
+        appActions.setHistoryState({
+          startSituation: workspaceData,
+          startSettings: { ...app.settings },
+        });
+      }
     }
   });
 
