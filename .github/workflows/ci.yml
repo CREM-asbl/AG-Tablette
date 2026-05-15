@@ -6,8 +6,12 @@ on:
   pull_request:
     branches: [ main, master ]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  test:
+  test-and-build:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,37 +25,54 @@ jobs:
 
     - name: Install dependencies
       run: npm ci
+
+    - name: Install Playwright browser (Chromium)
+      run: npx playwright install --with-deps chromium
 
     - name: Run linting
       run: npm run lint
 
-    - name: Run tests
+    - name: Run unit tests
       run: npm run test
 
-    - name: Run E2E tests
-      run: npm run test:playwright
-
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-
-    - name: Install dependencies
-      run: npm ci
+    - name: Run E2E tests (Chromium)
+      run: npm run test:playwright:ci
 
     - name: Build application
       run: npm run build
+
+    - name: Upload Playwright report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report
+        path: playwright-report/
+        if-no-files-found: ignore
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: dist
         path: dist/
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: test-and-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && secrets.FIREBASE_TOKEN != ''
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Deploy to Firebase Hosting
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      run: npx firebase-tools deploy --only hosting --project apprenti-geometre --token "$FIREBASE_TOKEN"
