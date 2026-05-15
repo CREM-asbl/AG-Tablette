@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@astrojs/lit": "^4.3.0",
-    "@lit-labs/signals": "^0.2.0",
+    "@lit-labs/signals": "^0.3.0",
     "@webcomponents/template-shadowroot": "^0.2.1",
     "astro": "^6.1.2",
     "fflate": "^0.8.0",

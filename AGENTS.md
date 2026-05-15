@@ -6,7 +6,7 @@
 
 ### Architecture générale
 - **Type** : Application web éducative pour géométrie interactive sur tablettes
-- **Framework principal** : Astro 5.x + Lit Elements (Web Components)
+- **Framework principal** : Astro 6.x + Lit Elements (Web Components)
 - **Pattern architectural** : Component-based avec système de controllers modulaires
 - **Build system** : Vite (via Astro)
 - **État** : Production active (CREM-asbl)
