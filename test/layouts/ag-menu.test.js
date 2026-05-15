@@ -1,9 +1,8 @@
 import { fixture, html, oneEvent } from '@open-wc/testing';
-import { beforeEach, describe, it, vi, expect } from 'vitest';
-import { appActions, historyState, historyActions, activeTool } from '../../src/store/appState';
-import { tools } from '../../src/store/tools';
-import { app } from '../../src/controllers/Core/App';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createElem } from '../../src/controllers/Core/Tools/general';
+import { activeTool, appActions, historyActions, historyState } from '../../src/store/appState';
+import { tools } from '../../src/store/tools';
 
 // Mock dependencies
 vi.mock('../../src/controllers/Core/App', () => ({
@@ -100,7 +99,7 @@ describe('ag-menu', () => {
         const promise = oneEvent(window, 'help-button-clicked');
         element._actionHandle({ target: { name: 'help' } });
         const event = await promise;
-        
+
         expect(event.detail.toolname).toBe('move');
     });
 
