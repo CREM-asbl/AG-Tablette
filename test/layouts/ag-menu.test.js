@@ -35,6 +35,8 @@ vi.mock('../../src/components/icon-button', () => ({}));
 vi.mock('../../src/components/template-toolbar', () => ({}));
 vi.mock('../../src/components/toolbar-kit', () => ({}));
 vi.mock('../../src/components/toolbar-section', () => ({}));
+vi.mock('@components/popups/settings-popup', () => ({}));
+vi.mock('@components/popups/home-popup', () => ({}));
 
 import '../../src/layouts/ag-menu';
 

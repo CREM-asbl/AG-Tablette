@@ -145,7 +145,7 @@ export class CreateTool extends Tool {
       appActions.setSelectedTemplate(this.selectedTemplate);
       this.updateToolStep('listen', { selectedTemplate: this.selectedTemplate });
     } else if (!this.shapesList) {
-      import('../../components/shape-selector');
+      import('@components/shape-selector');
       appActions.setToolUiState({
         name: 'shape-selector',
         family: family,

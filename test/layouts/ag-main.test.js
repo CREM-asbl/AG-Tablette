@@ -1,6 +1,6 @@
-import { html, fixture, expect } from '@open-wc/testing';
+import { expect, fixture, html } from '@open-wc/testing';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { appActions, historyState } from '../../src/store/appState';
-import { vi, describe, it, beforeEach } from 'vitest';
 
 // Mock dependencies before import
 vi.mock('../../src/store/notions', () => ({
