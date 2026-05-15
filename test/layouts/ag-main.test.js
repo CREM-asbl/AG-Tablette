@@ -35,6 +35,12 @@ vi.mock('../../src/components/canvas-container', () => ({}));
 vi.mock('../../src/components/sync-status-indicator.ts', () => ({}));
 vi.mock('../../src/components/popups/notification', () => ({}));
 vi.mock('../../src/controllers/Bugs', () => ({ bugSend: vi.fn() }));
+vi.mock('../../src/services/notions-cache-bootstrap', () => ({
+    initializeNotionsCacheBootstrap: vi.fn(() => Promise.resolve()),
+}));
+vi.mock('../../src/services/offline-support-bootstrap', () => ({
+    initializeOfflineSupportBootstrap: vi.fn(() => Promise.resolve()),
+}));
 
 import '../../src/layouts/ag-main';
 

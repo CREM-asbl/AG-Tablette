@@ -2,6 +2,8 @@
 import 'fake-indexeddb/auto';
 import { vi } from 'vitest';
 
+const originalFetch = globalThis.fetch?.bind(globalThis);
+
 // fake-indexedDB provides complete IndexedDB implementation for tests
 
 // Mock dialog.showModal() pour les popups
@@ -77,3 +79,21 @@ Object.defineProperty(window, 'dev_mode', {
   value: true,
   writable: true,
 });
+
+// Stabilise les tests qui lisent la version applicative via /manifest.json.
+globalThis.fetch = vi.fn(async (input, init) => {
+  const requestUrl = typeof input === 'string' ? input : input?.url;
+
+  if (requestUrl === '/manifest.json') {
+    return {
+      ok: true,
+      json: async () => ({ version: 'test-version' }),
+    };
+  }
+
+  if (originalFetch) {
+    return originalFetch(input, init);
+  }
+
+  throw new Error(`Unhandled fetch in test environment: ${String(requestUrl)}`);
+}) as typeof fetch;
