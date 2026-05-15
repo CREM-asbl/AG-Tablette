@@ -112,6 +112,12 @@ vi.mock('../../../src/controllers/Tangram/TangramManager', () => ({
   },
 }));
 
+// Les imports dynamiques de popups/composants Lit peuvent se déclencher pendant/juste après le teardown en CI.
+// On les neutralise ici pour éviter les EnvironmentTeardownError.
+vi.mock('@components/popups/open-popup', () => ({}));
+vi.mock('../../../src/controllers/Tangram/state-menu', () => ({}));
+vi.mock('../../../src/controllers/Tangram/level-popup.js', () => ({}));
+
 import { SolutionCheckerTool } from '../../../src/controllers/Tangram/SolutionCheckerTool';
 
 describe('SolutionCheckerTool', () => {
