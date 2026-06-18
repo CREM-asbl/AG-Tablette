@@ -108,3 +108,23 @@ npm run test:playwright # E2E tests (Playwright)
 **Dernière mise à jour** : 7 Avril 2026
 **Version** : 1.1.0
 **Mainteneur** : équipe CREM-asbl
+
+<!-- pane-agent-context:start -->
+## Pane
+
+The developer is using Pane for this repository. Pane can manage saved repositories and create user-visible panes with terminal-backed tools for planning, discussion, and implementation work.
+
+Use `runpane agent-context` for a brief Pane command schema. Use `runpane agent-context --command "panes create"` or another command name for the detailed schema only when needed.
+
+After creating panes or sending terminal input, validate with bounded panel output before reporting success.
+
+Common commands:
+- `runpane repos list --json`
+- `runpane repos add --path <repo> --yes --json`
+- `runpane panes create --repo active --name <name> --agent codex --prompt "<task>" --yes`
+- `runpane panels list --pane <pane-id> --json`
+- `runpane panels output --panel <panel-id> --limit 200 --json`
+- `runpane panels input --panel <panel-id> --text "<input>" --yes`
+
+WSL note: if `runpane repos list` cannot find `/tmp/pane-daemon.../daemon.sock`, Pane may be running on Windows. Try `powershell.exe -NoProfile -Command 'Set-Location $env:TEMP; runpane repos list --json'`, then create panes through the same PowerShell form using the saved WSL repo name or id.
+<!-- pane-agent-context:end -->
