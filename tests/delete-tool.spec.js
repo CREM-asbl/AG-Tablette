@@ -11,6 +11,9 @@ test('Delete tool should remove a triangle', async ({ page }) => {
   
   // Wait for the app to load
   await expect(page.locator('ag-menu')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => !!window.app?.mainCanvasLayer?.shapes), {
+    timeout: 10000,
+  }).toBe(true);
   
   // Select Create Line tool
   const lineButton = page.locator('ag-menu icon-button[name="createLine"]');
@@ -20,6 +23,9 @@ test('Delete tool should remove a triangle', async ({ page }) => {
   // We use force: true if it's hidden by CSS but present in DOM
   const segmentButton = page.locator('shape-selector icon-button[name="Segment"]');
   await segmentButton.click({ force: true });
+  await expect.poll(() => page.evaluate(() => window.app.tool?.currentStep), {
+    timeout: 5000,
+  }).toBe('drawPoint');
   
   const canvasContainer = page.locator('canvas-container');
   await expect(canvasContainer).toBeVisible();
@@ -38,7 +44,9 @@ test('Delete tool should remove a triangle', async ({ page }) => {
   await page.waitForTimeout(200);
   // Second point
   await page.mouse.click(x + 100, y);
-  await page.waitForTimeout(200);
+  await expect.poll(() => page.evaluate(() => window.app.mainCanvasLayer.shapes.length), {
+    timeout: 10000,
+  }).toBeGreaterThan(initialShapeCount);
   
   // Verify a shape is created
   let shapesInfo = await page.evaluate(() => 

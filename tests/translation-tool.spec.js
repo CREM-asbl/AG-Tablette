@@ -7,12 +7,15 @@ test('Translation tool should create a translated copy', async ({ page }) => {
 
   await page.getByText(/G[ée]om[ée]trie/).click();
   await expect(page.locator('ag-menu')).toBeVisible({ timeout: 30000 });
+  await expect.poll(() => page.evaluate(() => !!window.app?.mainCanvasLayer?.shapes), {
+    timeout: 10000,
+  }).toBe(true);
 
-  const lineButton = page.locator('ag-menu icon-button[name="createLine"]');
-  await lineButton.click({ force: true });
+  const triangleButton = page.locator('ag-menu icon-button[name="createTriangle"]');
+  await triangleButton.click({ force: true });
 
-  const segmentTemplate = page.locator('shape-selector icon-button[name="Segment"]');
-  await segmentTemplate.click({ force: true });
+  const irregularTriangleTemplate = page.locator('shape-selector icon-button[name="IrregularTriangle"]');
+  await irregularTriangleTemplate.click({ force: true });
 
   await expect.poll(() => page.evaluate(() => window.app.tool?.currentStep), {
     timeout: 5000,
@@ -25,9 +28,10 @@ test('Translation tool should create a translated copy', async ({ page }) => {
   const x = box.x + box.width / 2;
   const y = box.y + box.height / 2;
 
-  await page.mouse.click(x, y, { delay: 100 });
-  await page.mouse.click(x + 100, y, { delay: 100 });
-  await page.waitForTimeout(300);
+  await page.mouse.click(x - 80, y + 40, { delay: 100 });
+  await page.mouse.click(x + 80, y + 40, { delay: 100 });
+  await page.mouse.click(x, y - 80, { delay: 100 });
+  await page.waitForTimeout(400);
 
   const initialShapeCount = await page.evaluate(() => window.app.mainCanvasLayer.shapes.length);
 
@@ -48,7 +52,7 @@ test('Translation tool should create a translated copy', async ({ page }) => {
     timeout: 5000,
   }).toBe('selectObject');
 
-  await page.mouse.click(x + 50, y, { delay: 100 });
+  await page.mouse.click(x, y, { delay: 100 });
 
   await expect.poll(() => page.evaluate(() => window.app.mainCanvasLayer.shapes.length), {
     timeout: 15000,

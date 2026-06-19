@@ -7,12 +7,18 @@ test('Central Symetry tool should create a symmetrical copy', async ({ page }) =
 
   await page.getByText(/G[ée]om[ée]trie/).click();
   await expect(page.locator('ag-menu')).toBeVisible({ timeout: 30000 });
+  await expect.poll(() => page.evaluate(() => !!window.app?.mainCanvasLayer?.shapes), {
+    timeout: 10000,
+  }).toBe(true);
 
   const triangleButton = page.locator('ag-menu icon-button[name="createTriangle"]');
   await triangleButton.click({ force: true });
 
   const irregularTriangleTemplate = page.locator('shape-selector icon-button[name="IrregularTriangle"]');
   await irregularTriangleTemplate.click({ force: true });
+  await expect.poll(() => page.evaluate(() => window.app.tool?.currentStep), {
+    timeout: 5000,
+  }).toBe('drawPoint');
 
   const canvasContainer = page.locator('canvas-container');
   const box = await canvasContainer.boundingBox();
@@ -24,7 +30,9 @@ test('Central Symetry tool should create a symmetrical copy', async ({ page }) =
   await page.mouse.click(x - 80, y + 40, { delay: 100 });
   await page.mouse.click(x + 80, y + 40, { delay: 100 });
   await page.mouse.click(x, y - 80, { delay: 100 });
-  await page.waitForTimeout(400);
+  await expect.poll(() => page.evaluate(() => window.app?.mainCanvasLayer?.shapes?.length ?? 0), {
+    timeout: 10000,
+  }).toBeGreaterThan(0);
 
   const initialShapeCount = await page.evaluate(() => window.app.mainCanvasLayer.shapes.length);
 

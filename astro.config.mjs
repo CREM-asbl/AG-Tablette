@@ -180,7 +180,8 @@ export default defineConfig({
         navigateFallback: null,
       },
       devOptions: {
-        enabled: true,
+        // Disable SW in CI to avoid stale dev assets during Playwright runs.
+        enabled: !process.env.CI,
       },
     }),
   ],
