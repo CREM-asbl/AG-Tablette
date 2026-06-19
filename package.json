@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4324",
+    "dev:e2e": "astro dev --host 127.0.0.1 --port 4324 --strictPort",
     "disable-dev-toolbar": "astro preferences disable devToolbar",
     "build": "astro build",
     "deploy": "firebase deploy",

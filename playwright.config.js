@@ -73,11 +73,10 @@ export default defineConfig({
 
   /* Run local dev server before starting tests that target localhost */
   webServer: {
-    command: 'npm run dev -- --host 127.0.0.1 --port 4324',
+    command: 'npm run dev:e2e',
     url: 'http://127.0.0.1:4324',
     reuseExistingServer: !isCI,
     // CI runners can take longer to boot Astro dev server on cold starts.
-    timeout: isCI ? 300_000 : 120_000,
+    timeout: isCI ? 360_000 : 180_000,
   },
 });
-
