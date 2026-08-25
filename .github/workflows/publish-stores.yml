@@ -1,0 +1,154 @@
+name: Publish stores
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Plateforme a publier
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - android
+          - windows
+      track:
+        description: Canal de publication
+        required: true
+        default: internal
+        type: choice
+        options:
+          - internal
+          - beta
+          - production
+      build_number:
+        description: Suffixe numerique pour la version Windows
+        required: false
+        default: '0'
+        type: string
+      clean_generated:
+        description: Supprimer store/generated en fin de publication
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-stores-${{ github.ref }}-${{ inputs.platform }}
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        run: pnpm run test
+
+      - name: Build web app
+        run: pnpm run build
+
+      - name: Generate store release context
+        run: pnpm run store:release:prepare -- --platform "${{ inputs.platform }}" --track "${{ inputs.track }}" --build-number "${{ inputs.build_number }}"
+
+      - name: Upload store release context
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-generated-context
+          path: store/generated/
+          if-no-files-found: error
+
+  publish-android:
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: ${{ inputs.platform == 'all' || inputs.platform == 'android' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Restore store release context
+        uses: actions/download-artifact@v4
+        with:
+          name: store-generated-context
+          path: store/generated/
+
+      - name: Prepare Android wrapper
+        run: pnpm run store:release:wrappers -- --platform android
+
+      - name: Publish Android store
+        run: pnpm run store:release:publish -- --platform android ${{ inputs.clean_generated && '--clean-generated' || '' }}
+
+  publish-windows:
+    runs-on: windows-latest
+    needs: prepare
+    if: ${{ inputs.platform == 'all' || inputs.platform == 'windows' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Restore store release context
+        uses: actions/download-artifact@v4
+        with:
+          name: store-generated-context
+          path: store/generated/
+
+      - name: Prepare Windows wrapper
+        run: pnpm run store:release:wrappers -- --platform windows
+
+      - name: Publish Windows store
+        run: pnpm run store:release:publish -- --platform windows ${{ inputs.clean_generated && '--clean-generated' || '' }}

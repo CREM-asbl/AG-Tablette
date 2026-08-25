@@ -24,6 +24,9 @@ npm run start-emulators
 # Créer le build de production
 npm run build
 
+# Préparer une release stores (sans publier)
+pnpm run store:release -- --platform all --track internal --build-number 1
+
 # Déployer sur Firebase
 npm run deploy
 
@@ -67,3 +70,5 @@ npm run lint:fix
 Consultez le fichier `AGENTS.md` pour la documentation complète de l'architecture et des conventions du projet.
 
 Le dossier `docs/` contient la documentation technique détaillée.
+
+Le dossier `store/` contient l'infrastructure de publication Play Store / Microsoft Store.

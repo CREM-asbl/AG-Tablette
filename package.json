@@ -1,16 +1,20 @@
 {
   "name": "ag-tablette",
-  "version": "1.5.1 beta 7",
+  "version": "1.5.2 beta",
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4324",
     "dev:e2e": "astro dev --host 127.0.0.1 --port 4324 --strictPort",
     "disable-dev-toolbar": "astro preferences disable devToolbar",
     "build": "astro build",
+    "store:release:prepare": "node ./scripts/store/prepare-release.js",
+    "store:release:wrappers": "node ./scripts/store/run-release-stage.js --stage prepare",
+    "store:release:publish": "node ./scripts/store/run-release-stage.js --stage publish",
+    "store:release": "pnpm run test && pnpm run build && pnpm run store:release:prepare",
     "deploy": "firebase deploy",
     "deploy:beta": "firebase deploy --only hosting:beta",
     "deploy:beta2": "firebase hosting:channel:deploy beta --expires 30d",
-    "deploy:rules": "npm run deploy:firestore-rules && npm run deploy:storage-rules",
+    "deploy:rules": "pnpm run deploy:firestore-rules && pnpm run deploy:storage-rules",
     "deploy:firestore-rules": "firebase deploy --only firestore:rules",
     "deploy:storage-rules": "firebase deploy --only storage",
     "lint": "eslint . --ext .js,.ts",
@@ -22,7 +26,7 @@
     "test:playwright": "playwright test",
     "test:playwright:ci": "playwright test --project=chromium",
     "test:coverage": "vitest run --coverage",
-    "test:all": "npm run test && npm run test:playwright"
+    "test:all": "pnpm run test && pnpm run test:playwright"
   },
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",

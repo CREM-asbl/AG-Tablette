@@ -1,0 +1,31 @@
+{
+  "app": {
+    "playPackageId": "be.crem.ag.twa",
+    "windowsProductId": "9N7GCZKN4404"
+  },
+  "release": {
+    "generatedDir": "store/generated",
+    "defaultTrack": "internal"
+  },
+  "platforms": {
+    "android": {
+      "enabled": false,
+      "wrapperDir": "store/android",
+      "prepareCommand": "",
+      "publishCommand": "",
+      "artifactGlobs": [
+        "**/*.aab"
+      ]
+    },
+    "windows": {
+      "enabled": false,
+      "wrapperDir": "store/windows",
+      "prepareCommand": "",
+      "publishCommand": "",
+      "artifactGlobs": [
+        "**/*.msix",
+        "**/*.msixbundle"
+      ]
+    }
+  }
+}
