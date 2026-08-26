@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p "${HOME}/.bubblewrap"
-          test -n "${JAVA_HOME:-}" || { echo "JAVA_HOME is not set"; exit 1; }
+          test -d "${JAVA_HOME:-}" || { echo "JAVA_HOME path not found"; exit 1; }
           test -d "${ANDROID_HOME:-/usr/local/lib/android/sdk}" || { echo "Android SDK path not found"; exit 1; }
           jq -n --arg jdk "${JAVA_HOME}" --arg sdk "${ANDROID_HOME:-/usr/local/lib/android/sdk}" '{"jdkPath":$jdk,"androidSdkPath":$sdk}' > "${HOME}/.bubblewrap/config.json"
 
