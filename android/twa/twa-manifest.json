@@ -1,0 +1,93 @@
+{
+  "packageId": "be.crem.ag.twa",
+  "host": "ag.crem.be",
+  "name": "Apprenti Géomètre mobile",
+  "launcherName": "AG mobile",
+  "display": "fullscreen",
+  "themeColor": "#D3D3D3",
+  "themeColorDark": "#D3D3D3",
+  "navigationColor": "#D3D3D3",
+  "navigationColorDark": "#D3D3D3",
+  "navigationDividerColor": "#D3D3D3",
+  "navigationDividerColorDark": "#D3D3D3",
+  "backgroundColor": "#D3D3D3",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://ag.crem.be/images/manifest/maskable_icon.png",
+  "maskableIconUrl": "https://ag.crem.be/images/manifest/maskable_icon.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./play-upload-key.jks",
+    "alias": "upload"
+  },
+  "appVersionName": "1.5.1",
+  "appVersionCode": 151,
+  "shortcuts": [
+    {
+      "name": "Grandeurs",
+      "shortName": "Grandeurs",
+      "url": "https://ag.crem.be/?interface=Grandeurs",
+      "chosenIconUrl": "https://ag.crem.be/images/Environnements/logo_grandeurs_96x96.svg"
+    },
+    {
+      "name": "Tangram",
+      "shortName": "Tangram",
+      "url": "https://ag.crem.be/?interface=Tangram",
+      "chosenIconUrl": "https://ag.crem.be/images/Environnements/logo_tangram_96x96.svg"
+    },
+    {
+      "name": "Cubes",
+      "shortName": "Cubes",
+      "url": "https://ag.crem.be/?interface=Cubes",
+      "chosenIconUrl": "https://ag.crem.be/images/Environnements/logo_cubes_96x96.svg"
+    },
+    {
+      "name": "Géometrie",
+      "shortName": "Géometrie",
+      "url": "https://ag.crem.be/?interface=Geometrie",
+      "chosenIconUrl": "https://ag.crem.be/images/Environnements/logo_geometrie_96x96.svg"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://ag.crem.be/manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://ag.crem.be/",
+  "minSdkVersion": 21,
+  "orientation": "landscape",
+  "fingerprints": [
+    {
+      "value": "6D:58:92:83:FA:E7:33:60:B8:AB:BF:99:B1:50:F9:25:FE:0F:49:9B:70:8A:BB:C9:DF:06:43:19:D7:A4:AB:D4"
+    },
+    {
+      "value": "CC:1C:DD:8E:70:74:31:80:B4:18:49:EF:10:83:6E:42:12:ED:39:F8:C7:3A:42:32:C2:DD:B6:D4:77:23:19:0D"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [
+    {
+      "protocol": "web+agm",
+      "url": "https://ag.crem.be/?interface=%s"
+    }
+  ],
+  "fileHandlers": [
+    {
+      "actionUrl": "https://ag.crem.be/",
+      "mimeTypes": [
+        "application/agmobile"
+      ]
+    }
+  ],
+  "launchHandlerClientMode": "",
+  "displayOverride": [
+    "window-controls-overlay"
+  ],
+  "appVersion": "1.5.1"
+}

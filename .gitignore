@@ -15,3 +15,11 @@ coverage
 
 # Firebase Rules Backups (local only)
 backups/firebase-rules/
+
+# Bubblewrap TWA
+android/twa/.gradle/
+android/twa/local.properties
+android/twa/play-upload-key.jks
+android/twa/*.aab
+android/twa/*.apk
+android/twa/play-service-account.json
