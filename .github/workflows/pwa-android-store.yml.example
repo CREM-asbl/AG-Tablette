@@ -42,6 +42,14 @@ jobs:
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
+      - name: Configure Bubblewrap for CI
+        shell: bash
+        run: |
+          mkdir -p "${HOME}/.bubblewrap"
+          cat > "${HOME}/.bubblewrap/config.json" <<EOF
+          {"jdkPath":"${JAVA_HOME}","androidSdkPath":"${ANDROID_HOME:-/usr/local/lib/android/sdk}"}
+          EOF
+
       - name: Restore keystore
         shell: bash
         run: |
