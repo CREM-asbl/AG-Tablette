@@ -46,9 +46,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p "${HOME}/.bubblewrap"
-          cat > "${HOME}/.bubblewrap/config.json" <<EOF
-          {"jdkPath":"${JAVA_HOME}","androidSdkPath":"${ANDROID_HOME:-/usr/local/lib/android/sdk}"}
-          EOF
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}\n' "${JAVA_HOME}" "${ANDROID_HOME:-/usr/local/lib/android/sdk}" > "${HOME}/.bubblewrap/config.json"
 
       - name: Restore keystore
         shell: bash
