@@ -46,7 +46,8 @@ jobs:
         shell: bash
         run: |
           mkdir -p "${HOME}/.bubblewrap"
-          python -c 'import json, os; print(json.dumps({"jdkPath": os.environ["JAVA_HOME"], "androidSdkPath": os.environ.get("ANDROID_HOME", "/usr/local/lib/android/sdk")}))' > "${HOME}/.bubblewrap/config.json"
+          test -n "${JAVA_HOME:-}" || { echo "JAVA_HOME is not set"; exit 1; }
+          python3 -c 'import json, os; print(json.dumps({"jdkPath": os.environ.get("JAVA_HOME", ""), "androidSdkPath": os.environ.get("ANDROID_HOME", "/usr/local/lib/android/sdk")}))' > "${HOME}/.bubblewrap/config.json"
 
       - name: Restore keystore
         shell: bash
