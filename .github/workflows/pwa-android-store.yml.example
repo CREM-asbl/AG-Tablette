@@ -73,7 +73,7 @@ jobs:
       - name: Validate Bubblewrap toolchain
         shell: bash
         run: |
-          yes | bubblewrap doctor
+          echo y | bubblewrap doctor
 
       - name: Restore keystore
         shell: bash
