@@ -110,7 +110,7 @@ jobs:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
+          echo y | bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
 
       - name: Publish bundle to Google Play
         working-directory: ${{ env.TWA_DIR }}
