@@ -80,16 +80,6 @@ jobs:
         run: |
           echo "${{ secrets.BUBBLEWRAP_KEYSTORE_BASE64 }}" | base64 --decode > "${TWA_DIR}/play-upload-key.jks"
 
-      - name: Update TWA project from twa-manifest.json
-        working-directory: ${{ env.TWA_DIR }}
-        run: |
-          bubblewrap update --manifest=./twa-manifest.json --skipVersionUpgrade
-
-      - name: Ensure manifest checksum matches (prevents build prompts)
-        working-directory: ${{ env.TWA_DIR }}
-        run: |
-                node -e 'const fs=require("fs");const crypto=require("crypto");const manifest=fs.readFileSync("./twa-manifest.json");const c=crypto.createHash("sha1").update(manifest).digest("hex");fs.writeFileSync("./manifest-checksum.txt",c);console.log("Checksum:",c);' && cat ./manifest-checksum.txt
-
       - name: Prepare Google Play credentials
         working-directory: ${{ env.TWA_DIR }}
         shell: bash
@@ -106,19 +96,16 @@ jobs:
             exit 1
           fi
 
-      - name: Build signed App Bundle
+      - name: Build and sign App Bundle
         working-directory: ${{ env.TWA_DIR }}
         env:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-                cat ./manifest-checksum.txt
-                # allow sending multiple answers without failing on SIGPIPE; preserve pipefail globally
-                set +o pipefail
-                yes y | bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
-                BUILD_EXIT=$?
-                set -o pipefail
-                exit $BUILD_EXIT
+          # Update project with current manifest, then build — single step avoids checksum drift
+          rm -f ./manifest-checksum.txt
+          bubblewrap update --manifest=./twa-manifest.json --skipVersionUpgrade
+          bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
 
       - name: Publish bundle to Google Play
         working-directory: ${{ env.TWA_DIR }}
