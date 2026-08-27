@@ -47,8 +47,33 @@ jobs:
         run: |
           mkdir -p "${HOME}/.bubblewrap"
           test -d "${JAVA_HOME:-}" || { echo "JAVA_HOME path not found"; exit 1; }
-          test -d "${ANDROID_HOME:-/usr/local/lib/android/sdk}" || { echo "Android SDK path not found"; exit 1; }
-          jq -n --arg jdk "${JAVA_HOME}" --arg sdk "${ANDROID_HOME:-/usr/local/lib/android/sdk}" '{"jdkPath":$jdk,"androidSdkPath":$sdk}' > "${HOME}/.bubblewrap/config.json"
+
+          ANDROID_SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          test -d "${ANDROID_SDK_PATH}" || { echo "Android SDK path not found: ${ANDROID_SDK_PATH}"; exit 1; }
+
+          if [ ! -d "${ANDROID_SDK_PATH}/tools" ] && [ ! -d "${ANDROID_SDK_PATH}/bin" ]; then
+            if [ -d "${ANDROID_SDK_PATH}/cmdline-tools/latest/bin" ]; then
+              ln -s "${ANDROID_SDK_PATH}/cmdline-tools/latest/bin" "${ANDROID_SDK_PATH}/bin"
+            elif [ -d "${ANDROID_SDK_PATH}/cmdline-tools/bin" ]; then
+              ln -s "${ANDROID_SDK_PATH}/cmdline-tools/bin" "${ANDROID_SDK_PATH}/bin"
+            else
+              echo "::error::Bubblewrap requires Android SDK tools under ${ANDROID_SDK_PATH}/bin or ${ANDROID_SDK_PATH}/tools."
+              find "${ANDROID_SDK_PATH}" -maxdepth 2 -type d | sort
+              exit 1
+            fi
+          fi
+
+          {
+            echo "ANDROID_HOME=${ANDROID_SDK_PATH}"
+            echo "ANDROID_SDK_ROOT=${ANDROID_SDK_PATH}"
+          } >> "${GITHUB_ENV}"
+
+          jq -n --arg jdk "${JAVA_HOME}" --arg sdk "${ANDROID_SDK_PATH}" '{"jdkPath":$jdk,"androidSdkPath":$sdk}' > "${HOME}/.bubblewrap/config.json"
+
+      - name: Validate Bubblewrap toolchain
+        shell: bash
+        run: |
+          yes | bubblewrap doctor
 
       - name: Restore keystore
         shell: bash
