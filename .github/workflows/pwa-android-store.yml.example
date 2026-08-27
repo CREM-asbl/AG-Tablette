@@ -88,6 +88,18 @@ jobs:
         run: |
           bubblewrap update --manifest=./twa-manifest.json --skipVersionUpgrade
 
+            - name: Ensure manifest checksum matches (prevents build prompts)
+              working-directory: ${{ env.TWA_DIR }}
+              run: |
+                node -e "
+                  const crypto = require('crypto');
+                  const fs = require('fs');
+                  const manifest = fs.readFileSync('./twa-manifest.json');
+                  const checksum = crypto.createHash('sha1').update(manifest).digest('hex');
+                  fs.writeFileSync('./manifest-checksum.txt', checksum);
+                  console.log('Manifest checksum written:', checksum);
+                "
+
       - name: Prepare Google Play credentials
         working-directory: ${{ env.TWA_DIR }}
         shell: bash
