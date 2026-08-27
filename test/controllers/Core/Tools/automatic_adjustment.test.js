@@ -65,22 +65,19 @@ vi.mock('../../../../src/controllers/Core/Managers/SelectManager', () => ({
 }));
 
 // Mock app service using hoisted functions
-vi.mock('../../../../src/controllers/Core/App', () => {
-  const actualApp = vi.importActual('../../../../src/controllers/Core/App');
-  const app = {
-    ...actualApp.app,
-    environment: {}, // Mock environment
+vi.mock('../../../../src/controllers/Core/App', () => ({
+  app: {
+    environment: {},
     settings: {
-      automaticAdjustment: true, // Default value
-      get: mockAppSettingsGet, // Mock for app.settings.get
+      automaticAdjustment: true,
+      get: mockAppSettingsGet,
     },
     workspace: {
-      geometryTransformationChildShapeIds: [], // Mock
+      geometryTransformationChildShapeIds: [],
     },
-    gridCanvasLayer: { // Assurez-vous que c'est bien gridCanvasLayer
-      getClosestGridPoint: mockAppGetClosestGridPoint, // Correction: utiliser le spy ici
+    gridCanvasLayer: {
+      getClosestGridPoint: mockAppGetClosestGridPoint,
     },
-    // getClosestGridPoint: mockAppGetClosestGridPoint, // Peut être conservé ou supprimé car non utilisé directement par le SUT
     addListener: vi.fn(),
     removeListener: vi.fn(),
     dispatch: vi.fn(),
@@ -95,9 +92,8 @@ vi.mock('../../../../src/controllers/Core/App', () => {
         selectedTool: 'select',
       }
     })),
-  };
-  return { app };
-});
+  },
+}));
 
 // Import the module to test AFTER all mocks are set up
 
