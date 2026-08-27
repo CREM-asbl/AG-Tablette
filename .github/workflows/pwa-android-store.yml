@@ -60,29 +60,46 @@ jobs:
         run: |
           bubblewrap update --manifest=./twa-manifest.json --skipVersionUpgrade
 
+      - name: Prepare Google Play credentials
+        working-directory: ${{ env.TWA_DIR }}
+        shell: bash
+        run: |
+          printf '%s' '${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}' > ./play-service-account.json
+          node -e "const fs = require('fs'); const serviceAccount = JSON.parse(fs.readFileSync('./play-service-account.json', 'utf8')); if (!serviceAccount.client_email || !serviceAccount.private_key) { throw new Error('PLAY_SERVICE_ACCOUNT_JSON is not a valid Google service account JSON'); } console.log('Google Play service account:', serviceAccount.client_email);"
+
+      - name: Check Google Play API access
+        working-directory: ${{ env.TWA_DIR }}
+        shell: bash
+        run: |
+          if ! bubblewrap play versionCheck --manifest=./twa-manifest.json --serviceAccountFile=./play-service-account.json --targetDirectory=.; then
+            echo "::error::Google Play access denied. Grant this service account access to the app in Play Console > Users and permissions, then enable the Google Play Android Developer API in Google Cloud."
+            exit 1
+          fi
+
       - name: Build signed App Bundle
         working-directory: ${{ env.TWA_DIR }}
         env:
-          BUBBLEWRAP_KEYSTORE_PATH: ../play-upload-key.jks
-          BUBBLEWRAP_KEYSTORE_ALIAS: ${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          chmod +x ./gradlew
-          ./gradlew bundleRelease
+          bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
 
       - name: Publish bundle to Google Play
         working-directory: ${{ env.TWA_DIR }}
         run: |
-          printf '%s' '${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}' > ./play-service-account.json
-          bubblewrap play publish --manifest=./twa-manifest.json --serviceAccountFile=./play-service-account.json --track="${{ inputs.track }}" --appBundleLocation=./app/build/outputs/bundle/release/app-release.aab
+          bubblewrap play publish --manifest=./twa-manifest.json --serviceAccountFile=./play-service-account.json --track="${{ inputs.track }}" --appBundleLocation=./app-release-bundle.aab
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
         with:
           name: android-app-bundle
-          path: ${{ env.TWA_DIR }}/app/build/outputs/bundle/release/app-release.aab
+          path: ${{ env.TWA_DIR }}/app-release-bundle.aab
           if-no-files-found: error
+
+      - name: Cleanup Google Play credentials
+        if: always()
+        working-directory: ${{ env.TWA_DIR }}
+        run: rm -f ./play-service-account.json
 
 # Required secrets:
 # - BUBBLEWRAP_KEYSTORE_BASE64
