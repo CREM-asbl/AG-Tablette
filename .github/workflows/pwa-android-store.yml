@@ -58,7 +58,7 @@ jobs:
       - name: Update TWA project from twa-manifest.json
         working-directory: ${{ env.TWA_DIR }}
         run: |
-          bubblewrap update --manifest=./twa-manifest.json
+          bubblewrap update --manifest=./twa-manifest.json --skipVersionUpgrade
 
       - name: Build signed App Bundle
         working-directory: ${{ env.TWA_DIR }}

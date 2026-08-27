@@ -61,7 +61,7 @@ jobs:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          bubblewrap update --manifest=./twa-manifest.json
+          bubblewrap update --manifest=./twa-manifest.json --skipVersionUpgrade
 
       - name: Build signed App Bundle
         working-directory: ${{ env.TWA_DIR }}
