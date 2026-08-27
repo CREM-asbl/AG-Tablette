@@ -88,7 +88,7 @@ jobs:
       - name: Ensure manifest checksum matches (prevents build prompts)
         working-directory: ${{ env.TWA_DIR }}
         run: |
-          node -e 'const fs=require("fs");const crypto=require("crypto");const c=crypto.createHash("sha1").update(fs.readFileSync("./twa-manifest.json")).digest("hex");fs.writeFileSync("./manifest-checksum.txt",c);console.log("Manifest checksum written:",c);'
+                node -e 'const fs=require("fs");const crypto=require("crypto");const manifest=fs.readFileSync("./twa-manifest.json");const c=crypto.createHash("sha1").update(manifest).digest("hex");fs.writeFileSync("./manifest-checksum.txt",c);console.log("Checksum:",c);' && cat ./manifest-checksum.txt
 
       - name: Prepare Google Play credentials
         working-directory: ${{ env.TWA_DIR }}
@@ -112,7 +112,13 @@ jobs:
           BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
           BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
         run: |
-          echo y | bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
+                cat ./manifest-checksum.txt
+                # allow sending multiple answers without failing on SIGPIPE; preserve pipefail globally
+                set +o pipefail
+                yes y | bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
+                BUILD_EXIT=$?
+                set -o pipefail
+                exit $BUILD_EXIT
 
       - name: Publish bundle to Google Play
         working-directory: ${{ env.TWA_DIR }}
