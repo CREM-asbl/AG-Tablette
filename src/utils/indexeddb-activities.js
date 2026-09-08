@@ -9,11 +9,12 @@ import {
 } from './cache-config.js';
 
 const DB_NAME = 'agTabletteDB';
-const DB_VERSION = 3; // Incrémenté pour ajouter le store sync_metadata
+const DB_VERSION = 4; // Incrémenté pour ajouter le store files
 const STORE_NAMES = {
   activities: 'activities',
   themes: 'themes',
   modules: 'modules',
+  files: 'files',
   sync_metadata: 'sync_metadata',
 };
 
@@ -30,6 +31,10 @@ export function openDB() {
           db.createObjectStore(storeName, { keyPath: 'id' });
         }
       });
+      // Ajout spécifique pour la version 4 : Création du store 'files'
+      if (!db.objectStoreNames.contains('files')) {
+        db.createObjectStore('files', { keyPath: 'id' });
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
@@ -529,7 +534,57 @@ export async function clearExpiredSyncMetadata() {
  * Obtient des statistiques détaillées sur l'utilisation du cache
  * @returns {Promise<Object>} Statistiques complètes
  */
-export async function getCacheStatistics() {
+export async function saveFileMetadata(id, data) {
+  const db = await openDB();
+  try {
+    const tx = db.transaction(STORE_NAMES.files, 'readwrite');
+    tx.objectStore(STORE_NAMES.files).put({ id, data });
+    return await new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  } finally {
+    closeDB(db);
+  }
+}
+
+export async function getFileMetadata(fileId) {
+  const db = await openDB();
+  try {
+    const tx = db.transaction(STORE_NAMES.files, 'readonly');
+    const store = tx.objectStore(STORE_NAMES.files);
+    const file = await new Promise((resolve, reject) => {
+      const req = store.get(fileId);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return file?.data ?? null;
+  } finally {
+    closeDB(db);
+  }
+}
+
+export async function getAllFileMetadata() {
+  const db = await openDB();
+  try {
+    const tx = db.transaction(STORE_NAMES.files, 'readonly');
+    const store = tx.objectStore(STORE_NAMES.files);
+    const files = await new Promise((resolve, reject) => {
+      const req = store.getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return files.map((entry) => ({ id: entry.id, ...entry.data }));
+  } finally {
+    closeDB(db);
+  }
+}
+
+/**
+ * Obtient des statistiques détaillées sur l'utilisation du cache
+ * @returns {Promise<Object>} Statistiques complètes
+ */
+export async function getCacheStats() {
   try {
     const db = await openDB();
     const tx = db.transaction(STORE_NAMES.activities, 'readonly');
@@ -648,7 +703,7 @@ export async function getCacheStatistics() {
     return {
       error: error.message,
       totalActivities: 0,
-      maxCapacity: CACHE_CONFIG.MAX_ACTIVITIES,
+      maxCapacity: CACHE_CONFIG.MAX_ACTIVITIES || 'unknown',
       usagePercentage: 0,
     };
   }

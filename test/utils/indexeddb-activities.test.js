@@ -154,6 +154,22 @@ describe('IndexedDB Activities Utils', () => {
             const all = await IDBUtils.getAllModules();
             expect(all).toHaveLength(1);
         });
+
+        it('should save and retrieve file metadata', async () => {
+            const id = 'file-1';
+            const data = { module: 'module-1', environment: 'Geometrie' };
+            await IDBUtils.saveFileMetadata(id, data);
+            const retrieved = await IDBUtils.getFileMetadata(id);
+            expect(retrieved).toEqual(data);
+        });
+
+        it('should get all file metadata', async () => {
+            await IDBUtils.saveFileMetadata('f1', { module: 'm1' });
+            await IDBUtils.saveFileMetadata('f2', { module: { id: 'm2' } });
+            const all = await IDBUtils.getAllFileMetadata();
+            expect(all).toHaveLength(2);
+            expect(all.map((entry) => entry.id)).toEqual(expect.arrayContaining(['f1', 'f2']));
+        });
     });
 
     describe('Sync Metadata', () => {
@@ -203,7 +219,7 @@ describe('IndexedDB Activities Utils', () => {
             await IDBUtils.saveActivity('a1', { data: 1 });
             await IDBUtils.saveActivity('a2', { data: 2 });
 
-            const stats = await IDBUtils.getCacheStatistics();
+            const stats = await IDBUtils.getCacheStats();
             expect(stats.totalActivities).toBe(2);
             expect(stats.usagePercentage).toBeGreaterThanOrEqual(0);
             expect(stats.mostUsedActivities).toBeDefined();

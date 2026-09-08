@@ -21,6 +21,7 @@ import {
   getSyncMetadata,
   isRecentSyncAvailable,
   saveActivity,
+  saveFileMetadata,
   saveModule,
   saveSyncMetadata,
   saveTheme,
@@ -29,6 +30,9 @@ import {
 interface ActivityMetadata {
   id: string;
   version: number;
+  module?: string;
+  environment?: string;
+  [key: string]: unknown;
 }
 
 interface ThemeMetadata {
@@ -176,11 +180,22 @@ export async function syncActivitiesInBackground(forceSync = false): Promise<voi
 
               if (serverFilesMetadata.length < CONFIG.MAX_METADATA_FILES) {
                 serverFilesMetadata.push({
+                  ...serverFile,
                   id: serverFile.id,
                   version: serverVersion,
                 });
               } else {
                 serverFilesTruncated = true;
+              }
+
+              // Persister les métadonnées du fichier pour le mode hors ligne
+              try {
+                await saveFileMetadata(serverFile.id, serverFile);
+              } catch (metaError) {
+                utils.warn(
+                  `Erreur lors de la sauvegarde des métadonnées de ${serverFile.id}:`,
+                  metaError,
+                );
               }
 
               if (!localActivity || serverVersion > localVersion) {

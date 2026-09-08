@@ -57,6 +57,7 @@ describe('Activity Sync Service', () => {
         indexeddbActivities.getSyncMetadata.mockResolvedValue(null);
         indexeddbActivities.isRecentSyncAvailable.mockResolvedValue(false);
         indexeddbActivities.saveActivity.mockResolvedValue();
+        indexeddbActivities.saveFileMetadata.mockResolvedValue();
         indexeddbActivities.saveModule.mockResolvedValue();
         indexeddbActivities.saveSyncMetadata.mockResolvedValue();
         indexeddbActivities.saveTheme.mockResolvedValue();
@@ -180,8 +181,8 @@ describe('Activity Sync Service', () => {
 
         it('should sync files, themes and modules', async () => {
             const serverFiles = [
-                { id: 'file1', version: 2 },
-                { id: 'file2', version: 1 }
+                { id: 'file1', version: 2, module: 'mod1', environment: 'Geometrie' },
+                { id: 'file2', version: 1, module: 'mod1', environment: 'Geometrie' }
             ];
             const serverThemes = [{ id: 'theme1' }];
             const modules = [{ id: 'mod1' }];
@@ -201,6 +202,8 @@ describe('Activity Sync Service', () => {
             await syncActivitiesInBackground(true);
 
             // Verify file sync
+            expect(indexeddbActivities.saveFileMetadata).toHaveBeenCalledWith('file1', serverFiles[0]);
+            expect(indexeddbActivities.saveFileMetadata).toHaveBeenCalledWith('file2', serverFiles[1]);
             expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file1', expect.objectContaining({ forceDownload: true }));
             expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file2', expect.objectContaining({ forceDownload: true }));
             expect(indexeddbActivities.saveActivity).toHaveBeenCalledTimes(2);
@@ -209,8 +212,16 @@ describe('Activity Sync Service', () => {
             expect(indexeddbActivities.saveTheme).toHaveBeenCalledWith('theme1', serverThemes[0]);
             expect(indexeddbActivities.saveModule).toHaveBeenCalledWith('mod1', modules[0]);
 
-            // Verify completion
-            expect(indexeddbActivities.saveSyncMetadata).toHaveBeenCalled();
+            // Verify completion metadata reflects offline availability
+            expect(indexeddbActivities.saveSyncMetadata).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    syncedFilesCount: 2,
+                    serverFiles: expect.arrayContaining([
+                        expect.objectContaining({ id: 'file1', module: 'mod1', environment: 'Geometrie', version: 2 }),
+                        expect.objectContaining({ id: 'file2', module: 'mod1', environment: 'Geometrie', version: 1 }),
+                    ]),
+                }),
+            );
         });
 
         it('should skip files that are up to date locally', async () => {

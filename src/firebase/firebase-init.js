@@ -21,6 +21,8 @@ import {
   getActivity,
   getAllModules,
   getAllThemes,
+  getAllFileMetadata,
+  getFileMetadata,
   saveActivity,
 } from '../utils/indexeddb-activities.js';
 import config from './firebase-config.json';
@@ -259,24 +261,19 @@ export async function readFileFromServer(filename, options = {}) {
 }
 
 export async function getFileDocFromFilename(id) {
+  // Validation de l'ID
+  if (!id || typeof id !== 'string') {
+    return null;
+  }
+
+  // Vérifier le cache en mémoire
+  const cacheKey = `metadata_${id}`;
+  const cachedMetadata = fileCache.get(cacheKey);
+  if (cachedMetadata && Date.now() - cachedMetadata.timestamp < CACHE_DURATION) {
+    return cachedMetadata.data;
+  }
+
   try {
-    // Validation de l'ID
-    if (!id || typeof id !== 'string') {
-      throw new Error('ID de document invalide');
-    }
-
-    // Vérifier le cache pour les métadonnées
-    const cacheKey = `metadata_${id}`;
-    const cachedMetadata = fileCache.get(cacheKey);
-    if (
-      cachedMetadata &&
-      Date.now() - cachedMetadata.timestamp < CACHE_DURATION
-    ) {
-
-      return cachedMetadata.data;
-    }
-
-    // Récupérer avec retry
     const result = await retryWithBackoff(
       async () => {
         const docRef = doc(db, 'files', id);
@@ -294,7 +291,6 @@ export async function getFileDocFromFilename(id) {
       1000,
     );
 
-    // Mettre en cache
     fileCache.set(cacheKey, {
       data: result,
       timestamp: Date.now(),
@@ -302,8 +298,9 @@ export async function getFileDocFromFilename(id) {
 
     return result;
   } catch (error) {
-    logDevWarning('[firebase-init] getFileDocFromFilename failed:', error);
-    return null;
+    logDevWarning('[firebase-init] getFileDocFromFilename Firestore failed, fallback IndexedDB:', error);
+    const fallbackFile = await getFileMetadata(id);
+    return fallbackFile;
   }
 }
 
@@ -633,12 +630,18 @@ export async function getModulesDocFromTheme(themeDoc) {
 }
 
 export async function getFilesDocFromModule(moduleDoc) {
-  const fileDocs = await getDocs(
-    query(collection(db, 'files'), where('module', '==', moduleDoc)),
-  );
-  const fileDocsWithId = [];
-  fileDocs.forEach((doc) => fileDocsWithId.push({ id: doc.id, ...doc.data() }));
-  return fileDocsWithId;
+  try {
+    const fileDocs = await getDocs(
+      query(collection(db, 'files'), where('module', '==', moduleDoc)),
+    );
+    const fileDocsWithId = [];
+    fileDocs.forEach((doc) => fileDocsWithId.push({ id: doc.id, ...doc.data() }));
+    return fileDocsWithId;
+  } catch (error) {
+    logDevWarning('[firebase-init] getFilesDocFromModule Firestore failed, fallback IndexedDB:', error);
+    const fallbackFiles = await getAllFileMetadata();
+    return fallbackFiles.filter(file => file.module === moduleDoc);
+  }
 }
 
 /**
