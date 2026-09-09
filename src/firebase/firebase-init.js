@@ -302,7 +302,15 @@ export async function getFileDocFromFilename(id) {
 
     return result;
   } catch (error) {
-    logDevWarning('[firebase-init] getFileDocFromFilename failed:', error);
+    if (!navigator.onLine) {
+      logDevWarning(
+        '[firebase-init] getFileDocFromFilename failed offline:',
+        id,
+        '— le document n\'a peut-être jamais été consulté en ligne',
+      );
+    } else {
+      logDevWarning('[firebase-init] getFileDocFromFilename failed:', error);
+    }
     return null;
   }
 }

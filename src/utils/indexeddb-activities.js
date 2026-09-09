@@ -8,8 +8,8 @@ import {
   validateCacheConfig,
 } from './cache-config.js';
 
-const DB_NAME = 'agTabletteDB';
-const DB_VERSION = 3; // Incrémenté pour ajouter le store sync_metadata
+export const DB_NAME = 'agTabletteDB';
+export const DB_VERSION = 4; // Incrémenté : sync_metadata (v3) + alignement cache.service
 const STORE_NAMES = {
   activities: 'activities',
   themes: 'themes',

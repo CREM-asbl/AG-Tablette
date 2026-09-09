@@ -175,9 +175,25 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /\.pdf$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'ag-pdf-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 jours
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
+        // Fallback de navigation hors ligne vers index.html (SPA)
+        navigateFallback: '/',
+        navigateFallbackDenylist: [/^\/api\//, /^\/data\//],
         // Ne pas pré-cacher les SW eux-mêmes
-        navigateFallback: null,
       },
       devOptions: {
         // Disable SW in CI to avoid stale dev assets during Playwright runs.

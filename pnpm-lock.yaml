@@ -26,6 +26,9 @@ importers:
       firebase:
         specifier: ^12.2.1
         version: 12.18.0
+      lit:
+        specifier: ^3.2.0
+        version: 3.3.3
       lz-string:
         specifier: ^1.5.0
         version: 1.5.0
@@ -72,6 +75,9 @@ importers:
       vitest:
         specifier: ^4.0.9
         version: 4.1.11(@types/node@25.9.5)(@vitest/coverage-v8@4.1.11)(jsdom@29.1.1)(vite@7.3.6(@types/node@25.9.5)(terser@5.50.0))
+      workbox-window:
+        specifier: ^7.4.1
+        version: 7.4.1
 
 packages:
 

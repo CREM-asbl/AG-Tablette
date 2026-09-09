@@ -1,9 +1,8 @@
-/**
- * Configuration de la base de données IndexedDB
- */
+import { DB_NAME, DB_VERSION } from '../utils/indexeddb-activities.js';
+
 const DB_CONFIG = {
-  name: 'agTabletteDB',
-  version: 1,
+  name: DB_NAME,
+  version: DB_VERSION,
   stores: {
     activities: 'activities',
   },
