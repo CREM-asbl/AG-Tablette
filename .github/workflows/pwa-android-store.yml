@@ -20,7 +20,6 @@ permissions:
 env:
   JAVA_VERSION: '17'
   NODE_VERSION: '22'
-  PNPM_VERSION: '10'
   TWA_DIR: android/twa
 
 jobs:
@@ -31,8 +30,6 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
 
       - uses: actions/setup-node@v4
         with:
