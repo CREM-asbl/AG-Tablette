@@ -1,6 +1,7 @@
 {
   "name": "ag-tablette",
   "version": "1.5.2",
+  "packageManager": "pnpm@10.0.0",
   "type": "module",
   "scripts": {
     "dev": "astro dev --port 4324",
@@ -10,11 +11,11 @@
     "deploy": "firebase deploy",
     "deploy:beta": "firebase deploy --only hosting:beta",
     "deploy:beta2": "firebase hosting:channel:deploy beta --expires 30d",
-    "deploy:rules": "npm run deploy:firestore-rules && npm run deploy:storage-rules",
+    "deploy:rules": "pnpm run deploy:firestore-rules && pnpm run deploy:storage-rules",
     "deploy:firestore-rules": "firebase deploy --only firestore:rules",
     "deploy:storage-rules": "firebase deploy --only storage",
-    "lint": "eslint . --ext .js,.ts",
-    "lint:fix": "eslint . --ext .js,.ts --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{js,ts,json}\"",
     "format:check": "prettier --check \"src/**/*.{js,ts,json}\"",
     "test": "vitest run",
@@ -22,7 +23,7 @@
     "test:playwright": "playwright test",
     "test:playwright:ci": "playwright test --project=chromium",
     "test:coverage": "vitest run --coverage",
-    "test:all": "npm run test && npm run test:playwright"
+    "test:all": "pnpm run test && pnpm run test:playwright"
   },
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
