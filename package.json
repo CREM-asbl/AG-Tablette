@@ -23,7 +23,8 @@
     "test:playwright": "playwright test",
     "test:playwright:ci": "playwright test --project=chromium",
     "test:coverage": "vitest run --coverage",
-    "test:all": "pnpm run test && pnpm run test:playwright"
+    "test:all": "pnpm run test && pnpm run test:playwright",
+    "version:bump": "node scripts/bump-version.mjs"
   },
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
