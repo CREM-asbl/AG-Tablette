@@ -74,13 +74,22 @@ export async function openFileFromServer(activityName) {
       throw new Error("Nom d'activité invalide");
     }
 
-    const data = await getFileDocFromFilename(activityName);
-    if (data) {
-      const { app, loadEnvironnement, OpenFileManager } =
-        await loadAppControllerDependencies();
+    // Doc Firestore et imports des contrôleurs en parallèle
+    const [data, { app, loadEnvironnement, OpenFileManager }] =
+      await Promise.all([
+        getFileDocFromFilename(activityName),
+        loadAppControllerDependencies(),
+      ]);
 
-      await loadEnvironnement(data.environment);
-      const fileDownloadedObject = await readFileFromServer(data.id);
+    if (data) {
+      // Environnement et fichier local/réseau en parallèle : latence = max
+      const results = await Promise.allSettled([
+        loadEnvironnement(data.environment),
+        readFileFromServer(data.id),
+      ]);
+      const failure = results.find((r) => r.status === 'rejected');
+      if (failure) throw failure.reason;
+      const fileDownloadedObject = results[1].value;
 
       // Si l'application est déjà démarrée, on parse directement le fichier
       // sinon on attend l'événement app-started
