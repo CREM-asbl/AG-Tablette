@@ -122,7 +122,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 /**
  * Utilitaire de retry avec backoff exponentiel
  */
-async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
+export async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 300) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
@@ -159,10 +159,9 @@ async function downloadActivity(filename, fileRef, serverMetadata) {
       }
 
       return response;
-    },
-    3,
-    1000,
-  );
+          },
+          3,
+        );
 
   // Parser le JSON immédiatement
   const jsonData = await fileDownloaded.json();
@@ -345,7 +344,7 @@ export async function getFileDocFromFilename(id) {
         );
       }
 
-      docSnap = await retryWithBackoff(() => getDoc(docRef), 3, 1000);
+      docSnap = await retryWithBackoff(() => getDoc(docRef), 3);
 
       if (!docSnap.exists()) {
         throw new Error(`Document non trouvé: ${id}`);
@@ -399,12 +398,11 @@ export async function findAllThemes() {
   try {
     // Fallback serveur avec retry
     const themes = await retryWithBackoff(
-      async () => {
-        return await getDocs(collection(db, 'themes'));
-      },
-      2,
-      1000,
-    );
+          async () => {
+            return await getDocs(collection(db, 'themes'));
+          },
+          2,
+        );
 
     const themesWithId = [];
     themes.forEach((doc) => themesWithId.push({ id: doc.id, ...doc.data() }));
@@ -649,14 +647,13 @@ export async function getModulesDocFromTheme(themeDoc) {
 
     // Fallback serveur avec retry - utiliser la référence du document
     const moduleDocs = await retryWithBackoff(
-      async () => {
-        return await getDocs(
-          query(collection(db, 'modules'), where('theme', '==', themeRef)),
+          async () => {
+            return await getDocs(
+              query(collection(db, 'modules'), where('theme', '==', themeRef)),
+            );
+          },
+          2,
         );
-      },
-      2,
-      1000,
-    );
 
     const moduleDocsWithId = [];
     moduleDocs.forEach((doc) => {
