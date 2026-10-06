@@ -6,7 +6,9 @@ import {
   doc,
   getCountFromServer,
   getDoc,
+  getDocFromCache,
   getDocs,
+  getDocsFromCache,
   initializeFirestore,
   limit,
   orderBy,
@@ -317,25 +319,36 @@ export async function getFileDocFromFilename(id) {
       return cachedMetadata.data;
     }
 
-    // Récupérer avec retry
-    const result = await retryWithBackoff(
-      async () => {
-        const docRef = doc(db, 'files', id);
-        const docSnap = await getDoc(docRef);
+    // Cache Firestore local d'abord (persistentLocalCache) : lecture locale,
+    // sans aller-retour réseau. Repli serveur seulement si absent du cache.
+    const docRef = doc(db, 'files', id);
+    let docSnap = null;
+    try {
+      docSnap = await getDocFromCache(docRef);
+    } catch {
+      docSnap = null; // doc jamais mis en cache localement
+    }
 
-        if (docSnap.exists()) {
-          const app = await getAppInstance();
-          app.fileFromServer = true;
-          return { id, ...docSnap.data() };
-        } else {
-          throw new Error(`Document non trouvé: ${id}`);
-        }
-      },
-      3,
-      1000,
-    );
+    if (!docSnap || !docSnap.exists()) {
+      if (!navigator.onLine) {
+        throw new Error(
+          `Hors ligne et document absent du cache local: ${id}`,
+        );
+      }
 
-    // Mettre en cache
+      docSnap = await retryWithBackoff(() => getDoc(docRef), 3, 1000);
+
+      if (!docSnap.exists()) {
+        throw new Error(`Document non trouvé: ${id}`);
+      }
+
+      const app = await getAppInstance();
+      app.fileFromServer = true;
+    }
+
+    const result = { id, ...docSnap.data() };
+
+    // Mettre en cache mémoire
     fileCache.set(cacheKey, {
       data: result,
       timestamp: Date.now(),
@@ -682,11 +695,26 @@ export async function getModulesDocFromTheme(themeDoc) {
 }
 
 export async function getFilesDocFromModule(moduleDoc) {
-  const fileDocs = await getDocs(
-    query(collection(db, 'files'), where('module', '==', moduleDoc)),
+  const filesQuery = query(
+    collection(db, 'files'),
+    where('module', '==', moduleDoc),
   );
+
+  // Cache Firestore local d'abord : lecture locale non bloquante.
+  try {
+    const cachedDocs = await getDocsFromCache(filesQuery);
+    const cachedWithId = [];
+    cachedDocs.forEach((d) => cachedWithId.push({ id: d.id, ...d.data() }));
+    if (cachedWithId.length > 0) {
+      return cachedWithId;
+    }
+  } catch {
+    // requête jamais exécutée localement → repli serveur
+  }
+
+  const fileDocs = await getDocs(filesQuery);
   const fileDocsWithId = [];
-  fileDocs.forEach((doc) => fileDocsWithId.push({ id: doc.id, ...doc.data() }));
+  fileDocs.forEach((d) => fileDocsWithId.push({ id: d.id, ...d.data() }));
   return fileDocsWithId;
 }
 
