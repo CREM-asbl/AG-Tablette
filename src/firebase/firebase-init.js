@@ -6,7 +6,9 @@ import {
   doc,
   getCountFromServer,
   getDoc,
+  getDocFromCache,
   getDocs,
+  getDocsFromCache,
   initializeFirestore,
   limit,
   orderBy,
@@ -72,13 +74,22 @@ export async function openFileFromServer(activityName) {
       throw new Error("Nom d'activité invalide");
     }
 
-    const data = await getFileDocFromFilename(activityName);
-    if (data) {
-      const { app, loadEnvironnement, OpenFileManager } =
-        await loadAppControllerDependencies();
+    // Doc Firestore et imports des contrôleurs en parallèle
+    const [data, { app, loadEnvironnement, OpenFileManager }] =
+      await Promise.all([
+        getFileDocFromFilename(activityName),
+        loadAppControllerDependencies(),
+      ]);
 
-      await loadEnvironnement(data.environment);
-      const fileDownloadedObject = await readFileFromServer(data.id);
+    if (data) {
+      // Environnement et fichier local/réseau en parallèle : latence = max
+      const results = await Promise.allSettled([
+        loadEnvironnement(data.environment),
+        readFileFromServer(data.id),
+      ]);
+      const failure = results.find((r) => r.status === 'rejected');
+      if (failure) throw failure.reason;
+      const fileDownloadedObject = results[1].value;
 
       // Si l'application est déjà démarrée, on parse directement le fichier
       // sinon on attend l'événement app-started
@@ -111,7 +122,7 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 /**
  * Utilitaire de retry avec backoff exponentiel
  */
-async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
+export async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 300) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
       return await fn();
@@ -125,6 +136,104 @@ async function retryWithBackoff(fn, maxAttempts = 3, baseDelay = 1000) {
   }
 }
 
+// Tolérance d'horloge locale/serveur (alignée sur serverTimestampTolerance de
+// activity-sync) : un décalage ≤ 5 s ne doit pas forcer un re-téléchargement.
+const CLOCK_SKEW_TOLERANCE = 5000;
+
+/**
+ * Télécharge l'activité, la sauvegarde dans IndexedDB et alimente le cache
+ * mémoire. Retourne le JSON téléchargé.
+ */
+async function downloadActivity(filename, fileRef, serverMetadata) {
+  const fileDownloaded = await retryWithBackoff(
+    async () => {
+      const URL = await getDownloadURL(fileRef);
+      // Pas de `cache: 'reload'` : cela court-circuite le cache HTTP à chaque
+      // accès. La fraîcheur est vérifiée via getMetadata, pas via fetch.
+      const response = await fetch(URL);
+
+      if (!response.ok) {
+        throw new Error(
+          `Erreur HTTP: ${response.status} - ${response.statusText}`,
+        );
+      }
+
+      return response;
+          },
+          3,
+        );
+
+  // Parser le JSON immédiatement
+  const jsonData = await fileDownloaded.json();
+
+  // Sauvegarder dans IndexedDB pour accès hors ligne
+  try {
+    // Utiliser la date du serveur comme timestamp de référence si disponible
+    const timestampToSave =
+      serverMetadata && serverMetadata.updated
+        ? new Date(serverMetadata.updated).getTime()
+        : Date.now();
+
+    const version = jsonData.version || 1;
+    await saveActivity(filename, jsonData, version, timestampToSave);
+  } catch (saveError) {
+    logDevWarning(
+      '[firebase-init] IndexedDB save failed for activity cache:',
+      saveError,
+    );
+  }
+
+  // Mettre en cache le contenu JSON plutôt que la réponse
+  fileCache.set(`file_${filename}`, {
+    data: jsonData,
+    timestamp: Date.now(),
+  });
+
+  return jsonData;
+}
+
+/**
+ * Stale-while-revalidate : vérifie la fraîcheur côté serveur et rafraîchit la
+ * copie locale en tâche de fond. Jamais bloquant — la copie locale est déjà
+ * servie à l'appelant.
+ */
+function refreshActivityInBackground(filename, fileRef, localTimestamp) {
+  (async () => {
+    let serverMetadata = null;
+    try {
+      serverMetadata = await getMetadata(fileRef);
+    } catch (metaError) {
+      logDevWarning(
+        `[firebase-init] getMetadata failed for ${filename}:`,
+        metaError,
+      );
+      return;
+    }
+
+    if (!serverMetadata || !serverMetadata.updated) {
+      return;
+    }
+
+    const serverLastModified = new Date(serverMetadata.updated).getTime();
+    if (localTimestamp + CLOCK_SKEW_TOLERANCE >= serverLastModified) {
+      return;
+    }
+
+    if (import.meta.env.DEV) {
+      console.log(
+        `[firebase-init] Mise à jour en arrière-plan pour ${filename}: local ${new Date(localTimestamp).toLocaleString()} < server ${new Date(serverLastModified).toLocaleString()}`,
+      );
+    }
+
+    await downloadActivity(filename, fileRef, serverMetadata);
+  })().catch((error) => {
+    logDevWarning(
+      `[firebase-init] background refresh failed for ${filename}:`,
+      error,
+    );
+  });
+}
+
 export async function readFileFromServer(filename, options = {}) {
   try {
     // Validation du nom de fichier
@@ -134,39 +243,11 @@ export async function readFileFromServer(filename, options = {}) {
 
     const { forceDownload = false } = options;
     const fileRef = ref(storage, filename);
-    let serverMetadata = null;
 
-    // Récupérer les métadonnées du serveur pour vérifier la date de mise à jour
+    // 1. IndexedDB d'abord : lecture locale sans aucun aller-retour réseau
+    let localActivity = null;
     try {
-      if (navigator.onLine) {
-        serverMetadata = await getMetadata(fileRef);
-      }
-    } catch (metaError) {
-      logDevWarning(`[firebase-init] getMetadata failed for ${filename}:`, metaError);
-    }
-
-    // Vérifier d'abord IndexedDB (accès hors ligne)
-    try {
-      const localActivity = await getActivity(filename);
-      if (localActivity && !forceDownload) {
-        // Si on a les métadonnées du serveur, comparer les dates
-        if (serverMetadata && serverMetadata.updated) {
-          const serverLastModified = new Date(serverMetadata.updated).getTime();
-          const localTimestamp = localActivity.timestamp || 0;
-
-          // Si le fichier local est plus récent ou identique au fichier serveur, on l'utilise
-          if (localTimestamp >= serverLastModified) {
-            return localActivity.data;
-          }
-          
-          if (import.meta.env.DEV) {
-            console.log(`[firebase-init] Mise à jour détectée pour ${filename}: local ${new Date(localTimestamp).toLocaleString()} < server ${new Date(serverLastModified).toLocaleString()}`);
-          }
-        } else {
-          // Si on est hors ligne ou si getMetadata a échoué, on utilise le cache
-          return localActivity.data;
-        }
-      }
+      localActivity = await getActivity(filename);
     } catch (indexedDBError) {
       logDevWarning(
         '[firebase-init] IndexedDB read failed for activity cache:',
@@ -174,77 +255,47 @@ export async function readFileFromServer(filename, options = {}) {
       );
     }
 
-    // Vérifier le cache mémoire - seulement si on n'a pas détecté de mise à jour nécessaire
+    if (localActivity && !forceDownload) {
+      // Stale-while-revalidate : servir la copie locale immédiatement,
+      // vérifier la fraîcheur côté serveur en tâche de fond.
+      if (navigator.onLine) {
+        refreshActivityInBackground(
+          filename,
+          fileRef,
+          localActivity.timestamp || 0,
+        );
+      }
+      return localActivity.data;
+    }
+
+    // 2. Cache mémoire du processus (frais depuis < 5 min)
     const cacheKey = `file_${filename}`;
     if (!forceDownload) {
       const cachedData = fileCache.get(cacheKey);
       if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
-        // Si on a les métadonnées du serveur, on vérifie aussi contre le cache mémoire
-        if (serverMetadata && serverMetadata.updated) {
-          const serverLastModified = new Date(serverMetadata.updated).getTime();
-          if (cachedData.timestamp >= serverLastModified) {
-            return cachedData.data;
-          }
-        } else {
-          return cachedData.data;
-        }
+        return cachedData.data;
       }
     }
 
-    // Télécharger avec retry
-    const fileDownloaded = await retryWithBackoff(
-      async () => {
-        const URL = await getDownloadURL(fileRef);
-        // Bypass le cache navigateur si on sait qu'il y a une mise à jour
-        const fetchOptions = serverMetadata ? { cache: 'reload' } : {};
-        const response = await fetch(URL, fetchOptions);
-
-        if (!response.ok) {
-          throw new Error(
-            `Erreur HTTP: ${response.status} - ${response.statusText}`,
-          );
-        }
-
-        return response;
-      },
-      3,
-      1000,
-    );
-
-    // Parser le JSON immédiatement
-    const jsonData = await fileDownloaded.json();
-
-    // Sauvegarder dans IndexedDB pour accès hors ligne
+    // 3. Première lecture uniquement : métadonnées + téléchargement
+    let serverMetadata = null;
     try {
-      // Utiliser la date du serveur comme timestamp de référence si disponible
-      const timestampToSave = serverMetadata && serverMetadata.updated 
-        ? new Date(serverMetadata.updated).getTime() 
-        : Date.now();
-      
-      const version = jsonData.version || 1;
-      await saveActivity(filename, jsonData, version, timestampToSave);
-    } catch (saveError) {
+      if (navigator.onLine) {
+        serverMetadata = await getMetadata(fileRef);
+      }
+    } catch (metaError) {
       logDevWarning(
-        '[firebase-init] IndexedDB save failed for activity cache:',
-        saveError,
+        `[firebase-init] getMetadata failed for ${filename}:`,
+        metaError,
       );
     }
 
-    // Mettre en cache le contenu JSON plutôt que la réponse
-    fileCache.set(cacheKey, {
-      data: jsonData,
-      timestamp: Date.now(),
-    });
-
-    return jsonData;
+    return await downloadActivity(filename, fileRef, serverMetadata);
   } catch (error) {
-
-
     // En cas d'erreur réseau, tenter une dernière fois IndexedDB
     try {
       const fallbackActivity = await getActivity(filename);
       if (fallbackActivity) {
-
         return fallbackActivity.data;
       }
     } catch (fallbackError) {
@@ -276,25 +327,36 @@ export async function getFileDocFromFilename(id) {
       return cachedMetadata.data;
     }
 
-    // Récupérer avec retry
-    const result = await retryWithBackoff(
-      async () => {
-        const docRef = doc(db, 'files', id);
-        const docSnap = await getDoc(docRef);
+    // Cache Firestore local d'abord (persistentLocalCache) : lecture locale,
+    // sans aller-retour réseau. Repli serveur seulement si absent du cache.
+    const docRef = doc(db, 'files', id);
+    let docSnap = null;
+    try {
+      docSnap = await getDocFromCache(docRef);
+    } catch {
+      docSnap = null; // doc jamais mis en cache localement
+    }
 
-        if (docSnap.exists()) {
-          const app = await getAppInstance();
-          app.fileFromServer = true;
-          return { id, ...docSnap.data() };
-        } else {
-          throw new Error(`Document non trouvé: ${id}`);
-        }
-      },
-      3,
-      1000,
-    );
+    if (!docSnap || !docSnap.exists()) {
+      if (!navigator.onLine) {
+        throw new Error(
+          `Hors ligne et document absent du cache local: ${id}`,
+        );
+      }
 
-    // Mettre en cache
+      docSnap = await retryWithBackoff(() => getDoc(docRef), 3);
+
+      if (!docSnap.exists()) {
+        throw new Error(`Document non trouvé: ${id}`);
+      }
+
+      const app = await getAppInstance();
+      app.fileFromServer = true;
+    }
+
+    const result = { id, ...docSnap.data() };
+
+    // Mettre en cache mémoire
     fileCache.set(cacheKey, {
       data: result,
       timestamp: Date.now(),
@@ -336,12 +398,11 @@ export async function findAllThemes() {
   try {
     // Fallback serveur avec retry
     const themes = await retryWithBackoff(
-      async () => {
-        return await getDocs(collection(db, 'themes'));
-      },
-      2,
-      1000,
-    );
+          async () => {
+            return await getDocs(collection(db, 'themes'));
+          },
+          2,
+        );
 
     const themesWithId = [];
     themes.forEach((doc) => themesWithId.push({ id: doc.id, ...doc.data() }));
@@ -586,14 +647,13 @@ export async function getModulesDocFromTheme(themeDoc) {
 
     // Fallback serveur avec retry - utiliser la référence du document
     const moduleDocs = await retryWithBackoff(
-      async () => {
-        return await getDocs(
-          query(collection(db, 'modules'), where('theme', '==', themeRef)),
+          async () => {
+            return await getDocs(
+              query(collection(db, 'modules'), where('theme', '==', themeRef)),
+            );
+          },
+          2,
         );
-      },
-      2,
-      1000,
-    );
 
     const moduleDocsWithId = [];
     moduleDocs.forEach((doc) => {
@@ -641,11 +701,26 @@ export async function getModulesDocFromTheme(themeDoc) {
 }
 
 export async function getFilesDocFromModule(moduleDoc) {
-  const fileDocs = await getDocs(
-    query(collection(db, 'files'), where('module', '==', moduleDoc)),
+  const filesQuery = query(
+    collection(db, 'files'),
+    where('module', '==', moduleDoc),
   );
+
+  // Cache Firestore local d'abord : lecture locale non bloquante.
+  try {
+    const cachedDocs = await getDocsFromCache(filesQuery);
+    const cachedWithId = [];
+    cachedDocs.forEach((d) => cachedWithId.push({ id: d.id, ...d.data() }));
+    if (cachedWithId.length > 0) {
+      return cachedWithId;
+    }
+  } catch {
+    // requête jamais exécutée localement → repli serveur
+  }
+
+  const fileDocs = await getDocs(filesQuery);
   const fileDocsWithId = [];
-  fileDocs.forEach((doc) => fileDocsWithId.push({ id: doc.id, ...doc.data() }));
+  fileDocs.forEach((d) => fileDocsWithId.push({ id: d.id, ...d.data() }));
   return fileDocsWithId;
 }
 

@@ -7,6 +7,7 @@ import { registerSW } from 'virtual:pwa-register';
  */
 const updateSW = registerSW({
   immediate: true,
+  registerType: 'autoUpdate',
 
   onRegisteredSW(swScriptUrl) {
     if (import.meta.env.DEV) {
@@ -26,8 +27,6 @@ const updateSW = registerSW({
   },
 
   onNeedRefresh() {
-    if (confirm('Mise à jour disponible.\nMettre à jour ?')) {
-      updateSW(true);
-    }
+    updateSW(true);
   },
 });
