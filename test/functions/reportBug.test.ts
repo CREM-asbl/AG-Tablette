@@ -1,8 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock firebase-functions avant l'import du handler
-const mockConfig = vi.fn(() => ({ github: { token: 'mock-token' } }));
+// Use vi.hoisted to ensure mocks are set up before imports
+const { mockConfig, mockFetch, mockAdd, mockCollection, mockGetFirestore, mockInitializeApp } = vi.hoisted(() => ({
+  mockConfig: vi.fn(() => ({ github: { token: 'mock-token' } })),
+  mockFetch: vi.fn(),
+  mockAdd: vi.fn(async () => ({ id: 'mock-doc-id' })),
+  mockCollection: vi.fn(() => ({ add: mockAdd })),
+  mockGetFirestore: vi.fn(() => ({ collection: mockCollection })),
+  mockInitializeApp: vi.fn(),
+}));
 
+// Mock the modules BEFORE any imports - use vi.mock with factory
 vi.mock('firebase-functions', () => ({
   https: {
     HttpsError: class extends Error {
@@ -18,37 +26,76 @@ vi.mock('firebase-functions', () => ({
   config: mockConfig,
 }));
 
-// Mock firebase-admin
-const mockAdd = vi.fn(async () => ({ id: 'mock-doc-id' }));
-const mockCollection = vi.fn(() => ({ add: mockAdd }));
-const mockGetFirestore = vi.fn(() => ({ collection: mockCollection }));
-const mockInitializeApp = vi.fn();
-
 vi.mock('firebase-admin', () => ({
   apps: [],
   initializeApp: mockInitializeApp,
-  firestore: {
-    getFirestore: mockGetFirestore,
+  firestore: vi.fn(() => ({ 
+    collection: mockCollection,
     FieldValue: {
       serverTimestamp: vi.fn(() => new Date()),
     },
+  })),
+  FieldValue: {
+    serverTimestamp: vi.fn(() => new Date()),
   },
 }));
 
-// Mock globalThis.fetch pour l'API GitHub
-const mockFetch = vi.fn();
 globalThis.fetch = mockFetch as any;
 
-// Importer le code compile (lib/) pour eviter les problemes de resolution TS
-const { reportBug } = await import('../../functions/lib/reportBug.js');
+// Override require cache for BOTH firebase-functions AND firebase-admin BEFORE any imports
+const Module = await import('module');
+const originalRequire = Module.Module.prototype.require;
+Module.Module.prototype.require = function(id: string) {
+  if (id === 'firebase-functions') {
+    return {
+      https: {
+        HttpsError: class extends Error {
+          code: string;
+          constructor(code: string, message: string) {
+            super(message);
+            this.code = code;
+            this.name = 'HttpsError';
+          }
+        },
+        onCall: vi.fn(),
+      },
+      config: mockConfig,
+    };
+  }
+  if (id === 'firebase-admin') {
+        const mockFirestore = vi.fn(() => ({ 
+          collection: mockCollection,
+        }));
+        mockFirestore.FieldValue = {
+          serverTimestamp: vi.fn(() => new Date()),
+        };
+        return {
+          apps: [],
+          initializeApp: mockInitializeApp,
+          firestore: mockFirestore,
+          FieldValue: {
+            serverTimestamp: vi.fn(() => new Date()),
+          },
+        };
+      }
+  return originalRequire.call(this, id);
+};
 
 describe('reportBug Firebase Function', () => {
-  beforeEach(() => {
+  let reportBug: any;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    mockConfig.mockImplementation(() => ({ github: { token: 'mock-token' } }));
     mockFetch.mockReset();
     mockAdd.mockClear();
     mockCollection.mockClear();
     mockGetFirestore.mockClear();
     mockInitializeApp.mockClear();
+    
+    // Import after mocks are set up and modules reset
+    const { reportBug: fresh } = await import('../../functions/lib/reportBug.js');
+    reportBug = fresh;
   });
 
   it('devrait creer l\'issue GitHub et enregistrer dans Firestore', async () => {
@@ -153,6 +200,6 @@ describe('reportBug Firebase Function', () => {
           context: { version: '1', route: '/', tool: null, online: true, sw: false, userAgent: 'ua', timestamp: '' },
         },
       } as any),
-    ).rejects.toThrow(/401/);
+    ).rejects.toThrow(/GitHub API error 401/);
   });
 });
