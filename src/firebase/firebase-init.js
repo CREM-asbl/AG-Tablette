@@ -74,18 +74,25 @@ export async function openFileFromServer(activityName) {
       throw new Error("Nom d'activité invalide");
     }
 
-    // Doc Firestore et imports des contrôleurs en parallèle
-    const [data, { app, loadEnvironnement, OpenFileManager }] =
+    // Doc Firestore, imports des contrôleurs ET contenu local en parallèle
+    const [{ app, loadEnvironnement, OpenFileManager }, data, localActivity] =
       await Promise.all([
-        getFileDocFromFilename(activityName),
         loadAppControllerDependencies(),
+        getFileDocFromFilename(activityName),
+        getActivity(activityName).catch(() => null),
       ]);
 
-    if (data) {
+    // Déterminer l'environnement : priorité au doc Firestore, fallback sur le contenu local
+    let environment = data?.environment;
+    if (!environment && localActivity?.data?.envName) {
+      environment = localActivity.data.envName;
+    }
+
+    if (environment) {
       // Environnement et fichier local/réseau en parallèle : latence = max
       const results = await Promise.allSettled([
-        loadEnvironnement(data.environment),
-        readFileFromServer(data.id),
+        loadEnvironnement(environment),
+        readFileFromServer(data?.id || activityName),
       ]);
       const failure = results.find((r) => r.status === 'rejected');
       if (failure) throw failure.reason;
