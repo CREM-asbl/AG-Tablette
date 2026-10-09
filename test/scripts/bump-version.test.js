@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { bumpPatch, parseVersion, versionCodeFor } from '../../scripts/bump-version.mjs';
+import { bumpPatch, bumpMinor, bumpMajor, bumpVersion, parseVersion, versionCodeFor } from '../../scripts/bump-version.mjs';
 
 describe('bump-version', () => {
   it('parse la version semver', () => {
@@ -14,6 +14,23 @@ describe('bump-version', () => {
   it('incremente le patch', () => {
     expect(bumpPatch('1.5.2')).toBe('1.5.3');
     expect(bumpPatch('1.5.9')).toBe('1.5.10');
+  });
+
+  it('incremente le minor', () => {
+    expect(bumpMinor('1.5.2')).toBe('1.6.0');
+    expect(bumpMinor('1.9.5')).toBe('1.10.0');
+  });
+
+  it('incremente le major', () => {
+    expect(bumpMajor('1.5.2')).toBe('2.0.0');
+    expect(bumpMajor('9.9.9')).toBe('10.0.0');
+  });
+
+  it('bumpVersion dispatch correctement', () => {
+    expect(bumpVersion('1.5.2', 'patch')).toBe('1.5.3');
+    expect(bumpVersion('1.5.2', 'minor')).toBe('1.6.0');
+    expect(bumpVersion('1.5.2', 'major')).toBe('2.0.0');
+    expect(bumpVersion('1.5.2')).toBe('1.5.3'); // default patch
   });
 
   it('calcule un versionCode monotone croissant', () => {
