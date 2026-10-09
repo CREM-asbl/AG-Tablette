@@ -17,6 +17,25 @@ export function bumpPatch(version) {
   return `${major}.${minor}.${patch + 1}`;
 }
 
+export function bumpMinor(version) {
+  const { major, minor } = parseVersion(version);
+  return `${major}.${minor + 1}.0`;
+}
+
+export function bumpMajor(version) {
+  const { major } = parseVersion(version);
+  return `${major + 1}.0.0`;
+}
+
+export function bumpVersion(version, type = 'patch') {
+  switch (type) {
+    case 'major': return bumpMajor(version);
+    case 'minor': return bumpMinor(version);
+    case 'patch':
+    default: return bumpPatch(version);
+  }
+}
+
 export function versionCodeFor(version, currentCode = 0) {
   const { major, minor, patch } = parseVersion(version);
   const computed = major * 10000 + minor * 100 + patch;
@@ -33,15 +52,22 @@ function syncTwaManifest(version) {
 }
 
 function main() {
-  const args = new Set(process.argv.slice(2));
-  if (args.has('--help') || args.has('-h')) {
-    console.log('Usage: node scripts/bump-version.mjs [--check|--dry-run]');
+  const args = process.argv.slice(2);
+  const typeArg = args.find(a => a.startsWith('--type='));
+  const type = typeArg ? typeArg.split('=')[1] : 'patch';
+  const validTypes = ['patch', 'minor', 'major'];
+  if (!validTypes.includes(type)) {
+    console.error(`Type invalide: ${type}. Attendu: patch, minor, major`);
+    process.exit(1);
+  }
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log('Usage: node scripts/bump-version.mjs [--type=patch|minor|major] [--check|--dry-run]');
     return;
   }
   const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-  const next = bumpPatch(pkg.version);
-  if (args.has('--check') || args.has('--dry-run')) {
-    console.log(`would bump: ${pkg.version} -> ${next}`);
+  const next = bumpVersion(pkg.version, type);
+  if (args.includes('--check') || args.includes('--dry-run')) {
+    console.log(`would bump (${type}): ${pkg.version} -> ${next}`);
     return;
   }
   pkg.version = next;
