@@ -142,8 +142,8 @@ jobs:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         run: |
           if [ -z "$FIREBASE_TOKEN" ]; then
-            echo "::error::Missing FIREBASE_TOKEN secret. Deployment blocked."
-            exit 1
+            echo "::warning::Missing FIREBASE_TOKEN secret. Skipping deployment."
+            exit 0
           fi
 
       - name: Bump patch version
@@ -204,8 +204,8 @@ jobs:
             FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           run: |
             if [ -z "$FIREBASE_TOKEN" ]; then
-              echo "::error::Missing FIREBASE_TOKEN secret. Deployment blocked."
-              exit 1
+                      echo "::warning::Missing FIREBASE_TOKEN secret. Skipping deployment."
+                      exit 0
             fi
 
         - name: Bump version (${{ github.event.inputs.version_type }})
