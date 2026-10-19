@@ -19,7 +19,10 @@ if ('launchQueue' in window) {
     for (const fileHandle of launchParams.files) {
       const pathArray = fileHandle.name.split('.');
       const extension = pathArray[pathArray.length - 1];
-      await loadEnvironnement(environmentsByExtensions[extension]);
+      const environment = environmentsByExtensions[extension];
+      if (!environment) continue;
+
+      await loadEnvironnement(environment);
       appActions.setFileToOpen(fileHandle);
     }
   });
