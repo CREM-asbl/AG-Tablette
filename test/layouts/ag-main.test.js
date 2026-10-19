@@ -42,6 +42,10 @@ vi.mock('../../src/services/offline-support-bootstrap', () => ({
     initializeOfflineSupportBootstrap: vi.fn(() => Promise.resolve()),
 }));
 
+vi.mock('../../src/controllers/Core/Managers/OpenFileManager', () => ({
+    OpenFileManager: { newReadFile: vi.fn() },
+}));
+
 import '../../src/layouts/ag-main';
 
 describe('ag-main', () => {
@@ -49,6 +53,20 @@ describe('ag-main', () => {
 
     beforeEach(async () => {
         element = await fixture(html`<ag-main></ag-main>`);
+    });
+
+    it('opens an automatically launched file after firstUpdated finishes', async () => {
+        const { OpenFileManager } = await import('../../src/controllers/Core/Managers/OpenFileManager');
+        const fileHandle = { name: 'Egypte.agl' };
+        const { fileToOpen } = await import('../../src/store/appState');
+        fileToOpen.set(fileHandle);
+        try {
+            await element.firstUpdated();
+        } finally {
+            fileToOpen.set(null);
+        }
+
+        expect(OpenFileManager.newReadFile.mock.calls).to.deep.include([fileHandle]);
     });
 
     it('should update activeTool signal when setActiveTool is called', async () => {

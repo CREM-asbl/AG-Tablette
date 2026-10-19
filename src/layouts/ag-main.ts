@@ -10,7 +10,7 @@ import '../components/sync-status-indicator.ts';
 import '../components/tool-ui-container.ts';
 import { app } from '../controllers/Core/App';
 import { OpenFileManager } from '../controllers/Core/Managers/OpenFileManager';
-import { activeTool, filename } from '../store/appState';
+import { activeTool, fileToOpen, filename } from '../store/appState';
 
 @customElement('ag-main')
 class AGMain extends SignalWatcher(LitElement) {
@@ -159,8 +159,9 @@ class AGMain extends SignalWatcher(LitElement) {
       void initializeOfflineSupportBootstrap();
     }
 
-    if (app.fileToOpen) {
-      OpenFileManager.newReadFile(app.fileToOpen);
+    const file = fileToOpen.get() || app.fileToOpen;
+    if (file) {
+      await OpenFileManager.newReadFile(file);
     }
 
     window.addEventListener('show-file-selector', () => {
