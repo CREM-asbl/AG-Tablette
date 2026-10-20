@@ -35,6 +35,8 @@ npm run deploy:beta3
 
 Le push sur `master` déclenche `deploy-production` : lint → tests unitaires → build → e2e → bump de version → déploiement Firebase Hosting.
 
+Le workflow `CI/CD` peut aussi être lancé manuellement (onglet **Actions** → *CI/CD* → *Run workflow*) avec l'input `version_type` (`patch`, `minor` ou `major`) : le job `deploy-manual` exécute la même chaîne puis pousse le bump de version et le tag sur `master`.
+
 L'authentification utilise **Workload Identity Federation** (OIDC) : aucun token longue durée en secret GitHub. Le déploiement échoue maintenant si les secrets OIDC sont absents (plus de skip silencieux).
 
 **Prérequis GCP (à faire une seule fois)**
