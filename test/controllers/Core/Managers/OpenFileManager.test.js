@@ -1,4 +1,19 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const { mockAppActions, mockEnvironmentConfig } = vi.hoisted(() => ({
+  mockAppActions: {
+    updateSettings: vi.fn(),
+    addNotification: vi.fn()
+  },
+  mockEnvironmentConfig: {
+    get: vi.fn(() => null)
+  }
+}));
+
+vi.mock('@store/appState', () => ({
+  appActions: mockAppActions,
+  environmentConfig: mockEnvironmentConfig
+}));
 
 // Mocks des dépendances
 vi.mock('@controllers/Core/App', () => ({
@@ -107,7 +122,55 @@ import { OpenFileManager } from '@controllers/Core/Managers/OpenFileManager.js';
 describe('OpenFileManager', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockEnvironmentConfig.get.mockReturnValue(null);
     mockShowOpenFilePicker.mockResolvedValue([{ getFile: vi.fn(() => ({ text: vi.fn(() => '{}') })) }]);
+  });
+
+  describe('processSettings', () => {
+    const gridStoreInstance = {
+      setGridType: vi.fn(),
+      setGridSize: vi.fn(),
+      setGridOpacity: vi.fn(),
+      setIsVisible: vi.fn()
+    };
+
+    it('should let environment settings override the file settings', () => {
+      mockEnvironmentConfig.get.mockReturnValue({
+        name: 'Tangram',
+        settings: { areShapesPointed: false }
+      });
+
+      OpenFileManager.processSettings(
+        { settings: { areShapesPointed: true, magnetismDistance: 20 } },
+        global.app,
+        gridStoreInstance
+      );
+
+      expect(mockAppActions.updateSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ areShapesPointed: false, magnetismDistance: 20 })
+      );
+    });
+
+    it('should keep the file settings when the environment defines none', () => {
+      mockEnvironmentConfig.get.mockReturnValue({ name: 'Geometrie' });
+
+      OpenFileManager.processSettings(
+        { settings: { areShapesPointed: true } },
+        global.app,
+        gridStoreInstance
+      );
+
+      expect(mockAppActions.updateSettings).toHaveBeenCalledWith(
+        expect.objectContaining({ areShapesPointed: true })
+      );
+    });
+
+    it('should reset settings when the file has none', () => {
+      OpenFileManager.processSettings({}, global.app, gridStoreInstance);
+
+      expect(global.app.resetSettings).toHaveBeenCalled();
+      expect(mockAppActions.updateSettings).not.toHaveBeenCalled();
+    });
   });
 
   describe('validateFileContent', () => {
