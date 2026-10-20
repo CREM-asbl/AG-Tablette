@@ -60,4 +60,58 @@ describe('state-menu', () => {
 
     expect(appActionsMock.setTangramState).not.toHaveBeenCalled();
   });
+
+  it('affiche le niveau courant et le bouton recommencer', async () => {
+    const menu = document.createElement('state-menu');
+    menu.level = 4;
+    document.body.appendChild(menu);
+    await menu.updateComplete;
+
+    const labels = [...menu.shadowRoot.querySelectorAll('button')].map((b) =>
+      b.textContent.trim(),
+    );
+
+    expect(labels).toContain('Niveau : 4');
+    expect(labels).toContain('Recommencer');
+    menu.remove();
+  });
+
+  it('dispatche tangram:level-menu-clicked au clic sur le niveau', () => {
+    const menu = document.createElement('state-menu');
+    const listener = vi.fn();
+    window.addEventListener('tangram:level-menu-clicked', listener);
+
+    menu.levelHandler();
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    window.removeEventListener('tangram:level-menu-clicked', listener);
+  });
+
+  it('dispatche tangram:restart-menu-clicked au clic sur recommencer', () => {
+    const menu = document.createElement('state-menu');
+    const listener = vi.fn();
+    window.addEventListener('tangram:restart-menu-clicked', listener);
+
+    menu.restartHandler();
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    window.removeEventListener('tangram:restart-menu-clicked', listener);
+  });
+
+  it('ne dispatche rien pendant la relecture fullHistory (niveau/recommencer)', () => {
+    const menu = document.createElement('state-menu');
+    const levelListener = vi.fn();
+    const restartListener = vi.fn();
+    window.addEventListener('tangram:level-menu-clicked', levelListener);
+    window.addEventListener('tangram:restart-menu-clicked', restartListener);
+    appMock.fullHistory.isRunning = true;
+
+    menu.levelHandler();
+    menu.restartHandler();
+
+    expect(levelListener).not.toHaveBeenCalled();
+    expect(restartListener).not.toHaveBeenCalled();
+    window.removeEventListener('tangram:level-menu-clicked', levelListener);
+    window.removeEventListener('tangram:restart-menu-clicked', restartListener);
+  });
 });

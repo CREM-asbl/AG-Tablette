@@ -6,7 +6,13 @@ import { app } from '../Core/App';
 class StateMenu extends LitElement {
   static properties = {
     check: { type: Boolean },
+    level: { type: Number },
   };
+
+  constructor() {
+    super();
+    this.level = 1;
+  }
 
   static styles = css`
     :host {
@@ -29,13 +35,29 @@ class StateMenu extends LitElement {
     const text = this.check
       ? 'Annuler la vérification'
       : 'Vérifier la solution';
-    return html`<button @click="${this.clickHandler}">${text}</button>`;
+    return html`
+      <button @click="${this.clickHandler}">${text}</button>
+      <button @click="${this.levelHandler}">Niveau : ${this.level}</button>
+      <button @click="${this.restartHandler}">Recommencer</button>
+    `;
   }
 
   clickHandler() {
     if (!app.fullHistory.isRunning) {
       const value = this.check ? 'uncheck' : 'check';
       appActions.setTangramState({ currentStep: value });
+    }
+  }
+
+  levelHandler() {
+    if (!app.fullHistory.isRunning) {
+      window.dispatchEvent(new CustomEvent('tangram:level-menu-clicked'));
+    }
+  }
+
+  restartHandler() {
+    if (!app.fullHistory.isRunning) {
+      window.dispatchEvent(new CustomEvent('tangram:restart-menu-clicked'));
     }
   }
 
