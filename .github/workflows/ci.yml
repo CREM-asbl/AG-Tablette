@@ -192,7 +192,7 @@ jobs:
       - name: Deploy to Firebase Hosting
         env:
           FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: pnpm exec firebase-tools deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
+        run: pnpm exec firebase deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
 
   deploy-manual:
     runs-on: ubuntu-latest
@@ -269,4 +269,4 @@ jobs:
       - name: Deploy to Firebase Hosting
         env:
           FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
-        run: pnpm exec firebase-tools deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
+        run: pnpm exec firebase deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
