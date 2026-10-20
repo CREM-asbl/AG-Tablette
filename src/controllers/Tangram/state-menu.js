@@ -29,6 +29,7 @@ class StateMenu extends LitElement {
       width: 100%;
       padding: 8px;
       font-size: 20px;
+      color: var(--text-color);
       border: none;
       border-radius: 3px;
       background-color: var(--theme-color);

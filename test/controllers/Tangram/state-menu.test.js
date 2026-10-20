@@ -76,6 +76,21 @@ describe('state-menu', () => {
     menu.remove();
   });
 
+  it('utilise les tokens du theme plutot que des couleurs en dur', async () => {
+    const menu = document.createElement('state-menu');
+    document.body.appendChild(menu);
+    await menu.updateComplete;
+
+    const cssText = [...menu.shadowRoot.querySelectorAll('style')]
+      .map((s) => s.textContent)
+      .join('\n');
+
+    expect(cssText).toContain('var(--theme-color)');
+    expect(cssText).toContain('var(--text-color)');
+    expect(cssText).not.toContain('#bbb');
+    menu.remove();
+  });
+
   it('dispatche tangram:level-menu-clicked au clic sur le niveau', () => {
     const menu = document.createElement('state-menu');
     const listener = vi.fn();
