@@ -119,6 +119,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     permissions:
       contents: write
+      id-token: write
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
 
     steps:
       - uses: actions/checkout@v4
@@ -137,13 +141,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify Firebase token
+      - name: Verify OIDC configuration
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
         run: |
-          if [ -z "$FIREBASE_TOKEN" ]; then
-            echo "::warning::Missing FIREBASE_TOKEN secret. Skipping deployment."
-            exit 0
+          if [ -z "$GCP_WORKLOAD_IDENTITY_PROVIDER" ]; then
+            echo "::error::Missing secret GCP_WORKLOAD_IDENTITY_PROVIDER. See README 'Déploiement CI'."
+            exit 1
+          fi
+          if [ -z "$GCP_SERVICE_ACCOUNT" ]; then
+            echo "::error::Missing secret GCP_SERVICE_ACCOUNT. See README 'Déploiement CI'."
+            exit 1
           fi
 
       - name: Bump patch version
@@ -160,27 +169,42 @@ jobs:
           git tag "v${BUMPED_VERSION}"
           git push origin HEAD:master "v${BUMPED_VERSION}"
 
+      - name: Authenticate to Google Cloud (OIDC)
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: apprenti-geometre
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
       - name: Deploy to Firebase Hosting
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: pnpm dlx firebase-tools deploy --only hosting --project apprenti-geometre --token "$FIREBASE_TOKEN"
+          FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: pnpm exec firebase-tools deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
 
   deploy-manual:
-      runs-on: ubuntu-latest
-      needs: [ lint, unit-tests, build, e2e ]
-      if: github.event_name == 'workflow_dispatch'
-      permissions:
-        contents: write
-      inputs:
-        version_type:
-          description: 'Version bump type'
-          required: true
-          default: 'patch'
-          type: choice
-          options:
-            - patch
-            - minor
-            - major
+    runs-on: ubuntu-latest
+    needs: [ lint, unit-tests, build, e2e ]
+    if: github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: write
+      id-token: write
+    concurrency:
+      group: deploy-${{ github.ref }}
+      cancel-in-progress: false
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -197,13 +221,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Verify Firebase token
+      - name: Verify OIDC configuration
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          GCP_WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          GCP_SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
         run: |
-          if [ -z "$FIREBASE_TOKEN" ]; then
-            echo "::warning::Missing FIREBASE_TOKEN secret. Skipping deployment."
-            exit 0
+          if [ -z "$GCP_WORKLOAD_IDENTITY_PROVIDER" ]; then
+            echo "::error::Missing secret GCP_WORKLOAD_IDENTITY_PROVIDER. See README 'Déploiement CI'."
+            exit 1
+          fi
+          if [ -z "$GCP_SERVICE_ACCOUNT" ]; then
+            echo "::error::Missing secret GCP_SERVICE_ACCOUNT. See README 'Déploiement CI'."
+            exit 1
           fi
 
       - name: Bump version (${{ github.event.inputs.version_type }})
@@ -220,7 +249,16 @@ jobs:
           git tag "v${BUMPED_VERSION}"
           git push origin HEAD:master "v${BUMPED_VERSION}"
 
+      - name: Authenticate to Google Cloud (OIDC)
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: apprenti-geometre
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+          token_format: access_token
+
       - name: Deploy to Firebase Hosting
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        run: pnpm dlx firebase-tools deploy --only hosting --project apprenti-geometre --token "$FIREBASE_TOKEN"
+          FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+        run: pnpm exec firebase-tools deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
