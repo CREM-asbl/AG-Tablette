@@ -16,18 +16,37 @@ class StateMenu extends LitElement {
 
   static styles = css`
     :host {
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       padding: 8px;
-      border-radius: 5px;
+      border-radius: 4px;
       background-color: var(--theme-color-soft);
     }
 
     button {
-      font-size: 20px;
-      border-radius: 4px;
+      display: block;
+      width: 100%;
       padding: 8px;
-      background-color: #bbb;
+      font-size: 20px;
+      border: none;
+      border-radius: 3px;
+      background-color: var(--theme-color);
+      box-shadow: 0 1px 3px var(--menu-shadow-color);
       cursor: pointer;
+      transition:
+        opacity 0.15s ease-out,
+        box-shadow 0.15s ease-out;
+    }
+
+    button:hover {
+      opacity: 0.8;
+      box-shadow: 0 2px 5px var(--menu-shadow-color);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--theme-color-soft);
+      outline-offset: 2px;
     }
   `;
 
