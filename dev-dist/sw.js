@@ -67,13 +67,30 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-221f7d7b'], (function (workbox) { 'use strict';
+define(['./workbox-99daac06'], (function (workbox) { 'use strict';
 
   self.addEventListener('message', event => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
       self.skipWaiting();
     }
   });
+
+  /**
+   * The precacheAndRoute() method efficiently caches and responds to
+   * requests for URLs in the manifest.
+   * See https://goo.gl/S9QRab
+   */
+  workbox.precacheAndRoute([{
+    "url": "/",
+    "revision": "0.gmb1ut3o2a"
+  }], {
+    "directoryIndex": "index.html"
+  });
+  workbox.cleanupOutdatedCaches();
+  workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("/"), {
+    allowlist: [/^\/$/],
+    denylist: [/^\/api\//, /^\/data\//]
+  }));
   workbox.registerRoute(/\.(?:agg|agl|agt|ags|agc)$/i, new workbox.StaleWhileRevalidate({
     "cacheName": "ag-activities-cache",
     plugins: [new workbox.ExpirationPlugin({
@@ -86,6 +103,15 @@ define(['./workbox-221f7d7b'], (function (workbox) { 'use strict';
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 100,
       maxAgeSeconds: 604800
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/\.pdf$/i, new workbox.CacheFirst({
+    "cacheName": "ag-pdf-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 10,
+      maxAgeSeconds: 2592000
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
     })]

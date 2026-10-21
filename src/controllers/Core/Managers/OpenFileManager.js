@@ -6,7 +6,7 @@ import {
   getExtension,
 } from '@controllers/Core/Tools/general.js';
 import { applyMigrations } from '@controllers/Core/Tools/version-migration.js';
-import { appActions } from '@store/appState';
+import { appActions, environmentConfig } from '@store/appState';
 import { gridStore } from '@store/gridStore.js';
 import { setFamiliesVisibility } from '@store/kit.js';
 import { setToolsVisibility } from '@store/tools.js';
@@ -268,10 +268,15 @@ export const parseJsonContent = (fileContent) => {
  * Traite les paramètres du fichier
  */
 export const processSettings = (saveObject, appInstance, gridStoreInstance) => {
+  // Les réglages imposés par l'environnement (ex: areShapesPointed en Tangram)
+  // doivent toujours primer sur ceux enregistrés dans le fichier.
+  const environmentSettings = environmentConfig.get()?.settings ?? {};
+
   if (saveObject.settings) {
     const mergedSettings = {
       ...saveObject.settings,
       ...DEFAULT_SETTINGS,
+      ...environmentSettings,
     };
 
     appActions.updateSettings(mergedSettings);

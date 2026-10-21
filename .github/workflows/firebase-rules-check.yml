@@ -1,0 +1,90 @@
+name: Firebase Rules Validation
+
+on:
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'firestore.rules'
+      - 'storage.rules'
+      - 'firebase.json'
+
+  push:
+    branches: [main, master]
+    paths:
+      - 'firestore.rules'
+      - 'storage.rules'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: rules-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  validate-rules:
+    name: Validate Firebase Security Rules
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Validate Firestore Rules Syntax
+        run: |
+          if [ ! -f "firestore.rules" ]; then
+            echo "firestore.rules not found"
+            exit 1
+          fi
+          pnpm dlx firebase-tools deploy --only firestore:rules --dry-run --project apprenti-geometre || {
+            echo "Firestore rules validation failed"
+            exit 1
+          }
+
+      - name: Validate Storage Rules Syntax
+        run: |
+          if [ ! -f "storage.rules" ]; then
+            echo "storage.rules not found"
+            exit 1
+          fi
+          pnpm dlx firebase-tools deploy --only storage:rules --dry-run --project apprenti-geometre || {
+            echo "Storage rules validation failed"
+            exit 1
+          }
+
+      - name: Check Rules Best Practices
+        run: |
+          if grep -q "allow read, write: if true" firestore.rules; then
+            echo "::warning::Found 'allow read, write: if true' - this is insecure!"
+          fi
+          if ! grep -q "match /{document=\*\*}" firestore.rules; then
+            echo "::warning::No default deny rule found"
+          fi
+
+      - name: Comment PR with validation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Firebase Security Rules validation passed.\n\nModified files:\n- `firestore.rules`\n- `storage.rules`'
+            })

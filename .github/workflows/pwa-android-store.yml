@@ -1,0 +1,138 @@
+name: PWA Android Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: Google Play track
+        required: true
+        default: internal
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '17'
+  NODE_VERSION: '22'
+  TWA_DIR: android/twa
+
+jobs:
+  publish-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Install Bubblewrap
+        run: pnpm add -g @bubblewrap/cli
+
+      - name: Configure Bubblewrap for CI
+        shell: bash
+        run: |
+          mkdir -p "${HOME}/.bubblewrap"
+          test -d "${JAVA_HOME:-}" || { echo "JAVA_HOME path not found"; exit 1; }
+
+          ANDROID_SDK_PATH="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-/usr/local/lib/android/sdk}}"
+          test -d "${ANDROID_SDK_PATH}" || { echo "Android SDK path not found: ${ANDROID_SDK_PATH}"; exit 1; }
+
+          if [ ! -d "${ANDROID_SDK_PATH}/tools" ] && [ ! -d "${ANDROID_SDK_PATH}/bin" ]; then
+            if [ -d "${ANDROID_SDK_PATH}/cmdline-tools/latest/bin" ]; then
+              ln -s "${ANDROID_SDK_PATH}/cmdline-tools/latest/bin" "${ANDROID_SDK_PATH}/bin"
+            elif [ -d "${ANDROID_SDK_PATH}/cmdline-tools/bin" ]; then
+              ln -s "${ANDROID_SDK_PATH}/cmdline-tools/bin" "${ANDROID_SDK_PATH}/bin"
+            else
+              echo "::error::Bubblewrap requires Android SDK tools under ${ANDROID_SDK_PATH}/bin or ${ANDROID_SDK_PATH}/tools."
+              find "${ANDROID_SDK_PATH}" -maxdepth 2 -type d | sort
+              exit 1
+            fi
+          fi
+
+          {
+            echo "ANDROID_HOME=${ANDROID_SDK_PATH}"
+            echo "ANDROID_SDK_ROOT=${ANDROID_SDK_PATH}"
+          } >> "${GITHUB_ENV}"
+
+          jq -n --arg jdk "${JAVA_HOME}" --arg sdk "${ANDROID_SDK_PATH}" '{"jdkPath":$jdk,"androidSdkPath":$sdk}' > "${HOME}/.bubblewrap/config.json"
+
+      - name: Validate Bubblewrap toolchain
+        shell: bash
+        run: |
+          echo y | bubblewrap doctor
+
+      - name: Restore keystore
+        shell: bash
+        run: |
+          echo "${{ secrets.BUBBLEWRAP_KEYSTORE_BASE64 }}" | base64 --decode > "${TWA_DIR}/play-upload-key.jks"
+
+      - name: Prepare Google Play credentials
+        working-directory: ${{ env.TWA_DIR }}
+        shell: bash
+        run: |
+          printf '%s' '${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}' > ./play-service-account.json
+          node -e "const fs = require('fs'); const serviceAccount = JSON.parse(fs.readFileSync('./play-service-account.json', 'utf8')); if (!serviceAccount.client_email || !serviceAccount.private_key) { throw new Error('PLAY_SERVICE_ACCOUNT_JSON is not a valid Google service account JSON'); } console.log('Google Play service account:', serviceAccount.client_email);"
+
+      - name: Check Google Play API access
+        working-directory: ${{ env.TWA_DIR }}
+        shell: bash
+        run: |
+          if ! bubblewrap play versionCheck --manifest=./twa-manifest.json --serviceAccountFile=./play-service-account.json --targetDirectory=.; then
+            echo "::error::Google Play access denied. Grant this service account access to the app in Play Console > Users and permissions, then enable the Google Play Android Developer API in Google Cloud."
+            exit 1
+          fi
+
+      - name: Build and sign App Bundle
+        working-directory: ${{ env.TWA_DIR }}
+        env:
+          BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD }}
+          BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD }}
+        run: |
+          # Update project with current manifest, then build — single step avoids checksum drift
+          rm -f ./manifest-checksum.txt
+          bubblewrap update --manifest=./twa-manifest.json --skipVersionUpgrade
+          bubblewrap build --manifest=./twa-manifest.json --signingKeyPath=./play-upload-key.jks --signingKeyAlias="${{ secrets.BUBBLEWRAP_KEYSTORE_ALIAS }}"
+
+      - name: Publish bundle to Google Play
+        working-directory: ${{ env.TWA_DIR }}
+        run: |
+          bubblewrap play publish --manifest=./twa-manifest.json --serviceAccountFile=./play-service-account.json --track="${{ inputs.track }}" --appBundleLocation=./app-release-bundle.aab
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-app-bundle
+          path: ${{ env.TWA_DIR }}/app-release-bundle.aab
+          if-no-files-found: error
+
+      - name: Cleanup Google Play credentials
+        if: always()
+        working-directory: ${{ env.TWA_DIR }}
+        run: rm -f ./play-service-account.json
+
+# Required secrets:
+# - BUBBLEWRAP_KEYSTORE_BASE64
+# - BUBBLEWRAP_KEYSTORE_ALIAS
+# - BUBBLEWRAP_KEYSTORE_PASSWORD
+# - BUBBLEWRAP_KEY_PASSWORD
+# - PLAY_SERVICE_ACCOUNT_JSON
+#
+# Expected committed files:
+# - android/twa/twa-manifest.json
+# - android/twa/ (versioned Bubblewrap project)

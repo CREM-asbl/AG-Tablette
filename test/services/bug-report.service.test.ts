@@ -15,13 +15,17 @@ vi.mock('firebase/app', () => ({
   initializeApp: vi.fn(() => ({ name: 'mock-app' })),
 }));
 
-vi.mock('firebase/firestore', () => ({
-  getFirestore: vi.fn(() => ({ name: 'mock-db' })),
-  initializeFirestore: vi.fn(() => ({ name: 'mock-db' })),
-  persistentLocalCache: vi.fn(() => ({})),
-  addDoc: vi.fn(async () => ({ id: 'mock-doc-id' })),
-  collection: vi.fn(() => ({ path: 'bugs' })),
-  serverTimestamp: vi.fn(() => new Date()),
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(() => ({ name: 'mock-functions' })),
+  httpsCallable: vi.fn(() =>
+    vi.fn(async (payload: any) => ({
+      data: {
+        bugDocId: 'mock-doc-id',
+        issueNumber: 42,
+        issueUrl: 'https://github.com/CREM-asbl/AG-Tablette/issues/42',
+      },
+    })),
+  ),
 }));
 
 describe('BugReportService', () => {
@@ -248,5 +252,32 @@ describe('BugReportService', () => {
         reportError('Test', { severity: 'S0', source: 'canvas-render' }),
       ).resolves.toBeUndefined();
     });
+
+      it('devrait appeler la Firebase Function reportBug', async () => {
+        initBugReporting({ mode: 'silent', minIntervalMs: 0 });
+
+        const { httpsCallable } = await import('firebase/functions');
+        const callableMock = vi.fn(async (payload: any) => ({
+          data: {
+            bugDocId: 'mock-doc-id',
+            issueNumber: 42,
+            issueUrl: 'https://github.com/CREM-asbl/AG-Tablette/issues/42',
+          },
+        }));
+        (httpsCallable as any).mockReturnValue(callableMock);
+
+        await reportError(new Error('Test function call'), {
+          severity: 'S0',
+          source: 'canvas-render',
+        });
+
+        expect(callableMock).toHaveBeenCalledTimes(1);
+        const payload = callableMock.mock.calls[0][0];
+        expect(payload.severity).toBe('S0');
+        expect(payload.source).toBe('canvas-render');
+        expect(payload.fingerprint).toBeTruthy();
+        expect(payload.sessionId).toBeTruthy();
+        expect(payload.context.version).toBeDefined();
+      });
+    });
   });
-});

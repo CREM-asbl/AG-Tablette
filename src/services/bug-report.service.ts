@@ -8,6 +8,10 @@
  * - Anonyme (pas d'ID utilisateur direct), dédupliqué, throttlé
  * - Silencieux en PROD, off en DEV
  * - Base légale: intérêt légitime (stabilité/qualité)
+ *
+ * Le rapport est envoyé vers la Firebase Function `reportBug` qui :
+ * - Crée l'issue GitHub (CREM-asbl/AG-Tablette)
+ * - Enregistre dans Firestore `bugs` (historique)
  */
 
 // Firebase imports are dynamic (lazy) to avoid circular chunk dependencies
@@ -119,18 +123,36 @@ export function shouldReport(fingerprint: string, severity: Severity): boolean {
 }
 
 /**
- * Obtenir la connexion Firestore (réutilise l'app existante)
+ * Obtenir la connexion Firebase (réutilise l'app existante)
  * Les imports Firebase sont chargés dynamiquement pour éviter les dépendances circulaires
  */
-async function getDb() {
+async function getFirebaseApp() {
   const { getApp, getApps, initializeApp } = await import('firebase/app');
-  const { getFirestore, initializeFirestore, persistentLocalCache } = await import('firebase/firestore');
-  const app = getApps().length > 0 ? getApp() : initializeApp(config);
-  try {
-    return getFirestore(app);
-  } catch {
-    return initializeFirestore(app, { localCache: persistentLocalCache() });
-  }
+  return getApps().length > 0 ? getApp() : initializeApp(config);
+}
+
+/**
+ * Appeler la Firebase Function `reportBug` pour créer l'issue GitHub
+ * et enregistrer le rapport dans Firestore.
+ * Le token GitHub est géré côté serveur (functions config), pas dans le code.
+ */
+async function sendReportViaFunction(payload: {
+  severity: Severity;
+  message: string;
+  stack?: string;
+  fingerprint: string;
+  source: ErrorSource;
+  context: ReturnType<typeof collectContext>;
+  workspaceSave: any;
+  extra: Record<string, any> | null;
+  sessionId: string;
+}): Promise<{ bugDocId: string }> {
+  const app = await getFirebaseApp();
+  const { getFunctions, httpsCallable } = await import('firebase/functions');
+  const functions = getFunctions(app);
+  const callable = httpsCallable(functions, 'reportBug');
+  const result = await callable(payload);
+  return (result.data as any) ?? { bugDocId: 'unknown' };
 }
 
 /**
@@ -239,42 +261,39 @@ export async function reportError(
     const fingerprint = getFingerprint(message, stack, source);
 
     if (!shouldReport(fingerprint, severity)) {
-      return;
-    }
+          return;
+        }
 
-    const db = await getDb();
-    const { addDoc, collection, serverTimestamp } = await import('firebase/firestore');
-    const ctx = collectContext();
+        const ctx = collectContext();
 
-    // Capturer la sauvegarde complète pour S0/S1 (critique)
-    let workspaceSave = null;
-    if (severity === 'S0' || severity === 'S1') {
-      workspaceSave = captureWorkspaceSave();
-    }
+        // Capturer la sauvegarde complète pour S0/S1 (critique)
+        let workspaceSave = null;
+        if (severity === 'S0' || severity === 'S1') {
+          workspaceSave = captureWorkspaceSave();
+        }
 
-    // Nettoyer les données supplémentaires (pas de fonctions, objets complexes)
-    let cleanedExtra = null;
-    if (meta?.extra) {
-      try {
-        cleanedExtra = JSON.parse(JSON.stringify(meta.extra));
-      } catch {
-        cleanedExtra = { error: 'unable to serialize extra' };
-      }
-    }
+        // Nettoyer les données supplémentaires (pas de fonctions, objets complexes)
+        let cleanedExtra = null;
+        if (meta?.extra) {
+          try {
+            cleanedExtra = JSON.parse(JSON.stringify(meta.extra));
+          } catch {
+            cleanedExtra = { error: 'unable to serialize extra' };
+          }
+        }
 
-    // Écrire dans Firestore
-    await addDoc(collection(db, 'bugs'), {
-      timestamp: serverTimestamp(),
-      severity,
-      message: message.slice(0, 500),
-      stack: (stack || '').slice(0, 2000),
-      fingerprint,
-      source,
-      context: ctx,
-      workspaceSave, // sauvegarde complète avec état + historique
-      extra: cleanedExtra,
-      sessionId: getSessionHash(),
-    });
+        // Envoyer vers la Firebase Function (crée l'issue GitHub + Firestore)
+        await sendReportViaFunction({
+          severity,
+          message: message.slice(0, 500),
+          stack: (stack || '').slice(0, 2000),
+          fingerprint,
+          source,
+          context: ctx,
+          workspaceSave,
+          extra: cleanedExtra,
+          sessionId: getSessionHash(),
+        });
 
     // Mettre à jour l'état local APRES l'envoi réussi
     state.sentByFingerprint.set(fingerprint, 1);
