@@ -192,6 +192,7 @@ jobs:
       - name: Deploy to Firebase Hosting
         env:
           FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
         run: pnpm exec firebase deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
 
   deploy-manual:
@@ -269,4 +270,5 @@ jobs:
       - name: Deploy to Firebase Hosting
         env:
           FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          FIREBASE_CLI_EXPERIMENTS: webframeworks
         run: pnpm exec firebase deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
