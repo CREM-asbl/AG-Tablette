@@ -395,7 +395,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">📁 Ouvrir un fichier</h2>
+        <h2 slot="title">📁 Activités</h2>
 
         <div slot="body" class="popup-content" tabindex="-1">
           ${this.isLoadingThemes ||

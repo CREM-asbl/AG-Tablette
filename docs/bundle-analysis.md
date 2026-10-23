@@ -1,7 +1,7 @@
 # Analyse du Bundle
 
 **Date** : 20 novembre 2025
-**Outil** : `npm run build` (Vite/Rollup)
+**Outil** : `pnpm run build` (Vite/Rollup)
 
 ## Résumé Global
 
@@ -65,7 +65,7 @@ manualChunks: {
 | `open-server-popup.js` | (inclus) | 41.45 kB | Nouveau chunk (chargé à la demande) |
 | `firebase-init.js` | 541.69 kB | 541.66 kB | Découplé du chargement initial de `open-popup` |
 
-**Impact** : Le popup "Ouvrir" s'affiche instantanément. Le lourd SDK Firebase n'est chargé que si l'utilisateur clique sur "Ouvrir en ligne".
+**Impact** : Le popup "Ouvrir" s'affiche instantanément. Le lourd SDK Firebase n'est chargé que si l'utilisateur clique sur "Activités".
 
 ## Résultats de l'Optimisation (Splitting)
 
@@ -101,7 +101,7 @@ manualChunks: {
 - `ag-main.js` : 7 kB
 - `ag-app.js` : 0.2 kB
 
-**Conclusion** : L'objectif principal est atteint. Le SDK Firebase (la plus grosse dépendance) n'est plus chargé au démarrage de l'application, mais uniquement lorsque l'utilisateur interagit avec les fonctionnalités serveur (Ouvrir en ligne, Notions, etc.) ou pour la synchronisation en arrière-plan.
+**Conclusion** : L'objectif principal est atteint. Le SDK Firebase (la plus grosse dépendance) n'est plus chargé au démarrage de l'application, mais uniquement lorsque l'utilisateur interagit avec les fonctionnalités serveur (Activités, Notions, etc.) ou pour la synchronisation en arrière-plan.
 
 ## Prochaines Étapes
 1.  Améliorer la couverture de tests (Objectif 40%).

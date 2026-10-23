@@ -20,7 +20,7 @@ Write-Host "3️⃣  Actions recommandées :`n" -ForegroundColor Yellow
 
 Write-Host "   a) Si les règles actuelles sont IDENTIQUES aux fichiers locaux:" -ForegroundColor White
 Write-Host "      → Tout est déjà synchronisé ✅" -ForegroundColor Green
-Write-Host "      → Vous pouvez déployer: npm run deploy:rules`n" -ForegroundColor Green
+Write-Host "      → Vous pouvez déployer: pnpm run deploy:rules`n" -ForegroundColor Green
 
 Write-Host "   b) Si les règles actuelles sont DIFFÉRENTES:" -ForegroundColor White
 Write-Host "      → Copier les règles actuelles depuis la console" -ForegroundColor Yellow
@@ -29,7 +29,7 @@ Write-Host "        • firestore.rules.backup" -ForegroundColor Gray
 Write-Host "        • storage.rules.backup" -ForegroundColor Gray
 Write-Host "      → Décider quelle version garder (console ou locale)" -ForegroundColor Yellow
 Write-Host "      → Ajuster les fichiers .rules si nécessaire" -ForegroundColor Yellow
-Write-Host "      → Ensuite déployer: npm run deploy:rules`n" -ForegroundColor Yellow
+Write-Host "      → Ensuite déployer: pnpm run deploy:rules`n" -ForegroundColor Yellow
 
 Write-Host "   c) En cas de doute:" -ForegroundColor White
 Write-Host "      → TOUJOURS faire un backup manuel depuis la console" -ForegroundColor Red
@@ -48,9 +48,9 @@ Write-Host "   Ne jamais modifier les règles directement dans la console Fireba
 Write-Host "   après avoir commencé le versioning Git. Toujours passer par ce repo.`n" -ForegroundColor Red
 
 Write-Host "🚀 Commandes de déploiement :" -ForegroundColor Cyan
-Write-Host "   npm run deploy:rules               # Firestore + Storage" -ForegroundColor Gray
-Write-Host "   npm run deploy:firestore-rules     # Firestore uniquement" -ForegroundColor Gray
-Write-Host "   npm run deploy:storage-rules       # Storage uniquement`n" -ForegroundColor Gray
+Write-Host "   pnpm run deploy:rules               # Firestore + Storage" -ForegroundColor Gray
+Write-Host "   pnpm run deploy:firestore-rules     # Firestore uniquement" -ForegroundColor Gray
+Write-Host "   pnpm run deploy:storage-rules       # Storage uniquement`n" -ForegroundColor Gray
 
 # Optionnel : ouvrir les URLs dans le navigateur
 $response = Read-Host "Voulez-vous ouvrir les consoles Firebase dans le navigateur ? (O/N)"

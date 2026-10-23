@@ -23,7 +23,7 @@ class OpenPopup extends LitElement {
           <color-button
             name="ServerOpenFile"
             @click="${this.openServerFile}"
-            innerText="Ouvrir en ligne"
+            innerText="Activités"
           ></color-button>
           <color-button
             @click="${this.close}"

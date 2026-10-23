@@ -4,7 +4,7 @@ Merci de votre intérêt pour contribuer au projet AG-Tablette ! Ce guide vous a
 
 ## 📋 Prérequis
 
-- Node.js 18+ et npm
+- Node.js 18+ et pnpm
 - Git
 - Un éditeur de code (VS Code recommandé)
 - Connaissance de TypeScript/JavaScript, Lit Elements et Astro
@@ -19,17 +19,17 @@ Merci de votre intérêt pour contribuer au projet AG-Tablette ! Ce guide vous a
 
 2. **Installer les dépendances**
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Lancer l'environnement de développement**
    ```bash
-   npm run dev
+   pnpm run dev
    ```
 
 4. **Lancer les émulateurs Firebase (optionnel)**
    ```bash
-   npm run start-emulators
+   pnpm run start-emulators
    ```
 
 ## 🏗️ Architecture du projet
@@ -98,15 +98,15 @@ console.log('Debug info');
 ### Commandes de test
 ```bash
 # Tests unitaires
-npm test                 # Exécuter une fois
-npm run test:watch       # Mode watch
-npm run test:coverage    # Avec couverture
+pnpm test                 # Exécuter une fois
+pnpm run test:watch       # Mode watch
+pnpm run test:coverage    # Avec couverture
 
 # Tests E2E
-npm run test:playwright
+pnpm run test:playwright
 
 # Tous les tests
-npm run test:all
+pnpm run test:all
 ```
 
 ### Couverture minimale
@@ -119,14 +119,14 @@ npm run test:all
 ### Avant de commiter
 ```bash
 # Linter
-npm run lint
-npm run lint:fix
+pnpm run lint
+pnpm run lint:fix
 
 # Tests
-npm run test:all
+pnpm run test:all
 
 # Build (vérifier qu'il n'y a pas d'erreurs)
-npm run build
+pnpm run build
 ```
 
 ### Règles ESLint strictes
@@ -168,8 +168,8 @@ docs(readme): mettre à jour les instructions d'installation
 1. Créer une branche depuis `dev`
 2. Faire vos modifications
 3. Écrire/mettre à jour les tests
-4. Vérifier que `npm run test:all` passe
-5. Vérifier que `npm run lint` ne donne pas d'erreurs
+4. Vérifier que `pnpm run test:all` passe
+5. Vérifier que `pnpm run lint` ne donne pas d'erreurs
 6. Créer la PR vers `dev` avec description claire
 
 **Template de PR :**

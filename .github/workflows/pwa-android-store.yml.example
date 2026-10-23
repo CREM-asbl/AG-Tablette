@@ -29,10 +29,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
+          cache: pnpm
 
       - uses: actions/setup-java@v4
         with:
@@ -40,7 +42,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Install Bubblewrap
-        run: npm install -g @bubblewrap/cli
+        run: pnpm add -g @bubblewrap/cli
 
       - name: Configure Bubblewrap for CI
         shell: bash
