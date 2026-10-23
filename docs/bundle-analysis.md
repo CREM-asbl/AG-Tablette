@@ -1,7 +1,7 @@
 # Analyse du Bundle
 
 **Date** : 20 novembre 2025
-**Outil** : `npm run build` (Vite/Rollup)
+**Outil** : `pnpm run build` (Vite/Rollup)
 
 ## Résumé Global
 

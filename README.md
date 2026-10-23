@@ -5,30 +5,30 @@ Apprenti Géomètre - Application web éducative pour géométrie interactive su
 ## 🚀 Installation
 
 ```bash
-npm install
+pnpm install
 ```
 
 ## 💻 Développement
 
 ```bash
 # Démarrer le serveur de développement
-npm run dev
+pnpm run dev
 
 # Démarrer les émulateurs Firebase
-npm run start-emulators
+pnpm run start-emulators
 ```
 
 ## 🏗️ Build & Déploiement
 
 ```bash
 # Créer le build de production
-npm run build
+pnpm run build
 
 # Déployer sur Firebase
-npm run deploy
+pnpm run deploy
 
 # Déployer sur le canal beta
-npm run deploy:beta3
+pnpm run deploy:beta3
 ```
 
 ### Déploiement CI (OIDC)
@@ -87,23 +87,23 @@ gcloud iam service-accounts add-iam-policy-binding $SA \
 
 ```bash
 # Tests unitaires (Vitest)
-npm test
-npm run test:watch
-npm run test:coverage
+pnpm test
+pnpm run test:watch
+pnpm run test:coverage
 
 # Tests E2E (Playwright)
-npm run test:playwright
+pnpm run test:playwright
 
 # Tous les tests
-npm run test:all
+pnpm run test:all
 ```
 
 ## 🔍 Qualité du code
 
 ```bash
 # Linter
-npm run lint
-npm run lint:fix
+pnpm run lint
+pnpm run lint:fix
 ```
 
 ## 📚 Stack technique
