@@ -187,13 +187,11 @@ jobs:
           project_id: apprenti-geometre
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          token_format: access_token
 
       - name: Deploy to Firebase Hosting
         env:
-          FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
           FIREBASE_CLI_EXPERIMENTS: webframeworks
-        run: pnpm exec firebase deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
+        run: pnpm exec firebase deploy --only hosting --project apprenti-geometre
 
   deploy-manual:
     runs-on: ubuntu-latest
@@ -265,10 +263,8 @@ jobs:
           project_id: apprenti-geometre
           workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
           service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
-          token_format: access_token
 
       - name: Deploy to Firebase Hosting
         env:
-          FIREBASE_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
           FIREBASE_CLI_EXPERIMENTS: webframeworks
-        run: pnpm exec firebase deploy --only hosting --project apprenti-geometre --token "$FIREBASE_ACCESS_TOKEN"
+        run: pnpm exec firebase deploy --only hosting --project apprenti-geometre
