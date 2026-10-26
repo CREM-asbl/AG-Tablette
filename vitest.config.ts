@@ -26,7 +26,6 @@ export default defineConfig({
         '@styles': path.resolve(__dirname, './src/styles'),
         '@utils': path.resolve(__dirname, './src/utils'),
         '@store': path.resolve(__dirname, './src/store'),
-        '@firebase': path.resolve(__dirname, './src/firebase'),
         '@db': path.resolve(__dirname, './src/firebase'),
         '@pages': path.resolve(__dirname, './src/pages'),
         '@types': path.resolve(__dirname, './src/types'),

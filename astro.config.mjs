@@ -214,7 +214,6 @@ export default defineConfig({
         '@layouts': resolve(__dirname, './src/layouts'),
         '@pages': resolve(__dirname, './src/pages'),
         '@types': resolve(__dirname, './src/types'),
-        '@firebase': resolve(__dirname, './src/firebase'),
         '@db': resolve(__dirname, './src/firebase'),
       },
     },
