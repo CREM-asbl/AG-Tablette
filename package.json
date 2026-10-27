@@ -1,6 +1,6 @@
 {
   "name": "ag-tablette",
-  "version": "1.5.10",
+  "version": "1.5.11",
   "packageManager": "pnpm@10.0.0",
   "type": "module",
   "scripts": {
@@ -28,30 +28,33 @@
   },
   "devDependencies": {
     "@open-wc/testing": "^4.0.0",
-    "@playwright/test": "^1.52.0",
-    "@types/node": "^25.0.8",
-    "@typescript-eslint/eslint-plugin": "^8.56.0",
-    "@typescript-eslint/parser": "^8.56.0",
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^25.9.9",
+    "@typescript-eslint/eslint-plugin": "^8.72.0",
+    "@typescript-eslint/parser": "^8.72.0",
     "@vite-pwa/astro": "^1.2.0",
-    "@vitest/coverage-v8": "^4.0.9",
-    "eslint": "^10.0.1",
+    "@vitest/coverage-v8": "^4.1.12",
+    "eslint": "^10.13.0",
     "eslint-plugin-lit": "^2.1.1",
-    "fake-indexeddb": "^6.2.5",
-    "firebase-tools": "^15.32.1",
-    "jsdom": "^29.0.1",
-    "prettier": "^3.6.2",
+    "fake-indexeddb": "^6.2.6",
+    "firebase-tools": "^15.34.1",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.9.10",
     "typescript": "^6.0.3",
-    "vitest": "^4.0.9",
-    "workbox-window": "^7.4.1"
+    "vitest": "^4.1.12"
   },
   "dependencies": {
     "@astrojs/lit": "^4.3.0",
     "@lit-labs/signals": "^0.3.0",
-    "@webcomponents/template-shadowroot": "^0.2.1",
-    "astro": "^7.3.3",
-    "fflate": "^0.8.0",
-    "firebase": "^12.2.1",
-    "lit": "^3.2.0",
+    "astro": "^7.4.2",
+    "fflate": "^0.8.3",
+    "firebase": "^12.19.0",
+    "lit": "^3.3.3",
     "lz-string": "^1.5.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@grpc/grpc-js": ">=1.13.6"
+    }
   }
 }
