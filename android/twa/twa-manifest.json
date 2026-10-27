@@ -20,8 +20,8 @@
     "path": "./play-upload-key.jks",
     "alias": "upload"
   },
-  "appVersionName": "1.5.11",
-  "appVersionCode": 10511,
+  "appVersionName": "1.5.12",
+  "appVersionCode": 10512,
   "shortcuts": [
     {
       "name": "Grandeurs",
@@ -89,5 +89,5 @@
   "displayOverride": [
     "window-controls-overlay"
   ],
-  "appVersion": "1.5.11"
+  "appVersion": "1.5.12"
 }
