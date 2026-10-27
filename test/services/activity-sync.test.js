@@ -201,8 +201,8 @@ describe('Activity Sync Service', () => {
             await syncActivitiesInBackground(true);
 
             // Verify file sync
-            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file1', expect.objectContaining({ forceDownload: true }));
-            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file2', expect.objectContaining({ forceDownload: true }));
+            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file1', expect.objectContaining({ expectedVersion: 2 }));
+            expect(firebaseInit.readFileFromServer).toHaveBeenCalledWith('file2', expect.objectContaining({ expectedVersion: 1 }));
             expect(indexeddbActivities.saveActivity).toHaveBeenCalledTimes(2);
 
             // Verify theme/module sync
@@ -250,20 +250,20 @@ describe('Activity Sync Service', () => {
             expect(addSpy).toHaveBeenCalledWith('online', expect.any(Function));
         });
 
-        it('should schedule sync if online', () => {
+        it('should not schedule boot sync, only reconnect listener', () => {
             vi.useFakeTimers();
             Object.defineProperty(navigator, 'onLine', { value: true, configurable: true });
-            
+
             initActivitySync();
-            
-            // Should have a timeout scheduled for smartSync
-            expect(vi.getTimerCount()).toBeGreaterThan(0);
+
+            // Boot sync déléguée au scheduler : aucun timer posé ici.
+            expect(vi.getTimerCount()).toBe(0);
             vi.useRealTimers();
         });
 
         it('should handle start in offline mode', () => {
             Object.defineProperty(navigator, 'onLine', { value: false, configurable: true });
-            
+
             // Should not throw and should not schedule sync
             vi.useFakeTimers();
             initActivitySync();
