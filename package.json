@@ -1,6 +1,6 @@
 {
   "name": "ag-tablette",
-  "version": "1.5.12",
+  "version": "1.5.13",
   "packageManager": "pnpm@10.0.0",
   "type": "module",
   "scripts": {
