@@ -1,5 +1,6 @@
 // Initialisation du système de cache hors ligne
-import '../services/activity-sync.js';
+// Note : plus d'import side-effect de activity-sync ici — la sync est
+// planifiée en différé (après first paint + idle) via sync-scheduler.
 
 export function initOfflineSupport() {
   if (import.meta.env.DEV)

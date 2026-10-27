@@ -155,8 +155,23 @@ class AGMain extends SignalWatcher(LitElement) {
 
     if (!globalWindow.__agOfflineSupportInitialized) {
       globalWindow.__agOfflineSupportInitialized = true;
-      const { initializeOfflineSupportBootstrap } = await import('../services/offline-support-bootstrap');
-      void initializeOfflineSupportBootstrap();
+      // Différé après first paint : ne bloque jamais le rendu initial.
+      // requestAnimationFrame + import dynamique, la sync elle-même attend
+      // l'idle via sync-scheduler (requestIdleCallback + fallback Safari).
+      const scheduleOfflineSupport = () => {
+        import('../services/offline-support-bootstrap').then(
+          ({ initializeOfflineSupportBootstrap }) =>
+            initializeOfflineSupportBootstrap(),
+          (error) => {
+            console.warn("Erreur lors de l'initialisation hors ligne:", error);
+          },
+        );
+      };
+      if (typeof requestAnimationFrame === 'function') {
+        requestAnimationFrame(() => setTimeout(scheduleOfflineSupport, 0));
+      } else {
+        setTimeout(scheduleOfflineSupport, 0);
+      }
     }
 
     const file = fileToOpen.get() || app.fileToOpen;

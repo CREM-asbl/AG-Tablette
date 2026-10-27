@@ -248,7 +248,7 @@ export async function readFileFromServer(filename, options = {}) {
       throw new Error('Nom de fichier invalide');
     }
 
-    const { forceDownload = false } = options;
+    const { forceDownload = false, expectedVersion = null } = options;
     const fileRef = ref(storage, filename);
 
     // 1. IndexedDB d'abord : lecture locale sans aucun aller-retour réseau
@@ -262,22 +262,38 @@ export async function readFileFromServer(filename, options = {}) {
       );
     }
 
+    const hasExpectedVersion =
+      expectedVersion !== null && expectedVersion !== undefined;
+    const localVersionMatches =
+      hasExpectedVersion &&
+      localActivity &&
+      localActivity.version === expectedVersion;
+
     if (localActivity && !forceDownload) {
-      // Stale-while-revalidate : servir la copie locale immédiatement,
-      // vérifier la fraîcheur côté serveur en tâche de fond.
-      if (navigator.onLine) {
-        refreshActivityInBackground(
-          filename,
-          fileRef,
-          localActivity.timestamp || 0,
-        );
+      // Version identique à celle attendue : copie locale servie, aucun réseau.
+      if (localVersionMatches) {
+        return localActivity.data;
       }
-      return localActivity.data;
+      if (!hasExpectedVersion) {
+        // Stale-while-revalidate : servir la copie locale immédiatement,
+        // vérifier la fraîcheur côté serveur en tâche de fond.
+        if (navigator.onLine) {
+          refreshActivityInBackground(
+            filename,
+            fileRef,
+            localActivity.timestamp || 0,
+          );
+        }
+        return localActivity.data;
+      }
+      // Version obsolète : téléchargement frais ci-dessous, sans `cache: reload`.
     }
 
     // 2. Cache mémoire du processus (frais depuis < 5 min)
+    const versionStale =
+      hasExpectedVersion && localActivity && !localVersionMatches;
     const cacheKey = `file_${filename}`;
-    if (!forceDownload) {
+    if (!forceDownload && !versionStale) {
       const cachedData = fileCache.get(cacheKey);
       if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
         return cachedData.data;
