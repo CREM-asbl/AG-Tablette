@@ -5,13 +5,13 @@ import { appActions, historyState } from '../../src/store/appState';
 // Mock dependencies before import
 vi.mock('../../src/store/notions', () => ({
     initializeCachesFromIndexedDB: vi.fn().mockResolvedValue(),
-    selectedNotion: { get: () => null, set: () => { } },
+    selectedTheme: { get: () => null, set: () => { } },
     cachedThemes: { get: () => [], set: () => { } },
-    cachedSequences: { get: () => [], set: () => { } },
+    cachedModulesByTheme: { get: () => [], set: () => { } },
     cachedFiles: { get: () => [], set: () => { } },
-    toggleNotion: vi.fn(),
-    toggleSequence: vi.fn(),
-    selectedSequence: { get: () => '', set: () => { } }
+    toggleTheme: vi.fn(),
+    toggleModule: vi.fn(),
+    selectedModule: { get: () => '', set: () => { } }
 }));
 
 // Mock App
