@@ -65,6 +65,7 @@ vi.mock('@store/notions', () => ({
 
 vi.mock('@services/site-slug-resolver', () => ({
   resolveBySiteSlug: vi.fn(() => Promise.resolve(null)),
+  parseSlug: vi.fn(() => null),
 }));
 
 // Ne pas mocker syncState globalement - le laisser aux tests individuels qui en ont besoin

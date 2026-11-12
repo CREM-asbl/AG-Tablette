@@ -22,16 +22,10 @@ const slug = Astro.params.slug;
     <p><a href="/">Ouvrir l'application</a></p>
 
     <script>
-      const params = new URLSearchParams(window.location.search);
-      const pathParts = window.location.pathname.split('/').filter(Boolean);
-      const pathSlug =
-        pathParts.length >= 2 && pathParts[0] === 'open'
-          ? decodeURIComponent(pathParts[1])
-          : null;
-
       async function run() {
         const status = document.getElementById('ag-status');
-        const slug = pathSlug || params.get('slug') || null;
+        const { parseSlug } = await import('@services/site-slug-resolver');
+        const slug = parseSlug(window.location.pathname, window.location.search);
         if (!slug) {
           if (status) status.textContent = 'Lien inconnu';
           return;

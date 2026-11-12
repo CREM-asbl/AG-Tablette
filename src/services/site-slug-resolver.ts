@@ -1,6 +1,20 @@
 import { cachedFiles, cachedModulesByTheme, cachedThemes } from '@store/notions';
 import { getAllModules, getAllThemes } from '@utils/indexeddb-activities';
 
+export function parseSlug(pathname: string, search: string): string | null {
+  const parts = String(pathname ?? '').split('/').filter(Boolean);
+  if (parts.length >= 2 && parts[0] === 'open') {
+    try {
+      return decodeURIComponent(parts[1]);
+    } catch {
+      return parts[1];
+    }
+  }
+  const params = new URLSearchParams(search ?? '');
+  const querySlug = params.get('slug');
+  return querySlug;
+}
+
 export type SiteSlugResolution =
   | {
       kind: 'file';

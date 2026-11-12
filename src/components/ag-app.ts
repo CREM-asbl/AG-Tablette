@@ -85,7 +85,8 @@ export class App extends SignalWatcher(LitElement) {
       return;
     }
 
-    const slug = parsedUrl.searchParams.get('slug');
+    const { parseSlug } = await import('../services/site-slug-resolver');
+    const slug = parseSlug(parsedUrl.pathname, parsedUrl.search);
     if (slug) {
       try {
         const { resolveBySiteSlug } = await import('../services/site-slug-resolver');
