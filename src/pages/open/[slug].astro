@@ -1,0 +1,64 @@
+---
+import { App } from '@components/ag-app';
+
+export function getStaticPaths() {
+  return [];
+}
+
+const slug = Astro.params.slug;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AG mobile - ouverture</title>
+  </head>
+  <body>
+    <App client:only="lit" />
+    <div id="ag-status">Chargement…</div>
+    <p><a href="https://ag.crem.be">Site AG</a></p>
+    <p><a href="/">Ouvrir l'application</a></p>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const pathParts = window.location.pathname.split('/').filter(Boolean);
+      const pathSlug =
+        pathParts.length >= 2 && pathParts[0] === 'open'
+          ? decodeURIComponent(pathParts[1])
+          : null;
+
+      async function run() {
+        const status = document.getElementById('ag-status');
+        const slug = pathSlug || params.get('slug') || null;
+        if (!slug) {
+          if (status) status.textContent = 'Lien inconnu';
+          return;
+        }
+        try {
+          const { resolveBySiteSlug } = await import('@services/site-slug-resolver');
+          const result = await resolveBySiteSlug(slug);
+          if (!result) {
+            if (status) status.textContent = 'Lien inconnu — https://ag.crem.be';
+            return;
+          }
+          if (result.kind === 'file' && result.fileId) {
+            const firebase = await import('@db/firebase-init');
+            await firebase.openFileFromServer(result.fileId);
+            if (status) status.textContent = 'Activité ouverte';
+          } else if (result.kind === 'module') {
+            const notions = await import('@store/notions');
+            if (result.themeId) notions.toggleTheme(result.themeId);
+            if (result.moduleId) notions.toggleModule(result.moduleId);
+            if (status) status.textContent = 'Module ouvert';
+          }
+        } catch (error) {
+          if (status) status.textContent = `Erreur: ${(error && error.message) || error}`;
+        }
+      }
+
+      run();
+    </script>
+  </body>
+</html>
