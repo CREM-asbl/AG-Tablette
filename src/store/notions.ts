@@ -1,37 +1,44 @@
 import { signal } from '@lit-labs/signals';
 
+/**
+ * Types optionnels pour les métadonnées siteSlug (uniformisation AG mobile).
+ */
+export type Theme = { id?: string; title?: string; siteSlug?: string; [key: string]: unknown };
+export type Module = { id?: string; title?: string; siteSlug?: string; theme?: string | { id?: string }; [key: string]: unknown };
+export type File = { id?: string; title?: string; siteSlug?: string; module?: string; theme?: string; [key: string]: unknown };
+
 // Signal pour le thème sélectionné
-export const selectedNotion = signal(null);
+export const selectedTheme = signal(null);
 
 // Signal pour stocker les thèmes en cache
 export const cachedThemes = signal([]);
 
-// Signal pour stocker les séquences en cache
-export const cachedSequences = signal([]);
+// Signal pour stocker les modules en cache par thème
+export const cachedModulesByTheme = signal([]);
 
 // Signal pour stocker les fichiers en cache
 export const cachedFiles = signal([]);
 
 // Fonction pour basculer la sélection d'un thème
-export const toggleNotion = (notionName) => {
-  if (selectedNotion.get() === notionName) {
-    selectedNotion.set(null);
+export const toggleTheme = (themeName) => {
+  if (selectedTheme.get() === themeName) {
+    selectedTheme.set(null);
   } else {
-    selectedNotion.set(notionName);
+    selectedTheme.set(themeName);
   }
 };
 
-export const selectedSequence = signal('');
+export const selectedModule = signal('');
 
-export const toggleSequence = (sequenceTitle) => {
-  const current = selectedSequence.get();
+export const toggleModule = (moduleTitle) => {
+  const current = selectedModule.get();
 
-  if (current !== sequenceTitle) {
-    // Sélectionner la nouvelle séquence
-    selectedSequence.set(sequenceTitle);
+  if (current !== moduleTitle) {
+    // Sélectionner le nouveau module
+    selectedModule.set(moduleTitle);
   } else {
     // Si on clique sur l'élément déjà sélectionné, on le désélectionne
-    selectedSequence.set('');
+    selectedModule.set('');
   }
 };
 

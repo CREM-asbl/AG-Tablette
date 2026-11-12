@@ -400,6 +400,69 @@ export async function getFileDocFromFilename(id) {
   }
 }
 
+export async function findFileBySiteSlug(slug) {
+  try {
+    if (!slug || typeof slug !== 'string') return null;
+    const normalized = slug.trim().toLowerCase();
+    if (!normalized) return null;
+
+    const snapshot = await getDocs(
+      query(collection(db, 'files'), where('siteSlug', '==', normalized), limit(1)),
+    );
+
+    if (snapshot.empty) return null;
+    const d = snapshot.docs[0];
+    return { id: d.id, ...d.data() };
+  } catch (error) {
+    logDevWarning('[firebase-init] findFileBySiteSlug failed:', error);
+    return null;
+  }
+}
+
+export async function findModuleBySiteSlug(slug) {
+  try {
+    if (!slug || typeof slug !== 'string') return null;
+    const normalized = slug.trim().toLowerCase();
+    if (!normalized) return null;
+
+    const snapshot = await getDocs(
+      query(collection(db, 'modules'), where('siteSlug', '==', normalized), limit(1)),
+    );
+
+    if (snapshot.empty) return null;
+    const d = snapshot.docs[0];
+    return { id: d.id, ...d.data() };
+  } catch (error) {
+    logDevWarning('[firebase-init] findModuleBySiteSlug failed:', error);
+    return null;
+  }
+}
+
+export async function getModuleById(id) {
+  try {
+    if (!id || typeof id !== 'string') return null;
+
+    const docRef = doc(db, 'modules', id);
+    let docSnap = null;
+    try {
+      docSnap = await getDocFromCache(docRef);
+    } catch {
+      docSnap = null;
+    }
+
+    if (!docSnap || !docSnap.exists()) {
+      if (!navigator.onLine) return null;
+      docSnap = await retryWithBackoff(() => getDoc(docRef), 3);
+    }
+
+    if (!docSnap || !docSnap.exists()) return null;
+    return { id, ...docSnap.data() };
+  } catch (error) {
+    logDevWarning('[firebase-init] getModuleById failed:', error);
+    return null;
+  }
+}
+
 export async function findAllThemes() {
   // Essayer d'abord IndexedDB
   try {

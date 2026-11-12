@@ -28,6 +28,10 @@ vi.mock('@db/firebase-init', () => ({
   findAllThemes: vi.fn(() => Promise.resolve([])),
   findAllFiles: vi.fn(() => Promise.resolve([])),
   downloadFileZip: vi.fn(() => Promise.resolve()),
+  findFileBySiteSlug: vi.fn(() => Promise.resolve(null)),
+  findModuleBySiteSlug: vi.fn(() => Promise.resolve(null)),
+  getFileDocFromFilename: vi.fn(() => Promise.resolve(null)),
+  getModuleById: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@services/activity-sync', () => ({
@@ -39,9 +43,28 @@ vi.mock('@store/notions', () => ({
     get: vi.fn(() => []),
     set: vi.fn(),
   },
-  selectedSequence: {
-    get: vi.fn(() => ''),
+  cachedModulesByTheme: {
+    get: vi.fn(() => []),
+    set: vi.fn(),
   },
+  cachedFiles: {
+    get: vi.fn(() => []),
+    set: vi.fn(),
+  },
+  selectedTheme: {
+    get: vi.fn(() => null),
+    set: vi.fn(),
+  },
+  selectedModule: {
+    get: vi.fn(() => ''),
+    set: vi.fn(),
+  },
+  toggleTheme: vi.fn(),
+  toggleModule: vi.fn(),
+}));
+
+vi.mock('@services/site-slug-resolver', () => ({
+  resolveBySiteSlug: vi.fn(() => Promise.resolve(null)),
 }));
 
 // Ne pas mocker syncState globalement - le laisser aux tests individuels qui en ont besoin
