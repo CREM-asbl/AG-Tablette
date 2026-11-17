@@ -1,0 +1,23 @@
+---
+import { App } from '@components/ag-app';
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AG mobile - ouverture</title>
+  </head>
+  <body>
+    <App client:only="lit" />
+    <div id="ag-status">Chargement…</div>
+    <p><a href="https://ag.crem.be">Site AG</a></p>
+    <p><a href="/">Ouvrir l'application</a></p>
+
+    <script>
+      import { runOpenPage } from '@services/open-page';
+      runOpenPage(document.getElementById('ag-status'));
+    </script>
+  </body>
+</html>

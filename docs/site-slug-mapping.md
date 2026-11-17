@@ -47,7 +47,7 @@ Helper pur `parseSlug(pathname, search)` :
 
 - Deep-link chemin : `https://ag.crem.be/open/mon-activite`
 - Deep-link query : `https://ag.crem.be/?slug=mon-activite`
-- Page Astro statique : `src/pages/open/[slug].astro` (getStaticPaths `[]`) + script client qui appelle `resolveBySiteSlug`.
+- Page Astro statique : `src/pages/open/[slug].astro` (getStaticPaths liste `KNOWN_OPEN_SLUGS` depuis `src/services/known-open-slugs.ts`) + fallback `src/pages/open/index.astro` pour `?slug=` + script client qui appelle `resolveBySiteSlug` via helper partagé `src/services/open-page.ts`.
 
 ## Non-objectifs
 
