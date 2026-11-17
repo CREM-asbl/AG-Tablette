@@ -101,7 +101,7 @@ export class App extends SignalWatcher(LitElement) {
         }
         if (result.kind === 'file' && result.fileId) {
           const module = await import('../firebase/firebase-init');
-          module.openFileFromServer(result.fileId);
+          await module.openFileFromServer(result.fileId);
         } else if (result.kind === 'module') {
           if (result.themeId) toggleTheme(result.themeId);
           if (result.moduleId) toggleModule(result.moduleId);
