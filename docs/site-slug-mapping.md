@@ -49,6 +49,17 @@ Helper pur `parseSlug(pathname, search)` :
 - Deep-link query : `https://ag.crem.be/?slug=mon-activite`
 - Page Astro statique : `src/pages/open/[slug].astro` (getStaticPaths liste `KNOWN_OPEN_SLUGS` depuis `src/services/known-open-slugs.ts`) + fallback `src/pages/open/index.astro` pour `?slug=` + script client qui appelle `resolveBySiteSlug` via helper partagé `src/services/open-page.ts`.
 
+## Comportement en `output: 'static'`
+
+| URL | Servi par | Statut |
+|---|---|---|
+| `/open/assembler-des-figures` (slug listé dans `KNOWN_OPEN_SLUGS`) | `dist/open/assembler-des-figures/index.html` | 200 |
+| `/open/?slug=mon-activite` | `dist/open/index.html` | 200 |
+| `/open/slug-non-liste` (preview statique) | aucun fichier | 404 |
+| `/open/slug-non-liste` (Firebase Hosting, rewrite `**` -> `/index.html`) | `index.html` + résolution client | 200 + message « Lien inconnu » |
+
+Ajouter un slug = ajouter une entrée dans `src/services/known-open-slugs.ts` puis rebuild. Les slugs dynamiques restent utilisables via `/open/?slug=<slug>` sans rebuild.
+
 ## Non-objectifs
 
 - Pas de renommage des IDs Firestore existants.
