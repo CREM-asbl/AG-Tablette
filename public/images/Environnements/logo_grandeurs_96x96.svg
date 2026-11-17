@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="96"
+   height="96"
+   encoding="UTF-8"
+   version="1.1"
+   id="svg12"
+   sodipodi:docname="logo_grandeurs 96x96.svg"
+   inkscape:version="1.3 (0e150ed6c4, 2023-07-21)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs12" />
+  <sodipodi:namedview
+     id="namedview12"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="1.41375"
+     inkscape:cx="400"
+     inkscape:cy="250.04421"
+     inkscape:window-width="1920"
+     inkscape:window-height="974"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg12" />
+  <!-- -337.5 -->
+  <!-- -221.175 -->
+  <!-- Pentagone régulier -->
+  <path
+     d="m 19.776455,93.823733 h 56.64515 L 93.925917,37.68417 48.09903,2.9880131 2.2721406,37.68417 19.776455,93.823733"
+     stroke="#000000"
+     fill="#fff6"
+     fill-opacity="1"
+     stroke-width="0.925194"
+     stroke-opacity="1"
+     id="path1" />
+  <ellipse
+     cx="19.776455"
+     cy="93.823723"
+     fill="#000000"
+     id="circle1"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="76.421608"
+     cy="93.823723"
+     fill="#000000"
+     id="circle2"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="93.925926"
+     cy="37.684174"
+     fill="#000000"
+     id="circle3"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="48.09903"
+     cy="2.9880128"
+     fill="#000000"
+     id="circle4"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="2.272135"
+     cy="37.684174"
+     fill="#000000"
+     id="circle5"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <!-- Carré -->
+  <path
+     d="m 19.776455,93.823733 h 56.64515 v -59.02863 h -56.64515 v 59.02863"
+     stroke="#000000"
+     fill="#fff0"
+     fill-opacity="1"
+     stroke-width="0.925194"
+     stroke-opacity="1"
+     id="path5" />
+  <ellipse
+     cx="19.776455"
+     cy="93.823723"
+     fill="#000000"
+     id="circle6"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="76.421608"
+     cy="93.823723"
+     fill="#000000"
+     id="circle7"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="76.421608"
+     cy="34.795105"
+     fill="#000000"
+     id="circle8"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="19.776455"
+     cy="34.795105"
+     fill="#000000"
+     id="circle9"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <!-- Triangle équilatéral -->
+  <path
+     d="m 19.776455,93.823733 h 56.64515 L 48.09903,42.70344 19.776455,93.823733"
+     stroke="#000000"
+     fill="#fff0"
+     fill-opacity="1"
+     stroke-width="0.925194"
+     stroke-opacity="1"
+     id="path9" />
+  <ellipse
+     cx="19.776455"
+     cy="93.823723"
+     fill="#000000"
+     id="circle10"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="76.421608"
+     cy="93.823723"
+     fill="#000000"
+     id="circle11"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <ellipse
+     cx="48.09903"
+     cy="42.703442"
+     fill="#000000"
+     id="circle12"
+     rx="1.3594836"
+     ry="1.4166871"
+     style="stroke-width:0.462597" />
+  <!-- Segment 3 -->
+  <!-- <path d="M 400.0 346.175 L 400.0 237.921824527" stroke="#000" fill="#0F0" fill-opacity="1" stroke-width="2" stroke-opacity="1"/>
+<circle cx="400.0" cy="346.175" r="3" fill="#000" />
+<circle cx="400.0" cy="237.921824527" r="3" fill="#000" /> -->
+</svg>

@@ -1,0 +1,72 @@
+name: PWA Windows Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      product_id:
+        description: Partner Center product id
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  BUILD_CONFIGURATION: Release
+  PACKAGING_PROJECT: packaging/MyApp.Store/MyApp.Store.wapproj
+
+jobs:
+  publish-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build Store package
+        shell: pwsh
+        run: >
+          msbuild $env:PACKAGING_PROJECT
+          /p:Configuration=$env:BUILD_CONFIGURATION
+          /p:UapAppxPackageBuildMode=StoreUpload
+          /p:AppxBundle=Always
+
+      - name: Upload MSIX artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-store-package
+          path: |
+            **\*.msixupload
+            **\*.appxupload
+            **\*.msixbundle
+          if-no-files-found: error
+
+      - name: Set up MSStore CLI
+        uses: microsoft/microsoft-store-apppublisher@v1.4
+
+      - name: Configure MSStore CLI
+        shell: pwsh
+        run: >
+          msstore reconfigure
+          --tenantId "${{ secrets.MSSTORE_TENANT_ID }}"
+          --sellerId "${{ secrets.MSSTORE_SELLER_ID }}"
+          --clientId "${{ secrets.MSSTORE_CLIENT_ID }}"
+          --clientSecret "${{ secrets.MSSTORE_CLIENT_SECRET }}"
+
+      - name: Publish draft submission
+        shell: pwsh
+        run: >
+          msstore submission publish "${{ inputs.product_id }}"
+
+# Required secrets:
+# - MSSTORE_TENANT_ID
+# - MSSTORE_SELLER_ID
+# - MSSTORE_CLIENT_ID
+# - MSSTORE_CLIENT_SECRET
+#
+# Expected committed files:
+# - packaging/.../*.wapproj
+# - packaging/.../*.sln (optional)
+# - versioned MSIX packaging project linked to the app

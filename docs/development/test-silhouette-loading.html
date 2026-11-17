@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test du chargement des silhouettes</title>
+</head>
+
+<body>
+  <h1>Test du chargement des silhouettes Tangram</h1>
+  <p>Ce fichier teste que les silhouettes apparaissent bien lors du chargement d'un fichier .ags</p>
+
+  <div id="test-results">
+    <h2>Modifications apportées :</h2>
+    <ul>
+      <li>✅ Ajout du chargement des backObjects dans tangramCanvasLayer dans Workspace.initFromObject()</li>
+      <li>✅ Ajout de l'événement 'tangram-canvas-ready' dans canvas-layer.js</li>
+      <li>✅ Gestion asynchrone du chargement pour attendre que tangramCanvasLayer soit prêt</li>
+      <li>✅ Ajout du redraw forcé pour le tangramCanvasLayer après chargement</li>
+      <li>✅ Ajout des événements de refresh après chargement</li>
+    </ul>
+
+    <h2>Fichiers modifiés :</h2>
+    <ul>
+      <li><code>src/controllers/Core/Objects/Workspace.js</code> - Chargement des backObjects</li>
+      <li><code>src/components/canvas-layer.js</code> - Événement tangram-canvas-ready</li>
+    </ul>
+
+    <h2>Vérifications à effectuer :</h2>
+    <ol>
+      <li>Charger un fichier .ags avec des backObjects (silhouettes)</li>
+      <li>Vérifier que les silhouettes apparaissent immédiatement à l'écran</li>
+      <li>Vérifier que les coordonnées et transformations sont correctes</li>
+      <li>Vérifier qu'il n'y a pas d'erreurs dans la console</li>
+      <li>Tester le chargement avec différents niveaux de difficulté</li>
+    </ol>
+
+    <h2>Résolution du problème :</h2>
+    <p>
+      Le problème était que lors du chargement d'un fichier .ags, les données <code>backObjects</code>
+      (qui contiennent les silhouettes) n'étaient pas chargées dans le <code>tangramCanvasLayer</code>.
+      La méthode <code>initFromObject</code> de la classe Workspace ne gérait que les objets principaux
+      (<code>objects</code>) mais ignorait les objets de fond (<code>backObjects</code>).
+    </p>
+    <p>
+      La solution implémente un mécanisme asynchrone qui attend que le <code>tangramCanvasLayer</code>
+      soit complètement initialisé avant de charger les silhouettes, garantissant ainsi leur affichage
+      correct lors de l'ouverture du fichier.
+    </p>
+  </div>
+
+  <script>
+    console.log('Test de chargement des silhouettes - Modifications appliquées dans Workspace.js');
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,53 @@
+# Auto-merge pull requests opened by Dependabot once CI is green.
+# Repository: CREM-asbl/AG-Tablette only (workflow lives in this repository).
+name: Dependabot auto-merge
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    name: Approve and auto-merge Dependabot PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Wait for CI checks to complete
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr checks "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --watch \
+            --fail-fast
+
+      - name: Approve Dependabot PR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr review "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --approve
+
+      - name: Enable auto-merge (squash)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge "${{ github.event.pull_request.number }}" \
+            --repo "${{ github.repository }}" \
+            --auto \
+            --squash
