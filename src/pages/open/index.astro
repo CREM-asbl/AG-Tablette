@@ -11,13 +11,10 @@ import { App } from '@components/ag-app';
   </head>
   <body>
     <App client:only="lit" />
-    <div id="ag-status">Chargement…</div>
-    <p><a href="https://ag.crem.be">Site AG</a></p>
-    <p><a href="/">Ouvrir l'application</a></p>
 
     <script>
       import { runOpenPage } from '@services/open-page';
-      runOpenPage(document.getElementById('ag-status'));
+      runOpenPage(null);
     </script>
   </body>
 </html>
