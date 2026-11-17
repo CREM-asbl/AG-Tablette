@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Point",
+    "title": "Point"
+  },
+  {
+    "name": "PointOnLine",
+    "title": "Point sur objet"
+  },
+  {
+    "name": "PointOnIntersection",
+    "title": "Point d'intersection"
+  }
+]

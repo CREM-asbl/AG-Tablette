@@ -1,0 +1,12 @@
+{
+  "chat.tools.terminal.autoApprove": {
+    "/^node -c \"c:\\\\Users\\\\gunbl\\\\Dev\\\\ag-tablette\\\\src\\\\components\\\\popups\\\\floating-overlay\\.js\" 2>&1$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^node -c \"c:\\\\Users\\\\gunbl\\\\Dev\\\\ag-tablette\\\\src\\\\components\\\\shape-selector\\.ts\" 2>&1$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}

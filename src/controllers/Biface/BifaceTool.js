@@ -1,0 +1,93 @@
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Text } from '../Core/Objects/Text';
+import { Tool } from '../Core/States/Tool';
+import { bifaceHelpConfig } from './biface.helpConfig';
+
+/**
+ * Rendre une shape biface
+ */
+export class BifaceTool extends Tool {
+  constructor() {
+    super('biface', 'Biface', 'tool');
+  }
+
+  updateToolStep(step, extraState = {}) {
+    appActions.setToolState(extraState);
+    appActions.setCurrentStep(step);
+  }
+
+
+
+  start() {
+    helpConfigRegistry.register(this.name, bifaceHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
+    setTimeout(
+      () => {
+        this.updateToolStep('listen');
+        this.listen();
+      },
+      50,
+    );
+  }
+
+  listen() {
+    app.upperCanvasLayer.removeAllObjects();
+    this.removeListeners();
+
+    app.mainCanvasLayer.shapes.map((s) => {
+      if (s.isBiface) {
+        new Text({
+          layer: 'upper',
+          coordinates: s.centerCoordinates,
+          referenceId: s.id,
+          message: 'Biface',
+          type: 'biface',
+        });
+      }
+    });
+
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.click_all_shape;
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    window.dispatchEvent(new CustomEvent('refreshUpper'));
+  }
+
+  /**
+   * stopper l'état
+   */
+  end() {
+    app.upperCanvasLayer.removeAllObjects();
+    this.removeListeners();
+  }
+
+  /**
+   * Appelée par événement du SelectManager lorsqu'une figures a été sélectionnée (click)
+   * @param  {Shape} shape            La figure sélectionnée
+   */
+  objectSelected(shape) {
+    if (!shape) return;
+
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
+
+    this.executeAction();
+    this.updateToolStep('listen');
+  }
+
+  _executeAction() {
+    // if ! all biface => set to biface
+    // else set to not biface
+    const valueToSet = !this.involvedShapes.every((s) => {
+      return s.isBiface;
+    });
+    this.involvedShapes.forEach((s) => {
+      s.isBiface = valueToSet;
+    });
+  }
+}

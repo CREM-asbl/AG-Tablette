@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Circle",
+    "title": "Cercle"
+  },
+  {
+    "name": "CirclePart",
+    "title": "Secteur circulaire"
+  },
+  {
+    "name": "CircleArc",
+    "title": "Arc de cercle"
+  },
+  {
+    "name": "30degreesArc",
+    "title": "Arc de 30°"
+  },
+  {
+    "name": "45degreesArc",
+    "title": "Arc de 45°"
+  }
+]

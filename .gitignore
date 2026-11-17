@@ -1,6 +1,26 @@
-.snowpack
+dist
 build
 node_modules
 .firebase
+.astro
 *.log
 *.DS_Store
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+coverage
+
+# Firebase Rules Backups (local only)
+backups/firebase-rules/
+
+# Bubblewrap TWA
+android/twa/.gradle/
+android/twa/local.properties
+android/twa/play-upload-key.jks
+android/twa/*.aab
+android/twa/*.apk
+android/twa/play-service-account.json
+dev-dist

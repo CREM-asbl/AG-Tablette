@@ -1,0 +1,227 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { app } from '../../../../src/controllers/Core/App';
+import { SelectManager } from '../../../../src/controllers/Core/Managers/SelectManager';
+import { BaseShapeCreationTool } from '../../../../src/controllers/Core/States/BaseShapeCreationTool';
+import { appActions } from '../../../../src/store/appState';
+
+vi.mock('@lit-labs/signals', () => ({
+    computed: vi.fn((cb) => ({ get: cb })),
+    signal: vi.fn((val) => ({ get: () => val, set: vi.fn() })),
+}));
+
+const { mockCurrentStepGet } = vi.hoisted(() => ({
+    mockCurrentStepGet: vi.fn(() => 'start')
+}));
+
+vi.mock('../../../../src/controllers/Core/App', () => {
+    const setState = vi.fn();
+    const app = {
+        tool: { name: 'base', currentStep: 'start' },
+        workspace: {
+            lastKnownMouseCoordinates: { x: 10, y: 10, toCanvasCoordinates: vi.fn(() => ({ x: 10, y: 10 })) }
+        },
+        upperCanvasLayer: {
+            shapes: [],
+            segments: [],
+            points: [],
+            removeAllObjects: vi.fn(),
+        },
+        settings: {
+            temporaryDrawColor: '#ff0000',
+        },
+        addListener: vi.fn(() => 'listener-id'),
+        removeListener: vi.fn(),
+    };
+    return { app, setState };
+});
+
+vi.mock('../../../../src/store/appState', () => ({
+    settings: { get: vi.fn(() => ({ temporaryDrawColor: '#ff0000' })) },
+    currentStep: { get: mockCurrentStepGet },
+    activeTool: { get: vi.fn(() => 'base') },
+    selectedTemplate: { get: vi.fn(() => null) },
+    toolState: { get: vi.fn(() => ({})) },
+    appActions: {
+        setActiveTool: vi.fn(),
+        setSelectedTemplate: vi.fn(),
+        setToolUiState: vi.fn(),
+        setToolState: vi.fn(),
+        setCurrentStep: vi.fn(),
+        addNotification: vi.fn(),
+    }
+}));
+
+vi.mock('../../../../src/controllers/Core/Managers/SelectManager', () => ({
+    SelectManager: {
+        areCoordinatesInMagnetismDistance: vi.fn(() => false),
+        getEmptySelectionConstraints: vi.fn(() => ({ points: {}, segments: {} })),
+        selectPoint: vi.fn(),
+        selectSegment: vi.fn(),
+    }
+}));
+
+vi.mock('../../../../src/controllers/Core/Objects/Coordinates', () => ({
+    Coordinates: class {
+        constructor(props) {
+            this.x = props.x;
+            this.y = props.y;
+        }
+        toCanvasCoordinates() { return { x: this.x, y: this.y }; }
+    }
+}));
+
+vi.mock('../../../../src/controllers/Core/Objects/Point', () => ({
+    Point: class {
+        constructor(props) {
+            this.id = 'p-' + Math.random();
+            this.coordinates = props.coordinates;
+        }
+    }
+}));
+
+vi.mock('../../../../src/controllers/Core/Objects/Segment', () => ({
+    Segment: class {
+        constructor(props) {
+            this.id = 's-' + Math.random();
+        }
+    }
+}));
+
+vi.mock('../../../../src/controllers/Core/Objects/Shapes/RegularShape', () => ({
+    RegularShape: class {
+        constructor(props) {
+            this.id = 'shape-' + Math.random();
+            this.layer = props?.layer || 'upper';
+            this.segmentIds = props?.segmentIds || [];
+            this.pointIds = props?.pointIds || [];
+        }
+    }
+}));
+
+vi.mock('../../../../src/controllers/Core/Tools/general', () => ({
+    findObjectsByName: vi.fn(() => []),
+    removeObjectById: vi.fn(),
+}));
+
+// Concrete class for testing
+class MockCreationTool extends BaseShapeCreationTool {
+    constructor() {
+        super('mock-create', 'Mock Create', 'mock-family', []);
+    }
+    async loadShapeDefinition() { this.shapeDefinition = {}; }
+    numberOfPointsRequired() { return 2; }
+    async executeAction() { }
+    refreshShapePreview() { this.previewRefreshed = true; return false; }
+}
+
+describe('BaseShapeCreationTool', () => {
+    let tool;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        app.upperCanvasLayer.shapes = [];
+        app.upperCanvasLayer.segments = [];
+        app.upperCanvasLayer.points = [];
+        mockCurrentStepGet.mockReturnValue('start');
+        tool = new MockCreationTool();
+    });
+
+    it('starts correctly', async () => {
+        await tool.start();
+        expect(appActions.setActiveTool).toHaveBeenCalledWith('mock-create');
+        expect(appActions.setToolUiState).toHaveBeenCalled();
+    });
+
+    it('handles first point drawing', async () => {
+        await tool.drawFirstPoint();
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
+        expect(tool.numberOfPointsDrawn).toBe(0);
+    });
+
+    it('adds point on mouse down', () => {
+        tool.canvasMouseDown();
+        expect(tool.numberOfPointsDrawn).toBe(1);
+        expect(tool.points.length).toBe(1);
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('animatePoint');
+    });
+
+    it('sets step before state on mouse down transition', () => {
+        tool.canvasMouseDown();
+
+        const stepOrder = appActions.setCurrentStep.mock.invocationCallOrder[0];
+        const stateOrder = appActions.setToolState.mock.invocationCallOrder[0];
+
+        expect(stepOrder).toBeLessThan(stateOrder);
+        expect(appActions.setToolState).toHaveBeenCalledWith(
+            expect.not.objectContaining({ currentStep: expect.anything() })
+        );
+    });
+
+    it('completes shape when required points are drawn', async () => {
+        tool.numberOfPointsDrawn = 1;
+        tool.points = [{ id: 'p1' }];
+
+        // Add second point
+        tool.canvasMouseDown();
+        expect(tool.numberOfPointsDrawn).toBe(2);
+
+        // Mouse up should complete - completeShape() calls safeExecuteAction() which is async
+        tool.canvasMouseUp();
+        await Promise.resolve(); // flush microtask queue
+        await Promise.resolve(); // flush inner async chain
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawFirstPoint');
+    });
+
+    it('handles magnetism collision and rollback', () => {
+        tool.numberOfPointsDrawn = 2;
+        tool.points = [
+            { id: 'p1', coordinates: { x: 0, y: 0 } },
+            { id: 'p2', coordinates: { x: 1, y: 1 } }
+        ];
+        tool.segments = [{ id: 's1' }];
+
+        vi.mocked(SelectManager.areCoordinatesInMagnetismDistance).mockReturnValue(true);
+
+        tool.canvasMouseUp();
+        expect(appActions.addNotification).toHaveBeenCalled();
+        expect(tool.numberOfPointsDrawn).toBe(1);
+        expect(tool.points.length).toBe(1);
+        expect(tool.segments.length).toBe(0);
+        expect(tool.previewRefreshed).toBe(true);
+    });
+
+    it('adjusts point position free', () => {
+        const mockPoint = { coordinates: { x: 5, y: 5 } };
+        tool.constraints = { isFree: true };
+
+        tool.adjustPoint(mockPoint);
+        expect(SelectManager.getEmptySelectionConstraints).toHaveBeenCalled();
+    });
+
+    it('refreshes state upper', () => {
+        mockCurrentStepGet.mockReturnValue('animatePoint');
+        tool.numberOfPointsDrawn = 1;
+        tool.points = [{ coordinates: { x: 0, y: 0 } }];
+
+        tool.refreshStateUpper();
+        expect(tool.previewRefreshed).toBe(true);
+    });
+
+    it('freezes last point on mouse up before continuing', () => {
+        tool.numberOfPointsDrawn = 1;
+        tool.points = [{ coordinates: { x: 1, y: 1 }, adjustedOn: null }];
+        tool.numberOfPointsRequired = vi.fn(() => 2);
+        tool.checkPointMagnetism = vi.fn(() => false);
+
+        app.workspace.lastKnownMouseCoordinates = { x: 42, y: 24 };
+
+        const adjustSpy = vi.spyOn(tool, 'adjustPoint');
+
+        tool.canvasMouseUp();
+
+        expect(tool.points[0].coordinates.x).toBe(42);
+        expect(tool.points[0].coordinates.y).toBe(24);
+        expect(adjustSpy).toHaveBeenCalledWith(tool.points[0]);
+        expect(appActions.setCurrentStep).toHaveBeenCalledWith('drawPoint');
+    });
+});

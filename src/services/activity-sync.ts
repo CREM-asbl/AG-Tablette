@@ -1,0 +1,423 @@
+// Service de synchronisation pour les activités
+// Gère la synchronisation en arrière-plan des fichiers d'activités
+
+// @ts-ignore
+import {
+  findAllFilesPaged,
+  findAllThemes,
+  getFilesCount,
+  getModulesDocFromTheme,
+  readFileFromServer,
+} from '../firebase/firebase-init.js';
+// @ts-ignore
+import {
+  setSyncCompleted,
+  setSyncProgress,
+  syncInProgress,
+} from '../store/syncState.js';
+// @ts-ignore
+import {
+  getAllActivities,
+  getSyncMetadata,
+  isRecentSyncAvailable,
+  saveActivity,
+  saveModule,
+  saveSyncMetadata,
+  saveTheme,
+} from '../utils/indexeddb-activities.js';
+
+interface ActivityMetadata {
+  id: string;
+  version: number;
+}
+
+interface ThemeMetadata {
+  id: string;
+  version: number;
+}
+
+interface SyncMetadata {
+  lastSyncDate: number;
+  serverFiles: ActivityMetadata[];
+  serverFilesTruncated: boolean;
+  serverThemes: ThemeMetadata[];
+  expiryDate: number;
+  syncedFilesCount: number;
+  totalFilesCount: number;
+  totalThemesCount: number;
+}
+
+// Configuration du service
+const CONFIG = {
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000,
+  TIMEOUT: 30000,
+  RECONNECT_DELAY: 1000,
+  SYNC_COOLDOWN: 24 * 60 * 60 * 1000, // 24 heures entre les synchronisations
+  FILE_PAGE_SIZE: 20,
+  PROGRESS_THROTTLE_MS: 1000,
+  MAX_METADATA_FILES: 2000,
+  DEBUG:
+    typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' ||
+      window.location.search.includes('debug=true')),
+};
+
+/**
+ * Utilitaires pour le service de synchronisation
+ */
+const utils = {
+  log: (message: string, ...args: any[]) => {
+    if (CONFIG.DEBUG) {
+      console.log(`[SYNC] ${message}`, ...args);
+    }
+  },
+
+  warn: (message: string, ...args: any[]) => {
+    console.warn(`[SYNC] ${message}`, ...args);
+  },
+
+  error: (message: string, ...args: any[]) => {
+    console.error(`[SYNC] ${message}`, ...args);
+  },
+
+  /**
+   * Attendre un délai
+   * @param {number} ms Délai en millisecondes
+   * @returns {Promise<void>}
+   */
+  delay: (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms)),
+
+  /**
+   * Calculer la progression totale incluant fichiers, thèmes et modules
+   */
+  calculateProgress: (
+    filesProcessed: number,
+    totalFiles: number,
+    themesProcessed: number,
+    totalThemes: number,
+  ): number => {
+    // Pondération: 70% pour les fichiers, 30% pour les thèmes/modules
+    const fileWeight = 0.7;
+    const themeWeight = 0.3;
+
+    const fileProgress =
+      totalFiles > 0 ? (filesProcessed / totalFiles) * fileWeight * 100 : 0;
+    const themeProgress =
+      totalThemes > 0 ? (themesProcessed / totalThemes) * themeWeight * 100 : 0;
+
+    return Math.round(fileProgress + themeProgress);
+  },
+};
+
+export async function syncActivitiesInBackground(forceSync = false): Promise<void> {
+  // Utiliser le store centralisé au lieu d'une variable globale
+  if (syncInProgress.value) {
+    utils.log('Synchronisation déjà en cours...');
+    return;
+  }
+
+  if (!navigator.onLine) {
+    utils.log('Pas de connexion internet, synchronisation annulée');
+    return;
+  }
+
+  // Vérifier si une synchronisation récente a eu lieu (sauf si forcée)
+  if (!forceSync) {
+    const recentSyncAvailable = await isRecentSyncAvailable(24); // 24 heures
+    if (recentSyncAvailable) {
+      utils.log(
+        'Synchronisation récente détectée, synchronisation ignorée. Utilisez forceSync=true pour forcer.',
+      );
+      return;
+    }
+  }
+
+  let attempt = 0;
+  while (attempt < CONFIG.RETRY_ATTEMPTS) {
+    try {
+      utils.log('Initialisation du signal à 0%');
+      setSyncProgress(0);
+      utils.log(
+        'Début de la synchronisation des activités, thèmes et modules...',
+      );
+
+      // Récupérer les données nécessaires
+      const [totalFilesCount, serverThemes] = await Promise.all([
+        getFilesCount(),
+        findAllThemes(),
+      ]);
+
+      const localActivities = await getAllActivities();
+      const localMap = new Map(
+        localActivities.map((activity: any) => [activity.id, activity]),
+      );
+
+      const serverFilesMetadata: ActivityMetadata[] = [];
+      let serverFilesTruncated = false;
+
+      let addedCount = 0;
+      let processedFiles = 0;
+      let processedThemes = 0;
+      let lastProgressEmit = 0;
+
+      const emitProgress = (files: number, total: number | null, themes: number, themesTotal: number) => {
+        const now = Date.now();
+        const done = total !== null && files >= total && themes >= themesTotal;
+        if (!done && now - lastProgressEmit < CONFIG.PROGRESS_THROTTLE_MS) {
+          return;
+        }
+        lastProgressEmit = now;
+        setSyncProgress(
+          utils.calculateProgress(files, total ?? 1, themes, themesTotal),
+        );
+      };
+
+      let totalFiles =
+        typeof totalFilesCount === 'number' ? totalFilesCount : null;
+      const totalThemes = serverThemes.length;
+
+      // Synchronisation des fichiers d'activités avec gestion de timeout
+      await findAllFilesPaged({
+        pageSize: CONFIG.FILE_PAGE_SIZE,
+        onPage: async (serverFiles: any[]) => {
+          for (const serverFile of serverFiles) {
+            try {
+              const localActivity = localMap.get(serverFile.id);
+              const serverVersion = serverFile.version || 1;
+              const localVersion = localActivity?.version || 0;
+
+              if (serverFilesMetadata.length < CONFIG.MAX_METADATA_FILES) {
+                serverFilesMetadata.push({
+                  id: serverFile.id,
+                  version: serverVersion,
+                });
+              } else {
+                serverFilesTruncated = true;
+              }
+
+              if (!localActivity || serverVersion > localVersion) {
+                utils.log(
+                  `Téléchargement ou mise à jour de l'activité: ${serverFile.id}`,
+                );
+
+                // Ajouter timeout pour éviter les blocages
+                const timeoutPromise = new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error('Timeout')), CONFIG.TIMEOUT),
+                );
+
+                const activityData = await Promise.race([
+                  readFileFromServer(serverFile.id, { expectedVersion: serverVersion }),
+                  timeoutPromise,
+                ]);
+
+                await saveActivity(serverFile.id, activityData, serverVersion);
+                addedCount++;
+              } else {
+                utils.log(
+                  `Activité ${serverFile.id} déjà présente localement (version à jour)`,
+                );
+              }
+
+              processedFiles++;
+              utils.log(
+                `Progression: ${processedFiles}/${totalFiles ?? '?'} fichiers, ${processedThemes}/${totalThemes} thèmes`,
+              );
+
+              // Progression throttlée (~1/s) : évite la contention signaux/IndexedDB.
+              emitProgress(processedFiles, totalFiles, processedThemes, totalThemes);
+            } catch (fileError) {
+              utils.warn(
+                `Erreur lors de la synchronisation de ${serverFile.id}:`,
+                fileError,
+              );
+              processedFiles++; // Compter quand même pour continuer la progression
+            }
+          }
+        },
+      });
+
+      if (totalFiles === null) {
+        totalFiles = processedFiles;
+        emitProgress(processedFiles, totalFiles, processedThemes, totalThemes);
+      }
+
+
+      /**
+       * Nettoie les données pour la sérialisation IndexedDB
+       */
+      const cleanData = (data: any) => {
+        try {
+          return JSON.parse(JSON.stringify(data));
+        } catch (e) {
+          utils.warn('Erreur lors du nettoyage des données:', e);
+          return data;
+        }
+      };
+
+      // Synchronisation des thèmes avec mise à jour de progression
+      for (const theme of serverThemes) {
+        try {
+          await saveTheme(theme.id, cleanData(theme));
+
+          // Synchronisation des modules pour chaque thème
+          const modules = await getModulesDocFromTheme(theme.id);
+          for (const module of modules) {
+            await saveModule(module.id, cleanData(module));
+          }
+
+          processedThemes++;
+          emitProgress(processedFiles, totalFiles, processedThemes, totalThemes);
+        } catch (themeError) {
+          utils.warn(
+            `Erreur lors de la synchronisation du thème ${theme.id}:`,
+            themeError,
+          );
+          processedThemes++; // Compter quand même pour continuer
+        }
+      }
+
+      utils.log(
+        `Synchronisation terminée: ${addedCount} nouvelles activités, ${serverThemes.length} thèmes, modules synchronisés.`,
+      );
+
+      // Sauvegarder les métadonnées de synchronisation pour éviter les syncs inutiles
+      try {
+        const metadata: SyncMetadata = {
+          lastSyncDate: Date.now(),
+          serverFiles: serverFilesMetadata,
+          serverFilesTruncated,
+          serverThemes: serverThemes.map((t: any) => ({
+            id: t.id,
+            version: t.version || 1,
+          })),
+          expiryDate: Date.now() + CONFIG.SYNC_COOLDOWN,
+          syncedFilesCount: addedCount,
+          totalFilesCount: totalFiles ?? processedFiles,
+          totalThemesCount: serverThemes.length,
+        };
+        await saveSyncMetadata(metadata);
+        utils.log('Métadonnées de synchronisation sauvegardées avec succès');
+      } catch (metadataError) {
+        utils.warn(
+          'Erreur lors de la sauvegarde des métadonnées:',
+          metadataError,
+        );
+      }
+
+      utils.log('Synchronisation terminée, appel de setSyncCompleted()');
+      setSyncCompleted();
+
+      return; // Succès, sortir de la boucle de retry
+    } catch (error) {
+      attempt++;
+      utils.error(
+        `Erreur lors de la synchronisation (tentative ${attempt}/${CONFIG.RETRY_ATTEMPTS}):`,
+        error,
+      );
+
+      if (attempt < CONFIG.RETRY_ATTEMPTS) {
+        utils.log(`Nouvelle tentative dans ${CONFIG.RETRY_DELAY}ms...`);
+        await utils.delay(CONFIG.RETRY_DELAY);
+      } else {
+        utils.error(
+          'Échec de la synchronisation après',
+          CONFIG.RETRY_ATTEMPTS,
+          'tentatives',
+        );
+        // Réinitialiser l'état en cas d'échec final
+        setSyncCompleted();
+        throw error;
+      }
+    }
+  }
+}
+
+/**
+ * Synchronisation intelligente avec vérification de cache
+ */
+export async function smartSync(options: { force?: boolean; maxAgeHours?: number } = {}): Promise<string> {
+  const { force = false, maxAgeHours = 24 } = options;
+
+  if (!navigator.onLine) {
+    utils.log('Pas de connexion internet disponible');
+    return 'offline';
+  }
+
+  if (syncInProgress.value) {
+    utils.log('Synchronisation déjà en cours');
+    return 'in_progress';
+  }
+
+  try {
+    // Vérifier d'abord si une synchronisation récente a eu lieu
+    if (!force) {
+      const recentSyncAvailable = await isRecentSyncAvailable(maxAgeHours);
+      const metadata = await getSyncMetadata();
+
+      if (recentSyncAvailable && metadata) {
+        utils.log(
+          `Synchronisation récente trouvée (${new Date(metadata.lastSyncDate).toLocaleString()}), synchronisation ignorée`,
+        );
+        utils.log(
+          `Prochaine synchronisation automatique après: ${new Date(metadata.expiryDate).toLocaleString()}`,
+        );
+        return 'recent';
+      }
+    }
+
+    // Lancer la synchronisation complète
+    await syncActivitiesInBackground(force);
+    return 'completed';
+  } catch (error) {
+    utils.error('Erreur lors de la synchronisation intelligente:', error);
+    return 'error';
+  }
+}
+
+/**
+ * Obtient les informations de la dernière synchronisation
+ */
+export async function getLastSyncInfo(): Promise<any> {
+  try {
+    const metadata = await getSyncMetadata();
+    if (!metadata) {
+      return null;
+    }
+
+    return {
+      lastSyncDate: new Date(metadata.lastSyncDate),
+      syncedFilesCount: metadata.syncedFilesCount || 0,
+      totalFilesCount: metadata.totalFilesCount || 0,
+      totalThemesCount: metadata.totalThemesCount || 0,
+      expiryDate: new Date(metadata.expiryDate),
+      isExpired: metadata.expiryDate <= Date.now(),
+      nextSyncDue: metadata.expiryDate <= Date.now(),
+    };
+  } catch (error) {
+    utils.warn(
+      'Erreur lors de la récupération des informations de sync:',
+      error,
+    );
+    return null;
+  }
+}
+
+export function initActivitySync(): void {
+  utils.log('Initialisation du service de synchronisation...');
+
+  // Synchronisation automatique lors de la reconnexion.
+  // Délai court pour laisser le réseau se stabiliser, sans bloquer le boot.
+  window.addEventListener('online', () => {
+    utils.log(
+      'Connexion rétablie, lancement de la synchronisation intelligente...',
+    );
+    setTimeout(() => smartSync(), CONFIG.RECONNECT_DELAY);
+  });
+}
+
+utils.log('Service activity-sync.ts chargé');
+
+export function isSyncInProgress(): boolean {
+  return syncInProgress.value;
+}

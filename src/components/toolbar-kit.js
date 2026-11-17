@@ -1,0 +1,109 @@
+import '@components/icon-button';
+import { html, LitElement } from 'lit';
+import { app } from '../controllers/Core/App';
+import { appActions } from '../store/appState';
+import './template-toolbar';
+
+class ToolbarKit extends LitElement {
+  static properties = {
+    kit: { type: Object },
+    selectedFamily: { type: String },
+    helpSelected: { type: Boolean },
+  };
+
+  constructor() {
+    super();
+    this._filteredFamilies = [];
+    this._lastKit = null;
+    this._pendingUpdate = false;
+  }
+
+  shouldUpdate(changedProperties) {
+    // Optimiser les rendus en ne mettant à jour que si les propriétés pertinentes changent
+    if (
+      changedProperties.has('kit') ||
+      changedProperties.has('selectedFamily') ||
+      changedProperties.has('helpSelected')
+    ) {
+      return true;
+    }
+    return super.shouldUpdate(changedProperties);
+  }
+
+  // Memoize les familles filtrées pour éviter les calculs inutiles
+  _getFilteredFamilies() {
+    if (this._lastKit !== this.kit || !this._filteredFamilies.length) {
+      this._filteredFamilies =
+        this.kit?.families?.filter((family) => family.isVisible) || [];
+      this._lastKit = this.kit;
+    }
+    return this._filteredFamilies;
+  }
+
+  render() {
+    if (!this.kit) return null;
+
+    const families = this._getFilteredFamilies();
+    if (!families.length) return null;
+
+    const familyNames = families.map((family) => family.name);
+
+    return html`
+      <template-toolbar>
+        <h2 slot="title">${this.kit.name}</h2>
+        <div slot="body">
+          ${familyNames.map(
+      (familyName) => html`
+              <icon-button
+                name="${this.kit.families.find(
+        (family) => family.name === familyName,
+      ).shapeTemplates[0].name}"
+                type="Create"
+                title="${familyName}"
+                ?active="${familyName === this.selectedFamily}"
+                @click="${this._actionHandle}"
+              >
+              </icon-button>
+            `,
+    )}
+        </div>
+      </template-toolbar>
+    `;
+  }
+
+  _actionHandle(event) {
+    if (this._pendingUpdate) return;
+
+    // Limiter la fréquence des mises à jour
+    this._pendingUpdate = true;
+    requestAnimationFrame(() => {
+      this._pendingUpdate = false;
+    });
+
+    if (this.helpSelected) {
+      appActions.setActiveTool('create');
+      appActions.setToolState({ selectedFamily: event.target.title });
+      appActions.setCurrentStep('start');
+
+      // Si le mode débutant est activé, créer automatiquement le guide contextuel
+      if (this.helpSelected) {
+        // Supprimer les anciens guides
+        const existingGuides = document.querySelectorAll('contextual-guide');
+        existingGuides.forEach(guide => guide.remove());
+
+        // Créer le nouveau guide contextuel pour 'create'
+        import('@components/popups/contextual-guide').then(() => {
+          const guideElem = document.createElement('contextual-guide');
+          guideElem.toolname = 'create';
+          guideElem.style.display = 'block';
+          document.body.appendChild(guideElem);
+        });
+      }
+    } else if (!app.fullHistory.isRunning) {
+      appActions.setActiveTool('create');
+      appActions.setToolState({ selectedFamily: event.target.title });
+      appActions.setCurrentStep('start');
+    }
+  }
+}
+customElements.define('toolbar-kit', ToolbarKit);

@@ -1,0 +1,210 @@
+import '@components/color-button';
+import { app } from '@controllers/Core/App.js';
+import { gridStore } from '@store/gridStore';
+import '@styles/popup-variables.css';
+import { LitElement, css, html } from 'lit';
+import './template-popup';
+
+class GridPopup extends LitElement {
+  static properties = {
+    gridShown: Boolean,
+    gridType: String,
+    gridSize: Number,
+  };
+
+  static styles = css`
+    .field {
+      display: var(--popup-field-display);
+      align-items: var(--popup-field-align-items);
+      padding: var(--popup-field-padding);
+      width: var(--popup-field-width);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      text-align: left;
+    }
+
+    select {
+      height: var(--popup-select-height);
+      width: var(--popup-select-width);
+      border-radius: var(--popup-select-border-radius);
+    }
+
+    input {
+      height: var(--popup-input-height);
+      width: var(--popup-input-width);
+      border-radius: var(--popup-input-border-radius);
+    }
+
+    input[type='checkbox'] {
+      height: var(--popup-checkbox-height);
+      width: var(--popup-checkbox-width);
+    }
+
+    label {
+      font-weight: var(--popup-label-font-weight);
+      margin: var(--popup-label-margin);
+      font-size: var(--popup-label-font-size);
+      margin: 0;
+    }
+  `;
+
+
+
+  constructor() {
+    super();
+    // Initialiser les propriétés à partir du store
+    const storeState = gridStore.getState();
+    this.gridType = storeState.gridType;
+    this.gridSize = storeState.gridSize;
+    // gridShown n'est plus une propriété directe du store, mais dérivée de isVisible et gridType
+    this.gridShown = storeState.isVisible && storeState.gridType !== 'none';
+    this._unsubscribe = null;
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._unsubscribe = gridStore.subscribe((state) => {
+      this.gridType = state.gridType;
+      this.gridSize = state.gridSize;
+      this.gridShown = state.isVisible && state.gridType !== 'none';
+      // requestUpdate est implicitement appelé par LitElement lors de la modification des propriétés déclarées
+    });
+    // Initialiser l'état une fois connecté, au cas où il aurait changé entre le constructeur et la connexion
+    const currentState = gridStore.getState();
+    this.gridType = currentState.gridType;
+    this.gridSize = currentState.gridSize;
+    this.gridShown = currentState.isVisible && currentState.gridType !== 'none';
+  }
+
+  disconnectedCallback() {
+    if (this._unsubscribe) {
+      this._unsubscribe();
+    }
+    super.disconnectedCallback();
+  }
+
+  render() {
+    return html`
+      <template-popup>
+        <h2 slot="title">Grille</h2>
+        <div slot="body" id="body">
+          <div class="field">
+            <label for="grid_popup_grid_type">Type de grille </label>
+            <select
+              name="grid_popup_grid_type"
+              id="grid_popup_grid_type"
+              @change="${this._actionHandle}"
+            >
+              <option value="none" ?selected="${this.gridType === 'none'}">
+                Aucune
+              </option>
+              <option value="square" ?selected=${this.gridType === 'square'}>
+                Carrés
+              </option>
+              <option
+                value="horizontal-triangle"
+                ?selected=${this.gridType === 'horizontal-triangle'}
+              >
+                Triangles 1
+              </option>
+              <option
+                value="vertical-triangle"
+                ?selected=${this.gridType === 'vertical-triangle'}
+              >
+                Triangles 2
+              </option>
+            </select>
+          </div>
+
+          <br />
+
+          <div class="field">
+            <label for="grid_popup_grid_size">Taille de la grille </label>
+            <select
+              name="grid_popup_grid_size"
+              id="grid_popup_grid_size"
+              @change="${this._actionHandle}"
+              ?disabled="${this.gridType === 'none'}"
+            >
+              <option
+                value="0.333333333333333"
+                ?selected="${this.gridSize === 0.333333333333333}"
+              >
+                1/3
+              </option>
+              <option value="0.5" ?selected="${this.gridSize === 0.5}">
+                1/2
+              </option>
+              <option value="1" ?selected="${this.gridSize === 1}">1</option>
+              <option value="2" ?selected="${this.gridSize === 2}">2</option>
+              <option value="3" ?selected="${this.gridSize === 3}">3</option>
+            </select>
+          </div>
+        </div>
+
+        <div slot="footer">
+          <color-button
+            @click="${() =>
+        window.dispatchEvent(new CustomEvent('close-popup'))}"
+            innerText="Ok"
+          ></color-button>
+        </div>
+      </template-popup>
+    `;
+  }
+
+  firstUpdated() {
+    window.addEventListener(
+      'close-popup',
+      () => {
+        this.submitAndClose();
+      },
+      { once: true },
+    );
+    // window.addEventListener('settings-changed', this.updateProperties.bind(this)); // Supprimé
+  }
+
+  submit() {
+    // La fermeture du popup suffit à valider
+  }
+
+  close() {
+    this.remove();
+  }
+
+  submitAndClose() {
+    this.submit();
+    this.close();
+    if (!app.fullHistory.isRunning) {
+      window.dispatchEvent(
+        new CustomEvent('actions-executed', { detail: { name: 'Grille' } }),
+      );
+    }
+  }
+
+  /**
+   * event handler principal
+   */
+  _actionHandle(event) {
+    switch (event.target.name) {
+      case 'grid_popup_grid_type':
+        gridStore.setGridType(event.target.value);
+        break;
+
+      case 'grid_popup_grid_size':
+        gridStore.setGridSize(parseFloat(event.target.value));
+        break;
+
+      default:
+        console.error(
+          'Grid popup: paramètre inconnu: ' +
+          event.target.name +
+          ' ' +
+          event.target.value +
+          ' ' +
+          event.target.checked,
+        );
+    }
+  }
+}
+customElements.define('grid-popup', GridPopup);
