@@ -2,7 +2,7 @@
 # https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
 version: 2
 updates:
-  # npm dependencies (root package.json only; node_modules/ and .kilo/ worktrees are not scanned)
+  # npm/pnpm dependencies (root package.json only; node_modules/ and .kilo/ worktrees are not scanned)
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
@@ -10,7 +10,22 @@ updates:
       day: "monday"
     open-pull-requests-limit: 5
     groups:
-      all-minor:
+      minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      minor-patch:
         patterns:
           - "*"
         update-types:
@@ -25,7 +40,7 @@ updates:
       day: "monday"
     open-pull-requests-limit: 5
     groups:
-      all-minor:
+      minor-patch:
         patterns:
           - "*"
         update-types:
@@ -39,7 +54,7 @@ updates:
       day: "monday"
     open-pull-requests-limit: 5
     groups:
-      all-minor:
+      minor-patch:
         patterns:
           - "*"
         update-types:
