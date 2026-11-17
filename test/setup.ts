@@ -1,0 +1,99 @@
+// Setup pour les tests Vitest - mocks des APIs browser
+import 'fake-indexeddb/auto';
+import { vi } from 'vitest';
+
+const originalFetch = globalThis.fetch?.bind(globalThis);
+
+// fake-indexedDB provides complete IndexedDB implementation for tests
+
+// Mock dialog.showModal() pour les popups
+Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+  value: vi.fn(),
+  writable: true,
+});
+
+Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+  value: vi.fn(),
+  writable: true,
+});
+
+// Mock focus() pour les éléments
+Object.defineProperty(HTMLElement.prototype, 'focus', {
+  value: vi.fn(),
+  writable: true,
+});
+
+// Mock Firebase auth pour éviter les erreurs
+vi.mock('@db/firebase-init', () => ({
+  findAllThemes: vi.fn(() => Promise.resolve([])),
+  findAllFiles: vi.fn(() => Promise.resolve([])),
+  downloadFileZip: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock('@services/activity-sync', () => ({
+  getLastSyncInfo: vi.fn(() => Promise.resolve(null)),
+}));
+
+vi.mock('@store/notions', () => ({
+  cachedThemes: {
+    get: vi.fn(() => []),
+    set: vi.fn(),
+  },
+  selectedSequence: {
+    get: vi.fn(() => ''),
+  },
+}));
+
+// Ne pas mocker syncState globalement - le laisser aux tests individuels qui en ont besoin
+
+vi.mock('@controllers/Core/App', () => ({
+  app: {
+    settings: {},
+    tool: {},
+    history: {},
+    canvasWidth: 800, // Nécessaire pour drawGridPoints
+    canvasHeight: 600, // Nécessaire pour drawGridPoints
+    mainCanvasLayer: { points: [], segments: [], shapes: [] }, // Pour Point/Segment
+    secondCanvasLayer: { points: [], segments: [], shapes: [] }, // Pour canvas secondaire si besoin
+    workspace: {
+      lastKnownMouseCoordinates: { x: 0, y: 0 },
+      zoomLevel: 1, // Nécessaire pour drawGridPoints
+      translateOffset: { x: 0, y: 0 }, // Nécessaire pour drawGridPoints
+    },
+  },
+}));
+
+// Mock performanceMonitor from @core
+vi.mock('@core', () => ({
+  performanceMonitor: {
+    enable: vi.fn(),
+    disable: vi.fn(),
+    startMeasure: vi.fn((name) => ({ label: name })),
+    endMeasure: vi.fn(),
+  },
+  default: {},
+}));
+
+// Mock window.dev_mode
+Object.defineProperty(window, 'dev_mode', {
+  value: true,
+  writable: true,
+});
+
+// Stabilise les tests qui lisent la version applicative via /manifest.json.
+globalThis.fetch = vi.fn(async (input, init) => {
+  const requestUrl = typeof input === 'string' ? input : input?.url;
+
+  if (requestUrl === '/manifest.json') {
+    return {
+      ok: true,
+      json: async () => ({ version: 'test-version' }),
+    };
+  }
+
+  if (originalFetch) {
+    return originalFetch(input, init);
+  }
+
+  throw new Error(`Unhandled fetch in test environment: ${String(requestUrl)}`);
+}) as typeof fetch;

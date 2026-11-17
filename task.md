@@ -1,0 +1,42 @@
+# Tâches
+
+- [x] Finaliser le plan de couverture de tests <!-- id: 0 -->
+    - [x] Vérifier la couverture actuelle (33.69%) <!-- id: 1 -->
+    - [x] Mettre à jour `docs/test-coverage-plan.md` <!-- id: 2 -->
+    - [x] Confirmer la cible de couverture (40%) <!-- id: 3 -->
+- [x] Stabilisation du projet et correction des tests unitaires <!-- id: 4 -->
+    - [x] Corriger les mocks `appActions` dans les tests d'outils migrés ✅
+    - [x] Résoudre les erreurs d'héritage dans les mocks de formes ✅
+- [x] Amélioration de la couverture de tests (Cible 40% atteinte : 40.62% des lignes) <!-- id: 5 -->
+    - [x] Augmenter la couverture de `ColorTool` (16% -> 85%) ✅
+    - [x] Augmenter la couverture de `DeleteTool` (31% -> 62%) ✅
+    - [x] Augmenter la couverture de `MoveTool` (17% -> 43%) ✅
+    - [x] Augmenter la couverture de `RotateTool` (18% -> 64%) ✅
+    - [x] Augmenter la couverture de `CreateTriangleTool` (20% -> 79%) ✅
+    - [x] Augmenter la couverture de `CreatePointTool` (10% -> 38%) ✅
+    - [x] Augmenter la couverture de `CreateIrregularTool` (21% -> 50%) ✅
+    - [x] Augmenter la couverture de `CreateRegularTool` (11% -> 38%) ✅
+    - [x] Augmenter la couverture de `CreateCircleTool` (8% -> 44%) ✅
+    - [x] Augmenter la couverture de `ag-menu` (42% -> 73%) ✅
+    - [x] Créer des tests pour `App.js` (37% -> 94%) ✅
+    - [x] Créer des tests pour `shapesTools.js` (0% -> 88%) ✅
+    - [x] Augmenter la couverture de `BaseShapeCreationTool` (7% -> 58%) ✅
+    - [x] Augmenter la couverture de `BaseGeometryTool` (43% -> 72%) ✅
+    - [x] Couverture complète de `gridStore.js` (87% -> 100%) ✅
+- [x] Stabilisation des tests E2E Playwright <!-- id: 6 -->
+    - [x] Rendre les imports de composants racines (`ag-main`, `ag-environnements`) statiques dans `ag-app.ts` pour garantir leur définition au rendu ✅
+    - [x] Utiliser `force: true` pour les clics sur les boutons du menu pour éviter l'interception par le conteneur sur Webkit ✅
+    - [x] Ajouter des attentes explicites sur les signaux d'état (`app.tool.currentStep`) pour synchroniser les interactions du test avec la logique de l'application ✅
+    - [x] Augmenter les timeouts pour une meilleure fiabilité sur tous les navigateurs ✅
+- [ ] Poursuivre la migration vers les Signals (Next steps) <!-- id: 7 -->
+    - [x] Migrer `CentralSymetryTool` ✅
+    - [x] Migrer `OrthogonalSymetryTool` ✅
+    - [x] Migrer `DuplicateTool` (complété avec addShape fix) ✅
+    - [ ] Migrer les outils de découpe et division (`Cut`, `Divide`)
+- [ ] Refactorisation des pages Astro restantes <!-- id: 8 -->
+    - [ ] budgets/update/[id].astro
+    - [ ] transactions/update/[id].astro
+    - [ ] cagnottes/[id].astro
+    - [ ] releves/[section]/[id].astro
+    - [ ] consommations.astro
+    - [ ] import-bancaire.astro

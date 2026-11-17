@@ -1,0 +1,376 @@
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { appActions } from '../../store/appState';
+import { app } from '../Core/App';
+import { GroupManager } from '../Core/Managers/GroupManager';
+import { SelectManager } from '../Core/Managers/SelectManager';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { Point } from '../Core/Objects/Point';
+import { Segment } from '../Core/Objects/Segment';
+import { ShapeGroup } from '../Core/Objects/ShapeGroup';
+import { GeometryObject } from '../Core/Objects/Shapes/GeometryObject';
+import { LineShape } from '../Core/Objects/Shapes/LineShape';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { computeConstructionSpec } from '../GeometryTools/recomputeShape';
+import { duplicateHelpConfig } from './duplicate.helpConfig';
+
+/**
+ * Dupliquer une figure
+ */
+export class DuplicateTool extends Tool {
+  constructor() {
+    super('duplicate', 'Dupliquer', 'operation');
+
+    this.currentStep = null; // listen-canvas-click -> moving-shape
+
+    //coordonnées de la souris lorsque la duplication a commencé
+    this.startClickCoordinates = null;
+
+    /*
+        L'ensemble des figures liées à la figure sélectionnée, y compris la figure
+        elle-même
+         */
+    this.involvedShapes = [];
+
+    this.translateOffset = new Coordinates({ x: -20, y: -20 });
+  }
+
+  start() {
+    helpConfigRegistry.register(this.name, duplicateHelpConfig);
+
+    appActions.setActiveTool(this.name);
+    setTimeout(() => appActions.setCurrentStep('listen'), 50);
+  }
+
+  listen() {
+    app.upperCanvasLayer.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+
+    const constraints = SelectManager.getEmptySelectionConstraints();
+    constraints.eventType = 'mousedown';
+    constraints.shapes.canSelect = true;
+    constraints.shapes.blacklist = app.mainCanvasLayer.shapes.filter(
+      (s) => s instanceof SinglePointShape && s.name !== 'PointOnLine',
+    );
+    constraints.segments.canSelect = true;
+    constraints.segments.blacklist = app.mainCanvasLayer.shapes
+      .filter((s) => s instanceof LineShape)
+      .map((s) => {
+        return { shapeId: s.id };
+      });
+    constraints.priority = ['points', 'shapes', 'segments'];
+    app.workspace.selectionConstraints = constraints;
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    if (app.tool.currentStep !== 'listen') {
+      appActions.setCurrentStep('listen');
+    }
+  }
+
+  selectSegment() {
+    this.removeListeners();
+
+    const constraints = SelectManager.getEmptySelectionConstraints();
+    constraints.segments.canSelect = true;
+    constraints.eventType = 'mousedown';
+    app.workspace.selectionConstraints = constraints;
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+
+    if (app.tool.currentStep !== 'selectSegment') {
+      appActions.setCurrentStep('selectSegment');
+    }
+  }
+
+  move() {
+    this.removeListeners();
+
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+
+    if (app.tool.currentStep !== 'move') {
+      appActions.setCurrentStep('move');
+    }
+  }
+
+  end() {
+    app.upperCanvasLayer.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+  }
+
+  objectSelected(object) {
+    if (
+      app.tool.currentStep !== 'listen' &&
+      app.tool.currentStep !== 'selectSegment'
+    ) return;
+
+    if (app.tool.currentStep === 'selectSegment' && object instanceof Segment) {
+      if (object.isInfinite || object.isSemiInfinite) return;
+      this.mode = 'point';
+      this.segment = object;
+      this.executeAction();
+      appActions.setCurrentStep('listen');
+    } else if (object instanceof Segment) {
+      this.mode = 'segment';
+
+      this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+      this.lastKnownMouseCoordinates = this.startClickCoordinates;
+
+      this.involvedSegment = object;
+
+      const newShape = new LineShape({
+        layer: 'upper',
+        path: object.getSVGPath('no scale', true),
+        id: undefined,
+        segmentsColor: [object.color],
+        pointsColor: object.points
+          .filter((pt) => pt.type !== 'divisionPoint')
+          .map((pt) => pt.color),
+      });
+      newShape.translate(this.translateOffset);
+
+      this.drawingShapes = [newShape];
+
+      appActions.setCurrentStep('move');
+      this.animate();
+    } else if (object.name === 'PointOnLine') {
+      this.involvedPoint = object;
+      new Point({
+        coordinates: object.points[0].coordinates,
+        layer: 'upper',
+        color: app.settings.referenceDrawColor,
+        size: 2,
+      });
+      appActions.setCurrentStep('selectSegment');
+    } else {
+      this.mode = 'shape';
+      this.involvedShapes = ShapeManager.getAllBindedShapes(object);
+      for (let i = 0; i < this.involvedShapes.length; i++) {
+        const currentShape = this.involvedShapes[i];
+        if (currentShape.name === 'Vector') {
+          window.dispatchEvent(new CustomEvent('show-notif', {
+            detail: {
+              message:
+                'Les vecteurs ne peuvent pas être dupliqués, mais peuvent être multipliés.',
+            },
+          }));
+          return;
+        }
+      }
+      this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+      this.lastKnownMouseCoordinates = this.startClickCoordinates;
+
+      // sort shape by height
+      this.involvedShapes.sort(
+        (s1, s2) =>
+          ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+      );
+      this.drawingShapes = this.involvedShapes.map((s) => {
+        const newShape = new s.constructor({
+          ...s,
+          layer: 'upper',
+          path: s.getSVGPath('no scale', false),
+          id: undefined,
+          // divisionPointInfos: s.divisionPoints.map((dp) => {
+          //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+          // }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points
+            .filter((pt) => pt.type !== 'divisionPoint')
+            .map((pt) => {
+              return pt.color;
+            }),
+        });
+        newShape.vertexes.forEach(
+          (vx, idx) => (vx.visible = s.vertexes[idx].visible),
+        );
+        newShape.translate(this.translateOffset);
+        return newShape;
+      });
+
+      appActions.setCurrentStep('move');
+      this.animate();
+    }
+  }
+
+  canvasMouseUp() {
+    if (app.tool.currentStep !== 'move') return;
+
+    this.translation = app.workspace.lastKnownMouseCoordinates
+      .substract(this.startClickCoordinates)
+      .add(this.translateOffset);
+
+    this.executeAction();
+    appActions.setCurrentStep('listen');
+  }
+
+  refreshStateUpper() {
+    if (app.tool.currentStep === 'move') {
+      const transformation = app.workspace.lastKnownMouseCoordinates.substract(
+        this.lastKnownMouseCoordinates,
+      );
+
+      this.drawingShapes.forEach((s) => s.translate(transformation));
+
+      this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+    }
+  }
+
+  _executeAction() {
+    if (this.mode === 'point') {
+      const segment = this.segment;
+      let coord;
+      const ratio = this.involvedPoint.points[0].ratio;
+      if (segment.shape.name === 'Circle') {
+        const refShape = segment.shape;
+        const angle =
+          refShape.segments[0].arcCenter.coordinates.angleWith(
+            refShape.vertexes[0].coordinates,
+          ) +
+          ratio * Math.PI * 2;
+        coord = refShape.segments[0].arcCenter.coordinates.add({
+          x: refShape.segments[0].radius * Math.cos(angle),
+          y: refShape.segments[0].radius * Math.sin(angle),
+        });
+      } else if (segment.isArc()) {
+        const firstAngle = segment.arcCenter.coordinates.angleWith(
+          segment.vertexes[0].coordinates,
+        );
+        let secondAngle = segment.arcCenter.coordinates.angleWith(
+          segment.vertexes[1].coordinates,
+        );
+        if (secondAngle <= firstAngle) {
+          secondAngle += Math.PI * 2;
+        }
+        let newAngle = firstAngle + ratio * (secondAngle - firstAngle);
+        if (segment.counterclockwise) {
+          newAngle =
+            firstAngle - ratio * (2 * Math.PI - secondAngle + firstAngle);
+        }
+        coord = new Coordinates({
+          x:
+            segment.arcCenter.coordinates.x +
+            segment.radius * Math.cos(newAngle),
+          y:
+            segment.arcCenter.coordinates.y +
+            segment.radius * Math.sin(newAngle),
+        });
+      } else {
+        const firstPoint = segment.vertexes[0];
+        const secondPoint = segment.vertexes[1];
+        const segLength = secondPoint.coordinates.substract(
+          firstPoint.coordinates,
+        );
+        const part = segLength.multiply(ratio);
+
+        coord = firstPoint.coordinates.add(part);
+      }
+
+      const shape = new SinglePointShape({
+        layer: 'main',
+        path: `M ${coord.x} ${coord.y}`,
+        name: 'PointOnLine',
+        familyName: 'Point',
+        geometryObject: new GeometryObject({
+          geometryDuplicateParentShapeId: this.involvedPoint.id,
+          geometryParentObjectId1: segment.id,
+        }),
+      });
+
+      computeConstructionSpec(shape);
+
+      segment.shape.geometryObject.geometryChildShapeIds.push(shape.id);
+      this.involvedPoint.geometryObject.geometryDuplicateChildShapeIds.push(
+        shape.id,
+      );
+    } else if (this.mode === 'segment') {
+      const newShape = new LineShape({
+        layer: 'main',
+        familyName: 'duplicate',
+        path: this.involvedSegment.getSVGPath('no scale', true),
+        id: undefined,
+        segmentsColor: [this.involvedSegment.color],
+        pointsColor: this.involvedSegment.points
+          .filter((pt) => pt.type !== 'divisionPoint')
+          .map((pt) => {
+            return pt.color;
+          }),
+        geometryObject: new GeometryObject({}),
+      });
+      newShape.translate(this.translation);
+
+      if (newShape.geometryObject)
+        newShape.geometryObject = new GeometryObject({
+          geometryDuplicateParentShapeId: this.involvedSegment.id,
+        });
+      this.involvedSegment.shape.geometryObject.geometryDuplicateChildShapeIds.push(
+        newShape.id,
+      );
+
+      const transformation = getShapeAdjustment([newShape], newShape);
+
+      newShape.rotate(transformation.rotationAngle, newShape.centerCoordinates);
+      newShape.translate(transformation.translation);
+    } else {
+      const shapesList = [];
+
+      this.involvedShapes.forEach((s) => {
+        const newShape = new s.constructor({
+          ...s,
+          layer: 'main',
+          familyName: 'duplicate',
+          path: s.getSVGPath('no scale', false),
+          id: undefined,
+          // divisionPointInfos: s.divisionPoints.map((dp) => {
+          //   return { coordinates: dp.coordinates, ratio: dp.ratio, segmentIdx: dp.segments[0].idx, color: dp.color };
+          // }),
+          segmentsColor: s.segments.map((seg) => {
+            return seg.color;
+          }),
+          pointsColor: s.points
+            .filter((pt) => pt.type !== 'divisionPoint')
+            .map((pt) => {
+              return pt.color;
+            }),
+        });
+        newShape.vertexes.forEach(
+          (vx, idx) => (vx.visible = s.vertexes[idx].visible),
+        );
+        if (newShape.name.startsWith('Parallele'))
+          newShape.name = newShape.name.slice('Parallele'.length);
+        if (newShape.name.startsWith('Perpendicular'))
+          newShape.name = newShape.name.slice('Perpendicular'.length);
+        if (newShape.geometryObject)
+          newShape.geometryObject = new GeometryObject({
+            geometryDuplicateParentShapeId: s.id,
+          });
+        s.geometryObject.geometryDuplicateChildShapeIds.push(newShape.id);
+        newShape.translate(this.translation);
+        shapesList.push(newShape);
+      });
+
+      const transformation = getShapeAdjustment(shapesList, shapesList[0]);
+
+      shapesList.forEach((newShape) => {
+        newShape.rotate(
+          transformation.rotationAngle,
+          shapesList[0].centerCoordinates,
+        );
+        newShape.translate(transformation.translation);
+        ShapeManager.addShape(newShape);
+      });
+
+      //Si nécessaire, créer le userGroup
+      if (shapesList.length > 1) {
+        const userGroup = new ShapeGroup(0, 1);
+        userGroup.shapesIds = shapesList.map((s) => s.id);
+        GroupManager.addGroup(userGroup);
+      }
+    }
+  }
+}

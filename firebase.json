@@ -1,32 +1,30 @@
 {
-  "hosting": [
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "storage": [
     {
-      "target": "default",
-      "public": "build",
-      "ignore": [
-        "firebase.json",
-        "**/.*"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
-    },
-    {
-      "target": "beta",
-      "public": "build",
-      "ignore": [
-        "firebase.json",
-        "**/.*"
-      ],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ]
+      "bucket": "apprenti-geometre.appspot.com",
+      "rules": "storage.rules"
     }
-  ]
+  ],
+  "hosting": {
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      ".env"
+    ],
+    "cleanUrls": true,
+    "frameworksBackend": {
+      "region": "europe-west1"
+    },
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
 }

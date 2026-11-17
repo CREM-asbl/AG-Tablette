@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Square",
+    "title": "Carré"
+  },
+  {
+    "name": "Rectangle",
+    "title": "Rectangle"
+  },
+  {
+    "name": "Losange",
+    "title": "Losange"
+  },
+  {
+    "name": "Parallelogram",
+    "title": "Parallélogramme"
+  },
+  {
+    "name": "RightAngleTrapeze",
+    "title": "Trapèze rectangle"
+  },
+  {
+    "name": "IsoscelesTrapeze",
+    "title": "Trapèze isocèle"
+  },
+  {
+    "name": "Trapeze",
+    "title": "Trapèze"
+  },
+  {
+    "name": "IrregularQuadrilateral",
+    "title": "Quadrilatère"
+  }
+]

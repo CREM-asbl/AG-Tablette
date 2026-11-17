@@ -1,0 +1,98 @@
+// ESLint flat config (v9)
+// Configuration minimale pour linter JS/TS de ce dépôt sans plugins additionnels.
+
+import typescriptPlugin from '@typescript-eslint/eslint-plugin';
+import typescriptParser from '@typescript-eslint/parser';
+import litPlugin from 'eslint-plugin-lit';
+
+export default [
+  {
+    ignores: [
+      'dist/**',
+      'coverage/**',
+      'dev-dist/**',
+      'verbose/**',
+      '.astro/**',
+      '.firebase/**',
+      'playwright-report/**',
+      'test-results/**',
+      'node_modules/**',
+    ],
+  },
+  {
+    files: ['**/*.ts'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 2023,
+        sourceType: 'module',
+        project: './tsconfig.json',
+        ecmaFeatures: { decorators: true },
+      },
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        console: 'readonly',
+        CustomEvent: 'readonly',
+        requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        performance: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescriptPlugin,
+      lit: litPlugin,
+    },
+    rules: {
+      // Règles raisonnables et non bloquantes
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-constant-condition': ['warn', { checkLoops: false }],
+      'no-console': 'off',
+      'no-debugger': 'warn',
+      'prefer-const': 'warn',
+      'eqeqeq': ['error', 'smart'],
+      // Ajout pour décorateurs TypeScript
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      // Règles Lit
+      'lit/no-invalid-html': 'error',
+      'lit/no-useless-template-literals': 'warn',
+      'lit/no-legacy-template-syntax': 'error',
+      'lit/attribute-value-entities': 'warn',
+    },
+  },
+  {
+    files: ['**/*.js'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      sourceType: 'module',
+      globals: {
+        window: 'readonly',
+        document: 'readonly',
+        console: 'readonly',
+        CustomEvent: 'readonly',
+        requestAnimationFrame: 'readonly',
+        cancelAnimationFrame: 'readonly',
+        performance: 'readonly',
+      },
+    },
+    plugins: {
+      lit: litPlugin,
+    },
+    rules: {
+      // Règles raisonnables et non bloquantes
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+      'no-constant-condition': ['warn', { checkLoops: false }],
+      'no-console': 'off',
+      'no-debugger': 'warn',
+      'prefer-const': 'warn',
+      'eqeqeq': ['error', 'smart'],
+      // Règles Lit
+      'lit/no-invalid-html': 'error',
+      'lit/no-useless-template-literals': 'warn',
+      'lit/no-legacy-template-syntax': 'error',
+      'lit/attribute-value-entities': 'warn',
+    },
+  },
+];

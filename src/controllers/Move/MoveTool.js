@@ -1,0 +1,278 @@
+
+import { helpConfigRegistry } from '../../services/HelpConfigRegistry';
+import { app } from '../Core/App';
+import { ShapeManager } from '../Core/Managers/ShapeManager';
+import { Coordinates } from '../Core/Objects/Coordinates';
+import { SinglePointShape } from '../Core/Objects/Shapes/SinglePointShape';
+import { Tool } from '../Core/States/Tool';
+import { getShapeAdjustment } from '../Core/Tools/automatic_adjustment';
+import { addInfoToId, findObjectById } from '../Core/Tools/general';
+import {
+  compareIdBetweenLayers,
+  duplicateShape,
+} from '../Core/Tools/shapesTools';
+import { getAllLinkedShapesInGeometry } from '../GeometryTools/general';
+import {
+  computeAllShapeTransform,
+  computeConstructionSpec,
+} from '../GeometryTools/recomputeShape';
+import { moveHelpConfig } from './move.helpConfig';
+import { appActions } from '../../store/appState';
+
+/**
+ * Déplacer une figure (ou un ensemble de figures liées) sur l'espace de travail
+ */
+export class MoveTool extends Tool {
+  constructor() {
+    super('move', 'Glisser', 'move');
+
+    // listen-canvas-click -> move
+    this.currentStep = null;
+
+    // La figure que l'on déplace
+    this.selectedShape = null;
+
+    // Coordonnées de la souris lorsque le déplacement a commencé
+    this.startClickCoordinates = null;
+
+    // L'ensemble des figures liées à la figure sélectionnée, y compris la figure elle-même
+    this.involvedShapes = [];
+  }
+
+  
+
+  start() {
+    helpConfigRegistry.register(this.name, moveHelpConfig);
+
+    appActions.setActiveTool(this.name);
+
+    setTimeout(
+      () => {
+        appActions.setCurrentStep('listen');
+      },
+      50,
+    );
+  }
+
+  listen() {
+    this.pointOnLineRatio = null;
+    this.lastAdjusment = null;
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+
+    appActions.setCurrentStep('listen');
+
+    app.workspace.selectionConstraints =
+      app.fastSelectionConstraints.mousedown_all_shape;
+    app.workspace.selectionConstraints.shapes.blacklist =
+      app.mainCanvasLayer.shapes.filter((s) => s instanceof SinglePointShape);
+    this.objectSelectedId = app.addListener('objectSelected', this.handler);
+  }
+
+  move() {
+    this.removeListeners();
+    appActions.setCurrentStep('move');
+    this.mouseUpId = app.addListener('canvasMouseUp', this.handler);
+  }
+
+  end() {
+    app.mainCanvasLayer.editingShapeIds = [];
+    app.upperCanvasLayer.removeAllObjects();
+    this.stopAnimation();
+    this.removeListeners();
+  }
+
+  /**
+   * Appelée par événement du SelectManager lorsqu'une figure a été sélectionnée (canvasMouseDown)
+   */
+  objectSelected(shape) {
+    if (app.tool.currentStep !== 'listen') return;
+    if (!shape) return;
+    this.selectedShape = shape;
+    this.involvedShapes = ShapeManager.getAllBindedShapes(shape);
+    if (app.environment?.name === 'Geometrie') {
+      this.involvedShapes = ShapeManager.getAllBindedShapesInGeometry(shape);
+      for (let i = 0; i < this.involvedShapes.length; i++) {
+        const currentShape = this.involvedShapes[i];
+        if (currentShape.geometryObject.geometryTransformationName !== null) {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: {
+                message:
+                  'Les images issues de transfomation ne peuvent pas être déplacées.',
+              },
+            }),
+          );
+          return;
+        }
+      }
+    }
+    this.shapesToCopy = [...this.involvedShapes];
+    this.shapesToCopy.forEach((s) => {
+      getAllLinkedShapesInGeometry(s, this.shapesToCopy, false);
+    });
+
+    this.startClickCoordinates = app.workspace.lastKnownMouseCoordinates;
+    this.lastKnownMouseCoordinates = this.startClickCoordinates;
+
+    this.shapesToCopy.sort(
+      (s1, s2) =>
+        ShapeManager.getShapeIndex(s1) - ShapeManager.getShapeIndex(s2),
+    );
+
+    // Filter to ensure only valid shapes (with getSVGPath method)
+    this.shapesToCopy = this.shapesToCopy.filter(s => typeof s.getSVGPath === 'function');
+
+    this.drawingShapes = this.shapesToCopy.map((s) => duplicateShape(s));
+    this.shapesToMove = this.drawingShapes.filter((s) =>
+      this.involvedShapes.find((inShape) =>
+        compareIdBetweenLayers(inShape.id, s.id),
+      ),
+    );
+
+    app.mainCanvasLayer.editingShapeIds = this.shapesToCopy.map((s) => s.id);
+
+    app.upperCanvasLayer.shapes.forEach((s) => {
+      s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
+        (duplicateChildId) => {
+          const duplicateChild = findObjectById(duplicateChildId);
+          computeConstructionSpec(duplicateChild);
+        },
+      );
+    });
+
+    appActions.setCurrentStep('move');
+    this.animate();
+  }
+
+  canvasMouseUp() {
+    if (app.tool.currentStep !== 'move') return;
+    this.executeAction();
+    appActions.setCurrentStep('listen');
+  }
+
+  /**
+   * Appelée par la fonction de dessin, lorsqu'il faut dessiner l'action en cours
+   */
+  refreshStateUpper() {
+    if (app.tool.currentStep === 'move') {
+      if (
+        this.shapesToMove.length === 1 &&
+        this.shapesToMove[0].name === 'PointOnLine'
+      ) {
+        const s = this.shapesToMove[0];
+        const point = s.points[0];
+        const reference = findObjectById(
+          s.geometryObject.geometryParentObjectId1,
+        );
+        point.coordinates = reference.projectionOnSegment(
+          app.workspace.lastKnownMouseCoordinates,
+        );
+        const ratioX =
+          (point.coordinates.x - reference.vertexes[0].coordinates.x) /
+          (reference.vertexes[1].coordinates.x -
+            reference.vertexes[0].coordinates.x);
+        const ratioY =
+          (point.coordinates.x - reference.vertexes[0].coordinates.x) /
+          (reference.vertexes[1].coordinates.x -
+            reference.vertexes[0].coordinates.x);
+        let ratio = ratioX;
+        if (isNaN(ratio)) ratio = ratioY;
+
+        if (
+          ratio < 0 &&
+          !(
+            reference.shape.name.endsWith('StraightLine') &&
+            !reference.shape.name.endsWith('SeminStraightLine')
+          )
+        )
+          ratio = 0;
+        if (ratio > 1 && !reference.shape.name.endsWith('StraightLine'))
+          ratio = 1;
+        point.ratio = ratio;
+        this.pointOnLineRatio = ratio;
+
+        const firstPoint = reference.vertexes[0];
+        const secondPoint = reference.vertexes[1];
+
+        const segLength = secondPoint.coordinates.substract(
+          firstPoint.coordinates,
+        );
+        const part = segLength.multiply(point.ratio);
+
+        const coord = firstPoint.coordinates.add(part);
+        point.coordinates = coord;
+      } else {
+        const mainShape = findObjectById(
+          addInfoToId(this.selectedShape.id, 'upper'),
+        );
+        const translation = app.workspace.lastKnownMouseCoordinates.substract(
+          this.lastKnownMouseCoordinates,
+        );
+
+        this.shapesToMove.forEach((s) => {
+          if (this.lastAdjusment) {
+            s.translate(
+              Coordinates.nullCoordinates.substract(
+                this.lastAdjusment.translation,
+              ),
+            );
+            s.rotate(
+              this.lastAdjusment.rotationAngle * -1,
+              this.lastAdjusment.centerCoord,
+            );
+          }
+          s.translate(translation);
+        });
+
+        const adjustment = getShapeAdjustment(
+          this.shapesToMove,
+          mainShape,
+          app.mainCanvasLayer.editingShapeIds,
+        );
+        this.lastAdjusment = {
+          ...adjustment,
+          centerCoord: new Coordinates(mainShape.centerCoordinates),
+        };
+        this.shapesToMove.forEach((s) => {
+          s.rotate(adjustment.rotationAngle, this.lastAdjusment.centerCoord);
+          s.translate(adjustment.translation);
+        });
+        this.shapesToMove.forEach((s) => {
+          computeAllShapeTransform(s, 'upper', false);
+        });
+      }
+
+      this.lastKnownMouseCoordinates = app.workspace.lastKnownMouseCoordinates;
+    }
+  }
+
+  _executeAction() {
+    app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
+      const s = findObjectById(sId);
+      s.points.forEach((pt, idxPt) => {
+        pt.coordinates = new Coordinates(
+          this.drawingShapes[idxS].points[idxPt].coordinates,
+        );
+        if (this.pointOnLineRatio) pt.ratio = this.pointOnLineRatio;
+      });
+    });
+
+    if (app.environment?.name === 'Geometrie') {
+      app.mainCanvasLayer.shapes.forEach((s) => {
+        s.geometryObject?.geometryDuplicateChildShapeIds.forEach(
+          (duplicateChildId) => {
+            const duplicateChild = findObjectById(duplicateChildId);
+            computeConstructionSpec(duplicateChild);
+          },
+        );
+      });
+      app.mainCanvasLayer.editingShapeIds.forEach((sId, idxS) => {
+        const s = findObjectById(sId);
+        computeAllShapeTransform(s, 'main', false);
+      });
+    }
+  }
+}

@@ -1,0 +1,157 @@
+# Exemple de workflow GitHub Actions pour valider les règles Firebase
+# À activer en créant le fichier .github/workflows/firebase-rules-check.yml
+
+name: Firebase Rules Validation
+
+on:
+  pull_request:
+    paths:
+      - 'firestore.rules'
+      - 'storage.rules'
+      - 'firebase.json'
+
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'firestore.rules'
+      - 'storage.rules'
+
+jobs:
+  validate-rules:
+    name: Validate Firebase Security Rules
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install Firebase CLI
+        run: pnpm add -g firebase-tools
+
+      - name: Validate Firestore Rules Syntax
+        run: |
+          # Vérifier que le fichier existe
+          if [ ! -f "firestore.rules" ]; then
+            echo "❌ firestore.rules not found"
+            exit 1
+          fi
+
+          # Validation syntaxe (dry-run)
+          firebase deploy --only firestore:rules --dry-run --project apprenti-geometre || {
+            echo "❌ Firestore rules validation failed"
+            exit 1
+          }
+
+          echo "✅ Firestore rules syntax valid"
+
+      - name: Validate Storage Rules Syntax
+        run: |
+          # Vérifier que le fichier existe
+          if [ ! -f "storage.rules" ]; then
+            echo "❌ storage.rules not found"
+            exit 1
+          fi
+
+          # Validation syntaxe (dry-run)
+          firebase deploy --only storage:rules --dry-run --project apprenti-geometre || {
+            echo "❌ Storage rules validation failed"
+            exit 1
+          }
+
+          echo "✅ Storage rules syntax valid"
+
+      - name: Check Rules Best Practices
+        run: |
+          echo "🔍 Checking security best practices..."
+
+          # Vérifier qu'il n'y a pas de allow read, write: if true sur toutes les collections
+          if grep -q "allow read, write: if true" firestore.rules; then
+            echo "⚠️  WARNING: Found 'allow read, write: if true' - this is insecure!"
+            echo "Please review your rules for security."
+          fi
+
+          # Vérifier la présence de validation de taille
+          if ! grep -q "size()" firestore.rules; then
+            echo "⚠️  WARNING: No size validation found in Firestore rules"
+          fi
+
+          # Vérifier la présence de la règle de protection par défaut
+          if ! grep -q "match /{document=\*\*}" firestore.rules; then
+            echo "⚠️  WARNING: No default deny rule found"
+          fi
+
+          echo "✅ Best practices check completed"
+
+      - name: Comment PR with validation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '✅ Firebase Security Rules validation passed!\n\n**Modified files:**\n- `firestore.rules`\n- `storage.rules`\n\n⚠️ **Important:** Before deploying, verify manually in Firebase Console that no rules were modified directly.'
+            })
+
+  # Job optionnel : déploiement automatique sur merge dans main
+  deploy-rules:
+    name: Deploy Rules to Firebase (optional)
+    runs-on: ubuntu-latest
+    needs: validate-rules
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    # ⚠️ Décommenter seulement si vous voulez un déploiement automatique
+    # Nécessite : secrets.FIREBASE_TOKEN configuré dans GitHub
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Firebase CLI
+        run: pnpm add -g firebase-tools
+
+      # Décommenter pour activer le déploiement automatique
+      # - name: Deploy Rules
+      #   env:
+      #     FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      #   run: |
+      #     firebase deploy --only firestore:rules,storage:rules --project apprenti-geometre --token "$FIREBASE_TOKEN"
+
+      - name: Manual Deploy Notice
+        run: |
+          echo "⚠️  Automatic deployment is disabled by default"
+          echo "To deploy manually:"
+          echo "  pnpm run deploy:rules"
+
+# Configuration requise dans GitHub :
+#
+# 1. Créer un token Firebase :
+#    firebase login:ci
+#
+# 2. Ajouter le token comme secret GitHub :
+#    Repository Settings → Secrets → New secret
+#    Name: FIREBASE_TOKEN
+#    Value: [token généré]
+#
+# 3. Activer les workflows dans les settings du repository
