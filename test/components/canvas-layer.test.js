@@ -406,4 +406,36 @@ describe('CanvasLayer', () => {
       });
     });
   });
+
+  describe('toSVG', () => {
+    it('should return SVG circle elements for grid points', () => {
+      canvasLayerElement.canvasName = 'grid';
+      gridStore.getState.mockReturnValue({
+        gridType: 'square',
+        gridSize: 1,
+        isVisible: true,
+        gridColor: '#112233',
+      });
+
+      const svg = canvasLayerElement.toSVG();
+      expect(svg).toContain('<circle');
+      expect(svg).toContain('fill="#112233"');
+      // Verify some coordinates are present (assuming zoom 1, offset 0, width 800)
+      // 37.8 * 1 is one grid step
+      expect(svg).toContain('cx="37.8"');
+      expect(svg).toContain('cy="37.8"');
+    });
+
+    it('should return empty string if grid is not visible', () => {
+      canvasLayerElement.canvasName = 'grid';
+      gridStore.getState.mockReturnValue({
+        gridType: 'square',
+        gridSize: 1,
+        isVisible: false,
+      });
+
+      const svg = canvasLayerElement.toSVG();
+      expect(svg).toBe('');
+    });
+  });
 });

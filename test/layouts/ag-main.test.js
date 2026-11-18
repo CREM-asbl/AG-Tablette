@@ -1,17 +1,17 @@
-import { html, fixture, expect } from '@open-wc/testing';
+import { expect, fixture, html } from '@open-wc/testing';
+import { beforeEach, describe, it, vi } from 'vitest';
 import { appActions, historyState } from '../../src/store/appState';
-import { vi, describe, it, beforeEach } from 'vitest';
 
 // Mock dependencies before import
 vi.mock('../../src/store/notions', () => ({
     initializeCachesFromIndexedDB: vi.fn().mockResolvedValue(),
-    selectedNotion: { get: () => null, set: () => { } },
+    selectedTheme: { get: () => null, set: () => { } },
     cachedThemes: { get: () => [], set: () => { } },
-    cachedSequences: { get: () => [], set: () => { } },
+    cachedModulesByTheme: { get: () => [], set: () => { } },
     cachedFiles: { get: () => [], set: () => { } },
-    toggleNotion: vi.fn(),
-    toggleSequence: vi.fn(),
-    selectedSequence: { get: () => '', set: () => { } }
+    toggleTheme: vi.fn(),
+    toggleModule: vi.fn(),
+    selectedModule: { get: () => '', set: () => { } }
 }));
 
 // Mock App
@@ -35,6 +35,16 @@ vi.mock('../../src/components/canvas-container', () => ({}));
 vi.mock('../../src/components/sync-status-indicator.ts', () => ({}));
 vi.mock('../../src/components/popups/notification', () => ({}));
 vi.mock('../../src/controllers/Bugs', () => ({ bugSend: vi.fn() }));
+vi.mock('../../src/services/notions-cache-bootstrap', () => ({
+    initializeNotionsCacheBootstrap: vi.fn(() => Promise.resolve()),
+}));
+vi.mock('../../src/services/offline-support-bootstrap', () => ({
+    initializeOfflineSupportBootstrap: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock('../../src/controllers/Core/Managers/OpenFileManager', () => ({
+    OpenFileManager: { newReadFile: vi.fn() },
+}));
 
 import '../../src/layouts/ag-main';
 
@@ -43,6 +53,20 @@ describe('ag-main', () => {
 
     beforeEach(async () => {
         element = await fixture(html`<ag-main></ag-main>`);
+    });
+
+    it('opens an automatically launched file after firstUpdated finishes', async () => {
+        const { OpenFileManager } = await import('../../src/controllers/Core/Managers/OpenFileManager');
+        const fileHandle = { name: 'Egypte.agl' };
+        const { fileToOpen } = await import('../../src/store/appState');
+        fileToOpen.set(fileHandle);
+        try {
+            await element.firstUpdated();
+        } finally {
+            fileToOpen.set(null);
+        }
+
+        expect(OpenFileManager.newReadFile.mock.calls).to.deep.include([fileHandle]);
     });
 
     it('should update activeTool signal when setActiveTool is called', async () => {

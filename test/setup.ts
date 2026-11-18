@@ -2,6 +2,8 @@
 import 'fake-indexeddb/auto';
 import { vi } from 'vitest';
 
+const originalFetch = globalThis.fetch?.bind(globalThis);
+
 // fake-indexedDB provides complete IndexedDB implementation for tests
 
 // Mock dialog.showModal() pour les popups
@@ -26,6 +28,10 @@ vi.mock('@db/firebase-init', () => ({
   findAllThemes: vi.fn(() => Promise.resolve([])),
   findAllFiles: vi.fn(() => Promise.resolve([])),
   downloadFileZip: vi.fn(() => Promise.resolve()),
+  findFileBySiteSlug: vi.fn(() => Promise.resolve(null)),
+  findModuleBySiteSlug: vi.fn(() => Promise.resolve(null)),
+  getFileDocFromFilename: vi.fn(() => Promise.resolve(null)),
+  getModuleById: vi.fn(() => Promise.resolve(null)),
 }));
 
 vi.mock('@services/activity-sync', () => ({
@@ -37,9 +43,29 @@ vi.mock('@store/notions', () => ({
     get: vi.fn(() => []),
     set: vi.fn(),
   },
-  selectedSequence: {
-    get: vi.fn(() => ''),
+  cachedModulesByTheme: {
+    get: vi.fn(() => []),
+    set: vi.fn(),
   },
+  cachedFiles: {
+    get: vi.fn(() => []),
+    set: vi.fn(),
+  },
+  selectedTheme: {
+    get: vi.fn(() => null),
+    set: vi.fn(),
+  },
+  selectedModule: {
+    get: vi.fn(() => ''),
+    set: vi.fn(),
+  },
+  toggleTheme: vi.fn(),
+  toggleModule: vi.fn(),
+}));
+
+vi.mock('@services/site-slug-resolver', () => ({
+  resolveBySiteSlug: vi.fn(() => Promise.resolve(null)),
+  parseSlug: vi.fn(() => null),
 }));
 
 // Ne pas mocker syncState globalement - le laisser aux tests individuels qui en ont besoin
@@ -77,3 +103,21 @@ Object.defineProperty(window, 'dev_mode', {
   value: true,
   writable: true,
 });
+
+// Stabilise les tests qui lisent la version applicative via /manifest.json.
+globalThis.fetch = vi.fn(async (input, init) => {
+  const requestUrl = typeof input === 'string' ? input : input?.url;
+
+  if (requestUrl === '/manifest.json') {
+    return {
+      ok: true,
+      json: async () => ({ version: 'test-version' }),
+    };
+  }
+
+  if (originalFetch) {
+    return originalFetch(input, init);
+  }
+
+  throw new Error(`Unhandled fetch in test environment: ${String(requestUrl)}`);
+}) as typeof fetch;

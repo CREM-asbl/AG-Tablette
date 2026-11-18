@@ -269,7 +269,6 @@ describe('Optimisations de Synchronisation', () => {
       Object.defineProperty(global.window, 'location', {
         writable: true,
         value: {
-          href: originalHref,
           set href(value) {
             newLocation = value;
           },
@@ -300,7 +299,9 @@ describe('Optimisations de Synchronisation', () => {
         configurable: true,
         get() {
           return {
-            href: originalHref,
+            get href() {
+              return originalHref;
+            },
             set href(value) {
               assignmentCalled = true;
             }

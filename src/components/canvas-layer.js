@@ -231,6 +231,127 @@ class CanvasLayer extends SignalWatcher(LitElement) {
 
   toSVG() {
     let svg_data = '';
+    if (this.canvasName === 'grid') {
+      const gridState = gridStore.getState();
+      if (!gridState.isVisible || gridState.gridType === 'none') return '';
+
+      const zoomLevel = app.workspace.zoomLevel;
+      const translateOffset =
+        app.workspace.translateOffset || new Coordinates({ x: 0, y: 0 });
+      const offsetX = translateOffset.x;
+      const offsetY = translateOffset.y;
+      const canvasWidth = app.canvasWidth;
+      const canvasHeight = app.canvasHeight;
+
+      const baseGridStep =
+        GRID_CONSTANTS.PIXELS_PER_CM * gridState.gridSize;
+
+      const worldVisibleLeft = -offsetX / zoomLevel;
+      const worldVisibleTop = -offsetY / zoomLevel;
+      const worldVisibleRight = (canvasWidth - offsetX) / zoomLevel;
+      const worldVisibleBottom = (canvasHeight - offsetY) / zoomLevel;
+
+      const gridColor = gridState.gridColor || '#888888';
+      const pointRadius = 2 * zoomLevel;
+
+      const drawPointAt = (worldX, worldY) => {
+        const canvasX = worldX * zoomLevel + offsetX;
+        const canvasY = worldY * zoomLevel + offsetY;
+        svg_data += `<circle cx="${canvasX}" cy="${canvasY}" r="${pointRadius}" fill="${gridColor}" />\n`;
+      };
+
+      if (gridState.gridType === 'square') {
+        const startX =
+          Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
+        const startY =
+          Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
+        for (
+          let x = startX;
+          x <= worldVisibleRight + baseGridStep;
+          x += baseGridStep
+        ) {
+          for (
+            let y = startY;
+            y <= worldVisibleBottom + baseGridStep;
+            y += baseGridStep
+          ) {
+            drawPointAt(x, y);
+          }
+        }
+      } else if (gridState.gridType === 'vertical-lines') {
+        const startX =
+          Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
+        const startY =
+          Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
+        for (
+          let y = startY;
+          y <= worldVisibleBottom + baseGridStep;
+          y += baseGridStep
+        ) {
+          drawPointAt(startX, y);
+        }
+      } else if (gridState.gridType === 'horizontal-lines') {
+        const startX =
+          Math.floor(worldVisibleLeft / baseGridStep) * baseGridStep;
+        const startY =
+          Math.floor(worldVisibleTop / baseGridStep) * baseGridStep;
+        for (
+          let x = startX;
+          x <= worldVisibleRight + baseGridStep;
+          x += baseGridStep
+        ) {
+          drawPointAt(x, startY);
+        }
+      } else if (gridState.gridType === 'horizontal-triangle') {
+        const triangleHeight = baseGridStep * (Math.sqrt(3) / 2);
+        const startY =
+          Math.floor(worldVisibleTop / triangleHeight) * triangleHeight;
+        for (
+          let y = startY, row = Math.floor(startY / triangleHeight);
+          y <= worldVisibleBottom + triangleHeight;
+          y += triangleHeight,
+          row++
+        ) {
+          const offsetX_row = row % 2 === 0 ? 0 : baseGridStep / 2;
+          const startX =
+            Math.floor((worldVisibleLeft - offsetX_row) / baseGridStep) *
+              baseGridStep +
+            offsetX_row;
+          for (
+            let x = startX;
+            x <= worldVisibleRight + baseGridStep;
+            x += baseGridStep
+          ) {
+            drawPointAt(x, y);
+          }
+        }
+      } else if (gridState.gridType === 'vertical-triangle') {
+        const horizontalStep = baseGridStep * (Math.sqrt(3) / 2);
+        const startX =
+          Math.floor(worldVisibleLeft / horizontalStep) * horizontalStep;
+        for (
+          let x = startX, col = Math.floor(startX / horizontalStep);
+          x <= worldVisibleRight + horizontalStep;
+          x += horizontalStep,
+          col++
+        ) {
+          const offsetY_col = col % 2 === 0 ? 0 : baseGridStep / 2;
+          const startY =
+            Math.floor((worldVisibleTop - offsetY_col) / baseGridStep) *
+              baseGridStep +
+            offsetY_col;
+          for (
+            let y = startY;
+            y <= worldVisibleBottom + baseGridStep;
+            y += baseGridStep
+          ) {
+            drawPointAt(x, y);
+          }
+        }
+      }
+      return svg_data;
+    }
+
     if (this.mustDrawShapes) {
       this.shapes.forEach((s) => {
         if (this.editingShapeIds.findIndex((id) => s.id === id) === -1) {
@@ -260,6 +381,18 @@ class CanvasLayer extends SignalWatcher(LitElement) {
         }
       });
     }
+    this.texts.forEach((text) => {
+      const fontSize = 20;
+      let position = text.coordinates.add({
+        x:
+          (((-3 * fontSize) / 13) * text.message.length) /
+          app.workspace.zoomLevel,
+        y: fontSize / 2 / app.workspace.zoomLevel,
+      });
+      position = position.toCanvasCoordinates();
+
+      svg_data += `<text x="${position.x}" y="${position.y}" fill="${text.color}" font-family="Arial" font-size="${fontSize}">${text.message}</text>\n`;
+    });
     return svg_data;
   }
 

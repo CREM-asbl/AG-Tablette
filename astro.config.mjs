@@ -175,12 +175,29 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /\.pdf$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'ag-pdf-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 jours
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
+        // Fallback de navigation hors ligne vers index.html (SPA)
+        navigateFallback: '/',
+        navigateFallbackDenylist: [/^\/api\//, /^\/data\//],
         // Ne pas pré-cacher les SW eux-mêmes
-        navigateFallback: null,
       },
       devOptions: {
-        enabled: true,
+        // Disable SW in CI to avoid stale dev assets during Playwright runs.
+        enabled: !process.env.CI,
       },
     }),
   ],
@@ -197,7 +214,6 @@ export default defineConfig({
         '@layouts': resolve(__dirname, './src/layouts'),
         '@pages': resolve(__dirname, './src/pages'),
         '@types': resolve(__dirname, './src/types'),
-        '@firebase': resolve(__dirname, './src/firebase'),
         '@db': resolve(__dirname, './src/firebase'),
       },
     },

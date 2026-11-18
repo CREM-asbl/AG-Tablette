@@ -134,7 +134,16 @@ class LevelPopup extends LitElement {
   }
 
   firstUpdated() {
-    window.addEventListener('close-popup', () => this.submit());
+    this.closePopupHandler = () => this.submit();
+    window.addEventListener('close-popup', this.closePopupHandler);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this.closePopupHandler) {
+      window.removeEventListener('close-popup', this.closePopupHandler);
+      this.closePopupHandler = undefined;
+    }
   }
 
   submit() {

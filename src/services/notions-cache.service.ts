@@ -1,4 +1,4 @@
-import { cachedSequences, cachedThemes } from '../store/notions';
+import { cachedModulesByTheme, cachedThemes } from '../store/notions';
 import {
   getAllModules,
   getAllThemes,
@@ -29,7 +29,7 @@ export async function initializeCachesFromIndexedDB() {
         theme,
         modules,
       }));
-      cachedSequences.set(sequences);
+      cachedModulesByTheme.set(sequences);
     }
   } catch (error) {
     console.warn(
@@ -95,7 +95,7 @@ export async function syncAllThemesAndModules() {
             await saveModulesToIndexedDB(modules, theme.id);
             allSequences.push({ theme: theme.id, modules });
           } else {
-            const cached = cachedSequences
+            const cached = cachedModulesByTheme
               .get()
               .find((sequence) => sequence.theme === theme.id);
             if (cached && cached.modules?.length > 0) {
@@ -112,7 +112,7 @@ export async function syncAllThemesAndModules() {
             err,
           );
 
-          const cached = cachedSequences
+          const cached = cachedModulesByTheme
             .get()
             .find((sequence) => sequence.theme === theme.id);
           if (cached && cached.modules?.length > 0) {
@@ -122,7 +122,7 @@ export async function syncAllThemesAndModules() {
       }
 
       if (allSequences.length > 0) {
-        cachedSequences.set(allSequences);
+        cachedModulesByTheme.set(allSequences);
       } else {
         console.warn(
           "Aucun module n'a pu être synchronisé, cache mémoire conservé.",

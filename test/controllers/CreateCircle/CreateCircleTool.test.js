@@ -127,6 +127,8 @@ vi.mock('@controllers/GeometryTools/recomputeShape', () => ({
   computeConstructionSpec: vi.fn(),
 }));
 
+vi.mock('@components/shape-selector', () => ({}));
+
 describe('CreateCircleTool', () => {
   let tool;
 

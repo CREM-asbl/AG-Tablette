@@ -9,6 +9,25 @@ import {
   shouldReport,
 } from '../../src/services/bug-report.service';
 
+vi.mock('firebase/app', () => ({
+  getApp: vi.fn(() => ({ name: 'mock-app' })),
+  getApps: vi.fn(() => [{ name: 'mock-app' }]),
+  initializeApp: vi.fn(() => ({ name: 'mock-app' })),
+}));
+
+vi.mock('firebase/functions', () => ({
+  getFunctions: vi.fn(() => ({ name: 'mock-functions' })),
+  httpsCallable: vi.fn(() =>
+    vi.fn(async (payload: any) => ({
+      data: {
+        bugDocId: 'mock-doc-id',
+        issueNumber: 42,
+        issueUrl: 'https://github.com/CREM-asbl/AG-Tablette/issues/42',
+      },
+    })),
+  ),
+}));
+
 describe('BugReportService', () => {
   beforeEach(() => {
     resetBugReporting();
@@ -209,24 +228,17 @@ describe('BugReportService', () => {
     it('devrait accepter une Error ou string', async () => {
       initBugReporting({ mode: 'silent' });
 
-      // Mock Firestore addDoc pour éviter la vraie connexion
-      vi.mock('firebase/firestore', () => ({
-        addDoc: vi.fn(),
-        collection: vi.fn(),
-      }));
+      // Les appels doivent se résoudre sans rejeter
+      await expect(
+        reportError(new Error('Test error'), { severity: 'S0', source: 'unknown' }),
+      ).resolves.toBeUndefined();
 
-      // Ces appels ne doivent pas lancer (même sans Firestore mockée)
-      // car le service capture les erreurs
-      expect(() => {
-        reportError(new Error('Test error'), { severity: 'S0', source: 'test' });
-      }).not.toThrow();
-
-      expect(() => {
-        reportError('String error', { severity: 'S0', source: 'test' });
-      }).not.toThrow();
+      await expect(
+        reportError('String error', { severity: 'S0', source: 'unknown' }),
+      ).resolves.toBeUndefined();
     });
 
-    it('devrait capturer le contexte anonyme', () => {
+    it('devrait capturer le contexte anonyme', async () => {
       initBugReporting({ mode: 'silent' });
 
       // Vérifier que l'app window est accessible
@@ -236,9 +248,36 @@ describe('BugReportService', () => {
       };
 
       // reportError devrait accéder à window.app sans erreur
-      expect(() => {
-        reportError('Test', { severity: 'S0', source: 'canvas-render' });
-      }).not.toThrow();
+      await expect(
+        reportError('Test', { severity: 'S0', source: 'canvas-render' }),
+      ).resolves.toBeUndefined();
+    });
+
+      it('devrait appeler la Firebase Function reportBug', async () => {
+        initBugReporting({ mode: 'silent', minIntervalMs: 0 });
+
+        const { httpsCallable } = await import('firebase/functions');
+        const callableMock = vi.fn(async (payload: any) => ({
+          data: {
+            bugDocId: 'mock-doc-id',
+            issueNumber: 42,
+            issueUrl: 'https://github.com/CREM-asbl/AG-Tablette/issues/42',
+          },
+        }));
+        (httpsCallable as any).mockReturnValue(callableMock);
+
+        await reportError(new Error('Test function call'), {
+          severity: 'S0',
+          source: 'canvas-render',
+        });
+
+        expect(callableMock).toHaveBeenCalledTimes(1);
+        const payload = callableMock.mock.calls[0][0];
+        expect(payload.severity).toBe('S0');
+        expect(payload.source).toBe('canvas-render');
+        expect(payload.fingerprint).toBeTruthy();
+        expect(payload.sessionId).toBeTruthy();
+        expect(payload.context.version).toBeDefined();
+      });
     });
   });
-});

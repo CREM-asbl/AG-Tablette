@@ -4,6 +4,7 @@ import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../layouts/ag-main';
 import { initBugReporting } from '../services/bug-report.service';
 import { appActions, appLoading, currentEnvironment } from '../store/appState';
+import { toggleModule, toggleTheme } from '../store/notions';
 import './ag-environnements';
 import './tool-ui-container';
 
@@ -83,6 +84,38 @@ export class App extends SignalWatcher(LitElement) {
       loadEnvironnement(part);
       return;
     }
+
+    const { parseSlug } = await import('../services/site-slug-resolver');
+    const slug = parseSlug(parsedUrl.pathname, parsedUrl.search);
+    if (slug) {
+      try {
+        const { resolveBySiteSlug } = await import('../services/site-slug-resolver');
+        const result = await resolveBySiteSlug(slug);
+        if (!result) {
+          window.dispatchEvent(
+            new CustomEvent('show-notif', {
+              detail: { message: 'Lien inconnu — https://ag.crem.be' },
+            }),
+          );
+          return;
+        }
+        if (result.kind === 'file' && result.fileId) {
+          const module = await import('../firebase/firebase-init');
+          await module.openFileFromServer(result.fileId);
+        } else if (result.kind === 'module') {
+          if (result.themeId) toggleTheme(result.themeId);
+          if (result.moduleId) toggleModule(result.moduleId);
+        }
+      } catch (error) {
+        window.dispatchEvent(
+          new CustomEvent('show-notif', {
+            detail: { message: `Erreur lors du chargement: ${(error as Error)?.message ?? error}` },
+          }),
+        );
+      }
+      return;
+    }
+
     const activityName = parsedUrl.searchParams.get('activityName');
     if (activityName) {
       import('../firebase/firebase-init').then((module) => {

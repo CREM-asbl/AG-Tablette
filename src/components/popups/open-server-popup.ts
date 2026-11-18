@@ -4,7 +4,7 @@ import { SignalWatcher } from '@lit-labs/signals';
 import { LitElement, css, html } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { getLastSyncInfo } from '../../services/activity-sync.js';
-import { cachedThemes, selectedSequence } from '../../store/notions';
+import { cachedThemes, selectedModule } from '../../store/notions';
 import { syncInProgress } from '../../store/syncState.js';
 import { debounce, throttle } from '../../utils/signal-observer.js';
 import './sync-settings-popup';
@@ -276,7 +276,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
 
   scrollToOpenModule() {
     setTimeout(() => {
-      const currentSequence = selectedSequence.get();
+      const currentSequence = selectedModule.get();
       if (currentSequence) {
         const moduleElement = this.shadowRoot?.querySelector(
           `module-elem[title="${currentSequence}"]`,
@@ -395,7 +395,7 @@ class OpenServerPopup extends SignalWatcher(LitElement) {
   render() {
     return html`
       <template-popup>
-        <h2 slot="title">📁 Ouvrir un fichier</h2>
+        <h2 slot="title">📁 Activités</h2>
 
         <div slot="body" class="popup-content" tabindex="-1">
           ${this.isLoadingThemes ||

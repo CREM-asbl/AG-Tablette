@@ -18,6 +18,15 @@ export const closeForbiddenCanvas = () => {
   app.tangramCanvasLayer.style.zIndex = 0;
 };
 
+export const applyForbiddenCanvas = (level) => {
+  if (level === 3 || level === 4) {
+    app.workspace.limited = true;
+    app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`;
+  } else {
+    closeForbiddenCanvas();
+  }
+};
+
 export class SolutionCheckerTool extends LitElement {
   static properties = {
     data: { type: Object },
@@ -46,9 +55,10 @@ export class SolutionCheckerTool extends LitElement {
     }
   }
 
-  static async selectLevel() {
+  static async selectLevel(currentLevel = null) {
     await import('./level-popup.js');
     const popup = createElem('level-popup');
+    if (currentLevel) popup.level = currentLevel;
     return new Promise(
       (resolve) => (popup.onselect = (e) => resolve(e.detail)),
     );
@@ -71,15 +81,16 @@ export class SolutionCheckerTool extends LitElement {
       );
     }
 
+    this.backObjects = backObjects;
+    this.fileExtension = data.fileExtension;
+    this.initialZoom = app.workspace.zoomLevel;
+
     let isSilhouetteShown = false;
 
     if (backObjects) {
       isSilhouetteShown = true;
 
-      if (level === 3 || level === 4) {
-        app.workspace.limited = true;
-        app.tangramCanvasLayer.style = `left:50%; background-color: rgba(255, 0, 0, 0.2); z-index: 10;`;
-      }
+      applyForbiddenCanvas(level);
 
       // Ensure canvas is clean before creating silhouette
       app.tangramCanvasLayer.removeAllObjects();
@@ -93,6 +104,7 @@ export class SolutionCheckerTool extends LitElement {
     tools.set([...currentTools]);
     
     appActions.setTangramState({ isSilhouetteShown, level });
+    this.renderedLevel = level;
 
     if (app.history.startSituation === null) {
       appActions.setHistoryState({
@@ -102,6 +114,89 @@ export class SolutionCheckerTool extends LitElement {
       });
     }
     this.showMenu();
+    if (this.stateMenu) this.stateMenu.level = level;
+  }
+
+  /**
+   * Redessine la silhouette et la zone interdite pour le niveau demandé,
+   * sans toucher aux pièces déjà placées par l'élève.
+   * @param {Number} level Le niveau de difficulté (1 à 6)
+   */
+  applyLevel(level) {
+    if (!this.backObjects) return;
+
+    if (
+      Number.isFinite(this.initialZoom) &&
+      app.workspace.zoomLevel !== this.initialZoom
+    ) {
+      app.workspace.setZoomLevel(this.initialZoom);
+    }
+
+    applyForbiddenCanvas(level);
+    app.tangramCanvasLayer.removeAllObjects();
+
+    const silhouette = new Silhouette(this.backObjects.shapesData, true, level);
+    silhouette.positionInTangramCanvas(this.fileExtension);
+
+    this.renderedLevel = level;
+    if (this.stateMenu) this.stateMenu.level = level;
+    appActions.setTangramState({ level });
+  }
+
+  /**
+   * Efface le travail de l'élève, remet l'historique à zéro et relance
+   * l'exercice dans le niveau demandé.
+   * @param {Number} level Le niveau de difficulté (1 à 6)
+   */
+  async restartExercise(level) {
+    const startSituation = app.history?.startSituation;
+    if (startSituation) {
+      await app.workspace.initFromObject({ ...startSituation });
+    } else {
+      await app.workspace.resetWorkspace();
+    }
+
+    appActions.setHistoryState({
+      steps: [],
+      currentIndex: -1,
+      canUndo: false,
+      canRedo: false,
+      size: 0,
+    });
+    appActions.setFullHistoryState({
+      index: 0,
+      actionIndex: 0,
+      numberOfActions: 0,
+      steps: [],
+    });
+    appActions.setStepSinceSave(false);
+
+    this.applyLevel(level);
+
+    appActions.setHistoryState({
+      startSituation: { ...app.workspace.data },
+    });
+  }
+
+  async levelMenuHandler() {
+    const level = await SolutionCheckerTool.selectLevel(app.tangram.level);
+    this.applyLevel(level);
+  }
+
+  async restartMenuHandler() {
+    const level = await SolutionCheckerTool.selectLevel(app.tangram.level);
+    await this.restartExercise(level);
+  }
+
+  /**
+   * Resynchronise la silhouette si le niveau de l'état a changé sans passer
+   * par applyLevel (restauration undo/redo par exemple).
+   */
+  tangramLevelHandler() {
+    const level = tangramState.get().level;
+    if (level && level !== this.renderedLevel) {
+      this.applyLevel(level);
+    }
   }
 
   connectedCallback() {
@@ -113,6 +208,18 @@ export class SolutionCheckerTool extends LitElement {
     this.tangramSignalListener = app.addListener(
       'tangram:state-changed',
       this.handler.bind(this),
+    );
+    this.tangramLevelListener = app.addListener(
+      'tangram:state-changed',
+      this.tangramLevelHandler.bind(this),
+    );
+    this.levelMenuListener = app.addListener(
+      'tangram:level-menu-clicked',
+      this.levelMenuHandler.bind(this),
+    );
+    this.restartMenuListener = app.addListener(
+      'tangram:restart-menu-clicked',
+      this.restartMenuHandler.bind(this),
     );
     this.objectSelectedId = app.addListener(
       'objectSelected',
@@ -127,6 +234,9 @@ export class SolutionCheckerTool extends LitElement {
     app.removeListener('objectSelected', this.objectSelectedId);
     app.removeListener('tangram-changed', this.tangramLegacyListener);
     app.removeListener('tangram:state-changed', this.tangramSignalListener);
+    app.removeListener('tangram:state-changed', this.tangramLevelListener);
+    app.removeListener('tangram:level-menu-clicked', this.levelMenuListener);
+    app.removeListener('tangram:restart-menu-clicked', this.restartMenuListener);
   }
 
   check() {

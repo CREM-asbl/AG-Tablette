@@ -420,6 +420,7 @@ export class Workspace {
 
   toSVG() {
     let svg_data = `<svg width="${app.canvasWidth}" height="${app.canvasHeight}" viewBox="0 0 ${app.canvasWidth} ${app.canvasHeight}" encoding="UTF-8" xmlns="http://www.w3.org/2000/svg" >\n\n`;
+    svg_data += `<rect width="${app.canvasWidth}" height="${app.canvasHeight}" fill="white" />\n\n`;
     if (app.gridCanvasLayer) svg_data += app.gridCanvasLayer.toSVG();
     svg_data += app.mainCanvasLayer.toSVG();
     if (app.tangramCanvasLayer) {

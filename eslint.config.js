@@ -9,6 +9,9 @@ export default [
   {
     ignores: [
       'dist/**',
+      'coverage/**',
+      'dev-dist/**',
+      'verbose/**',
       '.astro/**',
       '.firebase/**',
       'playwright-report/**',

@@ -108,7 +108,7 @@ export class OrthogonalSymetryTool extends Tool {
     app.upperCanvasLayer.shapes.forEach((s) => {
       if (
         s.geometryObject?.geometryIsCharacteristicElements &&
-        s.id != this.referenceShapeId
+        s.id !== this.referenceShapeId
       )
         shapesToDelete.push(s);
     });

@@ -279,18 +279,25 @@ const saveToPng = async (app, saveData, options, handle = null) => {
   try {
     const {
       invisibleCanvasLayer,
+      backgroundCanvasLayer,
       gridCanvasLayer,
       tangramCanvasLayer,
       mainCanvasLayer,
     } = app;
     const ctx = invisibleCanvasLayer.ctx;
     const { canvas } = ctx;
+
+    canvas.width = app.canvasWidth;
+    canvas.height = app.canvasHeight;
+
     const { width, height } = canvas;
 
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, width, height);
 
+    if (backgroundCanvasLayer)
+      ctx.drawImage(backgroundCanvasLayer.canvas, 0, 0, width, height);
     if (gridCanvasLayer)
       ctx.drawImage(gridCanvasLayer.canvas, 0, 0, width, height);
     if (tangramCanvasLayer) {
@@ -335,43 +342,7 @@ const saveToPng = async (app, saveData, options, handle = null) => {
 
 const saveToSvg = async (app, saveData, options, handle = null) => {
   try {
-    const {
-      invisibleCanvasLayer,
-      gridCanvasLayer,
-      tangramCanvasLayer,
-      mainCanvasLayer,
-    } = app;
-    const ctx = invisibleCanvasLayer.ctx;
-    const { canvas } = ctx;
-    const { width, height } = canvas;
-
-    const svgElement = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      'svg',
-    );
-    svgElement.setAttribute('width', width);
-    svgElement.setAttribute('height', height);
-    svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
-
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('width', '100%');
-    rect.setAttribute('height', '100%');
-    rect.setAttribute('fill', 'white');
-    svgElement.appendChild(rect);
-
-    const imageData = canvas.toDataURL('image/png');
-    const image = document.createElementNS(
-      'http://www.w3.org/2000/svg',
-      'image',
-    );
-    image.setAttribute('x', '0');
-    image.setAttribute('y', '0');
-    image.setAttribute('width', width);
-    image.setAttribute('height', height);
-    image.setAttribute('href', imageData);
-    svgElement.appendChild(image);
-
-    const svgData = new XMLSerializer().serializeToString(svgElement);
+    const svgData = app.workspace.toSVG();
     const blob = new Blob([svgData], { type: 'image/svg+xml' });
 
     if (hasNativeFS && !handle) {
@@ -385,7 +356,9 @@ const saveToSvg = async (app, saveData, options, handle = null) => {
       if (hasNativeFS) {
         await writeFileNative(handle, blob);
       } else {
-        const dataUrl = 'data:image/svg+xml;base64,' + btoa(svgData);
+        const dataUrl =
+          'data:image/svg+xml;base64,' +
+          btoa(unescape(encodeURIComponent(svgData)));
         downloadFileFallback(options.suggestedName, dataUrl);
       }
     }

@@ -90,6 +90,8 @@ vi.mock('@controllers/Core/Objects/Shapes/LineShape', () => ({
   },
 }));
 
+vi.mock('@components/shape-selector', () => ({}));
+
 describe('CreateTool', () => {
   let tool;
 
