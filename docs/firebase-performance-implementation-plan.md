@@ -265,14 +265,14 @@ Exemples :
 
 ```bash
 # 1. Tester localement (dev mode)
-npm run dev
+pnpm run dev
 # Vérifier les console.log dans le navigateur
 
 # 2. Build production
-npm run build
+pnpm run build
 
 # 3. Tester en production locale
-npm run preview
+pnpm run preview
 
 # 4. Vérifier Firebase Console
 # Attendre 24h pour voir les premières données

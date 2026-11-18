@@ -77,8 +77,8 @@ src/
 
 ### Tests
 ```bash
-npm test          # Vitest (unit tests) - Requis avant chaque commit
-npm run test:playwright # E2E tests (Playwright)
+pnpm test          # Vitest (unit tests) - Requis avant chaque commit
+pnpm run test:playwright # E2E tests (Playwright)
 ```
 
 ## 🚫 Anti-patterns à éviter

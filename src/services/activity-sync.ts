@@ -52,10 +52,10 @@ const CONFIG = {
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000,
   TIMEOUT: 30000,
-  AUTO_SYNC_DELAY: 5000,
   RECONNECT_DELAY: 1000,
   SYNC_COOLDOWN: 24 * 60 * 60 * 1000, // 24 heures entre les synchronisations
-  FILE_PAGE_SIZE: 200,
+  FILE_PAGE_SIZE: 20,
+  PROGRESS_THROTTLE_MS: 1000,
   MAX_METADATA_FILES: 2000,
   DEBUG:
     typeof window !== 'undefined' &&
@@ -159,6 +159,19 @@ export async function syncActivitiesInBackground(forceSync = false): Promise<voi
       let addedCount = 0;
       let processedFiles = 0;
       let processedThemes = 0;
+      let lastProgressEmit = 0;
+
+      const emitProgress = (files: number, total: number | null, themes: number, themesTotal: number) => {
+        const now = Date.now();
+        const done = total !== null && files >= total && themes >= themesTotal;
+        if (!done && now - lastProgressEmit < CONFIG.PROGRESS_THROTTLE_MS) {
+          return;
+        }
+        lastProgressEmit = now;
+        setSyncProgress(
+          utils.calculateProgress(files, total ?? 1, themes, themesTotal),
+        );
+      };
 
       let totalFiles =
         typeof totalFilesCount === 'number' ? totalFilesCount : null;
@@ -194,7 +207,7 @@ export async function syncActivitiesInBackground(forceSync = false): Promise<voi
                 );
 
                 const activityData = await Promise.race([
-                  readFileFromServer(serverFile.id, { forceDownload: true }),
+                  readFileFromServer(serverFile.id, { expectedVersion: serverVersion }),
                   timeoutPromise,
                 ]);
 
@@ -207,18 +220,12 @@ export async function syncActivitiesInBackground(forceSync = false): Promise<voi
               }
 
               processedFiles++;
-              const progressPercent = utils.calculateProgress(
-                processedFiles,
-                totalFiles ?? 1,
-                processedThemes,
-                totalThemes,
-              );
               utils.log(
-                `Progression: ${progressPercent}% (${processedFiles}/${totalFiles ?? '?'} fichiers, ${processedThemes}/${totalThemes} thèmes)`,
+                `Progression: ${processedFiles}/${totalFiles ?? '?'} fichiers, ${processedThemes}/${totalThemes} thèmes`,
               );
 
-              // Mise à jour du signal de progression
-              setSyncProgress(progressPercent);
+              // Progression throttlée (~1/s) : évite la contention signaux/IndexedDB.
+              emitProgress(processedFiles, totalFiles, processedThemes, totalThemes);
             } catch (fileError) {
               utils.warn(
                 `Erreur lors de la synchronisation de ${serverFile.id}:`,
@@ -232,13 +239,7 @@ export async function syncActivitiesInBackground(forceSync = false): Promise<voi
 
       if (totalFiles === null) {
         totalFiles = processedFiles;
-        const progressPercent = utils.calculateProgress(
-          processedFiles,
-          totalFiles || 1,
-          processedThemes,
-          totalThemes,
-        );
-        setSyncProgress(progressPercent);
+        emitProgress(processedFiles, totalFiles, processedThemes, totalThemes);
       }
 
 
@@ -266,13 +267,7 @@ export async function syncActivitiesInBackground(forceSync = false): Promise<voi
           }
 
           processedThemes++;
-          const progressPercent = utils.calculateProgress(
-            processedFiles,
-            totalFiles,
-            processedThemes,
-            totalThemes,
-          );
-          setSyncProgress(progressPercent);
+          emitProgress(processedFiles, totalFiles, processedThemes, totalThemes);
         } catch (themeError) {
           utils.warn(
             `Erreur lors de la synchronisation du thème ${theme.id}:`,
@@ -411,28 +406,17 @@ export async function getLastSyncInfo(): Promise<any> {
 export function initActivitySync(): void {
   utils.log('Initialisation du service de synchronisation...');
 
-  // Synchronisation automatique lors de la reconnexion
+  // Synchronisation automatique lors de la reconnexion.
+  // Délai court pour laisser le réseau se stabiliser, sans bloquer le boot.
   window.addEventListener('online', () => {
     utils.log(
       'Connexion rétablie, lancement de la synchronisation intelligente...',
     );
     setTimeout(() => smartSync(), CONFIG.RECONNECT_DELAY);
   });
-
-  // Synchronisation au démarrage de l'application (si connecté)
-  if (navigator.onLine) {
-    utils.log(
-      'Application en ligne, synchronisation intelligente programmée dans',
-      CONFIG.AUTO_SYNC_DELAY + 'ms...',
-    );
-    setTimeout(() => smartSync(), CONFIG.AUTO_SYNC_DELAY);
-  } else {
-    utils.log('Application hors ligne, synchronisation désactivée');
-  }
 }
 
 utils.log('Service activity-sync.ts chargé');
-initActivitySync();
 
 export function isSyncInProgress(): boolean {
   return syncInProgress.value;

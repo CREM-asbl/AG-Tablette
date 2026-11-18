@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // S'assurer que le module n'est pas mocké par d'autres tests
 vi.unmock('../../../src/controllers/Core/App');
 
-const { mockAppActions } = vi.hoisted(() => ({
+const { mockAppActions, mockEnvironmentConfig } = vi.hoisted(() => ({
   mockAppActions: {
     setActiveTool: vi.fn(),
     setCurrentStep: vi.fn(),
@@ -18,6 +18,9 @@ const { mockAppActions } = vi.hoisted(() => ({
     setLoading: vi.fn(),
     setStarted: vi.fn(),
     setStepSinceSave: vi.fn(),
+  },
+  mockEnvironmentConfig: {
+    get: vi.fn(() => null),
   }
 }));
 
@@ -37,6 +40,7 @@ vi.mock('../../../src/store/appState', () => ({
   workspaceData: { get: vi.fn(() => ({})) },
   nextGroupColorIdx: { get: vi.fn(() => 0) },
   bugs: { get: vi.fn(() => []) },
+  environmentConfig: mockEnvironmentConfig,
   appActions: mockAppActions,
 }));
 
@@ -54,6 +58,7 @@ vi.mock('../../../src/store/kit', () => ({
 describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockEnvironmentConfig.get.mockReturnValue(null);
   });
 
   it('initializes with default values', () => {
@@ -71,5 +76,19 @@ describe('App', () => {
     expect(resetToolsVisibility).toHaveBeenCalled();
     expect(resetKitVisibility).toHaveBeenCalled();
     expect(mockAppActions.updateSettings).toHaveBeenCalledWith(app.defaultState.settings);
+  });
+
+  it('resetSettings keeps the environment settings on top of the defaults', async () => {
+    mockEnvironmentConfig.get.mockReturnValue({
+      name: 'Tangram',
+      settings: { areShapesPointed: false },
+    });
+
+    app.resetSettings();
+
+    expect(mockAppActions.updateSettings).toHaveBeenCalledWith({
+      ...app.defaultState.settings,
+      areShapesPointed: false,
+    });
   });
 });

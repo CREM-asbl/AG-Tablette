@@ -107,7 +107,7 @@ else {
   Write-Host "  1. powershell scripts/sync-firebase-rules.ps1 -Backup" -ForegroundColor Gray
   Write-Host "  2. Vérifier les règles dans Firebase Console" -ForegroundColor Gray
   Write-Host "  3. Si différences : décider quelle version garder" -ForegroundColor Gray
-  Write-Host "  4. npm run deploy:rules`n" -ForegroundColor Gray
+  Write-Host "  4. pnpm run deploy:rules`n" -ForegroundColor Gray
 
   Write-Host "Si quelqu'un a modifié les règles dans la console :" -ForegroundColor White
   Write-Host "  1. Copier les règles depuis la console" -ForegroundColor Gray

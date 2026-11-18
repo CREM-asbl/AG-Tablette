@@ -4,6 +4,7 @@ import {
   appActions,
   currentEnvironment,
   currentStep,
+  environmentConfig,
   filename,
   fullHistoryState,
   historyState,
@@ -226,7 +227,13 @@ export class App {
   resetSettings() {
     resetToolsVisibility();
     resetKitVisibility();
-    appActions.updateSettings(app.defaultState.settings);
+    // Les réglages imposés par l'environnement (ex: areShapesPointed en Tangram)
+    // doivent primer sur les valeurs par défaut de l'application.
+    const environmentSettings = environmentConfig.get()?.settings ?? {};
+    appActions.updateSettings({
+      ...app.defaultState.settings,
+      ...environmentSettings,
+    });
   }
 }
 

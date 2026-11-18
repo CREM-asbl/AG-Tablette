@@ -72,7 +72,7 @@ git push origin fix/sync-firebase-rules-from-console
 
 ### 3️⃣ Checklist avant déploiement
 
-**⚠️ TOUJOURS exécuter avant `npm run deploy:rules` :**
+**⚠️ TOUJOURS exécuter avant `pnpm run deploy:rules` :**
 
 - [ ] Exécuter `powershell scripts/sync-firebase-rules.ps1 -Backup`
 - [ ] Ouvrir Firebase Console et vérifier visuellement les règles
@@ -80,7 +80,7 @@ git push origin fix/sync-firebase-rules-from-console
   - [ ] Récupérer les règles de la console
   - [ ] Créer une branche + commit + PR pour traçabilité
   - [ ] Faire valider les changements par l'équipe
-- [ ] Sinon, déployer : `npm run deploy:rules`
+- [ ] Sinon, déployer : `pnpm run deploy:rules`
 - [ ] Vérifier dans Console que le déploiement a réussi
 
 ### 4️⃣ Politique stricte de gouvernance
@@ -189,7 +189,7 @@ firebase setup:emulators:firestore
 firebase emulators:start
 
 # Dans un autre terminal, lancer l'app en mode dev
-npm run dev
+pnpm run dev
 ```
 
 L'app utilisera automatiquement l'émulateur local au lieu de la production.

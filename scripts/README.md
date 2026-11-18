@@ -59,7 +59,7 @@ Ce dossier contient les scripts PowerShell pour gérer la gouvernance des règle
 .\scripts\sync-firebase-rules.ps1 -Compare
 
 # 3. Déployer
-npm run deploy:rules
+pnpm run deploy:rules
 
 # 4. Vérifier dans Firebase Console
 ```
@@ -141,7 +141,7 @@ Avant tout déploiement de règles, vérifier :
 **Solution** :
 1. Déterminer quelle version est correcte (console ou locale)
 2. Si console correcte : Suivre Scénario 2 (synchronisation)
-3. Si locale correcte : Déployer avec `npm run deploy:rules`
+3. Si locale correcte : Déployer avec `pnpm run deploy:rules`
 
 ### "Je ne sais pas quelle version garder"
 

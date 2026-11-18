@@ -1,5 +1,5 @@
 import { SignalWatcher } from '@lit-labs/signals';
-import { cachedFiles, selectedSequence, toggleSequence } from '@store/notions';
+import { cachedFiles, selectedModule, toggleModule } from '@store/notions';
 import { LitElement, css, html } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import './file-elem';
@@ -88,7 +88,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
     // Toujours vérifier le cache au démarrage, même si le composant n'est pas ouvert
     this.checkCache();
 
-    if (selectedSequence.get() === this.title) {
+    if (selectedModule.get() === this.title) {
       this.loadFiles();
       this.scrollIntoViewIfNeeded();
     }
@@ -102,7 +102,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
 
   // Méthode pour faire défiler vers cet élément s'il est ouvert
   scrollIntoViewIfNeeded() {
-    if (selectedSequence.get() === this.title) {
+    if (selectedModule.get() === this.title) {
       setTimeout(() => {
         this.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
@@ -128,7 +128,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
   }
 
   render() {
-    const isSelected = selectedSequence.get() === this.title;
+    const isSelected = selectedModule.get() === this.title;
 
     return html`
       <details name="summary" ?open=${isSelected}>
@@ -159,14 +159,14 @@ class ModuleElem extends SignalWatcher(LitElement) {
     // Empêcher le comportement par défaut pour gérer manuellement l'état
     e.preventDefault();
 
-    const isSelected = selectedSequence.get() === this.title;
+    const isSelected = selectedModule.get() === this.title;
     const willOpen = !isSelected;
 
     if (willOpen) {
       this.loadFiles();
       this.scrollIntoViewIfNeeded();
     }
-    toggleSequence(this.title);
+    toggleModule(this.title);
   }
 
   async loadFiles() {
@@ -228,7 +228,7 @@ class ModuleElem extends SignalWatcher(LitElement) {
   }
 
   updated() {
-    const isSelected = selectedSequence.get() === this.title;
+    const isSelected = selectedModule.get() === this.title;
 
     if (isSelected) {
       this.scrollIntoViewIfNeeded();

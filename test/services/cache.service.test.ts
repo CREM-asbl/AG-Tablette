@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CacheClearError, CacheError, CacheService, CacheUnavailableError } from '../../src/services/cache.service';
+import { DB_VERSION } from '../../src/utils/indexeddb-activities';
 
 // Mock d'IndexedDB pour les tests
 const mockIndexedDB = {
@@ -188,7 +189,7 @@ describe('CacheService', () => {
       expect(stats.disponible).toBe(true);
       expect(stats.nombreElements).toBe(10);
       expect(stats.nomDB).toBe('agTabletteDB');
-      expect(stats.version).toBe(1);
+      expect(stats.version).toBe(DB_VERSION);
       expect(stats.derniereVerification).toBeInstanceOf(Date);
     });
 
