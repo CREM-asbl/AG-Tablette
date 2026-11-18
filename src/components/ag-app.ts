@@ -4,7 +4,7 @@ import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../layouts/ag-main';
 import { initBugReporting } from '../services/bug-report.service';
 import { appActions, appLoading, currentEnvironment } from '../store/appState';
-import { toggleModule, toggleTheme } from '../store/notions';
+import { selectedModule, selectedTheme } from '@store/notions';
 import './ag-environnements';
 import './tool-ui-container';
 
@@ -77,6 +77,16 @@ export class App extends SignalWatcher(LitElement) {
   }
 
   async parseURL() {
+    const globalWindow = window as Window & { __agOpenHandled?: boolean };
+    if (globalWindow.__agOpenHandled) return;
+    globalWindow.__agOpenHandled = true;
+
+    const notify = (message: string) => {
+      window.dispatchEvent(
+        new CustomEvent('show-notif', { detail: { message } }),
+      );
+    };
+
     const parsedUrl = new URL(window.location.href);
     const part = parsedUrl.searchParams.get('interface');
 
@@ -92,25 +102,53 @@ export class App extends SignalWatcher(LitElement) {
         const { resolveBySiteSlug } = await import('../services/site-slug-resolver');
         const result = await resolveBySiteSlug(slug);
         if (!result) {
-          window.dispatchEvent(
-            new CustomEvent('show-notif', {
-              detail: { message: 'Lien inconnu — https://ag.crem.be' },
-            }),
-          );
+          notify('Lien inconnu — https://ag.crem.be');
           return;
         }
-        if (result.kind === 'file' && result.fileId) {
-          const module = await import('../firebase/firebase-init');
-          await module.openFileFromServer(result.fileId);
+        if (result.kind === 'file') {
+          if (!result.fileId) {
+            notify('Lien inconnu — https://ag.crem.be');
+            return;
+          }
+          try {
+            const { openFileFromServer } = await import('@db/firebase-init');
+            await openFileFromServer(result.fileId);
+          } catch (error) {
+            notify(
+              `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
+            );
+          }
         } else if (result.kind === 'module') {
-          if (result.themeId) toggleTheme(result.themeId);
-          if (result.moduleId) toggleModule(result.moduleId);
+          if (result.themeId && selectedTheme.get() !== result.themeId) {
+            selectedTheme.set(result.themeId);
+          }
+          if (result.moduleId && selectedModule.get() !== result.moduleId) {
+            selectedModule.set(result.moduleId);
+          }
+          try {
+            const firebase = await import('@db/firebase-init');
+            if (result.moduleId) {
+              const files = await firebase.getFilesDocFromModule(
+                firebase.getModuleDocFromModuleName(result.moduleId),
+              );
+              const environment = files?.find(
+                (file: any) => file?.environment,
+              )?.environment;
+              if (environment) {
+                await loadEnvironnement(environment);
+              } else {
+                notify('Module ouvert — environnement introuvable');
+              }
+            }
+          } catch (error) {
+            notify(
+              `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
+            );
+          }
         }
       } catch (error) {
-        window.dispatchEvent(
-          new CustomEvent('show-notif', {
-            detail: { message: `Erreur lors du chargement: ${(error as Error)?.message ?? error}` },
-          }),
+        notify(
+          `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
         );
       }
       return;
@@ -118,9 +156,14 @@ export class App extends SignalWatcher(LitElement) {
 
     const activityName = parsedUrl.searchParams.get('activityName');
     if (activityName) {
-      import('../firebase/firebase-init').then((module) => {
-        module.openFileFromServer(activityName);
-      });
+      try {
+        const { openFileFromServer } = await import('@db/firebase-init');
+        await openFileFromServer(activityName);
+      } catch (error) {
+        notify(
+          `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
+        );
+      }
     }
   }
 

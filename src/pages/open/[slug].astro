@@ -18,10 +18,5 @@ const slug = Astro.params.slug;
   </head>
   <body>
     <App client:only="lit" />
-
-    <script>
-      import { runOpenPage } from '@services/open-page';
-      runOpenPage(null);
-    </script>
   </body>
 </html>
