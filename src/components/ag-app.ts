@@ -2,7 +2,14 @@ import { SignalWatcher } from '@lit-labs/signals';
 import { css, html, LitElement } from 'lit';
 import { loadEnvironnement } from '../controllers/Core/Environment';
 import '../layouts/ag-main';
+import '../components/popups/notification';
 import { initBugReporting } from '../services/bug-report.service';
+import {
+  consumePendingOpenNotice,
+  isIndexPath,
+  redirectToIndexWithNotice,
+  UNKNOWN_LINK_MESSAGE,
+} from '../services/open-redirect';
 import { appActions, appLoading, currentEnvironment } from '../store/appState';
 import { selectedModule, selectedTheme } from '@store/notions';
 import './ag-environnements';
@@ -88,6 +95,15 @@ export class App extends SignalWatcher(LitElement) {
     };
 
     const parsedUrl = new URL(window.location.href);
+
+    if (isIndexPath(parsedUrl.pathname)) {
+      const pending = consumePendingOpenNotice();
+      if (pending) {
+        appActions.addNotification({ message: pending, type: 'error' });
+        window.setTimeout(() => notify(pending), 500);
+      }
+    }
+
     const part = parsedUrl.searchParams.get('interface');
 
     if (['Grandeurs', 'Tangram', 'Cubes', 'Geometrie'].includes(part)) {
@@ -102,21 +118,20 @@ export class App extends SignalWatcher(LitElement) {
         const { resolveBySiteSlug } = await import('../services/site-slug-resolver');
         const result = await resolveBySiteSlug(slug);
         if (!result) {
-          notify('Lien inconnu — https://ag.crem.be');
+          redirectToIndexWithNotice(UNKNOWN_LINK_MESSAGE);
           return;
         }
         if (result.kind === 'file') {
           if (!result.fileId) {
-            notify('Lien inconnu — https://ag.crem.be');
+            redirectToIndexWithNotice(UNKNOWN_LINK_MESSAGE);
             return;
           }
           try {
             const { openFileFromServer } = await import('@db/firebase-init');
             await openFileFromServer(result.fileId);
           } catch (error) {
-            notify(
-              `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
-            );
+            const message = `Erreur lors du chargement: ${(error as Error)?.message ?? error}`;
+            redirectToIndexWithNotice(message);
           }
         } else if (result.kind === 'module') {
           if (result.themeId && selectedTheme.get() !== result.themeId) {
@@ -137,19 +152,18 @@ export class App extends SignalWatcher(LitElement) {
               if (environment) {
                 await loadEnvironnement(environment);
               } else {
-                notify('Module ouvert — environnement introuvable');
+                const message = 'Module ouvert — environnement introuvable';
+                redirectToIndexWithNotice(message);
               }
             }
           } catch (error) {
-            notify(
-              `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
-            );
+            const message = `Erreur lors du chargement: ${(error as Error)?.message ?? error}`;
+            redirectToIndexWithNotice(message);
           }
         }
       } catch (error) {
-        notify(
-          `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
-        );
+        const message = `Erreur lors du chargement: ${(error as Error)?.message ?? error}`;
+        redirectToIndexWithNotice(message);
       }
       return;
     }
@@ -160,9 +174,8 @@ export class App extends SignalWatcher(LitElement) {
         const { openFileFromServer } = await import('@db/firebase-init');
         await openFileFromServer(activityName);
       } catch (error) {
-        notify(
-          `Erreur lors du chargement: ${(error as Error)?.message ?? error}`,
-        );
+        const message = `Erreur lors du chargement: ${(error as Error)?.message ?? error}`;
+        redirectToIndexWithNotice(message);
       }
     }
   }
@@ -174,7 +187,8 @@ export class App extends SignalWatcher(LitElement) {
     if (environmentSelected) {
       return html`<ag-main></ag-main>`;
     } else if (!isLoading) {
-      return html`<ag-environnements></ag-environnements>`;
+      return html`<ag-environnements></ag-environnements>
+        <notif-center></notif-center>`;
     }
     if (isLoading) {
       import('./loading-elem');
