@@ -41,3 +41,34 @@ export function redirectToIndexWithNotice(message: string): void {
   setPendingOpenNotice(message);
   window.location.replace('/index.html');
 }
+
+/**
+ * Construit l'URL d'entrée unique (index) correspondant à un chemin /open/*.
+ * Centralise la conversion pour éviter la divergence dev/prod (page /open nue
+ * vs rewrite hosting vers /index.html).
+ */
+export function openPathToIndexUrl(
+  pathname: string,
+  search: string = '',
+): string {
+  const params = new URLSearchParams(search ?? '');
+  const parts = String(pathname ?? '').split('/').filter(Boolean);
+  let slug: string | null = null;
+  if (parts.length >= 2 && parts[0] === 'open') {
+    try {
+      slug = decodeURIComponent(parts[1]);
+    } catch {
+      slug = parts[1];
+    }
+  }
+  const ordered: string[] = [];
+  if (slug !== null) {
+    ordered.push(`slug=${encodeURIComponent(slug)}`);
+  }
+  params.forEach((value, key) => {
+    if (key === 'slug') return;
+    ordered.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+  });
+  const query = ordered.join('&');
+  return query ? `/?${query}` : '/';
+}

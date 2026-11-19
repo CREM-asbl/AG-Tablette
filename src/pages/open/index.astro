@@ -1,5 +1,4 @@
 ---
-import { App } from '@components/ag-app';
 ---
 
 <!doctype html>
@@ -8,8 +7,20 @@ import { App } from '@components/ag-app';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AG mobile - ouverture</title>
+    <meta http-equiv="refresh" content="0; url=/" />
+    <script is:inline>
+      (function () {
+        var m = window.location.pathname.match(/^\/open\/?$/);
+        var params = new URLSearchParams(window.location.search);
+        var slug = params.get('slug');
+        var t = slug ? '/?slug=' + encodeURIComponent(slug) : '/';
+        // Preserve any additional query params
+        params.delete('slug');
+        var rest = params.toString();
+        if (rest) t += (t.indexOf('?') >= 0 ? '&' : '?') + rest;
+        window.location.replace(t);
+      })();
+    </script>
   </head>
-  <body>
-    <App client:only="lit" />
-  </body>
+  <body></body>
 </html>

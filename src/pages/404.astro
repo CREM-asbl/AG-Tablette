@@ -8,6 +8,16 @@ import { App } from '@components/ag-app';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AG mobile</title>
+    <script is:inline>
+      (function () {
+        var m = window.location.pathname.match(/^\/open\/(.+?)\/?$/);
+        if (m) {
+          var slug = m[1];
+          try { slug = decodeURIComponent(slug); } catch (e) {}
+          window.location.replace('/?slug=' + encodeURIComponent(slug));
+        }
+      })();
+    </script>
   </head>
   <body>
     <App client:only="lit" />
