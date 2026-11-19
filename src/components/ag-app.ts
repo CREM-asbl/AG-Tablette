@@ -96,6 +96,16 @@ export class App extends SignalWatcher(LitElement) {
 
     const parsedUrl = new URL(window.location.href);
 
+    // Deep-link (site slug / activityName) : éviter le flash de l'écran d'accueil
+    // pendant la résolution asynchrone en affichant l'écran de chargement.
+    const hasDeepLinkOpen =
+      parsedUrl.searchParams.has('activityName') ||
+      parsedUrl.searchParams.has('slug') ||
+      /^\/open(\/|$)/.test(parsedUrl.pathname);
+    if (hasDeepLinkOpen) {
+      appActions.setLoading(true);
+    }
+
     if (isIndexPath(parsedUrl.pathname)) {
       const pending = consumePendingOpenNotice();
       if (pending) {
@@ -114,6 +124,7 @@ export class App extends SignalWatcher(LitElement) {
     const { parseSlug } = await import('../services/site-slug-resolver');
     const slug = parseSlug(parsedUrl.pathname, parsedUrl.search);
     if (slug) {
+      appActions.setLoading(true);
       try {
         const { resolveBySiteSlug } = await import('../services/site-slug-resolver');
         const result = await resolveBySiteSlug(slug);
@@ -170,6 +181,7 @@ export class App extends SignalWatcher(LitElement) {
 
     const activityName = parsedUrl.searchParams.get('activityName');
     if (activityName) {
+      appActions.setLoading(true);
       try {
         const { openFileFromServer } = await import('@db/firebase-init');
         await openFileFromServer(activityName);

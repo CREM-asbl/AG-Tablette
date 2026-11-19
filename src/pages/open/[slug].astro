@@ -1,5 +1,4 @@
 ---
-import { App } from '@components/ag-app';
 import { KNOWN_OPEN_SLUGS } from '@services/known-open-slugs';
 
 export function getStaticPaths() {
@@ -7,6 +6,9 @@ export function getStaticPaths() {
 }
 
 const slug = Astro.params.slug;
+const target = slug
+  ? `/?slug=${encodeURIComponent(slug)}`
+  : '/';
 ---
 
 <!doctype html>
@@ -15,8 +17,15 @@ const slug = Astro.params.slug;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AG mobile - ouverture</title>
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <script is:inline define:vars={{ target }}>
+      (function () {
+        var t = target || '/';
+        var qs = window.location.search ? window.location.search.replace(/^\?/, '') : '';
+        if (qs) t += (t.indexOf('?') >= 0 ? '&' : '?') + qs;
+        window.location.replace(t);
+      })();
+    </script>
   </head>
-  <body>
-    <App client:only="lit" />
-  </body>
+  <body></body>
 </html>

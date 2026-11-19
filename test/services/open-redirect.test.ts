@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   consumePendingOpenNotice,
   isIndexPath,
+  openPathToIndexUrl,
   OPEN_NOTICE_KEY,
   redirectToIndexWithNotice,
   setPendingOpenNotice,
@@ -52,5 +53,25 @@ describe('open-redirect', () => {
     });
     redirectToIndexWithNotice('Lien inconnu');
     expect(replace).not.toHaveBeenCalled();
+  });
+});
+
+describe('openPathToIndexUrl', () => {
+  it('convertit /open/<slug> en /?slug=<slug>', () => {
+    expect(openPathToIndexUrl('/open/mon-activite', '')).toBe('/?slug=mon-activite');
+  });
+
+  it('décode puis ré-encode le slug', () => {
+    expect(openPathToIndexUrl('/open/a%20b', '')).toBe('/?slug=a%20b');
+  });
+
+  it('préserve les query params existants', () => {
+    expect(openPathToIndexUrl('/open/slug', '?interface=Grandeurs')).toBe(
+      '/?slug=slug&interface=Grandeurs',
+    );
+  });
+
+  it('retourne / pour un chemin index', () => {
+    expect(openPathToIndexUrl('/', '')).toBe('/');
   });
 });
