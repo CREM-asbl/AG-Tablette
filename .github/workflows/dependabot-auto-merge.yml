@@ -1,5 +1,4 @@
 # Auto-merge pull requests opened by Dependabot once CI is green.
-# Repository: CREM-asbl/AG-Tablette only (workflow lives in this repository).
 name: Dependabot auto-merge
 
 on:
@@ -30,11 +29,23 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr checks "${{ github.event.pull_request.number }}" \
-            --repo "${{ github.repository }}" \
-            --watch \
-            --fail-fast
-
+          PR="${{ github.event.pull_request.number }}"
+          REPO="${{ github.repository }}"
+          for i in $(seq 1 120); do
+            json="$(gh pr checks "$PR" --repo "$REPO" --json name,state,bucket,workflow)"
+            ci_checks="$(echo "$json" | jq '[.[] | select((.workflow | test("auto-merge|dependabot"; "i")) | not)]')"
+            failed="$(echo "$ci_checks" | jq '[.[] | select(.bucket == "fail")] | length')"
+            pending="$(echo "$ci_checks" | jq '[.[] | select(.state == "PENDING" or .state == "IN_PROGRESS" or .state == "QUEUED" or .state == "STARTING")] | length')"
+            if [ "$failed" -gt 0 ]; then
+              echo "CI checks failed"
+              exit 1
+            fi
+            if [ "$pending" -eq 0 ]; then
+              echo "CI checks complete"
+              break
+            fi
+            sleep 10
+          done
       - name: Approve Dependabot PR
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,11 +54,10 @@ jobs:
             --repo "${{ github.repository }}" \
             --approve
 
-      - name: Enable auto-merge (squash)
+      - name: Merge (squash)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr merge "${{ github.event.pull_request.number }}" \
             --repo "${{ github.repository }}" \
-            --auto \
             --squash
