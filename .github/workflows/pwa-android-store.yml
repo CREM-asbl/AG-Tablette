@@ -115,7 +115,7 @@ jobs:
           bubblewrap play publish --manifest=./twa-manifest.json --serviceAccountFile=./play-service-account.json --track="${{ inputs.track }}" --appBundleLocation=./app-release-bundle.aab
 
       - name: Upload bundle artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-app-bundle
           path: ${{ env.TWA_DIR }}/app-release-bundle.aab
