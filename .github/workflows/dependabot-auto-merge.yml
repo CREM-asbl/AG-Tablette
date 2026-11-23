@@ -33,11 +33,18 @@ jobs:
         run: |
           PR="${{ github.event.pull_request.number }}"
           REPO="${{ github.repository }}"
+          SHA="$(gh pr view "$PR" --repo "$REPO" --json headRefOid -q .headRefOid)"
           for i in $(seq 1 120); do
-            json="$(gh pr checks "$PR" --repo "$REPO" --json name,state,bucket,workflow)"
-            ci_checks="$(echo "$json" | jq '[.[] | select((.workflow | test("auto-merge|dependabot"; "i")) | not)]')"
-            failed="$(echo "$ci_checks" | jq '[.[] | select(.bucket == "fail")] | length')"
-            pending="$(echo "$ci_checks" | jq '[.[] | select(.state == "PENDING" or .state == "IN_PROGRESS" or .state == "QUEUED" or .state == "STARTING")] | length')"
+            check_runs="$(gh api "repos/$REPO/commits/$SHA/check-runs" --paginate 2>/dev/null || echo '{"check_runs":[]}')"
+            statuses="$(gh api "repos/$REPO/commits/$SHA/status" 2>/dev/null || echo '{"statuses":[]}')"
+            failed="$(jq -n --argjson cr "$check_runs" --argjson st "$statuses" '
+              ([$cr.check_runs[]? | select((.name | test("auto-merge|dependabot|automerge"; "i")) | not) | select(.status=="completed" and (.conclusion=="failure" or .conclusion=="cancelled" or .conclusion=="timed_out" or .conclusion=="action_required"))] | length)
+              + ([$st.statuses[]? | select((.context | test("auto-merge|dependabot|automerge"; "i")) | not) | select(.state=="failure" or .state=="error")] | length)
+            ')"
+            pending="$(jq -n --argjson cr "$check_runs" --argjson st "$statuses" '
+              ([$cr.check_runs[]? | select((.name | test("auto-merge|dependabot|automerge"; "i")) | not) | select(.status!="completed")] | length)
+              + ([$st.statuses[]? | select((.context | test("auto-merge|dependabot|automerge"; "i")) | not) | select(.state=="pending")] | length)
+            ')"
             if [ "$failed" -gt 0 ]; then
               echo "CI checks failed"
               exit 1
