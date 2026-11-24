@@ -46,27 +46,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate Firestore Rules Syntax
-        run: |
-          if [ ! -f "firestore.rules" ]; then
-            echo "firestore.rules not found"
-            exit 1
-          fi
-          pnpm dlx firebase-tools deploy --only firestore:rules --dry-run --project apprenti-geometre || {
-            echo "Firestore rules validation failed"
-            exit 1
-          }
-
-      - name: Validate Storage Rules Syntax
-        run: |
-          if [ ! -f "storage.rules" ]; then
-            echo "storage.rules not found"
-            exit 1
-          fi
-          pnpm dlx firebase-tools deploy --only storage:rules --dry-run --project apprenti-geometre || {
-            echo "Storage rules validation failed"
-            exit 1
-          }
+      - name: Validate Firestore and Storage rules (single dry-run)
+        run: pnpm exec firebase deploy --only firestore:rules,storage:rules --dry-run --project apprenti-geometre
 
       - name: Check Rules Best Practices
         run: |

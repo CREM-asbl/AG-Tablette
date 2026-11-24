@@ -40,6 +40,7 @@ jobs:
         with:
           distribution: temurin
           java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
 
       - name: Install Bubblewrap
         run: pnpm add -g @bubblewrap/cli
@@ -120,6 +121,7 @@ jobs:
           name: android-app-bundle
           path: ${{ env.TWA_DIR }}/app-release-bundle.aab
           if-no-files-found: error
+          retention-days: 1
 
       - name: Cleanup Google Play credentials
         if: always()
